@@ -19,12 +19,12 @@ package androidx.navigation.serialization
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.common.test.R
 import androidx.navigation.navArgument
+import androidx.savedstate.savedState
 import com.google.common.truth.Truth.assertThat
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -492,9 +492,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         navArgs: List<NamedNavArgument> = emptyList(),
     ): T {
         val typeMap = mutableMapOf<String, NavType<Any?>>()
-        val finalBundle =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf()
+        val finalBundle = savedState()
         navArgs.forEach {
             val navType = it.argument.type
             typeMap[it.name] = navType

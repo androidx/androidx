@@ -35,7 +35,7 @@ import org.junit.rules.TestName
 
 class LayoutTest : LayoutTestPlayer() {
     val GENERATE_GOLD_FILES: Boolean = false
-    var platform: Platform = Platform.None
+    var platform: RcPlatformServices = RcPlatformServices.None
 
     @Rule @JvmField var name = TestName()
 
@@ -115,7 +115,7 @@ class LayoutTest : LayoutTestPlayer() {
                 TestComponentVisibility(2, Component.Visibility.VISIBLE),
                 CaptureComponentTree(),
             )
-        checkLayout(1000, 1000, 7, Profiles.PROFILE_ANDROIDX, "Layout", ops)
+        checkLayout(1000, 1000, 7, RcProfiles.PROFILE_ANDROIDX, "Layout", ops)
     }
 
     @Test
@@ -139,7 +139,7 @@ class LayoutTest : LayoutTestPlayer() {
             1000,
             1000,
             7,
-            Profiles.PROFILE_ANDROIDX or Profiles.PROFILE_EXPERIMENTAL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             "Layout",
             ops,
         )
@@ -166,7 +166,7 @@ class LayoutTest : LayoutTestPlayer() {
             1000,
             1000,
             7,
-            Profiles.PROFILE_ANDROIDX or Profiles.PROFILE_EXPERIMENTAL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             "Layout",
             ops,
         )
@@ -197,7 +197,7 @@ class LayoutTest : LayoutTestPlayer() {
             1000,
             1000,
             7,
-            Profiles.PROFILE_ANDROIDX or Profiles.PROFILE_EXPERIMENTAL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             "Layout",
             ops,
         )

@@ -44,10 +44,12 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.abs
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberRemoteDpValue
 import androidx.compose.remote.creation.compose.state.rememberRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberRemoteFloatValue
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.toPx
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -204,13 +206,13 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
 fun ScrollViewDemo() {
     val numElements = 12
     val scrollState = rememberRemoteScrollState(evenNotches = numElements)
-    val dimensionCard = 280
+    val dimensionCard = 280.rdp
     RemoteBox(
         modifier = RemoteModifier,
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End,
     ) {
-        val height = rememberRemoteFloat { dimensionCard.rf.dp }
+        val height = rememberRemoteFloat { dimensionCard.toPx() }
         val h2 = rememberRemoteDpValue { 280.dp }
         RemoteColumn(
             modifier =

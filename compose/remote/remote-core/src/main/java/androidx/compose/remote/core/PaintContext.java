@@ -287,7 +287,7 @@ public abstract class PaintContext {
      *
      * @return an instance of a ComputedTextLayout (typically if complex text drawing is used)
      */
-    public abstract Platform.@Nullable ComputedTextLayout layoutComplexText(
+    public abstract RcPlatformServices.@Nullable ComputedTextLayout layoutComplexText(
             int textId,
             int start,
             int end,
@@ -324,7 +324,8 @@ public abstract class PaintContext {
      *
      * @param computedTextLayout pre-computed text layout
      */
-    public abstract void drawComplexText(Platform.@Nullable ComputedTextLayout computedTextLayout);
+    public abstract void drawComplexText(
+            RcPlatformServices.@Nullable ComputedTextLayout computedTextLayout);
 
     /**
      * Draw an interpolation between two paths

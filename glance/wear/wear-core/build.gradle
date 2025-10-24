@@ -26,20 +26,24 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.squareup.wire")
     id("androidx.stableaidl")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.9.1")
+    api(libs.kotlinCoroutinesAndroid)
 
+    implementation(libs.guavaListenableFuture)
     implementation(libs.jspecify)
+    implementation(libs.kotlinCoroutinesGuava)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 wire {
@@ -60,7 +64,7 @@ android {
     }
     buildTypes.all {
         stableAidl {
-            version 1
+            version = 1
         }
     }
 }

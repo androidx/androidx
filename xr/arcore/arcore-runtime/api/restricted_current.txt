@@ -153,14 +153,12 @@ package androidx.xr.arcore.runtime {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Eye {
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCoarsePose();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.EyeStatus? getCoarseStatus();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getFinePose();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.EyeStatus? getFineStatus();
-    property public abstract androidx.xr.runtime.math.Pose? coarsePose;
-    property public abstract androidx.xr.arcore.runtime.EyeStatus? coarseStatus;
-    property public abstract androidx.xr.runtime.math.Pose? finePose;
-    property public abstract androidx.xr.arcore.runtime.EyeStatus? fineStatus;
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    property public abstract boolean isOpen;
+    property public abstract androidx.xr.runtime.math.Pose pose;
+    property public abstract androidx.xr.runtime.TrackingState trackingState;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EyeStatus {
@@ -177,15 +175,23 @@ package androidx.xr.arcore.runtime {
     property public androidx.xr.arcore.runtime.EyeStatus SHUT;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Face {
-    method @InaccessibleFromKotlin public float[] getBlendShapeValues();
-    method @InaccessibleFromKotlin public float[] getConfidenceValues();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Face extends androidx.xr.arcore.runtime.Trackable {
+    method @InaccessibleFromKotlin public float[]? getBlendShapeValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCenterPose();
+    method @InaccessibleFromKotlin public float[]? getConfidenceValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getForeheadLeftPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getForeheadRightPose();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Mesh? getMesh();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getNoseTipPose();
     method @InaccessibleFromKotlin public boolean isValid();
-    property public abstract float[] blendShapeValues;
-    property public abstract float[] confidenceValues;
+    property public abstract float[]? blendShapeValues;
+    property public abstract androidx.xr.runtime.math.Pose? centerPose;
+    property public abstract float[]? confidenceValues;
+    property public abstract androidx.xr.runtime.math.Pose? foreheadLeftPose;
+    property public abstract androidx.xr.runtime.math.Pose? foreheadRightPose;
     property public abstract boolean isValid;
-    property public abstract androidx.xr.runtime.TrackingState trackingState;
+    property public abstract androidx.xr.arcore.runtime.Mesh? mesh;
+    property public abstract androidx.xr.runtime.math.Pose? noseTipPose;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class GeospatialPoseException extends java.lang.Exception {
@@ -251,6 +257,18 @@ package androidx.xr.arcore.runtime {
     property public float distance;
     property public androidx.xr.runtime.math.Pose hitPose;
     property public androidx.xr.arcore.runtime.Trackable trackable;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Mesh {
+    ctor public Mesh(java.nio.ShortBuffer? triangleIndices, java.nio.FloatBuffer? vertices, java.nio.FloatBuffer? normals, java.nio.FloatBuffer? textureCoordinates);
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getNormals();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getTextureCoordinates();
+    method @InaccessibleFromKotlin public java.nio.ShortBuffer? getTriangleIndices();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getVertices();
+    property public java.nio.FloatBuffer? normals;
+    property public java.nio.FloatBuffer? textureCoordinates;
+    property public java.nio.ShortBuffer? triangleIndices;
+    property public java.nio.FloatBuffer? vertices;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionManager {

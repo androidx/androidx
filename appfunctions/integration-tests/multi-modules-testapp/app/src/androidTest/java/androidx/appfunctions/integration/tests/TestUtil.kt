@@ -20,6 +20,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -47,6 +48,24 @@ internal object TestUtil {
             }
         }
         throw lastError!!
+    }
+
+    fun Context.assertPersistedGranted(uri: Uri) {
+        val contentResolver = getContentResolver()
+        val targetPersistedUri =
+            contentResolver.persistedUriPermissions.singleOrNull { uriPermission ->
+                uriPermission.uri == uri
+            }
+        assertThat(targetPersistedUri).isNotNull()
+    }
+
+    fun Context.assertNotPersistedGranted(uri: Uri) {
+        val contentResolver = getContentResolver()
+        val targetPersistedUri =
+            contentResolver.persistedUriPermissions.singleOrNull { uriPermission ->
+                uriPermission.uri == uri
+            }
+        assertThat(targetPersistedUri).isNull()
     }
 
     /** Asserts that the [Context] having read access to [uri]. */

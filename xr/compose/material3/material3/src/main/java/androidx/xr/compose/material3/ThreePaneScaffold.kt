@@ -27,13 +27,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.XrThreePaneScaffoldOverride.ThreePaneScaffold
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.SpatialLayoutSpacer
+import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.SpatialRowScope
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.width
 
 /**
  * A pane scaffold composable that can display up to three panes in the order that
@@ -72,24 +73,23 @@ public fun ThreePaneScaffold(
                     // XR-overrides ThreePaneScaffold are not clickable when composed from within
                     // the XR-overrides NavigationSuiteScaffold.
                     .offset(z = 1.dp)
-                    .height(XrThreePaneScaffoldTokens.PanelHeight)
+                    .fillMaxSize(),
+            horizontalArrangement =
+                SpatialArrangement.spacedBy(scaffoldDirective.horizontalPartitionSpacerSize),
         ) {
-            var drawSpacer = false // Only draws spacers after the first pane is drawn
             paneOrder.each { role ->
                 when (role) {
                     ThreePaneScaffoldRole.Primary -> {
-                        Panel(scaffoldDirective, drawSpacer, primaryPane)
-                        drawSpacer = true
+                        Panel(XrThreePaneScaffoldTokens.PRIMARY_PANE_WEIGHT, primaryPane)
                     }
                     ThreePaneScaffoldRole.Secondary -> {
-                        Panel(scaffoldDirective, drawSpacer, secondaryPane)
-                        drawSpacer = true
+                        Panel(XrThreePaneScaffoldTokens.SECONDARY_PANE_WEIGHT, secondaryPane)
                     }
-                    ThreePaneScaffoldRole.Tertiary ->
+                    ThreePaneScaffoldRole.Tertiary -> {
                         if (tertiaryPane != null) {
-                            Panel(scaffoldDirective, drawSpacer, tertiaryPane)
-                            drawSpacer = true
+                            Panel(XrThreePaneScaffoldTokens.TERTIARY_PANE_WEIGHT, tertiaryPane)
                         }
+                    }
                 }
             }
         }
@@ -99,22 +99,17 @@ public fun ThreePaneScaffold(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 @SubspaceComposable
-private fun Panel(
-    scaffoldDirective: PaneScaffoldDirective,
-    drawSpacer: Boolean,
+private fun SpatialRowScope.Panel(
+    weight: Float,
     content: @Composable @SubspaceComposable () -> Unit,
 ) {
-    if (drawSpacer) {
-        SpatialLayoutSpacer(SubspaceModifier.width(scaffoldDirective.horizontalPartitionSpacerSize))
-    }
-
-    content()
+    SpatialBox(SubspaceModifier.weight(weight)) { content() }
 }
 
 /**
  * [ThreePaneScaffoldOverride] that uses the XR-specific [ThreePaneScaffold].
  *
- * Note that when using this override, any madifiers passed in to the 2D composable are ignored.
+ * Note that when using this override, any modifiers passed in to the 2D composable are ignored.
  */
 @ExperimentalMaterial3XrApi
 @OptIn(
@@ -137,10 +132,9 @@ internal object XrThreePaneScaffoldOverride : ThreePaneScaffoldOverride {
 
 // TODO(conradchen): Confirm the values with design
 internal object XrThreePaneScaffoldTokens {
-    val PanelHeight = 1024.dp
-    val PrimaryPanePanelWidth = 800.dp
-    val SecondaryPanePanelWidth = 412.dp
-    val TertiaryPanePanelWidth = 412.dp
+    const val PRIMARY_PANE_WEIGHT = 1f
+    const val SECONDARY_PANE_WEIGHT = 0.5f
+    const val TERTIARY_PANE_WEIGHT = 0.5f
 }
 
 @ExperimentalMaterial3AdaptiveApi

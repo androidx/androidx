@@ -26,14 +26,14 @@ import android.graphics.Path;
 import android.graphics.Typeface;
 import android.util.Log;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.creation.Painter;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -49,7 +49,7 @@ import java.io.File;
 @RunWith(JUnit4.class)
 public class DrawCmdTextTest {
 
-    private final Platform mPlatform = new AndroidxPlatformServices();
+    private final RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
     private final boolean mSaveImages = false;
 
     // ########################### TEST UTILS ######################################
@@ -58,7 +58,7 @@ public class DrawCmdTextTest {
         void run(RemoteComposeContextAndroid foo);
     }
 
-    private RemoteComposeDocument createDocument(RemoteContext context, final Callback cb) {
+    private RemoteDocument createDocument(RemoteContext context, final Callback cb) {
 
         RemoteComposeContextAndroid doc =
                 new RemoteComposeContextAndroid(
@@ -77,8 +77,8 @@ public class DrawCmdTextTest {
         byte[] buffer = doc.buffer();
         int bufferSize = doc.bufferSize();
         System.out.println("size of doc " + bufferSize / 1024 + "KB");
-        RemoteComposeDocument recreatedDocument =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         recreatedDocument.initializeContext(context);
         return recreatedDocument;
     }
@@ -89,7 +89,7 @@ public class DrawCmdTextTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -101,7 +101,7 @@ public class DrawCmdTextTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return doc.toString();
@@ -131,7 +131,7 @@ public class DrawCmdTextTest {
                     rdoc.drawPath(v);
                 };
         Callback use = cb == null ? basic : cb;
-        RemoteComposeDocument doc = createDocument(debugContext, use);
+        RemoteDocument doc = createDocument(debugContext, use);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         String result = debugContext.getTestResults();
@@ -225,7 +225,7 @@ public class DrawCmdTextTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -291,7 +291,7 @@ public class DrawCmdTextTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -365,7 +365,7 @@ public class DrawCmdTextTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -439,7 +439,7 @@ public class DrawCmdTextTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -512,7 +512,7 @@ public class DrawCmdTextTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -589,7 +589,7 @@ public class DrawCmdTextTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -678,7 +678,7 @@ public class DrawCmdTextTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 

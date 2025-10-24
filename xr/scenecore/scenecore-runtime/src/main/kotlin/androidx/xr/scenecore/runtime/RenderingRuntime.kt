@@ -66,6 +66,13 @@ public interface RenderingRuntime : JxrRuntime {
     ): ListenableFuture<GltfModelResource>
 
     /**
+     * Destroys the given glTF model resource.
+     *
+     * @param gltfModel The glTF model resource to destroy.
+     */
+    public fun destroyGltfModel(gltfModel: GltfModelResource)
+
+    /**
      * Loads an ExrImage for the given asset name from the assets folder.
      *
      * @param assetName The name of the asset to load from the assets folder.
@@ -89,6 +96,13 @@ public interface RenderingRuntime : JxrRuntime {
         assetData: ByteArray,
         assetKey: String,
     ): ListenableFuture<ExrImageResource>
+
+    /**
+     * Destroys the given EXR image resource.
+     *
+     * @param exrImage The EXR image resource to destroy.
+     */
+    public fun destroyExrImage(exrImage: ExrImageResource)
 
     /**
      * Loads a texture resource for the given asset name or URL. The future returned by this method

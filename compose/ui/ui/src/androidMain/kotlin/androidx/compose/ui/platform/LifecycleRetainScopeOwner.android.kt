@@ -19,19 +19,20 @@ package androidx.compose.ui.platform
 import androidx.collection.MutableObjectList
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.runtime.CancellationHandle
-import androidx.compose.runtime.retain.ControlledRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.ControlledRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.lifecycle.ViewModel
 import kotlin.coroutines.cancellation.CancellationException
 
-internal class LifecycleRetainScopeOwner : ViewModel() {
+internal class LifecycleRetainedValuesStoreOwner : ViewModel() {
 
-    private val scopes = mutableIntObjectMapOf<MutableObjectList<RetainScopeEntry>>()
+    private val scopes = mutableIntObjectMapOf<MutableObjectList<RetainedValuesStoreEntry>>()
 
-    fun getOrCreateRetainScopeEntry(viewId: Int): RetainScopeEntry {
+    fun getOrCreateRetainedValuesStoreEntry(viewId: Int): RetainedValuesStoreEntry {
         val entries = scopes.getOrPut(viewId) { MutableObjectList(initialCapacity = 1) }
         val entry =
-            entries.firstOrNull { !it.isInUse } ?: RetainScopeEntry().also { entries.add(it) }
+            entries.firstOrNull { !it.isInUse }
+                ?: RetainedValuesStoreEntry().also { entries.add(it) }
 
         entry.isInUse = true
         return entry
@@ -41,9 +42,9 @@ internal class LifecycleRetainScopeOwner : ViewModel() {
         scopes.forEach { _, value -> value.forEach { it.onCleared() } }
     }
 
-    class RetainScopeEntry {
-        private val controlledRetainScope = ControlledRetainScope()
-        val retainScope: RetainScope = controlledRetainScope
+    class RetainedValuesStoreEntry {
+        private val controlledRetainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore: RetainedValuesStore = controlledRetainedValuesStore
 
         var isInUse = false
 
@@ -53,27 +54,27 @@ internal class LifecycleRetainScopeOwner : ViewModel() {
                 field = value
             }
 
-        fun startKeepingExitedValues() {
-            if (!controlledRetainScope.isKeepingExitedValues) {
-                controlledRetainScope.startKeepingExitedValues()
+        fun startRetainingExitedValues() {
+            if (!controlledRetainedValuesStore.isRetainingExitedValues) {
+                controlledRetainedValuesStore.startRetainingExitedValues()
             } else {
                 endRetainCancellationHandle = null
             }
         }
 
-        fun stopKeepingExitedValues(frameEndScheduler: FrameEndScheduler) {
-            if (controlledRetainScope.isKeepingExitedValues) {
+        fun stopRetainingExitedValues(frameEndScheduler: FrameEndScheduler) {
+            if (controlledRetainedValuesStore.isRetainingExitedValues) {
                 endRetainCancellationHandle =
                     try {
                         frameEndScheduler.scheduleFrameEndCallback {
-                            controlledRetainScope.stopKeepingExitedValues()
+                            controlledRetainedValuesStore.stopRetainingExitedValues()
                         }
                     } catch (_: CancellationException) {
                         // The Recomposer is shutting down, and we can't schedule work for the next
-                        // frame. Stop keeping exited values now. This should only happen during
+                        // frame. Stop retaining exited values now. This should only happen during
                         // tests where the Recomposer is explicitly cancelled by the testing
                         // framework before this callback can be dispatched.
-                        controlledRetainScope.stopKeepingExitedValues()
+                        controlledRetainedValuesStore.stopRetainingExitedValues()
                         null
                     }
             }
@@ -81,8 +82,8 @@ internal class LifecycleRetainScopeOwner : ViewModel() {
 
         fun onCleared() {
             endRetainCancellationHandle = null
-            if (controlledRetainScope.isKeepingExitedValues) {
-                controlledRetainScope.stopKeepingExitedValues()
+            if (controlledRetainedValuesStore.isRetainingExitedValues) {
+                controlledRetainedValuesStore.stopRetainingExitedValues()
             }
         }
 

@@ -15,35 +15,14 @@
  */
 package androidx.paging.rxjava3
 
-import android.database.Cursor
-import androidx.paging.PagingState
-import androidx.room3.RoomDatabase
-import androidx.room3.RoomSQLiteQuery
-import androidx.room3.paging.CursorSQLiteStatement
-import androidx.sqlite.SQLiteStatement
+import androidx.paging.PagingSource
+import io.reactivex.rxjava3.core.Single
 
-@Suppress("UNUSED_PARAMETER")
-abstract class RxPagingSource<K : Any, T : Any>(
-    private val sourceQuery: RoomSQLiteQuery,
-    private val db: RoomDatabase,
-    vararg tables: String
-) : androidx.paging.PagingSource<K, T>() {
-    override fun getRefreshKey(state: PagingState<K, T>): K? {
-        return null
-    }
+abstract class RxPagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
 
-    override public suspend fun load(params: LoadParams<K>): LoadResult<K, T> {
-        return LoadResult.Invalid()
-    }
+    abstract fun loadSingle(params: LoadParams<Key>): Single<LoadResult<Key, Value>>
 
-    protected open fun convertRows(cursor: Cursor): List<T> {
-        return convertRows(CursorSQLiteStatement(cursor))
-    }
-
-    protected open fun convertRows(statement: SQLiteStatement): List<T> {
-        throw NotImplementedError(
-            "Unexpected call to a function with no implementation that Room is suppose to " +
-                "generate."
-        )
+    final override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
+        TODO()
     }
 }

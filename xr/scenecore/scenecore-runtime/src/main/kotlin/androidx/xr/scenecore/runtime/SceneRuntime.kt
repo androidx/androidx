@@ -85,6 +85,13 @@ public interface SceneRuntime : JxrRuntime {
     ): CameraViewScenePose?
 
     /**
+     * Returns an [ScenePose] based off of a position within the perception space.
+     *
+     * @param pose The pose with respect to the perception space [ActivitySpace].
+     */
+    public fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose
+
+    /**
      * A factory function to create a platform PanelEntity. The parent can be any entity.
      *
      * @param context Application Context.

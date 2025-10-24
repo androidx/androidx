@@ -113,17 +113,16 @@ information provided on Google Play.
 1.  Once an issue has been triaged by the assignee, its priority will be raised
     from **P4** according to severity.
 1.  The issue may still be reassigned at this point.
-    [Bug bounty](/docs/onboarding.md#bug-bounty) issues are
-    likely to change assignees.
+    [Bug bounty](/docs/internal_issue_workflow.md#bug-bounty)
+    issues are likely to change assignees.
 1.  A status of **Accepted** means the assignee is actively working on the
     issue.
 1.  A status of **Fixed** means that the issue has been resolved in the
-    development branch. Please note that it may take some time for the fix to
-    propagate into various release channels (internal repositories, Google
-    Maven, etc.). **Do not** re-open an issue because the fix has not yet
-    propagated into a specific release channel. **Do not** re-open an issue that
-    has been fixed unless the fix was reverted or the exact reported issue is
-    still occurring.
+    development branch. It may take some time for the fix to propagate into
+    various release channels (internal repositories, Google Maven, etc.). **Do
+    not** re-open an issue because the fix has not yet propagated into a
+    specific release channel. **Do not** re-open an issue that has been fixed
+    unless the fix was reverted or the exact reported issue is still occurring.
 1.  A status of **WontFix** means that the issue cannot be resolved within a
     year due to prioritization, staffing, etc. **Do not** re-open an issue that
     has been marked as WontFix or file identical issues. Issues that are open to

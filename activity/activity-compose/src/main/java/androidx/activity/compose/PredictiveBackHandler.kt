@@ -24,6 +24,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
@@ -125,7 +126,11 @@ public fun PredictiveBackHandler(
     }
 
     val scope = rememberCoroutineScope()
-    val handler = remember { ComposePredictiveBackHandler(scope) }
+    val compositeKey = currentCompositeKeyHashCode
+    val handler =
+        remember(owner, compositeKey) {
+            ComposePredictiveBackHandler(scope, PredictiveBackHandlerInfo(owner, compositeKey))
+        }
 
     if (ActivityFlags.isOnBackPressedLifecycleOrderMaintained) {
         // Keep the handler instance stable across recompositions, but update the active parameters.
@@ -133,12 +138,12 @@ public fun PredictiveBackHandler(
 
         // Use LifecycleStartEffect to add the handler in sync with the lifecycle,
         // avoiding the frame delay that happens with state-based APIs like collectAsState().
-        LifecycleStartEffect(enabled) {
+        LifecycleStartEffect(enabled, handler) {
             handler.currentEnabled = enabled
             onStopOrDispose { handler.currentEnabled = false }
         }
 
-        DisposableEffect(owner) {
+        DisposableEffect(owner, handler) {
             owner.navigationEventDispatcher.addHandler(handler)
             onDispose { handler.remove() }
         }
@@ -151,7 +156,7 @@ public fun PredictiveBackHandler(
 
         // Use LifecycleStartEffect to add the handler in sync with the lifecycle,
         // avoiding the frame delay that happens with state-based APIs like collectAsState().
-        LifecycleStartEffect(owner) {
+        LifecycleStartEffect(owner, handler) {
             owner.navigationEventDispatcher.addHandler(handler)
             onStopOrDispose { handler.remove() }
         }
@@ -169,11 +174,10 @@ public fun PredictiveBackHandler(
  * Internally we create a new [Channel] and [Job] per gesture. Closing/cancelling them signals
  * completion/cancellation to the collector.
  */
-private class ComposePredictiveBackHandler(val scope: CoroutineScope) :
-    NavigationEventHandler<NavigationEventInfo>(
-        initialInfo = NavigationEventInfo.None,
-        isBackEnabled = false,
-    ) {
+private class ComposePredictiveBackHandler(
+    val scope: CoroutineScope,
+    info: PredictiveBackHandlerInfo,
+) : NavigationEventHandler<NavigationEventInfo>(initialInfo = info, isBackEnabled = false) {
 
     /** Latest `onBack` implementation to run for the next gesture. */
     var currentOnBack: suspend (progress: Flow<BackEventCompat>) -> Unit = {}
@@ -256,3 +260,8 @@ private class ComposePredictiveBackHandler(val scope: CoroutineScope) :
         isPredictiveBack = false
     }
 }
+
+private data class PredictiveBackHandlerInfo(
+    val owner: NavigationEventDispatcherOwner,
+    val compositeKey: Long,
+) : NavigationEventInfo()

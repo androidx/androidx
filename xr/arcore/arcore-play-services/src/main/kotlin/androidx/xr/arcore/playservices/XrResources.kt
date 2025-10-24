@@ -38,6 +38,7 @@ internal class XrResources() {
     internal val trackables: Map<ArCoreTrackable, Trackable> = _trackables
     internal val earth: ArCoreEarth = ArCoreEarth(this)
     internal val arDevice: ArCoreDevice = ArCoreDevice()
+    internal val depthMap: ArCoreDepthMap = ArCoreDepthMap()
 
     /**
      * Adds a [androidx.xr.arcore.runtime.Trackable] to the map.

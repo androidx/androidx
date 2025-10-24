@@ -22,6 +22,7 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Component
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.InputEventListener
+import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpaceValue
 import java.util.Collections
 import java.util.concurrent.Executor
@@ -95,6 +96,15 @@ public open class FakeEntity() : FakeScenePose(), Entity {
 
     /** Returns the pose for this entity, relative to the given space. */
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
+        if (relativeTo == Space.PARENT) {
+            return pose
+        }
+
+        var parentPose = this.parent?.getPose(relativeTo)
+        return parentPose?.compose(pose) ?: pose
+    }
+
+    override fun getGravityAlignedPose(pose: Pose): Pose {
         return pose
     }
 

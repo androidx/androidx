@@ -30,7 +30,7 @@ public class FakeImage(
     override val height: Int,
     override val format: Int,
     override val timestamp: Long,
-    private val hardwareBuffer: HardwareBuffer? = null,
+    override val hardwareBuffer: HardwareBuffer? = null,
     override var cropRect: Rect = Rect(0, 0, width, height),
 ) : ImageWrapper {
     private val debugId = debugIds.incrementAndGet()

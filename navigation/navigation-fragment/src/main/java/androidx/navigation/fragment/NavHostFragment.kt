@@ -25,7 +25,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.content.res.use
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -35,6 +34,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import androidx.navigation.Navigator
 import androidx.navigation.plusAssign
+import androidx.savedstate.savedState
 
 /**
  * NavHostFragment provides an area within your layout for self-contained navigation to occur.
@@ -94,8 +94,7 @@ public open class NavHostFragment : Fragment(), NavHost {
             }
             savedStateRegistry.registerSavedStateProvider(KEY_GRAPH_ID) {
                 if (graphId != 0) {
-                    @Suppress("DEPRECATION") // bundleOf is deprecated
-                    bundleOf(KEY_GRAPH_ID to graphId)
+                    savedState { putInt(KEY_GRAPH_ID, graphId) }
                 } else {
                     Bundle.EMPTY
                 }

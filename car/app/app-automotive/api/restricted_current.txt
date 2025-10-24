@@ -52,7 +52,7 @@ package androidx.car.app.hardware {
 
 }
 
-package androidx.car.app.hardware.common {
+package @SuppressCompatibility androidx.car.app.hardware.common {
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class CarZoneAreaIdConstants {
     field public static final int AREA_ID_GLOBAL = 0; // 0x0

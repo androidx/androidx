@@ -105,18 +105,14 @@ public class PotentialAction {
     }
 
     /** Builder for {@link PotentialAction}. */
-    public static final class Builder {
-        private @Nullable String mName;
-        private @Nullable String mDescription;
-        private @Nullable String mUri;
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link PotentialAction.Builder}.
          *
          * <p> As PotentialAction is used as a DocumentProperty of Thing, it does not need an id or
          * namespace.
          */
-        public Builder() { }
+        public Builder() {}
 
         /**
          * Constructor with all the existing values.
@@ -125,21 +121,34 @@ public class PotentialAction {
          * namespace.
          */
         public Builder(@NonNull PotentialAction potentialAction) {
+            super(potentialAction);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> {
+        protected @Nullable String mName;
+        protected @Nullable String mDescription;
+        protected @Nullable String mUri;
+
+        BuilderImpl() { }
+
+        BuilderImpl(@NonNull PotentialAction potentialAction) {
             mName = potentialAction.getName();
             mDescription = potentialAction.getDescription();
             mUri = potentialAction.getUri();
         }
 
         /** Sets the name of the action. */
-        public @NonNull Builder setName(@Nullable String name) {
+        public @NonNull T setName(@Nullable String name) {
             mName = name;
-            return this;
+            return (T) this;
         }
 
         /** Sets the description of the action, such as "Call". */
-        public @NonNull Builder setDescription(@Nullable String description) {
+        public @NonNull T setDescription(@Nullable String description) {
             mDescription = description;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -153,9 +162,9 @@ public class PotentialAction {
          * and adding intent extras, can be done by building an intent and calling
          * {@link android.content.Intent#toUri}.
          */
-        public @NonNull Builder setUri(@Nullable String uri) {
+        public @NonNull T setUri(@Nullable String uri) {
             mUri = uri;
-            return this;
+            return (T) this;
         }
 
         /** Builds the {@link PotentialAction}. */

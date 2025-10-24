@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.ResultCode.SQLITE_MISUSE
+import androidx.sqlite.driver.bundled.jni.FastNative
 import androidx.sqlite.throwSQLiteException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -60,10 +61,10 @@ public actual class BundledSQLiteConnection(private val connectionPointer: Long)
     }
 }
 
-private external fun nativeInTransaction(pointer: Long): Boolean
+@FastNative private external fun nativeInTransaction(pointer: Long): Boolean
 
 private external fun nativePrepare(pointer: Long, sql: String): Long
 
 private external fun nativeLoadExtension(pointer: Long, fileName: String, entryPoint: String?)
 
-private external fun nativeClose(pointer: Long)
+@FastNative private external fun nativeClose(pointer: Long)

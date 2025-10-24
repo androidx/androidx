@@ -16,4 +16,5 @@
     <string name="depth_maps">Depth Maps test case</string>
     <string name="face_tracking">Face Tracking test case</string>
     <string name="eye_tracking">Eye Tracking test case</string>
+    <string name="blend_mode">Blend Mode test case</string>
 </resources>

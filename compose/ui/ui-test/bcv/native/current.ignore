@@ -1,5 +1,37 @@
 // Baseline format: 1.0
-[linuxX64]: Removed declaration androidx.compose.ui.test/IdlingResource from androidx.compose.ui:ui-test
-[linuxX64]: Removed declaration androidx.compose.ui.test/DeviceConfigurationOverride(androidx.compose.ui.test/DeviceConfigurationOverride, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui:ui-test
-[linuxX64]: Removed declaration Override(kotlin/Function0<kotlin/Unit>) from androidx.compose.ui.test/DeviceConfigurationOverride
-[linuxX64]: Added declaration Override(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) to androidx.compose.ui.test/DeviceConfigurationOverride
+[linuxX64]: Removed declaration androidx.compose.ui.test.platform/androidx_compose_ui_test_platform_SynchronizedObject$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_ApplyingContinuationInterceptor$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_ImpulseVelocityPathFinder$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_InputDispatcher$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_InputDispatcherState$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_KeyInjectionScopeImpl$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_KeyInputState$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_LsqVelocityPathFinder$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_MouseInjectionScopeImpl$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_MouseInputState$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_MultiModalInjectionScopeImpl$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_PartialGesture$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_PlatformTestContext$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_RotaryInjectionScopeImpl$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_RotaryInputState$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_TouchInjectionScopeImpl$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_UncaughtExceptionHandler$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_VelocityPathFinder$stableprop from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test.platform/androidx_compose_ui_test_platform_SynchronizedObject$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_ApplyingContinuationInterceptor$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_ImpulseVelocityPathFinder$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_InputDispatcher$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_InputDispatcherState$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_KeyInjectionScopeImpl$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_KeyInputState$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_LsqVelocityPathFinder$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_MouseInjectionScopeImpl$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_MouseInputState$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_MultiModalInjectionScopeImpl$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_PartialGesture$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_PlatformTestContext$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_RotaryInjectionScopeImpl$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_RotaryInputState$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_TouchInjectionScopeImpl$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_UncaughtExceptionHandler$stableprop_getter() from androidx.compose.ui:ui-test
+[linuxX64]: Removed declaration androidx.compose.ui.test/androidx_compose_ui_test_VelocityPathFinder$stableprop_getter() from androidx.compose.ui:ui-test

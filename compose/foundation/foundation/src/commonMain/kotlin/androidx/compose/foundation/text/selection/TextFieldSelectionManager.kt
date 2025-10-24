@@ -265,6 +265,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
         object : TextDragObserver {
             private var isLongPressSelectionOnly = true
             private var runningSelection: TextRange? = null
+            private var selectionAdjustmentMode = SelectionAdjustment.None
 
             override fun onDown(point: Offset) {
                 // Not supported for long-press-drag.
@@ -274,7 +275,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 // Nothing to do.
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                 if (!enabled || draggingHandle != null) return
                 // While selecting by long-press-dragging, the "end" of the selection is always the
                 // one
@@ -282,6 +283,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 draggingHandle = Handle.SelectionEnd
                 previousRawDragOffset = -1
                 isLongPressSelectionOnly = true
+                selectionAdjustmentMode = selectionAdjustment
 
                 // ensuring that current action mode (selection toolbar) is invalidated
                 hideSelectionToolbar()
@@ -316,7 +318,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                             currentPosition = startPoint,
                             isStartOfSelection = true,
                             isStartHandle = false,
-                            adjustment = SelectionAdjustment.Word,
+                            adjustment = selectionAdjustmentMode,
                             isTouchBasedSelection = true,
                         )
                     // For touch, set the begin selection to the adjusted selection.
@@ -399,7 +401,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                                 currentPosition = currentDragPosition!!,
                                 isStartOfSelection = false,
                                 isStartHandle = false,
-                                adjustment = SelectionAdjustment.Word,
+                                adjustment = selectionAdjustmentMode,
                                 isTouchBasedSelection = true,
                             )
                         }
@@ -419,6 +421,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
             private fun onEnd() {
                 draggingHandle = null
                 currentDragPosition = null
+                selectionAdjustmentMode = SelectionAdjustment.None
                 updateFloatingToolbar(show = true)
 
                 val collapsed = runningSelection?.collapsed ?: value.selection.collapsed
@@ -619,7 +622,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 updateFloatingToolbar(show = true)
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                 // handled in onDown
             }
 
@@ -659,7 +662,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 currentDragPosition = null
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                 // The position of the character where the drag gesture should begin. This is in
                 // the inner text field coordinates.
                 val handleCoordinates = getAdjustedCoordinates(getHandlePosition(true))

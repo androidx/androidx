@@ -91,6 +91,7 @@ import org.gradle.api.artifacts.CacheableRule
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataRule
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
 import org.gradle.api.configuration.BuildFeatures
@@ -120,6 +121,7 @@ import org.gradle.plugin.devel.tasks.ValidatePlugins
 import org.gradle.process.CommandLineArgumentProvider
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -132,6 +134,7 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.utils.API
 
 /**
  * A plugin which enables all of the Gradle customizations for AndroidX. This plugin reacts to other
@@ -219,7 +222,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.validateAllArchiveInputsRecognized()
         project.afterEvaluate {
             if (androidXExtension.shouldPublishSbom()) {
-                project.configureSbomPublishing()
+                project.configureSbomPublishing(androidXExtension.isIsolatedProjectsEnabled())
             }
             if (androidXExtension.shouldPublish()) {
                 project.validatePublishedMultiplatformHasDefault()
@@ -332,13 +335,20 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         // Resolve unspecified Kotlin versions to the target version.
         // TODO(b/443037365): Remove when bug fixed as built-in Kotlin would handle this
         configurations.configureEach { configuration ->
-            configuration.resolutionStrategy { strategy ->
-                strategy.eachDependency { details ->
+            configuration.withDependencies { dependencySet ->
+                dependencySet.filterIsInstance<ExternalDependency>().forEach { dependency ->
                     if (
-                        details.requested.group == "org.jetbrains.kotlin" &&
-                            details.requested.version.isNullOrBlank()
+                        dependency.group == "org.jetbrains.kotlin" &&
+                            dependency.version.isNullOrEmpty()
                     ) {
-                        details.useVersion(kotlinVersionStringProvider.get())
+                        project.dependencies.constraints.add(
+                            configuration.name,
+                            dependency.module.toString(),
+                        ) {
+                            it.version { constraint ->
+                                constraint.require(kotlinVersionStringProvider.get())
+                            }
+                        }
                     }
                 }
             }
@@ -492,7 +502,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                     val args =
                         mutableListOf(
                             "-Xskip-metadata-version-check",
-                            "-Xjvm-default=all",
+                            "-jvm-default=no-compatibility",
                             // These two args can be removed once kotlin 2.1 is used
                             "-Xjspecify-annotations=strict",
                             "-Xtype-enhancement-improvements-strict-mode",
@@ -557,6 +567,26 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 } else {
                     ExplicitApiMode.Disabled
                 }
+            if (plugin is KotlinBaseApiPlugin) {
+                // TODO(b/443080559): Remove when built-in Kotlin adds kotlin-test-junit
+                // automatically
+                (kotlinExtension as KotlinAndroidProjectExtension)
+                    .target
+                    .compilations
+                    .configureEach { compilation ->
+                        if (!compilation.name.contains("test", ignoreCase = true))
+                            return@configureEach
+                        compilation.defaultSourceSet.dependencies {
+                            implementation(kotlin("test-junit"))
+                        }
+                    }
+                // TODO(b/452246814): Remove when built-in Kotlin adds kotlin-stdlib as an api
+                // dependency automatically
+                project.dependencies.add(
+                    API,
+                    "org.jetbrains.kotlin:kotlin-stdlib:${kotlinExtension.coreLibrariesVersion}",
+                )
+            }
         }
     }
 
@@ -607,7 +637,10 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 // Sign all the builds (including release) with debug key
                 buildType.signingConfig = debugSigningConfig
             }
-            project.configureTestConfigGeneration(androidXExtension.isIsolatedProjectsEnabled())
+            project.configureTestConfigGeneration(
+                androidXExtension.isIsolatedProjectsEnabled(),
+                androidXExtension,
+            )
             project.addAppApkToTestConfigGeneration(androidXExtension)
             excludeVersionFiles(packaging.resources)
         }
@@ -679,6 +712,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         kotlinMultiplatformAndroidTarget.configureAndroidBaseOptions(
             project,
             kotlinMultiplatformAndroidComponentsExtension,
+            androidXExtension,
         )
         configureCommonAndroidLibrary(
             project,
@@ -856,7 +890,10 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 buildType.signingConfig = debugSigningConfig
             }
             testBuildType = buildTypeForTests
-            project.configureTestConfigGeneration(androidXExtension.isIsolatedProjectsEnabled())
+            project.configureTestConfigGeneration(
+                androidXExtension.isIsolatedProjectsEnabled(),
+                androidXExtension,
+            )
             project.addAppApkToTestConfigGeneration(androidXExtension)
         }
 
@@ -1107,6 +1144,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
     private fun KotlinMultiplatformAndroidLibraryTarget.configureAndroidBaseOptions(
         project: Project,
         componentsExtension: KotlinMultiplatformAndroidComponentsExtension,
+        androidXExtension: AndroidXExtension,
     ) {
         val defaultMinSdkVersion = project.defaultAndroidConfig.minSdk
         val defaultCompileSdk = project.defaultAndroidConfig.compileSdk
@@ -1141,7 +1179,10 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             project.enforceBanOnVersionRanges()
         }
 
-        project.configureTestConfigGeneration(buildFeatures.isIsolatedProjectsEnabled())
+        project.configureTestConfigGeneration(
+            buildFeatures.isIsolatedProjectsEnabled(),
+            androidXExtension,
+        )
         project.configureFtlRunner(componentsExtension)
     }
 
@@ -1249,7 +1290,10 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             versionName = "1.0"
         }
 
-        project.configureTestConfigGeneration(androidXExtension.isIsolatedProjectsEnabled())
+        project.configureTestConfigGeneration(
+            androidXExtension.isIsolatedProjectsEnabled(),
+            androidXExtension,
+        )
         project.addAppApkToTestConfigGeneration(androidXExtension)
         project.addAppApkToFtlRunner()
     }

@@ -17,7 +17,6 @@
 package androidx.xr.arcore.testing
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.arcore.runtime.EyeStatus
 import androidx.xr.runtime.math.Pose
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -27,30 +26,16 @@ import org.junit.runner.RunWith
 class FakeRuntimeEyeTest {
 
     @Test
-    fun constructor_withDefaultArguments_coarseStateIsGazing() {
+    fun constructor_withDefaultArguments_openIsTrue() {
         val underTest = FakeRuntimeEye()
 
-        assertThat(underTest.coarseStatus).isEqualTo(EyeStatus.GAZING)
+        assertThat(underTest.isOpen).isTrue()
     }
 
     @Test
-    fun constructor_withDefaultArguments_coarsePoseIsIdentity() {
+    fun constructor_withDefaultArguments_poseIsIdentity() {
         val underTest = FakeRuntimeEye()
 
-        assertThat(underTest.coarsePose).isEqualTo(Pose())
-    }
-
-    @Test
-    fun constructor_withDefaultArguments_fineStateIsGazing() {
-        val underTest = FakeRuntimeEye()
-
-        assertThat(underTest.fineStatus).isEqualTo(EyeStatus.GAZING)
-    }
-
-    @Test
-    fun constructor_withDefaultArguments_finePoseIsIdentity() {
-        val underTest = FakeRuntimeEye()
-
-        assertThat(underTest.finePose).isEqualTo(Pose())
+        assertThat(underTest.pose).isEqualTo(Pose())
     }
 }

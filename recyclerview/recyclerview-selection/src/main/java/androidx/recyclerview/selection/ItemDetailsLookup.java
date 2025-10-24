@@ -191,24 +191,32 @@ public abstract class ItemDetailsLookup<K> {
         /**
          * Indicates that a UI event is outside the "selection hotspot" and leads to the default,
          * fallback behavior of that touch tap, mouse click, etc.
+         *
+         * @see #classifySelectionHotspot(MotionEvent)
          */
         public static final int SELECTION_HOTSPOT_OUTSIDE = 0;
 
         /**
          * Indicates that a UI event toggles the item's selectedness (unselected becomes selected
          * and vice versa), like a checkbox UI element.
+         *
+         * @see #classifySelectionHotspot(MotionEvent)
          */
         public static final int SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI = 1;
 
         /**
          * Indicates that a UI event clears any existing selections and then, unless the item was
          * previously the sole selection, selects it.
+         *
+         * @see #classifySelectionHotspot(MotionEvent)
          */
         public static final int SELECTION_HOTSPOT_INSIDE_TOGGLE_SOLO = 2;
 
         /**
          * Indicates that a UI event clears any existing selections and then selects the item, like
          * a radio button UI element.
+         *
+         * @see #classifySelectionHotspot(MotionEvent)
          */
         public static final int SELECTION_HOTSPOT_INSIDE_CLEAR_AND_THEN_SET = 3;
 

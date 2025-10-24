@@ -114,6 +114,7 @@ class Animation : ComponentActivity() {
                             .offset(z = zOffset * 2)
                             .alpha(animatedAlpha.value)
                 ) {
+                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                     PanelContent(
                         "Faded in content",
                         "Show side Panel",
@@ -136,6 +137,7 @@ class Animation : ComponentActivity() {
                                 .offset(z = zOffset)
                                 .scale(sidePanelAnimatedScale.value)
                     ) {
+                        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                         PanelContent(
                             "Grown content",
                             "Hide side panel",
@@ -179,6 +181,7 @@ class Animation : ComponentActivity() {
         showButton: Boolean,
         buttonOnClick: () -> Unit,
     ) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         Box(modifier = Modifier.background(Purple80).fillMaxSize()) {
             Column {
                 Row(modifier = Modifier.fillMaxWidth()) {

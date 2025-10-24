@@ -493,4 +493,6 @@ abstract class DeviceTests {
      * 16KB page size when run in CI.
      */
     var enableAlsoRunOn16KbPageSizeDevices = false
+
+    var minSdkForFtlOverride: Int? = null
 }

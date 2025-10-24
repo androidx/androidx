@@ -27,7 +27,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Entity as RtEntity
 import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilities
+import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener as RtSpatialModeChangeListener
 import androidx.xr.scenecore.runtime.SpatialVisibility as RtSpatialVisibility
 import java.util.concurrent.ConcurrentHashMap
@@ -110,13 +110,13 @@ public class Scene : SessionConnector {
         private set
 
     /**
-     * Returns the current [SpatialCapabilities] of the Session. The set of capabilities can change
-     * within a session. The returned object will not update if the capabilities change; this method
-     * should be called again to get the latest set of capabilities.
+     * The current [Set] of [SpatialCapability] constants available in the Session. The set may
+     * change within a session. The returned object will not update if the capabilities change; this
+     * method should be called again to get the latest set of capabilities, or clients can subscribe
+     * to changes with [addSpatialCapabilitiesChangedListener].
      */
-    public var spatialCapabilities: SpatialCapabilities = SpatialCapabilities(0)
+    public lateinit var spatialCapabilities: Set<SpatialCapability>
         private set
-        get() = sceneRuntime.spatialCapabilities.toSpatialCapabilities()
 
     /**
      * The primary [Entity] that acts as a spatial reference for the scene's content.
@@ -156,8 +156,17 @@ public class Scene : SessionConnector {
     private var spatialModeChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
 
     private val spatialCapabilitiesListeners:
-        ConcurrentMap<Consumer<SpatialCapabilities>, Consumer<RtSpatialCapabilities>> =
+        ConcurrentMap<Consumer<Set<SpatialCapability>>, Executor> =
         ConcurrentHashMap()
+
+    private val rtSpatialCapabilitiesListener =
+        Consumer<SpatialCapabilities> {
+            val spatialCaps = it.toSpatialCapabilities()
+            spatialCapabilities = spatialCaps
+            spatialCapabilitiesListeners.forEach { (listener, executor) ->
+                executor.execute { listener.accept(spatialCaps) }
+            }
+        }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override fun initialize(runtimes: List<JxrRuntime>): Unit {
@@ -179,11 +188,18 @@ public class Scene : SessionConnector {
                     spatialModeChangedExecutor.execute { spatialModeChangedListener.accept(event) }
                 }
             }
+
+        spatialCapabilities = sceneRuntime.spatialCapabilities.toSpatialCapabilities()
+        sceneRuntime.addSpatialCapabilitiesChangedListener(
+            HandlerExecutor.mainThreadExecutor,
+            rtSpatialCapabilitiesListener,
+        )
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override fun close(): Unit {
         entityManager.clear()
+        sceneRuntime.removeSpatialCapabilitiesChangedListener(rtSpatialCapabilitiesListener)
         spatialCapabilitiesListeners.keys.forEach { removeSpatialCapabilitiesChangedListener(it) }
         clearSpatialModeChangedListener()
         clearSpatialVisibilityChangedListener()
@@ -204,46 +220,34 @@ public class Scene : SessionConnector {
         }
 
     /**
-     * Adds the given [Consumer] as a listener to be invoked when this [Session]'s current
-     * [SpatialCapabilities] change.
+     * Adds the given [Consumer] as a listener to be invoked when this [Session]'s spatial
+     * capabilities change.
      *
-     * @param listener The Consumer to be invoked asynchronously on the main thread executor
-     *   whenever the SpatialCapabilities changes.
+     * @param listener The Consumer to be invoked asynchronously on the given callbackExecutor. The
+     *   set includes every currently-available [SpatialCapability].
      */
     public fun addSpatialCapabilitiesChangedListener(
-        listener: Consumer<SpatialCapabilities>
+        listener: Consumer<Set<SpatialCapability>>
     ): Unit = addSpatialCapabilitiesChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
-     * Adds the given [Consumer] as a listener to be invoked when this [Session]'s current
-     * [SpatialCapabilities] change.
+     * Adds the given [Consumer] as a listener to be invoked when this [Session]'s spatial
+     * capabilities change.
      *
      * @param callbackExecutor The [Executor] to run the listener on.
-     * @param listener The Consumer to be invoked asynchronously on the given callbackExecutor
-     *   whenever the SpatialCapabilities changes.
+     * @param listener The Consumer to be invoked asynchronously on the given callbackExecutor. The
+     *   set includes every currently-available [SpatialCapability].
      */
     public fun addSpatialCapabilitiesChangedListener(
         callbackExecutor: Executor,
-        listener: Consumer<SpatialCapabilities>,
+        listener: Consumer<Set<SpatialCapability>>,
     ): Unit {
-        // wrap the client's listener in a callback that receives & converts the sceneRuntime
-        // SpatialCapabilities type.
-        val rtListener: Consumer<RtSpatialCapabilities> =
-            Consumer<RtSpatialCapabilities> { rtCaps: RtSpatialCapabilities ->
-                listener.accept(rtCaps.toSpatialCapabilities())
-            }
-        spatialCapabilitiesListeners.compute(
-            listener,
-            { _, _ ->
-                sceneRuntime.addSpatialCapabilitiesChangedListener(callbackExecutor, rtListener)
-                rtListener
-            },
-        )
+        spatialCapabilitiesListeners[listener] = callbackExecutor
     }
 
     /**
-     * Releases the given [Consumer] from receiving updates when the [Session]'s
-     * [SpatialCapabilities] change.
+     * Releases the given [Consumer] from receiving updates when the [Session]'s [SpatialCapability]
+     * change.
      *
      * The listeners are automatically released at the end of the Scene's lifecycle even if this
      * method is not explicitly called.
@@ -251,15 +255,9 @@ public class Scene : SessionConnector {
      * @param listener The Consumer to be removed. It will no longer receive change events.
      */
     public fun removeSpatialCapabilitiesChangedListener(
-        listener: Consumer<SpatialCapabilities>
+        listener: Consumer<Set<SpatialCapability>>
     ): Unit {
-        spatialCapabilitiesListeners.computeIfPresent(
-            listener,
-            { _, rtListener ->
-                sceneRuntime.removeSpatialCapabilitiesChangedListener(rtListener)
-                null
-            },
-        )
+        spatialCapabilitiesListeners.remove(listener)
     }
 
     /**
@@ -286,7 +284,7 @@ public class Scene : SessionConnector {
      * transparency (alpha=0) or being hidden is not considered. If the entities in the scene or any
      * of their ancestors are hidden using [Entity.setEnabled] (enabled=false) or if the entities
      * are turned fully transparent using [Entity.setAlpha] (alpha=0.0), then the SpatialVisibility
-     * checks will return [SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW].
+     * checks will return [SpatialVisibility.OUTSIDE_FIELD_OF_VIEW].
      *
      * The listener is invoked on the provided [Executor].
      *
@@ -299,7 +297,7 @@ public class Scene : SessionConnector {
      */
     public fun setSpatialVisibilityChangedListener(
         callbackExecutor: Executor,
-        listener: Consumer<@SpatialVisibilityValue Int>,
+        listener: Consumer<SpatialVisibility>,
     ): Unit {
         // Wrap client's listener in a callback that converts the sceneRuntime's
         // SpatialVisibility.
@@ -321,7 +319,7 @@ public class Scene : SessionConnector {
      * transparency (alpha=0) or being hidden is not considered. If the entities in the scene or any
      * of their ancestors are hidden using [Entity.setEnabled] (enabled=false) or if the entities
      * are turned fully transparent using [Entity.setAlpha] (alpha=0.0), then the SpatialVisibility
-     * checks will return [SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW].
+     * checks will return [SpatialVisibility.OUTSIDE_FIELD_OF_VIEW].
      *
      * There can only be one listener set at a time. If a new listener is set, the previous listener
      * will be released.
@@ -329,9 +327,8 @@ public class Scene : SessionConnector {
      * @param listener The [Consumer] to be invoked asynchronously on the main thread whenever the
      *   [SpatialVisibility] of the renderable content changes.
      */
-    public fun setSpatialVisibilityChangedListener(
-        listener: Consumer<@SpatialVisibilityValue Int>
-    ): Unit = setSpatialVisibilityChangedListener(HandlerExecutor.mainThreadExecutor, listener)
+    public fun setSpatialVisibilityChangedListener(listener: Consumer<SpatialVisibility>): Unit =
+        setSpatialVisibilityChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
     /**
      * Releases the listener previously added by [setSpatialVisibilityChangedListener].

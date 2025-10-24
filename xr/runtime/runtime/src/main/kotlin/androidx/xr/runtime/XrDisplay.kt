@@ -19,7 +19,7 @@ package androidx.xr.runtime
 import androidx.annotation.RestrictTo
 
 /** Capability APIs related to the display and rendering on XR devices. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class XrDisplay {
 
     /**
@@ -43,21 +43,33 @@ public class XrDisplay {
              */
             public val ALPHA_BLEND: BlendMode = BlendMode(2)
         }
+
+        public override fun toString(): String =
+            when (this) {
+                NOT_APPLICABLE -> "NOT_APPLICABLE"
+                ADDITIVE -> "ADDITIVE"
+                ALPHA_BLEND -> "ALPHA_BLEND"
+                else -> "UNKNOWN"
+            }
     }
 
-    /**
-     * Returns the preferred blend mode for this session.
-     *
-     * @param session the [Session] to query the blend mode for.
-     * @return The [BlendMode] that is preferred by [session] for rendering.
-     *   [BlendMode.NOT_APPLICABLE] will be returned if there are no supported blend modes
-     *   available.
-     * @throws IllegalStateException if the [session] has been destroyed.
-     */
-    public fun getPreferredBlendMode(session: Session): BlendMode {
-        if (session.runtimes.isEmpty()) {
-            return BlendMode.NOT_APPLICABLE
+    public companion object {
+        /**
+         * Returns the preferred blend mode for this session.
+         *
+         * @param session the [Session] to query the blend mode for.
+         * @return The [BlendMode] that is preferred by [session] for rendering.
+         *   [BlendMode.NOT_APPLICABLE] will be returned if there are no supported blend modes
+         *   available.
+         * @throws IllegalStateException if the [session] has been destroyed.
+         */
+        @JvmStatic
+        public fun getPreferredBlendMode(session: Session): BlendMode {
+            return if (session.runtimes.isEmpty()) {
+                BlendMode.NOT_APPLICABLE
+            } else {
+                session.runtimes.firstNotNullOf { it.getPreferredBlendMode() }
+            }
         }
-        return session.runtimes.firstNotNullOf { it.getPreferredBlendMode() }
     }
 }

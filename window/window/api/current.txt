@@ -132,7 +132,7 @@ package androidx.window.area {
 
 }
 
-package androidx.window.core {
+package @SuppressCompatibility androidx.window.core {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
   }

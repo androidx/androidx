@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.car.app.hardware.climate:
+    Removed package androidx.car.app.hardware.climate from compatibility checked API surface
+BecameUnchecked: androidx.car.app.media.model:
+    Removed package androidx.car.app.media.model from compatibility checked API surface
+BecameUnchecked: androidx.car.app.mediaextensions.analytics.client:
+    Removed package androidx.car.app.mediaextensions.analytics.client from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.signin:
+    Removed package androidx.car.app.model.signin from compatibility checked API surface
+BecameUnchecked: androidx.car.app.suggestion.model:
+    Removed package androidx.car.app.suggestion.model from compatibility checked API surface

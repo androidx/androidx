@@ -262,7 +262,7 @@ public class EarthGuavaTest {
                         mSession =
                                 ((SessionCreateSuccess) Session.create(activity, mTestDispatcher))
                                         .getSession();
-                        mXrResourcesManager.setLifecycleManager$arcore_release(
+                        mXrResourcesManager.setLifecycleManager$arcore(
                                 SessionExtKt.getPerceptionRuntime(mSession).getLifecycleManager());
                         mSession.configure(
                                 new Config(
@@ -274,7 +274,8 @@ public class EarthGuavaTest {
                                         Config.AnchorPersistenceMode.DISABLED,
                                         Config.FaceTrackingMode.DISABLED,
                                         Config.GeospatialMode.EARTH,
-                                        Config.EyeTrackingMode.DISABLED));
+                                        Config.EyeTrackingMode.DISABLED,
+                                        Config.CameraFacingDirection.WORLD));
 
                         try {
                             testBody.run();

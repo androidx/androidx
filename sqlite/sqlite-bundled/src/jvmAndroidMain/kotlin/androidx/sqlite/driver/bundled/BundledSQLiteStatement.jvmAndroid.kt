@@ -20,6 +20,7 @@ package androidx.sqlite.driver.bundled
 import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.ResultCode.SQLITE_MISUSE
+import androidx.sqlite.driver.bundled.jni.FastNative
 import androidx.sqlite.throwSQLiteException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -132,34 +133,34 @@ public actual class BundledSQLiteStatement(
     }
 }
 
-private external fun nativeBindBlob(pointer: Long, index: Int, value: ByteArray)
+@FastNative private external fun nativeBindBlob(pointer: Long, index: Int, value: ByteArray)
 
-private external fun nativeBindDouble(pointer: Long, index: Int, value: Double)
+@FastNative private external fun nativeBindDouble(pointer: Long, index: Int, value: Double)
 
-private external fun nativeBindLong(pointer: Long, index: Int, value: Long)
+@FastNative private external fun nativeBindLong(pointer: Long, index: Int, value: Long)
 
-private external fun nativeBindText(pointer: Long, index: Int, value: String)
+@FastNative private external fun nativeBindText(pointer: Long, index: Int, value: String)
 
-private external fun nativeBindNull(pointer: Long, index: Int)
+@FastNative private external fun nativeBindNull(pointer: Long, index: Int)
 
 private external fun nativeStep(pointer: Long): Boolean
 
-private external fun nativeGetBlob(pointer: Long, index: Int): ByteArray
+@FastNative private external fun nativeGetBlob(pointer: Long, index: Int): ByteArray
 
-private external fun nativeGetDouble(pointer: Long, index: Int): Double
+@FastNative private external fun nativeGetDouble(pointer: Long, index: Int): Double
 
-private external fun nativeGetLong(pointer: Long, index: Int): Long
+@FastNative private external fun nativeGetLong(pointer: Long, index: Int): Long
 
-private external fun nativeGetText(pointer: Long, index: Int): String
+@FastNative private external fun nativeGetText(pointer: Long, index: Int): String
 
-private external fun nativeGetColumnCount(pointer: Long): Int
+@FastNative private external fun nativeGetColumnCount(pointer: Long): Int
 
-private external fun nativeGetColumnName(pointer: Long, index: Int): String
+@FastNative private external fun nativeGetColumnName(pointer: Long, index: Int): String
 
-private external fun nativeGetColumnType(pointer: Long, index: Int): Int
+@FastNative private external fun nativeGetColumnType(pointer: Long, index: Int): Int
 
 private external fun nativeReset(pointer: Long)
 
-private external fun nativeClearBindings(pointer: Long)
+@FastNative private external fun nativeClearBindings(pointer: Long)
 
-private external fun nativeClose(pointer: Long)
+@FastNative private external fun nativeClose(pointer: Long)

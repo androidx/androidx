@@ -107,9 +107,11 @@ public object SpatialSoundPool {
      *   object.
      * @return The [SpatializerConstants.SourceType] for the given streamID.
      */
-    @JvmStatic
-    @SpatializerConstants.SourceType
-    public fun getSpatialSourceType(session: Session, soundPool: SoundPool, streamId: Int): Int {
+    public fun getSpatialSourceType(
+        session: Session,
+        soundPool: SoundPool,
+        streamId: Int,
+    ): SpatializerConstants.SourceType {
         return session.sceneRuntime.soundPoolExtensionsWrapper
             .getSpatialSourceType(soundPool, streamId)
             .sourceTypeToJxr()

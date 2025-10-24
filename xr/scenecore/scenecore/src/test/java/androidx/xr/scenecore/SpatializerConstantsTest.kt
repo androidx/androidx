@@ -26,31 +26,55 @@ import org.junit.runners.JUnit4
 class SpatializerConstantsTest {
 
     @Test
-    fun sourceTypeToJXRExtension_createsCorrectIntDefType() {
+    fun sourceTypeToJxr_createsCorrectJxrType() {
         val rtBypass = RtSpatializerConstants.SOURCE_TYPE_BYPASS
-        assertThat(rtBypass.sourceTypeToJxr()).isEqualTo(SpatializerConstants.SOURCE_TYPE_DEFAULT)
+        assertThat(rtBypass.sourceTypeToJxr()).isEqualTo(SpatializerConstants.SourceType.DEFAULT)
 
         val rtPointSource = RtSpatializerConstants.SOURCE_TYPE_POINT_SOURCE
         assertThat(rtPointSource.sourceTypeToJxr())
-            .isEqualTo(SpatializerConstants.SOURCE_TYPE_POINT_SOURCE)
+            .isEqualTo(SpatializerConstants.SourceType.POINT_SOURCE)
 
         val rtSoundField = RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD
         assertThat(rtSoundField.sourceTypeToJxr())
-            .isEqualTo(SpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
+            .isEqualTo(SpatializerConstants.SourceType.SOUND_FIELD)
     }
 
     @Test
-    fun ambisonicsOrderToJXR_createCorrectIntDefType() {
+    fun sourceTypeToRt_createsCorrectIntDefType() {
+        val rtDefault = SpatializerConstants.SourceType.DEFAULT.sourceTypeToRt()
+        assertThat(rtDefault).isEqualTo(RtSpatializerConstants.SOURCE_TYPE_BYPASS)
+
+        val rtPointSource = SpatializerConstants.SourceType.POINT_SOURCE.sourceTypeToRt()
+        assertThat(rtPointSource).isEqualTo(RtSpatializerConstants.SOURCE_TYPE_POINT_SOURCE)
+
+        val rtSoundField = SpatializerConstants.SourceType.SOUND_FIELD.sourceTypeToRt()
+        assertThat(rtSoundField).isEqualTo(RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
+    }
+
+    @Test
+    fun ambisonicsOrderToJXR_createCorrectJxrType() {
         val rtFirstOrder = RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
         assertThat(rtFirstOrder.ambisonicsOrderToJxr())
-            .isEqualTo(SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
+            .isEqualTo(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
         val rtSecondOrder = RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
         assertThat(rtSecondOrder.ambisonicsOrderToJxr())
-            .isEqualTo(SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER)
+            .isEqualTo(SpatializerConstants.AmbisonicsOrder.SECOND_ORDER)
 
         val rtThirdOrder = RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
         assertThat(rtThirdOrder.ambisonicsOrderToJxr())
-            .isEqualTo(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
+            .isEqualTo(SpatializerConstants.AmbisonicsOrder.THIRD_ORDER)
+    }
+
+    @Test
+    fun ambisonicsOrderToRt_createCorrectIntDefType() {
+        val rtFirstOrder = SpatializerConstants.AmbisonicsOrder.FIRST_ORDER.sourceTypeToRt()
+        assertThat(rtFirstOrder).isEqualTo(RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
+
+        val rtSecondOrder = SpatializerConstants.AmbisonicsOrder.SECOND_ORDER.sourceTypeToRt()
+        assertThat(rtSecondOrder).isEqualTo(RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER)
+
+        val rtThirdOrder = SpatializerConstants.AmbisonicsOrder.THIRD_ORDER.sourceTypeToRt()
+        assertThat(rtThirdOrder).isEqualTo(RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
     }
 }

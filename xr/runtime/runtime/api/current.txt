@@ -48,7 +48,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.Config.PlaneTrackingMode planeTracking;
   }
 
-  public static final class Config.AnchorPersistenceMode {
+  public static final class Config.AnchorPersistenceMode implements androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.Config.AnchorPersistenceMode.Companion Companion;
     field public static final androidx.xr.runtime.Config.AnchorPersistenceMode DISABLED;
     field public static final androidx.xr.runtime.Config.AnchorPersistenceMode LOCAL;
@@ -59,7 +59,11 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.Config.AnchorPersistenceMode LOCAL;
   }
 
-  public static final class Config.DepthEstimationMode {
+  public static interface Config.ConfigMode {
+    method public default boolean isSupported(androidx.xr.runtime.Session session);
+  }
+
+  public static final class Config.DepthEstimationMode implements androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.Config.DepthEstimationMode.Companion Companion;
     field public static final androidx.xr.runtime.Config.DepthEstimationMode DISABLED;
     field public static final androidx.xr.runtime.Config.DepthEstimationMode RAW_ONLY;
@@ -74,7 +78,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.Config.DepthEstimationMode SMOOTH_ONLY;
   }
 
-  public static final class Config.DeviceTrackingMode {
+  public static final class Config.DeviceTrackingMode implements androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.Config.DeviceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.Config.DeviceTrackingMode DISABLED;
     field public static final androidx.xr.runtime.Config.DeviceTrackingMode LAST_KNOWN;
@@ -85,7 +89,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.Config.DeviceTrackingMode LAST_KNOWN;
   }
 
-  public static final class Config.FaceTrackingMode {
+  public static final class Config.FaceTrackingMode implements androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.Config.FaceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.Config.FaceTrackingMode DISABLED;
     field public static final androidx.xr.runtime.Config.FaceTrackingMode USER;
@@ -96,7 +100,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.Config.FaceTrackingMode USER;
   }
 
-  public static final class Config.HandTrackingMode {
+  public static final class Config.HandTrackingMode implements androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.Config.HandTrackingMode BOTH;
     field public static final androidx.xr.runtime.Config.HandTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.Config.HandTrackingMode DISABLED;
@@ -107,7 +111,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.Config.HandTrackingMode DISABLED;
   }
 
-  public static final class Config.HeadTrackingMode {
+  public static final class Config.HeadTrackingMode implements androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.Config.HeadTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.Config.HeadTrackingMode DISABLED;
     field public static final androidx.xr.runtime.Config.HeadTrackingMode LAST_KNOWN;
@@ -118,7 +122,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.Config.HeadTrackingMode LAST_KNOWN;
   }
 
-  public static final class Config.PlaneTrackingMode {
+  public static final class Config.PlaneTrackingMode implements androidx.xr.runtime.Config.ConfigMode {
     field public static final androidx.xr.runtime.Config.PlaneTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.Config.PlaneTrackingMode DISABLED;
     field public static final androidx.xr.runtime.Config.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
@@ -227,11 +231,22 @@ package androidx.xr.runtime {
 package androidx.xr.runtime.math {
 
   public final class BoundingBox {
-    ctor public BoundingBox(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
+    method public static androidx.xr.runtime.math.BoundingBox fromCenterAndHalfExtents(androidx.xr.runtime.math.Vector3 center, androidx.xr.runtime.math.FloatSize3d halfExtents);
+    method public static androidx.xr.runtime.math.BoundingBox fromMinMax(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getCenter();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getHalfExtents();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getMax();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getMin();
+    property public androidx.xr.runtime.math.Vector3 center;
+    property public androidx.xr.runtime.math.FloatSize3d halfExtents;
     property public androidx.xr.runtime.math.Vector3 max;
     property public androidx.xr.runtime.math.Vector3 min;
+    field public static final androidx.xr.runtime.math.BoundingBox.Companion Companion;
+  }
+
+  public static final class BoundingBox.Companion {
+    method public androidx.xr.runtime.math.BoundingBox fromCenterAndHalfExtents(androidx.xr.runtime.math.Vector3 center, androidx.xr.runtime.math.FloatSize3d halfExtents);
+    method public androidx.xr.runtime.math.BoundingBox fromMinMax(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
   }
 
   public final class FloatSize2d {
@@ -256,6 +271,7 @@ package androidx.xr.runtime.math {
     ctor @BytecodeOnly public FloatSize3d(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public operator androidx.xr.runtime.math.FloatSize3d div(float divisor);
     method public operator androidx.xr.runtime.math.FloatSize3d div(int divisor);
+    method public static androidx.xr.runtime.math.FloatSize3d fromVector3(androidx.xr.runtime.math.Vector3 vector);
     method @InaccessibleFromKotlin public float getDepth();
     method @InaccessibleFromKotlin public float getHeight();
     method @InaccessibleFromKotlin public float getWidth();
@@ -265,6 +281,11 @@ package androidx.xr.runtime.math {
     property public float depth;
     property public float height;
     property public float width;
+    field public static final androidx.xr.runtime.math.FloatSize3d.Companion Companion;
+  }
+
+  public static final class FloatSize3d.Companion {
+    method public androidx.xr.runtime.math.FloatSize3d fromVector3(androidx.xr.runtime.math.Vector3 vector);
   }
 
   public final class IntSize2d {

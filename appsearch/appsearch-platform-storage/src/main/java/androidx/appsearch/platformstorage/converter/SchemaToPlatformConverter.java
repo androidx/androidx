@@ -18,6 +18,7 @@ package androidx.appsearch.platformstorage.converter;
 
 import static android.app.appsearch.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE;
 import static android.app.appsearch.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
+import static android.app.appsearch.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_RFC822;
 import static android.app.appsearch.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_VERBATIM;
 
 import android.annotation.SuppressLint;
@@ -134,16 +135,11 @@ public final class SchemaToPlatformConverter {
                             .setIndexingType(stringProperty.getIndexingType())
                             .setTokenizerType(stringProperty.getTokenizerType());
 
-            // TODO(b/277344542): Handle RFC822 tokenization on T devices with U trains.
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
-                if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.U_BASE) {
-                    Preconditions.checkArgumentInRange(stringProperty.getTokenizerType(),
-                            TOKENIZER_TYPE_NONE, TOKENIZER_TYPE_VERBATIM, "tokenizerType");
-                } else {
-                    Preconditions.checkArgumentInRange(stringProperty.getTokenizerType(),
-                            TOKENIZER_TYPE_NONE, TOKENIZER_TYPE_PLAIN, "tokenizerType");
-                }
-            }
+            @AppSearchSchema.StringPropertyConfig.TokenizerType int maxSupportedTokenizerType =
+                    BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.U_BASE ?
+                            TOKENIZER_TYPE_RFC822 : TOKENIZER_TYPE_PLAIN;
+            Preconditions.checkArgumentInRange(stringProperty.getTokenizerType(),
+                    TOKENIZER_TYPE_NONE, maxSupportedTokenizerType, "tokenizerType");
 
             // Check joinable value type.
             if (stringProperty.getJoinableValueType()

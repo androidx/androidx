@@ -23,7 +23,6 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.featuregroup.GroupableFeature
 import androidx.camera.integration.featurecombo.FeatureGroupQueryBindAlignmentTest.VerificationScenario.PREFERRED_FEATURES
@@ -39,7 +38,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalSessionConfig::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class FeatureGroupQueryBindAlignmentTest(
@@ -60,7 +58,7 @@ class FeatureGroupQueryBindAlignmentTest(
         // with this initial query result for both when all these features are set as required and
         // when all these features are set as preferred features.
         val isSupported =
-            cameraProvider.getCameraInfo(cameraSelector).isFeatureGroupSupported(sessionConfig)
+            cameraProvider.getCameraInfo(cameraSelector).isSessionConfigSupported(sessionConfig)
 
         // Scenario 1: Verify binding when all the features are required.
         // Binding should succeed if and only if the full feature group is supported and no
@@ -181,7 +179,6 @@ class FeatureGroupQueryBindAlignmentTest(
     companion object {
         private const val TAG = "FeatureGroupQueryBindAlignmentTest"
 
-        @OptIn(ExperimentalSessionConfig::class)
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() =

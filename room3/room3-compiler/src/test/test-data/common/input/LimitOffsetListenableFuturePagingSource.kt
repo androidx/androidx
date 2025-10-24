@@ -16,17 +16,29 @@
 package androidx.room3.paging.guava
 
 import androidx.room3.RoomDatabase
-import androidx.room3.RoomSQLiteQuery
+import androidx.room3.RoomRawQuery
 import androidx.sqlite.SQLiteStatement
+import com.google.common.util.concurrent.ListenableFuture
 
 abstract class LimitOffsetListenableFuturePagingSource<T : Any>(
-    private val sourceQuery: RoomSQLiteQuery,
-    private val db: RoomDatabase,
-    vararg tables: String
-) : androidx.paging.ListenableFuturePagingSource<Int, T>(
-        sourceQuery,
-        db,
-        *tables
-    ) {
-    protected override abstract fun convertRows(statement: SQLiteStatement): List<T>
+    protected val sourceQuery: RoomRawQuery,
+    protected val db: RoomDatabase,
+    protected vararg val tables: String
+) : androidx.paging.ListenableFuturePagingSource<Int, T>() {
+
+    override fun loadFuture(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, T>> {
+        TODO()
+    }
+
+    protected abstract suspend fun convertRows(
+        limitOffsetQuery: RoomRawQuery,
+        itemCount: Int
+    ): List<T>
+
+    override fun getRefreshKey(state: androidx.paging.PagingState<Int, T>): Int? {
+        TODO()
+    }
+
+    override val jumpingSupported: Boolean
+        get() = true
 }

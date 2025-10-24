@@ -36,11 +36,10 @@ import androidx.room3.concurrent.CloseBarrier
 import androidx.room3.coroutines.runBlockingUninterruptible
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
+import androidx.room3.prepackage.PrePackagedCopySQLiteDriver
 import androidx.room3.support.AutoCloser
 import androidx.room3.support.AutoClosingRoomOpenHelper
 import androidx.room3.support.AutoClosingRoomOpenHelperFactory
-import androidx.room3.support.PrePackagedCopyOpenHelper
-import androidx.room3.support.PrePackagedCopyOpenHelperFactory
 import androidx.room3.support.QueryInterceptorOpenHelperFactory
 import androidx.room3.util.contains as containsCommon
 import androidx.room3.util.findAndInstantiateDatabaseImpl
@@ -128,10 +127,6 @@ actual constructor() {
                         "SupportSQLiteOpenHelper.Factory was configured with Room."
                 )
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val driver: SQLiteDriver
-        get() = configuration.sqliteDriver ?: error("No SQLiteDriver was configured with Room.")
-
     private lateinit var connectionManager: RoomConnectionManager
 
     /**
@@ -213,7 +208,9 @@ actual constructor() {
         this.configuration = configuration
         useTempTrackingTable = configuration.useTempTrackingTable
 
-        connectionManager = createConnectionManager(configuration)
+        val openDelegate = createOpenDelegate() as RoomOpenDelegate
+        val configuration = wrapDriverConfiguration(configuration, openDelegate.version)
+        connectionManager = createConnectionManager(configuration, openDelegate)
         internalTracker = createInvalidationTracker()
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
@@ -255,10 +252,6 @@ actual constructor() {
 
         allowMainThreadQueries = configuration.allowMainThreadQueries
 
-        // Configure PrePackagedCopyOpenHelper if it is available
-        unwrapOpenHelper<PrePackagedCopyOpenHelper>(connectionManager.supportOpenHelper)
-            ?.setDatabaseConfiguration(configuration)
-
         // Configure AutoClosingRoomOpenHelper if it is available
         unwrapOpenHelper<AutoClosingRoomOpenHelper>(connectionManager.supportOpenHelper)?.let {
             autoCloser = it.autoCloser
@@ -277,6 +270,31 @@ actual constructor() {
         }
     }
 
+    private fun wrapDriverConfiguration(
+        configuration: DatabaseConfiguration,
+        databaseVersion: Int,
+    ): DatabaseConfiguration {
+        if (configuration.sqliteDriver == null) {
+            return configuration
+        }
+        val prePackagedCopyEnabled =
+            configuration.copyFromAssetPath != null ||
+                configuration.copyFromFile != null ||
+                configuration.copyFromInputStream != null
+        return if (prePackagedCopyEnabled) {
+            configuration.copy(
+                sqliteDriver =
+                    PrePackagedCopySQLiteDriver(
+                        configuration.sqliteDriver,
+                        configuration,
+                        databaseVersion,
+                    )
+            )
+        } else {
+            configuration
+        }
+    }
+
     /**
      * Creates a connection manager to manage database connection. Note that this method is called
      * when the [RoomDatabase] is initialized.
@@ -284,9 +302,9 @@ actual constructor() {
      * @return A new connection manager.
      */
     internal actual fun createConnectionManager(
-        configuration: DatabaseConfiguration
+        configuration: DatabaseConfiguration,
+        openDelegate: RoomOpenDelegate,
     ): RoomConnectionManager {
-        val openDelegate = createOpenDelegate() as RoomOpenDelegate
         return RoomConnectionManager(
             config = configuration,
             openDelegate = openDelegate,
@@ -1488,6 +1506,23 @@ actual constructor() {
             val autoCloseEnabled = autoCloseTimeout > 0
             val prePackagedCopyEnabled =
                 copyFromAssetPath != null || copyFromFile != null || copyFromInputStream != null
+            if (prePackagedCopyEnabled) {
+                requireNotNull(name) {
+                    "Cannot create from asset or file for an in-memory database."
+                }
+                val copyFromAssetPathConfig = if (copyFromAssetPath == null) 0 else 1
+                val copyFromFileConfig = if (copyFromFile == null) 0 else 1
+                val copyFromInputStreamConfig = if (copyFromInputStream == null) 0 else 1
+                val copyConfigurations =
+                    copyFromAssetPathConfig + copyFromFileConfig + copyFromInputStreamConfig
+
+                require(copyConfigurations == 1) {
+                    "More than one of createFromAsset(), " +
+                        "createFromInputStream(), and createFromFile() were called on this " +
+                        "Builder, but the database can only be created using one of the " +
+                        "three configurations."
+                }
+            }
             val queryCallbackEnabled = queryCallback != null
             val supportOpenHelperFactory =
                 initialFactory
@@ -1502,37 +1537,6 @@ actual constructor() {
                                     timeUnit = requireNotNull(autoCloseTimeUnit),
                                 )
                             AutoClosingRoomOpenHelperFactory(delegate = it, autoCloser = autoCloser)
-                        } else {
-                            it
-                        }
-                    }
-                    ?.let {
-                        if (prePackagedCopyEnabled) {
-                            requireNotNull(name) {
-                                "Cannot create from asset or file for an in-memory database."
-                            }
-
-                            val copyFromAssetPathConfig = if (copyFromAssetPath == null) 0 else 1
-                            val copyFromFileConfig = if (copyFromFile == null) 0 else 1
-                            val copyFromInputStreamConfig =
-                                if (copyFromInputStream == null) 0 else 1
-                            val copyConfigurations =
-                                copyFromAssetPathConfig +
-                                    copyFromFileConfig +
-                                    copyFromInputStreamConfig
-
-                            require(copyConfigurations == 1) {
-                                "More than one of createFromAsset(), " +
-                                    "createFromInputStream(), and createFromFile() were called on this " +
-                                    "Builder, but the database can only be created using one of the " +
-                                    "three configurations."
-                            }
-                            PrePackagedCopyOpenHelperFactory(
-                                copyFromAssetPath = copyFromAssetPath,
-                                copyFromFile = copyFromFile,
-                                copyFromInputStream = copyFromInputStream,
-                                delegate = it,
-                            )
                         } else {
                             it
                         }
@@ -1555,9 +1559,6 @@ actual constructor() {
             if (supportOpenHelperFactory == null) {
                 require(!autoCloseEnabled) {
                     "Auto Closing Database is not supported when an SQLiteDriver is configured."
-                }
-                require(!prePackagedCopyEnabled) {
-                    "Pre-Package Database is not supported when an SQLiteDriver is configured."
                 }
                 require(!queryCallbackEnabled) {
                     "Query Callback is not supported when an SQLiteDriver is configured."
@@ -1779,6 +1780,17 @@ actual constructor() {
          * @param db The database.
          */
         public open fun onOpenPrepackagedDatabase(db: SupportSQLiteDatabase) {}
+
+        /**
+         * Called when the pre-packaged database has been copied.
+         *
+         * @param connection The database connection.
+         */
+        public open fun onOpenPrepackagedDatabase(connection: SQLiteConnection) {
+            if (connection is SupportSQLiteConnection) {
+                onOpenPrepackagedDatabase(connection.db)
+            }
+        }
     }
 
     /**
@@ -1804,33 +1816,6 @@ actual constructor() {
         public const val MAX_BIND_PARAMETER_CNT: Int = 999
     }
 }
-
-/**
- * Calls the specified suspending [block] in a database transaction. The transaction will be marked
- * as successful unless an exception is thrown in the suspending [block] or the coroutine is
- * cancelled.
- *
- * Room will only perform at most one transaction at a time, additional transactions are queued and
- * executed on a first come, first serve order.
- *
- * Performing blocking database operations is not permitted in a coroutine scope other than the one
- * received by the suspending block. It is recommended that all [Dao] function invoked within the
- * [block] be suspending functions.
- *
- * The internal dispatcher used to execute the given [block] will block an utilize a thread from
- * Room's transaction executor until the [block] is complete.
- */
-public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R =
-    withTransactionContext {
-        @Suppress("DEPRECATION") beginTransaction()
-        try {
-            val result = block.invoke()
-            @Suppress("DEPRECATION") setTransactionSuccessful()
-            result
-        } finally {
-            @Suppress("DEPRECATION") endTransaction()
-        }
-    }
 
 /** Calls the specified suspending [block] with Room's transaction context. */
 internal suspend fun <R> RoomDatabase.withTransactionContext(block: suspend () -> R): R {
@@ -1925,8 +1910,10 @@ internal class TransactionElement(internal val transactionDispatcher: Continuati
 
 /**
  * Compatibility suspend transaction execution with driver usage. This will maintain the dispatcher
- * behaviour in [withTransaction] when Room is in compatibility mode executing driver transactions
- * and maintains compatibility with suspend DAO usages.
+ * behaviour in `withTransaction` (now deleted API) when Room is in compatibility mode executing
+ * driver transactions and maintains compatibility with suspend DAO usages.
+ *
+ * TODO: Check if this still needed even if SupportSQLite is removed with AndroidSQLiteDriver
  */
 internal suspend fun <R> RoomDatabase.compatTransactionCoroutineExecute(block: suspend () -> R): R {
     if (inCompatibilityMode() && isOpenInternal && inTransaction()) {

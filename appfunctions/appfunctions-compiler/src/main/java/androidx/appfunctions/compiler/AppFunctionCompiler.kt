@@ -71,7 +71,8 @@ class AppFunctionCompiler(
      */
     private fun shouldDeferAllProcessing(resolver: Resolver): List<KSAnnotated> {
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
-        val annotatedAppFunctions = appFunctionSymbolResolver.resolveAnnotatedAppFunctions()
+        val annotatedAppFunctions =
+            appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctions()
         for (annotatedAppFunction in annotatedAppFunctions) {
             try {
                 annotatedAppFunction.validate()

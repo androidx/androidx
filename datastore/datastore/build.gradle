@@ -53,8 +53,7 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core"))

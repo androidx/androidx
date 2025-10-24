@@ -130,7 +130,7 @@ public final class EntityTest {
     public void getPose_parentSpace_returnsParentPose() {
         ActivitySpaceImpl activitySpace =
                 (ActivitySpaceImpl) mSpatialSceneRuntime.getActivitySpace();
-        activitySpace.setOpenXrReferenceSpacePose(
+        activitySpace.setOpenXrReferenceSpaceTransform(
                 Matrix4.fromTrs(
                         new Vector3(5f, 6f, 7f),
                         Quaternion.fromEulerAngles(22f, 33f, 44f),
@@ -145,7 +145,7 @@ public final class EntityTest {
     public void getPose_activitySpace_returnsActivitySpacePose() {
         ActivitySpaceImpl activitySpace =
                 (ActivitySpaceImpl) mSpatialSceneRuntime.getActivitySpace();
-        activitySpace.setOpenXrReferenceSpacePose(
+        activitySpace.setOpenXrReferenceSpaceTransform(
                 Matrix4.fromTrs(
                         new Vector3(5f, 6f, 7f),
                         Quaternion.fromEulerAngles(22f, 33f, 44f),
@@ -284,6 +284,138 @@ public final class EntityTest {
     }
 
     @Test
+    public void getGravityAlignedPose_returnsGravityAlignedPose() {
+        Vector3 translation = new Vector3(1f, 2f, 3f);
+        Pose pose_yawOnly = new Pose(translation, Quaternion.fromEulerAngles(0f, 30f, 0f));
+        Pose pose_yawPitchRoll = new Pose(translation, Quaternion.fromEulerAngles(15f, 30f, 45f));
+
+        // Pitch and roll of rotation will be ignored when the parent's rotation is identity.
+        assertPose(mEntity.getGravityAlignedPose(pose_yawPitchRoll), pose_yawOnly);
+
+        TestEntity child =
+                new TestEntity(
+                        mActivity,
+                        mXrExtensions.createNode(),
+                        mXrExtensions,
+                        mEntityManager,
+                        mFakeScheduledExecutorService);
+        child.setParent(mEntity);
+
+        // Rotates the parent entity's YAW only.
+        mEntity.setPose(pose_yawOnly);
+
+        // Pitch and roll of rotation will be ignored when the parent uses YAW rotation only.
+        Pose gravityAlignedPose_withYawRotatedParent =
+                new Pose(
+                        translation,
+                        // The local rotation required to make the child upright in world space.
+                        Quaternion.fromEulerAngles(0f, 30f, 0f));
+
+        assertPose(
+                child.getGravityAlignedPose(pose_yawPitchRoll),
+                gravityAlignedPose_withYawRotatedParent);
+
+        mEntity.setPose(pose_yawPitchRoll);
+
+        Pose gravityAlignedPose_withYawPitchRollRotatedParent =
+                new Pose(
+                        translation,
+                        // The local rotation required to make the child upright in world space.
+                        // Euler angles are approximately (pitch=12.5, yaw=32.7, roll=-45.6).
+                        // Calculation:
+                        // 1.Quaternion from EulerAngles(15f, 30f, 45f)
+                        //   = [x=0.2146, y=0.1888, z=0.3352, w=0.8977]
+                        //
+                        // 2.inputWorldRotation = parent world rotation * local rotation
+                        //     [0.2146, 0.1888, 0.3352, 0.8977] * [0.2146, 0.1888, 0.3352, 0.8977]
+                        //   = [x=0.3854, y=0.3390, z=0.6019, w=0.6117]
+                        //
+                        // 3.Child's "forward" direction (local +Z) in world space:
+                        //   worldForward = inputWorldRotation * Vector3(0f, 0f, 1f)
+                        //                = [x=0.8787, y=-0.0634, z=0.4730]
+                        //
+                        // 4.Project "forward" onto the horizontal (X-Z) ground plane:
+                        //   gravityAlignedForward = [x=0.8787, y=0.0, z=0.4730]
+                        //
+                        // 5.gravityAlignedWorldRotation = fromLookTowards(gravityAlignedForward)
+                        //                               = [x=0.0, y=0.5128, z=0.0, w=0.8584]
+                        //
+                        // 6.finalLocalRotation
+                        //   = parentWorldRot.inverse              * gravityAlignedWorldRotation
+                        //   = [-0.2146, -0.1888, -0.3352, 0.8977] * [0.0, 0.5128, 0.0, 0.8584]
+                        //   = [x=-0.0123, y=0.2982, z=-0.3979, w=0.8675]
+                        new Quaternion(-0.0123f, 0.298f, -0.398f, 0.867f));
+
+        assertPose(
+                child.getGravityAlignedPose(pose_yawPitchRoll),
+                gravityAlignedPose_withYawPitchRollRotatedParent);
+    }
+
+    @Test
+    public void getGravityAlignedPose_entityLookingUp_returnsGravityAlignedPose() {
+        Vector3 translation = new Vector3(1f, 2f, 3f);
+        // Pose looking straight up (+Y).
+        Pose poseLookingUp = new Pose(translation, Quaternion.fromEulerAngles(-90f, 0f, 0f));
+
+        // When the entity is looking straight up, the projected forward vector is zero.
+        // The gravity-aligned world rotation becomes Identity.
+        // Since the parent is Identity, the local rotation is also Identity.
+        assertPose(
+                mEntity.getGravityAlignedPose(poseLookingUp),
+                new Pose(translation, Quaternion.Identity));
+
+        TestEntity child =
+                new TestEntity(
+                        mActivity,
+                        mXrExtensions.createNode(),
+                        mXrExtensions,
+                        mEntityManager,
+                        mFakeScheduledExecutorService);
+        child.setParent(mEntity);
+
+        // Rotate the parent entity's YAW only.
+        Quaternion parentYawRotation = Quaternion.fromEulerAngles(0f, 30f, 0f);
+        mEntity.setPose(new Pose(Vector3.Zero, parentYawRotation));
+
+        // The gravity-aligned world rotation is still Identity.
+        assertPose(
+                child.getGravityAlignedPose(poseLookingUp),
+                new Pose(translation, Quaternion.Identity));
+    }
+
+    @Test
+    public void getGravityAlignedPose_entityLookingDown_returnsGravityAlignedPose() {
+        Vector3 translation = new Vector3(1f, 2f, 3f);
+        // Pose looking straight down (-Y).
+        Pose poseLookingDown = new Pose(translation, Quaternion.fromEulerAngles(90f, 0f, 0f));
+
+        // When the entity is looking straight down, the projected forward vector is zero.
+        // The gravity-aligned world rotation becomes Identity.
+        // Since the parent is Identity, the local rotation is also Identity.
+        assertPose(
+                mEntity.getGravityAlignedPose(poseLookingDown),
+                new Pose(translation, Quaternion.Identity));
+
+        TestEntity child =
+                new TestEntity(
+                        mActivity,
+                        mXrExtensions.createNode(),
+                        mXrExtensions,
+                        mEntityManager,
+                        mFakeScheduledExecutorService);
+        child.setParent(mEntity);
+
+        // Rotate the parent entity's YAW only.
+        Quaternion parentYawRotation = Quaternion.fromEulerAngles(0f, 30f, 0f);
+        mEntity.setPose(new Pose(new Vector3(), parentYawRotation));
+
+        // The gravity-aligned world rotation is still Identity.
+        assertPose(
+                child.getGravityAlignedPose(poseLookingDown),
+                new Pose(translation, Quaternion.Identity));
+    }
+
+    @Test
     public void getPoseInActivitySpaceWithScale_returnsPose() {
         mEntity.setPose(mTestPose, Space.PARENT);
         mEntity.setScale(new Vector3(2f, 2f, 2f), Space.PARENT);
@@ -308,7 +440,7 @@ public final class EntityTest {
         grandchild.setParent(child);
         ActivitySpaceImpl activitySpace =
                 (ActivitySpaceImpl) mSpatialSceneRuntime.getActivitySpace();
-        activitySpace.setOpenXrReferenceSpacePose(
+        activitySpace.setOpenXrReferenceSpaceTransform(
                 Matrix4.fromTrs(
                         new Vector3(5f, 6f, 7f),
                         Quaternion.fromEulerAngles(22f, 33f, 44f),
@@ -441,6 +573,7 @@ public final class EntityTest {
         mFakeScheduledExecutorService.runAll();
         HitTestResult hitTestResult = hitTestResultFuture.get();
 
+        assertThat(hitTestResult).isNotNull();
         assertThat(hitTestResult.getDistance()).isEqualTo(distance);
         // Since the entity is rotated 90 degrees about the x axis, the hit position should be
         // rotated 90 degrees about the x axis.
@@ -457,7 +590,7 @@ public final class EntityTest {
         Vec3 surfaceNormal = new Vec3(0.0f, 1.0f, 0.0f);
         int surfaceType = com.android.extensions.xr.space.HitTestResult.SURFACE_PANEL;
         ((ActivitySpaceImpl) mSpatialSceneRuntime.getActivitySpace())
-                .setOpenXrReferenceSpacePose(Matrix4.fromScale(2f));
+                .setOpenXrReferenceSpaceTransform(Matrix4.fromScale(2f));
         com.android.extensions.xr.space.HitTestResult extensionsHitTestResult =
                 new com.android.extensions.xr.space.HitTestResult.Builder(
                                 distance, hitPosition, true, surfaceType)

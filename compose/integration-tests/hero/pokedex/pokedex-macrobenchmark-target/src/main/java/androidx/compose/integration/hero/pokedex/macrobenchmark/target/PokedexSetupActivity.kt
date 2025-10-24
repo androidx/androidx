@@ -63,10 +63,10 @@ class PokedexSetupActivity : ComponentActivity() {
                     FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
+                        // Center the text as it could otherwise end up obscured by the status bar
+                        //  and not be picked up by UiAutomator.
+                        Gravity.CENTER,
                     )
-                // Center the text as it could otherwise end up obscured by the status bar and not
-                //  be picked up by UiAutomator.
-                gravity = Gravity.CENTER
                 text = POKEDEX_SETTING_UP_IMAGES
                 setTextColor(textColor)
             }

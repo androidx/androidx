@@ -44,6 +44,20 @@ public class VmInitializationStatsTest {
                 .isEqualTo(VmInitializationStats.VM_INIT_TYPE_RECONNECTING);
         assertThat(stats.getVmStartAttemptsStats())
                 .containsExactly(vmStartAttemptStats0, vmStartAttemptStats1);
+        String expectedString = "VmInitializationStats {\n"
+                + "  vmInitType=2,\n"
+                + "  vmStartAttemptsStats=[\n"
+                + "    VmStartAttemptStats {\n"
+                + "      statusCode=2,\n"
+                + "      latencyMillis=30000\n"
+                + "    },\n"
+                + "    VmStartAttemptStats {\n"
+                + "      statusCode=1,\n"
+                + "      latencyMillis=5000\n"
+                + "    },\n"
+                + "  ]\n"
+                + "}";
+        assertThat(stats.toString()).isEqualTo(expectedString);
     }
 
     @Test

@@ -27,7 +27,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUseCaseAdapterProvider;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
@@ -170,7 +169,6 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
         return mCameraInfoInternal.getSupportedFrameRateRanges();
     }
 
-    @ExperimentalSessionConfig
     @Override
     public @NonNull Set<Range<Integer>> getSupportedFrameRateRanges(
             @NonNull SessionConfig sessionConfig) {

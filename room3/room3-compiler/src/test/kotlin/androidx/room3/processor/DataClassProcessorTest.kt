@@ -2151,7 +2151,7 @@ class DataClassProcessorTest {
                 .isEqualTo(
                     PropertyGetter(
                         propertyName = "isbn",
-                        jvmName = if (invocation.isKsp2) "isbn" else "getIsbn",
+                        jvmName = "getIsbn",
                         type = stringType,
                         callType = CallType.SYNTHETIC_FUNCTION,
                     )
@@ -2170,7 +2170,7 @@ class DataClassProcessorTest {
                 .isEqualTo(
                     PropertyGetter(
                         propertyName = "isbn2",
-                        jvmName = if (invocation.isKsp2) "isbn2" else "getIsbn2",
+                        jvmName = "getIsbn2",
                         type = stringType.makeNullable(),
                         callType = CallType.SYNTHETIC_FUNCTION,
                     )
@@ -2179,7 +2179,7 @@ class DataClassProcessorTest {
                 .isEqualTo(
                     PropertySetter(
                         propertyName = "isbn2",
-                        jvmName = if (invocation.isKsp2) "setbn2" else "setIsbn2",
+                        jvmName = "setIsbn2",
                         type = stringType.makeNullable(),
                         callType = CallType.SYNTHETIC_FUNCTION,
                     )

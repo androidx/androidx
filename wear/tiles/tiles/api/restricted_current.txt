@@ -1058,6 +1058,7 @@ package androidx.wear.tiles {
     method @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.protolayout.ResourceBuilders.Resources!> onTileResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     field public static final String ACTION_BIND_TILE_PROVIDER = "androidx.wear.tiles.action.BIND_TILE_PROVIDER";
     field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
+    field public static final String METADATA_GROUP_KEY = "androidx.wear.tiles.GROUP";
     field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
   }
 

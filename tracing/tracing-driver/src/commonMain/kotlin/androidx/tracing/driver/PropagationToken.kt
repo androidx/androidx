@@ -16,10 +16,21 @@
 
 package androidx.tracing.driver
 
+import kotlin.coroutines.CoroutineContext
+
 /**
  * A token representing state carried forward for context propagation.
  *
- * This interface is only useful for libraries extending `Tracing Driver` that want to bring their
- * own implementation of context propagation.
+ * This interface is only useful for libraries that want to bring their own implementation of
+ * context propagation.
  */
 @DelicateTracingApi public interface PropagationToken
+
+/**
+ * A token representing state carried forward for context propagation.
+ *
+ * This interface is only useful for libraries that want to bring their own implementation of
+ * context propagation when using Kotlin Coroutines.
+ */
+@DelicateTracingApi
+public interface CoroutinePropagationToken : PropagationToken, CoroutineContext.Element

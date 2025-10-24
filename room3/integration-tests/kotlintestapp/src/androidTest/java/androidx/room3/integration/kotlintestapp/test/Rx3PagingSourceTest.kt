@@ -22,10 +22,11 @@ import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.paging.rxjava3.RxPagingSource
 import androidx.room3.Room
-import androidx.room3.RoomDatabase
 import androidx.room3.integration.kotlintestapp.testutil.ItemStore
+import androidx.room3.integration.kotlintestapp.testutil.MainThreadCheckSQLiteDriver
 import androidx.room3.integration.kotlintestapp.testutil.PagingDb
 import androidx.room3.integration.kotlintestapp.testutil.PagingEntity
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -53,7 +54,6 @@ class Rx3PagingSourceTest {
     private lateinit var db: PagingDb
     private lateinit var itemStore: ItemStore
 
-    private val mainThreadQueries = mutableListOf<Pair<String, String>>()
     private val pagingSources = mutableListOf<RxPagingSourceImpl>()
 
     @Before
@@ -61,31 +61,14 @@ class Rx3PagingSourceTest {
         coroutineScope = CoroutineScope(Dispatchers.Main)
         itemStore = ItemStore(coroutineScope)
 
-        val mainThread: Thread = runBlocking(Dispatchers.Main) { Thread.currentThread() }
         db =
-            Room.inMemoryDatabaseBuilder(
-                    ApplicationProvider.getApplicationContext(),
-                    PagingDb::class.java,
-                )
-                .setQueryCallback(
-                    object : RoomDatabase.QueryCallback {
-                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                            if (Thread.currentThread() === mainThread) {
-                                mainThreadQueries.add(sqlQuery to Throwable().stackTraceToString())
-                            }
-                        }
-                    }
-                ) {
-                    // instantly execute the log callback so that we can check the thread.
-                    it.run()
-                }
+            Room.inMemoryDatabaseBuilder<PagingDb>(ApplicationProvider.getApplicationContext())
+                .setDriver(MainThreadCheckSQLiteDriver(AndroidSQLiteDriver()))
                 .build()
     }
 
     @After
     fun tearDown() {
-        // Check no mainThread queries happened.
-        assertThat(mainThreadQueries).isEmpty()
         coroutineScope.cancel()
         pagingSources.clear()
         db.close()

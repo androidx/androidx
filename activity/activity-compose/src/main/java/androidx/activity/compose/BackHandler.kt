@@ -28,6 +28,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -37,7 +38,6 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventHandler
 import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventInfo.None
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 
 /**
@@ -114,7 +114,9 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
         "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
     }
 
-    val handler = remember { ComposeBackHandler() }
+    val compositeKey = currentCompositeKeyHashCode
+    val handler =
+        remember(owner, compositeKey) { ComposeBackHandler(BackHandlerInfo(owner, compositeKey)) }
 
     if (ActivityFlags.isOnBackPressedLifecycleOrderMaintained) {
         // Keep the handler instance stable across recompositions, but update the active parameters.
@@ -122,12 +124,12 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
 
         // Use LifecycleStartEffect to add the handler in sync with the lifecycle,
         // avoiding the frame delay that happens with state-based APIs like collectAsState().
-        LifecycleStartEffect(enabled) {
+        LifecycleStartEffect(enabled, handler) {
             handler.isBackEnabled = enabled
             onStopOrDispose { handler.isBackEnabled = false }
         }
 
-        DisposableEffect(owner) {
+        DisposableEffect(owner, handler) {
             owner.navigationEventDispatcher.addHandler(handler)
             onDispose { handler.remove() }
         }
@@ -140,15 +142,15 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
 
         // Use LifecycleStartEffect to add the handler in sync with the lifecycle,
         // avoiding the frame delay that happens with state-based APIs like collectAsState().
-        LifecycleStartEffect(owner) {
+        LifecycleStartEffect(owner, handler) {
             owner.navigationEventDispatcher.addHandler(handler)
             onStopOrDispose { handler.remove() }
         }
     }
 }
 
-private class ComposeBackHandler :
-    NavigationEventHandler<NavigationEventInfo>(initialInfo = None, isBackEnabled = false) {
+private class ComposeBackHandler(info: BackHandlerInfo) :
+    NavigationEventHandler<NavigationEventInfo>(initialInfo = info, isBackEnabled = false) {
 
     var currentOnBackCompleted: () -> Unit = {}
 
@@ -156,3 +158,8 @@ private class ComposeBackHandler :
         currentOnBackCompleted()
     }
 }
+
+private data class BackHandlerInfo(
+    val owner: NavigationEventDispatcherOwner,
+    val compositeKey: Long,
+) : NavigationEventInfo()

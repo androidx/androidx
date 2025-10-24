@@ -18,5 +18,5 @@ package sample.annotation.provider
 
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
 annotation class ExperimentalSampleAnnotation

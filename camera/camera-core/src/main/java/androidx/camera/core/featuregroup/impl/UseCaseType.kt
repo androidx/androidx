@@ -32,7 +32,7 @@ import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
-import androidx.camera.core.internal.CameraUseCaseAdapter.isVideoCapture
+import androidx.camera.core.impl.utils.UseCaseUtil.isVideoCapture
 import androidx.camera.core.streamsharing.StreamSharing
 
 /**
@@ -105,7 +105,7 @@ public enum class UseCaseType(
                 PREVIEW
             } else if (this is ImageCapture) {
                 IMAGE_CAPTURE
-            } else if (isVideoCapture(this)) {
+            } else if (this.isVideoCapture()) {
                 VIDEO_CAPTURE
             } else if (this is StreamSharing) {
                 STREAM_SHARING

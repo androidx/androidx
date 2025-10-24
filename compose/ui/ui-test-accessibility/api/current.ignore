@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.compose.ui.test.accessibility:
+    Removed package androidx.compose.ui.test.accessibility from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.accessibility.ComposeUiTestExt_androidKt:
+    Removed class androidx.compose.ui.test.accessibility.ComposeUiTestExt_androidKt from compatibility checked API surface

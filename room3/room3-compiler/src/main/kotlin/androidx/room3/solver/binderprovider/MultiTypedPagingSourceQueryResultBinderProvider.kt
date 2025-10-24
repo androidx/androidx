@@ -23,15 +23,13 @@ import androidx.room3.compiler.processing.XRawType
 import androidx.room3.compiler.processing.XType
 import androidx.room3.ext.CommonTypeNames
 import androidx.room3.ext.CommonTypeNames.LIST
-import androidx.room3.ext.PagingTypeNames
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
 import androidx.room3.processor.ProcessorErrors
 import androidx.room3.solver.QueryResultBinderProvider
 import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.query.result.ListQueryResultAdapter
-import androidx.room3.solver.query.result.MultiTypedPagingSourceQueryResultBinder
-import androidx.room3.solver.query.result.Paging3PagingSourceQueryResultBinder
+import androidx.room3.solver.query.result.MultiTypePagingSourceQueryResultBinder
 import androidx.room3.solver.query.result.QueryResultBinder
 
 class MultiTypedPagingSourceQueryResultBinderProvider(
@@ -71,28 +69,19 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
             ((listAdapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name })
                 .toSet()
 
-        return if (pagingSourceTypeName == PagingTypeNames.PAGING_SOURCE) {
-            val convertRowsOverrideInfo =
-                ConvertRowsOverrideInfo(
-                    function = convertExecutableElement,
-                    continuationParamName = convertExecutableElement.parameters.last().name,
-                    owner =
-                        context.processingEnv.getDeclaredType(roomPagingSourceTypeElement, typeArg),
-                    returnTypeName = LIST.parametrizedBy(typeArg.asTypeName()),
-                )
-            Paging3PagingSourceQueryResultBinder(
-                listAdapter = listAdapter,
-                tableNames = tableNames,
-                className = roomPagingClassName,
-                convertRowsOverrideInfo = convertRowsOverrideInfo,
+        val convertRowsOverrideInfo =
+            ConvertRowsOverrideInfo(
+                function = convertExecutableElement,
+                continuationParamName = convertExecutableElement.parameters.last().name,
+                owner = context.processingEnv.getDeclaredType(roomPagingSourceTypeElement, typeArg),
+                returnTypeName = LIST.parametrizedBy(typeArg.asTypeName()),
             )
-        } else {
-            MultiTypedPagingSourceQueryResultBinder(
-                listAdapter = listAdapter,
-                tableNames = tableNames,
-                className = roomPagingClassName,
-            )
-        }
+        return MultiTypePagingSourceQueryResultBinder(
+            listAdapter = listAdapter,
+            tableNames = tableNames,
+            className = roomPagingClassName,
+            convertRowsOverrideInfo = convertRowsOverrideInfo,
+        )
     }
 
     override fun matches(declared: XType): Boolean {

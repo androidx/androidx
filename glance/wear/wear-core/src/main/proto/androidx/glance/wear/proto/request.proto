@@ -29,4 +29,7 @@ message WearWidgetRequestProto {
 
   // The height in dp of the container for this widget.
   float height_dp = 3;
+
+  // The container type for this widget.
+  uint32 container_type = 4;
 }

@@ -107,28 +107,26 @@ private class SpatialExternalSphereSurfaceScopeInstance(
  * @see [SpatialExternalSurface]
  */
 @JvmInline
-public value class StereoMode private constructor(internal val value: Int) {
+public value class StereoMode private constructor(internal val value: SurfaceEntity.StereoMode) {
     public companion object {
         /** Each eye will see the entire surface (no separation). */
-        public val Mono: StereoMode = StereoMode(SurfaceEntity.StereoMode.STEREO_MODE_MONO)
+        public val Mono: StereoMode = StereoMode(SurfaceEntity.StereoMode.MONO)
         /** The [top, bottom] halves of the surface will map to [left, right] eyes. */
-        public val TopBottom: StereoMode =
-            StereoMode(SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM)
+        public val TopBottom: StereoMode = StereoMode(SurfaceEntity.StereoMode.TOP_BOTTOM)
         /** The [left, right] halves of the surface will map to [left, right] eyes. */
-        public val SideBySide: StereoMode =
-            StereoMode(SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE)
+        public val SideBySide: StereoMode = StereoMode(SurfaceEntity.StereoMode.SIDE_BY_SIDE)
         /**
          * For displaying mv-hevc video format, [base, secondary] view layers will map to
          * [left, right] eyes.
          */
         public val MultiviewLeftPrimary: StereoMode =
-            StereoMode(SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY)
+            StereoMode(SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY)
         /**
          * For displaying mv-hevc video format, [base, secondary] view layers will map to
          * [right, left] eyes.
          */
         public val MultiviewRightPrimary: StereoMode =
-            StereoMode(SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_RIGHT_PRIMARY)
+            StereoMode(SurfaceEntity.StereoMode.MULTIVIEW_RIGHT_PRIMARY)
     }
 }
 
@@ -141,22 +139,22 @@ public value class StereoMode private constructor(internal val value: Int) {
  * @see https://developer.android.com/reference/android/media/MediaDrm
  */
 @JvmInline
-public value class SurfaceProtection private constructor(internal val value: Int) {
+public value class SurfaceProtection
+private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
     public companion object {
         /**
          * The Surface content is not protected. Non-protected content can be decoded into this
          * surface. Protected content can not be decoded into this Surface. Screen captures of the
          * [SpatialExternalSurface] will show the Surface content.
          */
-        public val None: SurfaceProtection =
-            SurfaceProtection(SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_NONE)
+        public val None: SurfaceProtection = SurfaceProtection(SurfaceEntity.SurfaceProtection.NONE)
         /**
          * The Surface content is protected. Non-protected content can be decoded into this surface.
          * Protected content can be decoded into this Surface. Screen captures of the
          * [SpatialExternalSurface] will redact the Surface content.
          */
         public val Protected: SurfaceProtection =
-            SurfaceProtection(SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_PROTECTED)
+            SurfaceProtection(SurfaceEntity.SurfaceProtection.PROTECTED)
     }
 }
 

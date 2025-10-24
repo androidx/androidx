@@ -24,6 +24,7 @@ import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
@@ -222,7 +223,7 @@ internal class ThrottledCallbacks {
         val viewToWindowMatrix = viewToWindowMatrix
         globalChangeEntries?.linkedForEach { entry ->
             val node = entry.node.requireLayoutNode()
-            val offsetFromRoot = node.offsetFromRoot
+            val offsetFromRoot = node.requireOwner().rectManager.getOffsetFromRectListFor(node)
             val lastSize = node.lastSize
 
             // For global change callbacks, we'll still need to update the Entry bounds

@@ -18,6 +18,9 @@ package androidx.xr.scenecore.spatial.rendering;
 
 import android.util.Log;
 
+import androidx.xr.runtime.math.BoundingBox;
+import androidx.xr.runtime.math.FloatSize3d;
+import androidx.xr.scenecore.impl.impress.GltfModel;
 import androidx.xr.scenecore.impl.impress.ImpressApi;
 import androidx.xr.scenecore.impl.impress.ImpressNode;
 import androidx.xr.scenecore.impl.impress.Material;
@@ -49,15 +52,26 @@ class GltfFeatureImpl extends BaseRenderingFeature implements GltfFeature {
     private final Map<String, Integer> meshOverrides = new HashMap<>();
 
     GltfFeatureImpl(
-            GltfModelResourceImpl gltfModelResource,
+            GltfModel gltfModel,
             ImpressApi impressApi,
             SplitEngineSubspaceManager splitEngineSubspaceManager,
             XrExtensions extensions) {
         super(impressApi, splitEngineSubspaceManager, extensions);
 
-        mModelImpressNode =
-                impressApi.instanceGltfModel(gltfModelResource.getExtensionModelToken());
+        mModelImpressNode = impressApi.instanceGltfModel(((GltfModel) gltfModel).getNativeHandle());
         bindImpressNodeToSubspace("gltf_entity_subspace_", mModelImpressNode);
+    }
+
+    @Override
+    @NonNull
+    public FloatSize3d getSize() {
+        return getGltfModelBoundingBox().getHalfExtents().times(2);
+    }
+
+    @Override
+    @NonNull
+    public BoundingBox getGltfModelBoundingBox() {
+        return mImpressApi.getGltfModelBoundingBox(mModelImpressNode);
     }
 
     @Override

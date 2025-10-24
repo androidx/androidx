@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.core.telecom.util:
+    Removed package androidx.core.telecom.util from compatibility checked API surface
+
+
 RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getAddress():
     Source breaking change: method androidx.core.telecom.CallAttributesCompat.getAddress() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getCallCapabilities():

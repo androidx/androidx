@@ -57,7 +57,7 @@ import androidx.wear.compose.foundation.rotary.rotaryScrollable
  * The vertically scrolling list that only composes and lays out the currently visible items. This
  * is a wear specific version of LazyColumn that adds support for scaling and morphing animations.
  *
- * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnLettersSample
+ * @sample androidx.wear.compose.foundation.samples.SimpleTransformingLazyColumnSample
  * @param modifier The modifier to be applied to the layout.
  * @param state The state object to be used to control the list and the applied layout.
  * @param contentPadding a padding around the whole content. This will add padding for the content
@@ -211,7 +211,7 @@ public fun TransformingLazyColumn(
  * The vertically scrolling list that only composes and lays out the currently visible items. This
  * is a wear specific version of LazyColumn that adds support for scaling and morphing animations.
  *
- * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnLettersSample
+ * @sample androidx.wear.compose.foundation.samples.SimpleTransformingLazyColumnSample
  * @param modifier The modifier to be applied to the layout.
  * @param state The state object to be used to control the list and the applied layout.
  * @param contentPadding a padding around the whole content. This will add padding for the content

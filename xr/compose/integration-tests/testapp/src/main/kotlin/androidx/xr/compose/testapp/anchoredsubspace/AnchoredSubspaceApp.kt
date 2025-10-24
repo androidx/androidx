@@ -194,6 +194,7 @@ class AnchoredSubspaceApp : ComponentActivity() {
     }
 
     @Composable
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     private fun AnchoredSubspaceContent(session: Session, anchorPose: Pose) {
         var rootAnchor = remember { mutableStateOf<AnchorEntity?>(null) }
 
@@ -248,6 +249,7 @@ class AnchoredSubspaceApp : ComponentActivity() {
         modifier: SubspaceModifier = SubspaceModifier,
         content: @Composable () -> Unit,
     ) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         SpatialPanel(modifier.width(300.dp).height(200.dp)) {
             Box(
                 modifier = Modifier.background(Color.LightGray).fillMaxSize(),

@@ -47,7 +47,6 @@ import org.jspecify.annotations.Nullable;
  * route.
  */
 final class SurfaceFeatureImpl extends BaseRenderingFeature implements SurfaceFeature {
-    // TODO: b/362520810 - Wrap impress nodes w/ Java class.
     private final ImpressNode mEntityImpressNode;
 
     @StereoMode private int mStereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE;
@@ -247,6 +246,18 @@ final class SurfaceFeatureImpl extends BaseRenderingFeature implements SurfaceFe
         //  Future.
         try {
             return mImpressApi.getSurfaceFromStereoSurface(mEntityImpressNode);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public void setSurfacePixelDimensions(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Surface dimensions must be positive.");
+        }
+        try {
+            mImpressApi.setStereoSurfaceEntitySurfaceSize(mEntityImpressNode, width, height);
         } catch (IllegalArgumentException e) {
             throw new IllegalStateException(e);
         }

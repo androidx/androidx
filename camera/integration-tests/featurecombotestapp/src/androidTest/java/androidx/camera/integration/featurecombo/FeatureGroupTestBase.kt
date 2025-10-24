@@ -36,7 +36,6 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ExtendableBuilder
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.getImageCaptureCapabilities
@@ -214,7 +213,6 @@ open class FeatureGroupTestBase(
         }
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @SuppressLint("NewApi")
     protected suspend fun Set<GroupableFeature>.verifyFeatures(
         useCases: List<UseCase>,
@@ -306,7 +304,6 @@ open class FeatureGroupTestBase(
         imageCapture.takePicture().assertJpegUltraHdr()
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     private fun verifyRecordingQuality(
         useCases: List<UseCase>,
         feature: GroupableFeature,
@@ -384,11 +381,9 @@ open class FeatureGroupTestBase(
                 listOf(PREVIEW, IMAGE_CAPTURE, VIDEO_CAPTURE),
             )
 
-        @OptIn(ExperimentalSessionConfig::class)
         val allHighQualityFeatures =
             setOf(HDR_HLG10, FPS_60, PREVIEW_STABILIZATION, IMAGE_ULTRA_HDR, UHD_RECORDING)
 
-        @OptIn(ExperimentalSessionConfig::class)
         val allFeatures =
             setOf(
                 HDR_HLG10,

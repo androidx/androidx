@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.benchmark.traceprocessor:
+    Removed package androidx.benchmark.traceprocessor from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.traceprocessor.PerfettoTraceKt:
+    Removed class androidx.benchmark.traceprocessor.PerfettoTraceKt from compatibility checked API surface

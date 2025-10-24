@@ -6,7 +6,6 @@
  * modifying its settings.
  */
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
@@ -22,8 +21,6 @@ androidXMultiplatform {
         binaries.framework {
             // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
             baseName = "AndroidXDarwinBenchmarks"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
             export(project.project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }

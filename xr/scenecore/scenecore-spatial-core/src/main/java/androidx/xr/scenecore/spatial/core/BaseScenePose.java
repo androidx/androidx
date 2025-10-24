@@ -59,8 +59,7 @@ abstract class BaseScenePose implements ScenePose {
             @NonNull Vector3 origin,
             @NonNull Vector3 direction,
             @HitTestFilterValue int hitTestFilter) {
-        throw new UnsupportedOperationException(
-                "hitTest is not implemented for this ScenePose.");
+        throw new UnsupportedOperationException("hitTest is not implemented for this ScenePose.");
     }
 
     @Override

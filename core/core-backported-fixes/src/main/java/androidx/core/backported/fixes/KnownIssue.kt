@@ -55,6 +55,20 @@ internal constructor(
     @IntRange(from = 1, to = 1023) internal val alias: Int?,
 
     /**
+     * Set of manually tested build fingerprints of where the known issues is fixed.
+     *
+     * If a device has a fingerprint in this set then [BackportedFixManager.getStatus] will always
+     * return [Status.Fixed].
+     *
+     * **NOTE** This should only be used when a proper test for a KnownIssue is delayed and there is
+     * small number of build that have been manually tested to verify that the issue is fixed on
+     * those builds.
+     *
+     * Defaults to an empty set.
+     */
+    internal val manuallyTestedFingerprints: Set<String> = emptySet(),
+
+    /**
      * A function that returns true if the issue applies to a device.
      *
      * Override if the issue should only apply to specific brands, models or other static

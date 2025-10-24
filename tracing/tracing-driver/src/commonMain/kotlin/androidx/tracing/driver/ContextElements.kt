@@ -18,33 +18,47 @@ package androidx.tracing.driver
 
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
-
-/** Useful in the context of structured concurrency to keep track of flows. */
-@PublishedApi
-internal suspend fun obtainPlatformThreadContextElement(): PlatformThreadContextElement<*>? {
-    return coroutineContext[PlatformThreadContextElement.KEY]
-}
 
 /**
  * We use the [PlatformThreadContextElement] construct to know when a coroutine has suspended, and
  * about to resume on a `Thread`.
  */
-@PublishedApi
-internal abstract class PlatformThreadContextElement<S>
-internal constructor(public open val name: String, public open val token: FlowToken) :
-    AbstractCoroutineContextElement(key = KEY) {
+// False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
+@Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+@DelicateTracingApi
+public abstract class PlatformThreadContextElement<S>
+internal constructor(
+    public open var category: String,
+    public open var name: String,
+    public open val flowIds: List<Long>,
+) : AbstractCoroutineContextElement(key = KEY), CoroutinePropagationToken, AutoCloseable {
     // Always starts in a begin state.
-    @PublishedApi internal val started: AtomicInteger = AtomicInteger(STATE_BEGIN)
+    @JvmField internal var started: Int = STATE_BEGIN
+
+    // Default to an empty thread track to ensure that this is non-null.
+    // We will always swap this with the real owner.
+    @JvmField internal var owner: ThreadTrack = EmptyTraceContext.thread
 
     /**
      * This method is called **before a coroutine is resumed** on a thread that belongs to a
      * dispatcher.
      */
-    @PublishedApi internal abstract fun updateThreadContext(context: CoroutineContext): S
+    internal abstract fun updateThreadContext(context: CoroutineContext): S
 
     /** This method is called **after** a coroutine is suspend on the current thread. */
-    @PublishedApi internal abstract fun restoreThreadContext(context: CoroutineContext, oldState: S)
+    internal abstract fun restoreThreadContext(context: CoroutineContext, oldState: S)
+
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun synchronizedCompareAndSet(expected: Int, newValue: Int): Boolean {
+        return synchronized(this) {
+            if (started == expected) {
+                started = newValue
+                true
+            } else {
+                false
+            }
+        }
+    }
 
     @PublishedApi
     internal companion object {
@@ -53,6 +67,7 @@ internal constructor(public open val name: String, public open val token: FlowTo
         // Used to represent that the current slice has ended.
         @PublishedApi internal const val STATE_END: Int = 0
         @PublishedApi
+        @JvmField
         internal val KEY: CoroutineContext.Key<PlatformThreadContextElement<*>> =
             object : CoroutineContext.Key<PlatformThreadContextElement<*>> {}
     }
@@ -61,8 +76,10 @@ internal constructor(public open val name: String, public open val token: FlowTo
 /** Builds an instance of the Platform specific [PlatformThreadContextElement]. */
 @PublishedApi
 internal expect fun buildThreadContextElement(
+    category: String,
     name: String,
-    element: FlowToken,
+    flowIds: List<Long>,
     updateThreadContextBlock: (context: CoroutineContext) -> Unit,
     restoreThreadContextBlock: (context: CoroutineContext) -> Unit,
+    close: (platformThreadContextElement: PlatformThreadContextElement<*>) -> Unit,
 ): PlatformThreadContextElement<Unit>

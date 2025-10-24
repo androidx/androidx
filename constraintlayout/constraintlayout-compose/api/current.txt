@@ -748,7 +748,7 @@ package androidx.constraintlayout.compose {
     enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
   }
 
-  public final class MotionLayoutKt {
+  @SuppressCompatibility public final class MotionLayoutKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, float progress, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, optional androidx.constraintlayout.compose.DebugFlags debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, float progress, optional androidx.compose.ui.Modifier modifier, optional String transitionName, optional androidx.constraintlayout.compose.DebugFlags debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, String? constraintSetName, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, optional androidx.constraintlayout.compose.DebugFlags debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
@@ -810,7 +810,7 @@ package androidx.constraintlayout.compose {
     method public androidx.constraintlayout.compose.Transition? getTransitionInstance(String name);
   }
 
-  public final class MotionSceneKt {
+  @SuppressCompatibility public final class MotionSceneKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(@org.intellij.lang.annotations.Language("json5") String content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(@org.intellij.lang.annotations.Language("json5") String, androidx.compose.runtime.Composer?, int);
   }
@@ -868,7 +868,7 @@ package androidx.constraintlayout.compose {
     method public operator androidx.constraintlayout.compose.ConstrainedLayoutReference component9();
   }
 
-  public final class MotionSceneScopeKt {
+  @SuppressCompatibility public final class MotionSceneScopeKt {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionScene MotionScene(kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionSceneScope,kotlin.Unit> motionSceneContent);
   }
 
@@ -1061,7 +1061,7 @@ package androidx.constraintlayout.compose {
     method public String getStartConstraintSetId();
   }
 
-  public final class TransitionKt {
+  @SuppressCompatibility public final class TransitionKt {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition Transition(@org.intellij.lang.annotations.Language("json5") String content);
   }
 
@@ -1081,7 +1081,7 @@ package androidx.constraintlayout.compose {
     property public androidx.constraintlayout.compose.OnSwipe? onSwipe;
   }
 
-  public final class TransitionScopeKt {
+  @SuppressCompatibility public final class TransitionScopeKt {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition Transition(optional String from, optional String to, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition! Transition$default(String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
   }

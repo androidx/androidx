@@ -21,8 +21,8 @@ import static org.junit.Assert.assertEquals;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.operations.Theme;
-import androidx.compose.remote.core.serialization.yaml.YAMLSerializer;
 import androidx.compose.remote.creation.RemoteComposeWriter;
+import androidx.compose.remote.serialization.yaml.YAMLSerializer;
 
 import org.yaml.snakeyaml.Yaml;
 

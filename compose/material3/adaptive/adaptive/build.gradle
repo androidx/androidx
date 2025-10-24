@@ -44,8 +44,8 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api("androidx.compose.foundation:foundation:1.10.0-alpha04")
-                api("androidx.compose.ui:ui:1.10.0-alpha04")
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui"))
                 api("androidx.window:window-core:1.5.0")
             }
         }

@@ -21,7 +21,7 @@ package androidx.xr.scenecore.guava
 import androidx.annotation.MainThread
 import androidx.concurrent.futures.SuspendToFutureAdapter
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.AlphaModeValues
+import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.KhronosUnlitMaterial
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -36,7 +36,7 @@ import com.google.common.util.concurrent.ListenableFuture
 @MainThread
 public fun createKhronosUnlitMaterialAsync(
     session: Session,
-    @AlphaModeValues alphaMode: Int,
+    alphaMode: AlphaMode,
 ): ListenableFuture<KhronosUnlitMaterial> =
     SuspendToFutureAdapter.launchFuture(
         context = session.coroutineScope.coroutineContext,

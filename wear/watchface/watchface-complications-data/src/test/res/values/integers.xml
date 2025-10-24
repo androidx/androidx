@@ -17,4 +17,5 @@
 
 <resources>
     <integer name="test_integer">123</integer>
+    <integer name="long_test_integer">8418</integer>
 </resources>

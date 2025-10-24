@@ -687,6 +687,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452713508
     @Test
     fun canSaveFile_withRotation() = runBlocking {
         // TODO(b/147448711) Add back in once cuttlefish has correct user cropping functionality.

@@ -18,7 +18,6 @@ package androidx.camera.lifecycle
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CompositionSettings
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.LegacySessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
@@ -47,7 +46,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@OptIn(ExperimentalSessionConfig::class)
 class LifecycleCameraRepositoryTest {
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var repository: LifecycleCameraRepository

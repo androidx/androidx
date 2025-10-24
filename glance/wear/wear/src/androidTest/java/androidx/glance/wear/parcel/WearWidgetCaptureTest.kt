@@ -29,10 +29,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.modifier.onClick
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -75,11 +75,11 @@ class WearWidgetCaptureTest {
                 RemoteBox(modifier = RemoteModifier.size(100.dp))
                 RemoteText(
                     text = "text-0",
-                    modifier = RemoteModifier.onClick(pendingIntentAction(testPendingIntent0)),
+                    modifier = RemoteModifier.clickable(pendingIntentAction(testPendingIntent0)),
                 )
                 RemoteText(
                     text = "text-1",
-                    modifier = RemoteModifier.onClick(pendingIntentAction(testPendingIntent1)),
+                    modifier = RemoteModifier.clickable(pendingIntentAction(testPendingIntent1)),
                 )
             }
         }
@@ -123,7 +123,7 @@ class WearWidgetCaptureTest {
                         androidx.compose.ui.Modifier.semantics { contentDescription = "Document" },
                     text =
                         data.value?.rcDocument?.let { rcDoc ->
-                            RemoteComposeDocument(rcDoc).document.displayHierarchy()
+                            RemoteDocument(rcDoc).document.displayHierarchy()
                         } ?: "",
                 )
                 BasicText(
@@ -187,7 +187,7 @@ class WearWidgetCaptureTest {
         val result =
             """
 DATA_TEXT<42> = "text-0"
-DATA_TEXT<45> = "text-1"
+DATA_TEXT<44> = "text-1"
 ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
     MODIFIERS
@@ -198,12 +198,12 @@ ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
     TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (42:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 48 : 43
+          HOST_NAMED_ACTION = 46 : 43
         SEMANTICS = SEMANTICS BUTTON
-    TEXT_LAYOUT [-9:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (45:"null")
+    TEXT_LAYOUT [-9:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (44:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 48 : 46
+          HOST_NAMED_ACTION = 46 : 45
         SEMANTICS = SEMANTICS BUTTON
 """
 

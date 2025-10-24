@@ -73,7 +73,7 @@ public abstract class GlanceWearWidgetService() : LifecycleService() {
     public companion object {
         /** Intent action for binding to a Widget Service. */
         public const val ACTION_BIND_WIDGET_PROVIDER: String =
-            "androidx.glance.wear.action.BIND_WIDGET_PROVIDER"
+            WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER
 
         /** Extra boolean in the intent to signal support for [IWearWidgetProvider] interface. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -16,18 +16,24 @@
 
 package androidx.room3.benchmark
 
+import android.content.Context
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.room3.InvalidationTracker
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
+import androidx.room3.immediateTransaction
+import androidx.room3.useWriterConnection
+import androidx.sqlite.driver.AndroidSQLiteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.testutils.generateAllEnumerations
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestScope
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,54 +41,64 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode: Mode) {
+class InvalidationTrackerBenchmark(
+    private val driver: UseDriver,
+    private val sampleSize: Int,
+    private val mode: Mode,
+) {
 
     @get:Rule val benchmarkRule = BenchmarkRule()
 
-    val context = ApplicationProvider.getApplicationContext() as android.content.Context
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val testScope = TestScope()
 
     @Before
     fun setup() {
-        for (postfix in arrayOf("", "-wal", "-shm")) {
-            val dbFile = context.getDatabasePath(DB_NAME + postfix)
-            if (dbFile.exists()) {
-                assertTrue(dbFile.delete())
-            }
-        }
+        context.deleteDatabase(DB_NAME)
     }
 
     @Test
-    @Ignore // b/410015038
     fun largeTransaction() {
         val db =
             Room.databaseBuilder(context, TestDatabase::class.java, DB_NAME)
                 .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+                .setDriver(
+                    when (driver) {
+                        UseDriver.ANDROID -> AndroidSQLiteDriver()
+                        UseDriver.BUNDLED -> BundledSQLiteDriver()
+                    }
+                )
                 .build()
 
-        val observer =
-            object : InvalidationTracker.Observer("user") {
-                override fun onInvalidated(tables: Set<String>) {}
+        val flowJob =
+            testScope.launch(Dispatchers.IO) {
+                db.invalidationTracker.createFlow("user").collect {}
             }
-        db.invalidationTracker.addObserver(observer)
 
         val users = List(sampleSize) { User(it, "name$it") }
 
         benchmarkRule.measureRepeated {
             runWithTimingConditional(pauseTiming = mode == Mode.MEASURE_DELETE) {
-                // Insert the sample size
-                db.runInTransaction {
-                    for (user in users) {
-                        db.getUserDao().insert(user)
+                runBlocking {
+                    // Insert the sample size
+                    db.useWriterConnection { transactor ->
+                        transactor.immediateTransaction {
+                            for (user in users) {
+                                db.getUserDao().insert(user)
+                            }
+                        }
                     }
                 }
             }
 
             runWithTimingConditional(pauseTiming = mode == Mode.MEASURE_INSERT) {
+                val result = runBlocking { db.getUserDao().deleteAll() }
                 // Delete sample size (causing a large transaction)
-                assertEquals(db.getUserDao().deleteAll(), sampleSize)
+                assertEquals(result, sampleSize)
             }
         }
 
+        flowJob.cancel()
         db.close()
     }
 
@@ -94,9 +110,10 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "sampleSize={0}, mode={1}")
+        @Parameterized.Parameters(name = "driver={0}, sampleSize={1}, mode={2}")
         fun data(): List<Array<Any>> =
             generateAllEnumerations(
+                UseDriver.entries,
                 listOf(
                     100,
                     1000,
@@ -108,6 +125,11 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
             )
 
         private const val DB_NAME = "invalidation-benchmark-test"
+    }
+
+    enum class UseDriver {
+        ANDROID,
+        BUNDLED,
     }
 
     enum class Mode {

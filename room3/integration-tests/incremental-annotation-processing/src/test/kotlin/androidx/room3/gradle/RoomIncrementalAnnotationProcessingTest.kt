@@ -33,14 +33,12 @@ class RoomIncrementalAnnotationProcessingTest() {
 
         private const val SRC_DIR = "src/main/java"
         private const val GEN_RES_DIR = "schemas"
-        private const val COMPILE_TASK_NAME = "compileDebugJavaWithJavac"
         private const val JAVA_CLASS_DIR =
-            "build/intermediates/javac/debug/$COMPILE_TASK_NAME/classes"
-        private const val KOTLIN_CLASS_DIR =
-            "build/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes"
+            "build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+        private const val KOTLIN_CLASS_DIR = "build/tmp/kotlin-classes/debug"
 
         private const val CLEAN_TASK = ":clean"
-        private const val COMPILE_TASK = ":$COMPILE_TASK_NAME"
+        private const val COMPILE_TASK = ":compileDebugJavaWithJavac"
     }
 
     @get:Rule val projectSetup = ProjectSetupRule()
@@ -109,11 +107,6 @@ class RoomIncrementalAnnotationProcessingTest() {
             }
             appendLine("}")
         }
-        val agpDependency = projectSetup.props.agpDependency
-        val kotlinPluginDependency = projectSetup.props.kgpDependency
-        val kspPluginDependency =
-            "com.google.devtools.ksp:symbol-processing-gradle-plugin:" +
-                projectSetup.props.kspVersion
 
         // copy test project
         File("src/test/test-data/simple-project").copyRecursively(projectRoot)
@@ -125,17 +118,11 @@ class RoomIncrementalAnnotationProcessingTest() {
         File(projectRoot, "build.gradle")
             .writeText(
                 """
-            buildscript {
-                ${repositoriesBlock.prependIndent("    ")}
-                dependencies {
-                    classpath "$agpDependency"
-                    classpath "$kotlinPluginDependency"
-                    classpath "$kspPluginDependency"
-                }
+            plugins {
+                id('com.android.application')
+                id('kotlin-android')
+                id('com.google.devtools.ksp')
             }
-
-            apply plugin: 'com.android.application'
-            apply plugin: "com.google.devtools.ksp"
 
             $repositoriesBlock
 
@@ -151,38 +138,16 @@ class RoomIncrementalAnnotationProcessingTest() {
                 org.jetbrains.kotlin.gradle.tasks.KotlinCompile
             ).configureEach {
                 kotlinOptions {
-                    jvmTarget = "1.8"
-                }
-            }
-
-            class SchemaLocationArgumentProvider implements CommandLineArgumentProvider {
-
-                @OutputDirectory
-                File schemaDir
-
-                SchemaLocationArgumentProvider(File schemaDir) {
-                    this.schemaDir = schemaDir
-                }
-
-                @Override
-                Iterable<String> asArguments() {
-                    ["-Aroom.schemaLocation=" + schemaDir.path ]
+                    jvmTarget = "11"
                 }
             }
 
             android {
                 namespace = "room.testapp"
-                defaultConfig {
-                    javaCompileOptions {
-                        annotationProcessorOptions {
-                compilerArgumentProvider new SchemaLocationArgumentProvider(file('$GEN_RES_DIR'))
-                        }
-                    }
-                }
 
                 compileOptions {
-                  sourceCompatibility = JavaVersion.VERSION_1_8
-                  targetCompatibility = JavaVersion.VERSION_1_8
+                  sourceCompatibility = JavaVersion.VERSION_11
+                  targetCompatibility = JavaVersion.VERSION_11
                 }
             }
 
@@ -227,8 +192,7 @@ class RoomIncrementalAnnotationProcessingTest() {
             ksp.incremental=true
             ksp.incremental.log=true
             android.useAndroidX=true
-            # TODO: Remove when we upgrade KSP
-            ksp.version.check=false
+            android.builtInKotlin=false
             """
                     .trimIndent()
             )
@@ -237,6 +201,7 @@ class RoomIncrementalAnnotationProcessingTest() {
     private fun runGradleTasks(vararg args: String): BuildResult {
         return GradleRunner.create()
             .withProjectDir(projectSetup.rootDir)
+            .withPluginClasspath()
             // workaround for b/231154556
             .withArguments("-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m", *args)
             .build()

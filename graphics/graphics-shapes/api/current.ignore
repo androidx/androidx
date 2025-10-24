@@ -1,8 +1,6 @@
 // Baseline format: 1.0
 AddedMethod: androidx.graphics.shapes.CornerRounding#CornerRounding(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker):
     Added constructor androidx.graphics.shapes.CornerRounding(float,float,int,kotlin.jvm.internal.DefaultConstructorMarker)
-AddedMethod: androidx.graphics.shapes.Cubic#Cubic(float[], int, kotlin.jvm.internal.DefaultConstructorMarker):
-    Added constructor androidx.graphics.shapes.Cubic(float[],int,kotlin.jvm.internal.DefaultConstructorMarker)
 AddedMethod: androidx.graphics.shapes.Morph#calculateBounds$default(androidx.graphics.shapes.Morph, float[], boolean, int, Object):
     Added method androidx.graphics.shapes.Morph.calculateBounds$default(androidx.graphics.shapes.Morph,float[],boolean,int,Object)
 AddedMethod: androidx.graphics.shapes.Morph#calculateMaxBounds$default(androidx.graphics.shapes.Morph, float[], int, Object):

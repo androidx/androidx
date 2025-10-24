@@ -53,8 +53,6 @@ androidXMultiplatform {
                 implementation("androidx.lifecycle:lifecycle-runtime:2.9.2")
                 implementation(project(":kruth:kruth"))
                 implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
             }
         }

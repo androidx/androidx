@@ -49,11 +49,21 @@ public interface SubspaceLayoutModifierNode : DelegatableSubspaceNode {
 }
 
 /**
+ * Requests a remeasure of the [SubspaceLayoutModifierNode] composition tree.
+ *
+ * This is used to request a remeasure in stateful layout modifiers that are impacted by events that
+ * don't trigger a recomposition. *Do not* call this from [SubspaceLayoutModifierNode.measure].
+ */
+public fun SubspaceLayoutModifierNode.invalidateMeasurement() {
+    node.layoutNode?.requestMeasure()
+}
+
+/**
  * Requests a relayout of the [SubspaceLayoutModifierNode] composition tree.
  *
  * This is used to request a relayout in stateful layout modifiers that are impacted by events that
  * don't trigger a recomposition. *Do not* call this from [SubspaceLayoutModifierNode.measure].
  */
-public fun SubspaceLayoutModifierNode.requestRelayout() {
-    node.layoutNode?.requestRelayout()
+public fun SubspaceLayoutModifierNode.invalidatePlacement() {
+    node.layoutNode?.requestLayout()
 }

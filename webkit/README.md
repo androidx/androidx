@@ -13,7 +13,7 @@ available in [Android System WebView].
 * [Library owners](OWNERS)
 * [Release notes](https://developer.android.com/jetpack/androidx/releases/webkit)
 * [Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/webkit/)
-* [Reference docs and guide to import the library](https://developer.android.com/reference/Jetpack Webkit/package-summary)
+* [Reference docs and guide to import the library](https://developer.android.com/reference/androidx/webkit/package-summary)
 * [Existing open bugs](https://issuetracker.google.com/issues?q=componentid:460423%20status:open)
 * [File a new bug](https://issuetracker.google.com/issues/new?component=460423)
 
@@ -108,7 +108,7 @@ cd frameworks/support/
 # Run integration tests with the WebView installed on the device
 # using this convenience script:
 webkit/run_instrumentation_tests.sh
-# or run the tests directly: 
+# or run the tests directly:
 ./gradlew webkit:integration-tests:instrumentation:connectedAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.webview-version=factory
 

@@ -28,7 +28,6 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ExtendableBuilder
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -70,7 +69,6 @@ import org.mockito.kotlin.verify
 
 @LargeTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalSessionConfig::class)
 class FrameRateTest(
     private val testName: String,
     private val cameraSelector: CameraSelector,

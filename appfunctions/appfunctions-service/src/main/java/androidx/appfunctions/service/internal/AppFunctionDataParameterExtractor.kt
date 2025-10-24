@@ -90,7 +90,11 @@ internal fun AppFunctionData.unsafeGetParameterValue(
                     }
                 }
                 is AppFunctionBytesTypeMetadata -> {
-                    throw IllegalStateException("Type of a single byte is not supported")
+                    if (!isRequired && !isNullable) {
+                        getByteArray(key) ?: byteArrayOf()
+                    } else {
+                        getByteArray(key)
+                    }
                 }
                 is AppFunctionStringTypeMetadata -> {
                     getString(key)
@@ -181,11 +185,7 @@ private fun AppFunctionData.getArrayTypeParameterValue(
             }
         }
         is AppFunctionBytesTypeMetadata -> {
-            if (!isRequired && !isNullable) {
-                getByteArray(key) ?: byteArrayOf()
-            } else {
-                getByteArray(key)
-            }
+            throw IllegalStateException("List<ByteArray> is not supported")
         }
         is AppFunctionStringTypeMetadata -> {
             if (!isRequired && !isNullable) {

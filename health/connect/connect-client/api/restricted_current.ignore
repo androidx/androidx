@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.health.connect.client.feature:
+    Removed package androidx.health.connect.client.feature from compatibility checked API surface
+
+
 RemovedFromBytecode: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, androidx.health.connect.client.time.TimeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>):
     Binary breaking change: method androidx.health.connect.client.HealthConnectClientExt.deleteRecords(androidx.health.connect.client.HealthConnectClient,androidx.health.connect.client.time.TimeRangeFilter,kotlin.coroutines.Continuation<? super java.lang.Void>) has been removed from bytecode
 RemovedFromBytecode: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, java.util.List<java.lang.String>, java.util.List<java.lang.String>, kotlin.coroutines.Continuation<? super kotlin.Unit>):

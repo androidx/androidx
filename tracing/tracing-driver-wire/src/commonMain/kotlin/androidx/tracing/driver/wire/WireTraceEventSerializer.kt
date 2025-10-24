@@ -176,9 +176,30 @@ internal class WireTraceEventSerializer(sequenceId: Int, val protoWriter: ProtoW
                 scratchTrackEvent.counter_value = event.counterLongValue
                 scratchTrackEvent.double_counter_value = event.counterDoubleValue
                 scratchTrackEvent.flow_ids = event.flowIds
-                if (event.lastCategoryIndex > LAST_INDEX_WHEN_EMPTY) {
+                // Categories
+                if (
+                    // Only has a primary category
+                    event.primaryCategory.isNotEmpty() &&
+                        event.lastCategoryIndex <= LAST_INDEX_WHEN_EMPTY
+                ) {
+                    event.categories[0] = event.primaryCategory
+                    event.lastCategoryIndex += 1
+                    scratchTrackEvent.categories =
+                        event.categories.subList(fromIndex = 0, toIndex = 1)
+                } else if (event.lastCategoryIndex > LAST_INDEX_WHEN_EMPTY) {
+                    // Has primary and secondary categories
+                    // Add the primary category
+                    event.lastCategoryIndex += 1
+                    if (event.lastCategoryIndex >= event.categories.size) {
+                        event.categories += DEFAULT_STRING
+                    }
+                    event.categories[event.lastCategoryIndex] = event.primaryCategory
                     // Categories should only be set when we actually have incoming categories
-                    scratchTrackEvent.categories = event.categories
+                    scratchTrackEvent.categories =
+                        event.categories.subList(
+                            fromIndex = 0,
+                            toIndex = event.lastCategoryIndex + 1,
+                        )
                 } else {
                     scratchTrackEvent.categories = emptyList()
                 }

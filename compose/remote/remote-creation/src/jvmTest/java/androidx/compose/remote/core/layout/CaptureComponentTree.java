@@ -18,7 +18,7 @@ package androidx.compose.remote.core.layout;
 
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteContext;
-import androidx.compose.remote.core.serialization.yaml.YAMLSerializer;
+import androidx.compose.remote.serialization.yaml.YAMLSerializer;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

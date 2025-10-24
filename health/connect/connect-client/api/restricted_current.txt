@@ -188,7 +188,7 @@ package androidx.health.connect.client.contracts {
 
 }
 
-package androidx.health.connect.client.feature {
+package @SuppressCompatibility androidx.health.connect.client.feature {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is a part of the Personal Health Record experimental Health Connect APIs and could change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPersonalHealthRecordApi {
   }

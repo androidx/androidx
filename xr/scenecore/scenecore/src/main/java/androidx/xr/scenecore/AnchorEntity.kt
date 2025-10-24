@@ -18,7 +18,6 @@ package androidx.xr.scenecore
 
 import android.annotation.SuppressLint
 import android.os.SystemClock
-import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.Anchor
@@ -51,7 +50,7 @@ public class AnchorEntity
 private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
     BaseEntity<RtAnchorEntity>(rtEntity, entityManager) {
 
-    @VisibleForTesting internal var onStateChangedListener: Consumer<@StateValue Int>? = null
+    @VisibleForTesting internal var onStateChangedListener: Consumer<State>? = null
     private var onStateChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
     /** Asynchronous job responsible for finding a suitable plane to anchor this entity to. */
     private var planeFindingJob: CompletableJob? = null
@@ -59,49 +58,47 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
     private var planeAnchor: Anchor? = null
 
     /** The current tracking state for this AnchorEntity. */
-    public var state: @StateValue Int = rtEntity.state.fromRtState()
+    public var state: State = rtEntity.state.fromRtState()
         private set(value) {
             // TODO: b/440191514 - On dispose, verify any pending anchor entity ops are cancelled.
             field = value
             onStateChangedExecutor.execute { onStateChangedListener?.accept(value) }
         }
 
-    /** Specifies the current tracking state of the Anchor. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Retention(AnnotationRetention.SOURCE)
-    @Target(AnnotationTarget.TYPE)
-    @IntDef(State.ANCHORED, State.UNANCHORED, State.TIMEDOUT, State.ERROR)
-    public annotation class StateValue
+    public class State private constructor(private val name: String) {
 
-    public object State {
-        /**
-         * An AnchorEntity in the ANCHORED stated is being actively tracked and updated by the
-         * perception stack. Children of the AnchorEntity will maintain their relative positioning
-         * to the system's best understanding of a pose in the real world.
-         */
-        public const val ANCHORED: Int = 0
+        public companion object {
+            /**
+             * An AnchorEntity in the ANCHORED stated is being actively tracked and updated by the
+             * perception stack. Children of the AnchorEntity will maintain their relative
+             * positioning to the system's best understanding of a pose in the real world.
+             */
+            @JvmField public val ANCHORED: State = State("ANCHORED")
 
-        /**
-         * An AnchorEntity in the UNANCHORED state does not currently have a real-world pose that is
-         * being actively updated. This is the default state while searching for an anchorable
-         * position, and can also occur if the perception system has lost tracking of the real-world
-         * location.
-         */
-        public const val UNANCHORED: Int = 1
+            /**
+             * An AnchorEntity in the UNANCHORED state does not currently have a real-world pose
+             * that is being actively updated. This is the default state while searching for an
+             * anchorable position, and can also occur if the perception system has lost tracking of
+             * the real-world location.
+             */
+            @JvmField public val UNANCHORED: State = State("UNANCHORED")
 
-        /**
-         * An AnchorEntity in the TIMEOUT state indicates that the perception system timed out while
-         * searching for an underlying anchorable position in the real world. The AnchorEntity
-         * cannot recover from this state.
-         */
-        public const val TIMEDOUT: Int = 2
+            /**
+             * An AnchorEntity in the TIMEOUT state indicates that the perception system timed out
+             * while searching for an underlying anchorable position in the real world. The
+             * AnchorEntity cannot recover from this state.
+             */
+            @JvmField public val TIMEDOUT: State = State("TIMEOUT")
 
-        /**
-         * An AnchorEntity in the ERROR state indicates that an unexpected error has occurred and
-         * this AnchorEntity is invalid, without the possibility of recovery. Logcat may include
-         * additional information about the error.
-         */
-        public const val ERROR: Int = 3
+            /**
+             * An AnchorEntity in the ERROR state indicates that an unexpected error has occurred
+             * and this AnchorEntity is invalid, without the possibility of recovery. Logcat may
+             * include additional information about the error.
+             */
+            @JvmField public val ERROR: State = State("ERROR")
+        }
+
+        override fun toString(): String = name
     }
 
     /**
@@ -122,7 +119,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
         val searchDeadline: Long?,
     )
 
-    private fun updateState(state: @StateValue Int) {
+    private fun updateState(state: State) {
         if (state != this.state) {
             this.state = state
             when (state) {
@@ -310,7 +307,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * Extension function that converts [androidx.xr.scenecore.runtime.AnchorEntity.State] to
      * [AnchorEntity.State].
      */
-    private fun Int.fromRtState() =
+    private fun Int.fromRtState(): State =
         when (this) {
             RtAnchorEntity.State.UNANCHORED -> State.UNANCHORED
             RtAnchorEntity.State.ANCHORED -> State.ANCHORED
@@ -326,7 +323,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * The listener will fire with the current [AnchorEntity.State] value immediately upon
      * registration. It will be automatically unregistered when the entity is disposed.
      */
-    public fun setOnStateChangedListener(listener: Consumer<@StateValue Int>?) {
+    public fun setOnStateChangedListener(listener: Consumer<State>?) {
         setOnStateChangedListener(HandlerExecutor.mainThreadExecutor, listener)
     }
 
@@ -341,7 +338,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * @param listener: The listener to fire upon invoking this method, and all subsequent state
      *   changes.
      */
-    public fun setOnStateChangedListener(executor: Executor, listener: Consumer<@StateValue Int>?) {
+    public fun setOnStateChangedListener(executor: Executor, listener: Consumer<State>?) {
         checkNotDisposed()
         onStateChangedListener = listener
         onStateChangedExecutor = executor
@@ -392,7 +389,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * @throws UnsupportedOperationException if called.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun setPose(pose: Pose, @SpaceValue relativeTo: Int) {
+    override fun setPose(pose: Pose, relativeTo: Space) {
         checkNotDisposed()
         throw UnsupportedOperationException("Cannot set 'pose' on an AnchorEntity.")
     }
@@ -406,7 +403,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * @throws IllegalArgumentException if called with Space.PARENT since AnchorEntity has no
      *   parents.
      */
-    override fun getPose(@SpaceValue relativeTo: Int): Pose {
+    override fun getPose(relativeTo: Space): Pose {
         checkNotDisposed()
         return when (relativeTo) {
             Space.PARENT ->
@@ -430,7 +427,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * @throws UnsupportedOperationException if called.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun setScale(scale: Float, @SpaceValue relativeTo: Int) {
+    override fun setScale(scale: Float, relativeTo: Space) {
         checkNotDisposed()
         throw UnsupportedOperationException("Cannot set 'scale' on an AnchorEntity.")
     }
@@ -446,7 +443,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * @throws UnsupportedOperationException if called.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun setScale(scale: Vector3, @SpaceValue relativeTo: Int) {
+    override fun setScale(scale: Vector3, relativeTo: Space) {
         throw UnsupportedOperationException("Cannot set 'scale' on an AnchorEntity.")
     }
 
@@ -459,7 +456,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
      * @throws IllegalArgumentException if called with Space.PARENT since AnchorEntity has no
      *   parents.
      */
-    override fun getScale(@SpaceValue relativeTo: Int): Float {
+    override fun getScale(relativeTo: Space): Float {
         checkNotDisposed()
         return when (relativeTo) {
             Space.PARENT ->

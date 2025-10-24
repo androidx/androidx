@@ -77,14 +77,12 @@ import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MirrorMode;
@@ -1582,7 +1580,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return qualitySelector;
     }
 
-    @OptIn(markerClass = ExperimentalSessionConfig.class)
     @Nullable
     private QualitySelector getFeatureGroupQualitySelector() {
         Set<@NonNull GroupableFeature> featureGroup = getFeatureGroup();

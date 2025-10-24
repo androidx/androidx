@@ -99,6 +99,7 @@ public fun RemoteImage(
 ) {
     val bitmapId =
         LocalRemoteComposeCreationState.current.document.addBitmap(bitmap.asAndroidBitmap())
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     Box(
         modifier =
             RemoteComposeImageModifier(modifier, bitmapId, contentScale, alpha)
@@ -130,6 +131,7 @@ public fun RemoteImage(
     contentScale: ContentScale = ContentScale.Fit,
     alpha: RemoteFloat = rememberRemoteFloatValue { DefaultAlpha },
 ) {
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     Box(
         modifier =
             RemoteComposeImageModifier(modifier, remoteBitmap.id, contentScale, alpha)

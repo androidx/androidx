@@ -160,6 +160,11 @@ val DONT_TRY_RERUNNING_TASKS =
 
         // Task not cacheable, will always rerun.
         "validateIntegrationPatches",
+
+        // b/446696375
+        // no outputs, not cachable. Internal type so can't access via withType and
+        // .cacheEvenIfNoOutputs
+        "kmpPartiallyResolvedDependenciesChecker",
     )
 
 val DONT_TRY_RERUNNING_TASK_TYPES =

@@ -27,8 +27,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.retain.LocalRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -326,7 +326,7 @@ class ActivityRetainTest {
 
         var retainCount = 0
         var retainedValue: String? = null
-        lateinit var retainScope: RetainScope
+        lateinit var retainedValuesStore: RetainedValuesStore
         activityScenario.onActivity { activity ->
             owner.lifecycle.currentState = Lifecycle.State.RESUMED
 
@@ -337,7 +337,7 @@ class ActivityRetainTest {
                     addView(
                         ComposeView(activity).apply {
                             setContent {
-                                retainScope = LocalRetainScope.current
+                                retainedValuesStore = LocalRetainedValuesStore.current
                                 retainedValue = retain { "Retained Instance ${retainCount++}" }
                             }
                         }
@@ -357,8 +357,8 @@ class ActivityRetainTest {
         waitForIdleSync()
         assertEquals("Retained Instance 0", retainedValue)
         assertFalse(
-            retainScope.isKeepingExitedValues,
-            "RetainScope should not be keeping exited values",
+            retainedValuesStore.isRetainingExitedValues,
+            "RetainedValuesStore should not be retaining exited values",
         )
     }
 

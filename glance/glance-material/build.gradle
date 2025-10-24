@@ -10,7 +10,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
 }
 

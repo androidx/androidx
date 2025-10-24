@@ -477,18 +477,7 @@ internal class DecodeHelper(string: String) {
     }
 
     private fun decodeTextDecoration(): TextDecoration {
-        val mask = decodeInt()
-        val hasLineThrough = mask and TextDecoration.LineThrough.mask != 0
-        val hasUnderline = mask and TextDecoration.Underline.mask != 0
-        return if (hasLineThrough && hasUnderline) {
-            TextDecoration.combine(listOf(TextDecoration.LineThrough, TextDecoration.Underline))
-        } else if (hasLineThrough) {
-            TextDecoration.LineThrough
-        } else if (hasUnderline) {
-            TextDecoration.Underline
-        } else {
-            TextDecoration.None
-        }
+        return TextDecoration.valueOf(decodeInt())
     }
 
     private fun decodeShadow(): Shadow {

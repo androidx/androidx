@@ -17,12 +17,18 @@
 package androidx.xr.arcore.openxr
 
 import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.Face
+import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.math.Pose
 
 /** Wraps the native XrFaceStateANDROID with the [androidx.xr.arcore.runtime.Face] interface. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrFace : Updatable, Face {
+
+    public override fun createAnchor(pose: Pose): Anchor = throw UnsupportedOperationException()
+
     public override var trackingState: TrackingState = TrackingState.PAUSED
         private set
 
@@ -32,6 +38,16 @@ public class OpenXrFace : Updatable, Face {
     public override var confidenceValues: FloatArray =
         FloatArray(XR_FACE_REGION_CONFIDENCE_COUNT_ANDROID)
         private set
+
+    public override val centerPose: Pose? = null
+
+    public override val mesh: Mesh? = null
+
+    public override val noseTipPose: Pose? = null
+
+    public override val foreheadLeftPose: Pose? = null
+
+    public override val foreheadRightPose: Pose? = null
 
     public override var isValid: Boolean = false
 

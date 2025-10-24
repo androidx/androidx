@@ -22,7 +22,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,7 +56,6 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -185,48 +183,6 @@ class LayoutCoordinatesHelperTest {
             assertEquals(IntOffset(200, 200), offset)
             assertEquals(parentOffset + Offset(200f, 200f), positionInRoot)
         }
-    }
-
-    @Ignore("b/225198728")
-    @Test
-    fun onPlaced_invocation() {
-        var additionalOffset by mutableStateOf(IntOffset.Zero)
-        var alignment by mutableStateOf(Alignment.Center)
-        val invocations = mutableListOf(0, 0, 0)
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity.provides(Density(1f))) {
-                Box(Modifier.offset(200.dp, 100.dp).size(300.dp)) {
-                    Box(
-                        Modifier.align(alignment = alignment)
-                            .offset { additionalOffset }
-                            .onPlaced {
-                                assertEquals(additionalOffset, it.placementInParent())
-                                invocations[0] = invocations[0] + 1
-                            }
-                            .clickable {}
-                            .onPlaced {
-                                assertEquals(additionalOffset, it.placementInParent())
-                                invocations[1] = invocations[1] + 1
-                            }
-                            .testTag("Test")
-                            .onPlaced {
-                                assertEquals(additionalOffset, it.placementInParent())
-                                invocations[2] = invocations[2] + 1
-                            }
-                            .size(100.dp)
-                    )
-                }
-            }
-        }
-        rule.runOnIdle {
-            assertThat(invocations).containsExactlyElementsIn(listOf(1, 1, 1))
-            alignment = Alignment.TopStart
-        }
-        rule.runOnIdle {
-            assertThat(invocations).containsExactlyElementsIn(listOf(2, 2, 2))
-            additionalOffset = IntOffset(0, 10)
-        }
-        rule.runOnIdle { assertThat(invocations).containsExactlyElementsIn(listOf(3, 3, 3)) }
     }
 
     @Test

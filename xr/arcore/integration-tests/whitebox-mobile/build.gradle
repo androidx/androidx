@@ -30,7 +30,7 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -65,6 +65,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-base:18.5.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.android.gms:play-services-tasks:18.2.0")
+    implementation("com.google.android.gms:play-services-auth:21.1.1")
 
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.activity:activity-compose:1.9.3")

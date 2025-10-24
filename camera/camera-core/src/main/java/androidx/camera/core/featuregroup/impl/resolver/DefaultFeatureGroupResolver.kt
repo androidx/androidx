@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSessionConfig::class)
-
 package androidx.camera.core.featuregroup.impl.resolver
 
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
@@ -41,7 +38,7 @@ import androidx.camera.core.featuregroup.impl.resolver.FeatureGroupResolutionRes
 import androidx.camera.core.featuregroup.impl.resolver.FeatureGroupResolutionResult.UnsupportedUseCase
 import androidx.camera.core.featuregroup.impl.resolver.FeatureGroupResolutionResult.UseCaseMissing
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.core.internal.CameraUseCaseAdapter.isVideoCapture
+import androidx.camera.core.impl.utils.UseCaseUtil.isVideoCapture
 
 /**
  * A [FeatureGroupResolver] that recursively tries out all combinations of features (according to
@@ -109,8 +106,8 @@ internal class DefaultFeatureGroupResolver(private val cameraInfoInternal: Camer
 
     private fun GroupableFeature.getMissingUseCase(useCases: List<UseCase>): UseCaseMissing? {
         val supportsImageFeature = useCases.any { it is ImageCapture }
-        val supportsStreamFeature = useCases.any { it is Preview || isVideoCapture(it) }
-        val supportsVideoFeature = useCases.any { isVideoCapture(it) }
+        val supportsStreamFeature = useCases.any { it is Preview || it.isVideoCapture() }
+        val supportsVideoFeature = useCases.any { it.isVideoCapture() }
 
         val missingUseCaseString =
             when (featureTypeInternal) {

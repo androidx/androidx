@@ -70,7 +70,6 @@ import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.AnchorPolicy
-import androidx.xr.compose.subspace.ExperimentalSubspaceVolumeApi
 import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SceneCoreEntity
@@ -102,10 +101,13 @@ import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TestDialog
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.GltfModelEntity.AnimationState
 import java.nio.file.Paths
 import java.time.Clock
 import kotlin.math.cos
@@ -130,6 +132,7 @@ class SpatialCompose : ComponentActivity() {
                         .depth(0.5.meters.toDp())
                         .offset(x = 1.meters.toDp(), z = -0.5.meters.toDp())
                 )
+                DragonEntity()
             }
         }
 
@@ -412,7 +415,63 @@ class SpatialCompose : ComponentActivity() {
         SpatialAndroidViewPanel(factory = { textView }, modifier = modifier)
     }
 
-    @OptIn(ExperimentalSubspaceVolumeApi::class)
+    @Composable
+    fun DragonEntity() {
+        val session = LocalSession.current ?: return
+        val dragonModel = remember { mutableStateOf<GltfModel?>(null) }
+        val dragonEntity = remember { mutableStateOf<GltfModelEntity?>(null) }
+        val dragonAnimationState = remember {
+            androidx.compose.runtime.mutableStateOf(AnimationState.STOPPED)
+        }
+        var entitySize by remember { mutableStateOf(FloatSize3d(1f, 1f, 1f)) }
+
+        // Actions to run once.
+        LaunchedEffect(Unit) {
+            dragonModel.value =
+                GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
+
+            dragonEntity.value =
+                GltfModelEntity.create(
+                    session,
+                    dragonModel.value!!,
+                    Pose(Vector3(1.0f, 0.0f, 0.0f), Quaternion.Identity),
+                )
+
+            dragonEntity.value?.let {
+                it.startAnimation(false, "Fast_Flying")
+                dragonAnimationState.value = it.animationState
+            }
+        }
+
+        // Actions to run continuously.
+        LaunchedEffect(dragonEntity.value) {
+            val entity = dragonEntity.value
+            if (entity != null) {
+                while (true) {
+                    // 1. Update the animation state on every frame.
+                    dragonAnimationState.value = entity.animationState
+
+                    // 2. Only calculate the bounding box if the animation is actually playing.
+                    if (entity.animationState == AnimationState.PLAYING) {
+                        entitySize = entity.getGltfModelBoundingBox().halfExtents.times(2f)
+                    }
+
+                    delay(16L)
+                }
+            }
+        }
+
+        if (dragonEntity.value != null) {
+            SceneCoreEntity(
+                factory = { dragonEntity.value!! },
+                modifier =
+                    SubspaceModifier.width(entitySize.width.meters.toDp())
+                        .height(entitySize.height.meters.toDp())
+                        .depth(entitySize.depth.meters.toDp()),
+            )
+        }
+    }
+
     @Composable
     fun XyzArrows(modifier: SubspaceModifier = SubspaceModifier) {
         val session = LocalSession.current ?: return

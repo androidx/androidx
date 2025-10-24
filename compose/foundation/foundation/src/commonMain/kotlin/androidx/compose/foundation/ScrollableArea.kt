@@ -47,16 +47,28 @@ import androidx.compose.ui.unit.LayoutDirection
  * [verticalScroll] and [androidx.compose.foundation.lazy.LazyColumn]. For example, [verticalScroll]
  * offsets the content in the viewport out of the box to have scrollable container behavior.
  *
- * The main difference between this modifier and `scrollable` is how it handles scroll direction.
- * For a scrollable area, a user's "scroll up" gesture should move the content *up*, which means the
- * scroll position of the layout in the viewport is actually moving *down*. `scrollableArea`
- * performs this inversion for you, accounting for [orientation], [LayoutDirection], and the
- * [reverseScrolling] flag by using [ScrollableDefaults.reverseDirection].
+ * The primary distinction between `scrollable` and `scrollableArea` is in how scroll deltas are
+ * handled. `scrollableArea` inverts the deltas to provide a natural "content-moving" experience.
+ * For instance, dragging a finger up results in a positive scroll delta, which accommodates content
+ * moving upwards within the layout. In contrast, the lower-level `scrollable` provides raw,
+ * un-inverted deltas, which is useful for custom gesture handling that isn't directly tied to
+ * content scrolling.
  *
- * In contrast, the lower-level `[androidx.compose.foundation.gestures.scrollable]` modifier reports
- * raw scroll deltas. By default, these deltas are not inverted, meaning that moving a pointer up on
- * the screen reports a negative delta. This is useful for use cases that are not directly related
- * to moving content.
+ * The direction of scrolling is automatically adjusted based on the [orientation], the current
+ * [androidx.compose.ui.platform.LocalLayoutDirection], and the [reverseScrolling] flag. Setting
+ * [reverseScrolling] to `true` is useful for layouts that grow from the end of the container to the
+ * beginning, like a chat feed. In such cases, the content within the container should also be laid
+ * out in reverse. The following table summarizes the resulting scroll delta for a user's drag
+ * gesture:
+ *
+ * | `orientation` | `LayoutDirection` | `reverseScrolling` | User Gesture | Scroll Delta |
+ * |---------------|-------------------|--------------------|--------------|--------------|
+ * | `Vertical`    | `Ltr` and `Rtl`   | `false`            | Drag Up      | Positive     |
+ * | `Vertical`    | `Ltr` and `Rtl`   | `true`             | Drag Up      | Negative     |
+ * | `Horizontal`  | `Ltr`             | `false`            | Drag Left    | Positive     |
+ * | `Horizontal`  | `Ltr`             | `true`             | Drag Left    | Negative     |
+ * | `Horizontal`  | `Rtl`             | `false`            | Drag Left    | Negative     |
+ * | `Horizontal`  | `Rtl`             | `true`             | Drag Left    | Positive     |
  *
  * This `scrollableArea` overload uses overscroll provided through [LocalOverscrollFactory] by
  * default. See the other overload to manually provide an [OverscrollEffect] instance, or disable
@@ -68,18 +80,18 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param enabled Whether scrolling is enabled.
  * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
  *   `null`, default from [ScrollableDefaults.flingBehavior] will be used.
- * @param reverseScrolling Reverse the direction of scrolling. When `false` (the default), the
- *   content is anchored to the top (for vertical scrolling) or start (for horizontal scrolling). A
- *   scroll position of 0 means the first item is placed at the beginning of the viewport. When
- *   `true`, the content is anchored to the bottom or end. A scroll position of 0 means the last
- *   item is placed at the end of the viewport. This is useful for use cases like a chat feed where
- *   new items appear at the bottom and the list grows upwards. When `reverseScrolling` is `true`,
- *   the layout of the content inside the container should also be reversed.
+ * @param reverseScrolling reverses the direction of scrolling. This is useful for experiences where
+ *   new items appear at the end and the list grows backwards. When `reverseScrolling` is true, the
+ *   layout of the content inside the container should also be reversed by the user. For example, in
+ *   a [verticalScroll], setting `reverseScrolling` true will cause items to be laid out from bottom
+ *   to top. When using `scrollableArea` directly in custom list implementations, ensure your layout
+ *   logic also arranges content in reverse order (e.g. from end to start) to match the scroll
+ *   behavior.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this scrollable area. Note that if `null` is provided, interactions
  *   will still happen internally.
  * @param bringIntoViewSpec The configuration that this scrollable area should use to perform
- *   scrolling when scroll requests are received from the focus system. If null is provided the
+ *   scrolling when scroll requests are received from the focus system. If `null` is provided, the
  *   system will use the behavior provided by
  *   [androidx.compose.foundation.gestures.LocalBringIntoViewSpec] which by default has a platform
  *   dependent implementation.
@@ -120,16 +132,28 @@ fun Modifier.scrollableArea(
  * [verticalScroll] and [androidx.compose.foundation.lazy.LazyColumn]. For example, [verticalScroll]
  * offsets the content in the viewport out of the box to have scrollable container behavior.
  *
- * The main difference between this modifier and `scrollable` is how it handles scroll direction.
- * For a scrollable area, a user's "scroll up" gesture should move the content *up*, which means the
- * scroll position of the layout in the viewport is actually moving *down*. `scrollableArea`
- * performs this inversion for you, accounting for [orientation], [LayoutDirection], and the
- * [reverseScrolling] flag by using [ScrollableDefaults.reverseDirection].
+ * The primary distinction between `scrollable` and `scrollableArea` is in how scroll deltas are
+ * handled. `scrollableArea` inverts the deltas to provide a natural "content-moving" experience.
+ * For instance, dragging a finger up results in a positive scroll delta, which accommodates content
+ * moving upwards within the layout. In contrast, the lower-level `scrollable` provides raw,
+ * un-inverted deltas, which is useful for custom gesture handling that isn't directly tied to
+ * content scrolling.
  *
- * In contrast, the lower-level `[androidx.compose.foundation.gestures.scrollable]` modifier reports
- * raw scroll deltas. By default, these deltas are not inverted, meaning that moving a pointer up on
- * the screen reports a negative delta. This is useful for use cases that are not directly related
- * to moving content.
+ * The direction of scrolling is automatically adjusted based on the [orientation], the current
+ * [androidx.compose.ui.platform.LocalLayoutDirection], and the [reverseScrolling] flag. Setting
+ * [reverseScrolling] to `true` is useful for layouts that grow from the end of the container to the
+ * beginning, like a chat feed. In such cases, the content within the container should also be laid
+ * out in reverse. The following table summarizes the resulting scroll delta for a user's drag
+ * gesture:
+ *
+ * | `orientation` | `LayoutDirection` | `reverseScrolling` | User Gesture | Scroll Delta |
+ * |---------------|-------------------|--------------------|--------------|--------------|
+ * | `Vertical`    | `Ltr` and `Rtl`   | `false`            | Drag Up      | Positive     |
+ * | `Vertical`    | `Ltr` and `Rtl`   | `true`             | Drag Up      | Negative     |
+ * | `Horizontal`  | `Ltr`             | `false`            | Drag Left    | Positive     |
+ * | `Horizontal`  | `Ltr`             | `true`             | Drag Left    | Negative     |
+ * | `Horizontal`  | `Rtl`             | `false`            | Drag Left    | Negative     |
+ * | `Horizontal`  | `Rtl`             | `true`             | Drag Left    | Positive     |
  *
  * This overload allows providing [OverscrollEffect] that will be rendered within the scrollable
  * area. See the other overload of `scrollableArea` in order to use a default [OverscrollEffect]
@@ -144,18 +168,18 @@ fun Modifier.scrollableArea(
  * @param enabled Whether scrolling is enabled.
  * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
  *   `null`, default from [ScrollableDefaults.flingBehavior] will be used.
- * @param reverseScrolling Reverse the direction of scrolling. When `false` (the default), the
- *   content is anchored to the top (for vertical scrolling) or start (for horizontal scrolling). A
- *   scroll position of 0 means the first item is placed at the beginning of the viewport. When
- *   `true`, the content is anchored to the bottom or end. A scroll position of 0 means the last
- *   item is placed at the end of the viewport. This is useful for use cases like a chat feed where
- *   new items appear at the bottom and the list grows upwards. When `reverseScrolling` is `true`,
- *   the layout of the content inside the container should also be reversed.
+ * @param reverseScrolling reverses the direction of scrolling. This is useful for experiences where
+ *   new items appear at the end and the list grows backwards. When `reverseScrolling` is true, the
+ *   layout of the content inside the container should also be reversed by the user. For example, in
+ *   a [verticalScroll], setting `reverseScrolling` true will cause items to be laid out from bottom
+ *   to top. When using `scrollableArea` directly in custom list implementations, ensure your layout
+ *   logic also arranges content in reverse order (e.g. from end to start) to match the scroll
+ *   behavior.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this scrollable area. Note that if `null` is provided, interactions
  *   will still happen internally.
  * @param bringIntoViewSpec The configuration that this scrollable area should use to perform
- *   scrolling when scroll requests are received from the focus system. If null is provided the
+ *   scrolling when scroll requests are received from the focus system. If `null` is provided, the
  *   system will use the behavior provided by
  *   [androidx.compose.foundation.gestures.LocalBringIntoViewSpec] which by default has a platform
  *   dependent implementation.

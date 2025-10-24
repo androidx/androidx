@@ -31,6 +31,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.NavigationEventInput
 import androidx.navigationevent.OnBackInvokedDefaultInput
 import androidx.navigationevent.OnBackInvokedOverlayInput
@@ -127,7 +128,9 @@ class OnBackPressedDispatcher(
      */
     @MainThread
     fun addCallback(onBackPressedCallback: OnBackPressedCallback) {
-        eventDispatcher.addHandler(onBackPressedCallback.createNavigationEventHandler())
+        val info = OnBackPressedCallbackInfo(onBackPressedCallback)
+        val handler = onBackPressedCallback.createNavigationEventHandler(info)
+        eventDispatcher.addHandler(handler)
     }
 
     /**
@@ -161,7 +164,8 @@ class OnBackPressedDispatcher(
             return // Do not add the callback if the lifecycle is already destroyed.
         }
 
-        val eventHandler = onBackPressedCallback.createNavigationEventHandler()
+        val info = OnBackPressedCallbackInfo(onBackPressedCallback, owner)
+        val eventHandler = onBackPressedCallback.createNavigationEventHandler(info)
 
         if (ActivityFlags.isOnBackPressedLifecycleOrderMaintained) {
             // Start disabled; will be enabled by lifecycle events.
@@ -326,3 +330,8 @@ fun OnBackPressedDispatcher.addCallback(
     }
     return callback
 }
+
+private data class OnBackPressedCallbackInfo(
+    val callback: OnBackPressedCallback,
+    val owner: LifecycleOwner? = null,
+) : NavigationEventInfo()

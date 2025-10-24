@@ -1456,7 +1456,6 @@ public class CoreDocument implements Serializable {
         context.clearLastOpCount();
         assert context.getPaintContext() != null;
         context.getPaintContext().clearNeedsRepaint();
-        context.loadFloat(RemoteContext.ID_DENSITY, context.getDensity());
         context.mMode = RemoteContext.ContextMode.UNSET;
         // current theme starts as UNSPECIFIED, until a Theme setter
         // operation gets executed and modify it.
@@ -1464,6 +1463,10 @@ public class CoreDocument implements Serializable {
 
         context.mRemoteComposeState = mRemoteComposeState;
         context.mRemoteComposeState.setContext(context);
+
+        // Load density after context.mRemoteComposeState is replaced, otherwise it won't be
+        // available in the current context.mRemoteComposeState when expressions are evaluated.
+        context.loadFloat(RemoteContext.ID_DENSITY, context.getDensity());
 
         if (UPDATE_VARIABLES_BEFORE_LAYOUT) {
             // Update any dirty variables

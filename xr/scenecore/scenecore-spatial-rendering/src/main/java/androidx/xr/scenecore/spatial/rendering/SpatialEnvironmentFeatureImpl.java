@@ -19,6 +19,8 @@ package androidx.xr.scenecore.spatial.rendering;
 import android.app.Activity;
 import android.os.Looper;
 
+import androidx.xr.scenecore.impl.impress.ExrImage;
+import androidx.xr.scenecore.impl.impress.GltfModel;
 import androidx.xr.scenecore.impl.impress.ImpressApi;
 import androidx.xr.scenecore.impl.impress.ImpressNode;
 import androidx.xr.scenecore.impl.impress.Material;
@@ -74,14 +76,14 @@ class SpatialEnvironmentFeatureImpl extends BaseRenderingFeature
      * a preprocessed EXR image through SplitEngine. If skybox is null, this method clears the
      * preferred IBL selection, resulting in the system skybox being used.
      */
-    private void applySkybox(@Nullable ExrImageResourceImpl skybox) {
+    private void applySkybox(@Nullable ExrImageResource skybox) {
         if (!Looper.getMainLooper().isCurrentThread()) {
             throw new IllegalStateException("This method must be called on the main thread.");
         }
 
         mImpressApi.clearPreferredEnvironmentIblAsset();
         if (skybox != null) {
-            mImpressApi.setPreferredEnvironmentLight(skybox.getExtensionImageToken());
+            mImpressApi.setPreferredEnvironmentLight(((ExrImage) skybox).getNativeHandle());
         }
     }
 
@@ -93,7 +95,7 @@ class SpatialEnvironmentFeatureImpl extends BaseRenderingFeature
      * @throws IllegalStateException if called on a thread other than the main thread.
      */
     private void applyGeometry(
-            @Nullable GltfModelResourceImpl geometry,
+            @Nullable GltfModelResource geometry,
             @Nullable MaterialResource material,
             @Nullable String nodeName,
             @Nullable String animationName) {
@@ -121,7 +123,7 @@ class SpatialEnvironmentFeatureImpl extends BaseRenderingFeature
         if (geometry != null) {
             mGeometryImpressNode =
                     mImpressApi.instanceGltfModel(
-                            geometry.getExtensionModelToken(), /* enableCollider= */ false);
+                            ((GltfModel) geometry).getNativeHandle(), /* enableCollider= */ false);
             if (material != null && nodeName != null) {
                 mMaterialOverride = (Material) material;
                 mOverriddenNodeName = nodeName;
@@ -176,30 +178,8 @@ class SpatialEnvironmentFeatureImpl extends BaseRenderingFeature
                     String newAnimationName =
                             newPreference == null ? null : newPreference.getGeometryAnimationName();
 
-                    // TODO(b/329907079): Map GltfModelResourceImpl to GltfModelResource in Impl
-                    // Layer
-                    if (newGeometry != null) {
-                        if (!(newGeometry instanceof GltfModelResourceImpl)) {
-                            throw new IllegalArgumentException(
-                                    "SplitEngine is enabled but the preferred geometry is not of"
-                                            + " type GltfModelResourceImpl.");
-                        }
-                    }
-
-                    // TODO b/329907079: Map ExrImageResourceImpl to ExrImageResource in Impl Layer
-                    if (newSkybox != null) {
-                        if (!(newSkybox instanceof ExrImageResourceImpl)) {
-                            throw new IllegalArgumentException(
-                                    "Preferred skybox is not of type ExrImageResourceImpl.");
-                        }
-                    }
-
                     if (!Objects.equals(newGeometry, prevGeometry)) {
-                        applyGeometry(
-                                (GltfModelResourceImpl) newGeometry,
-                                newMaterial,
-                                newNodeName,
-                                newAnimationName);
+                        applyGeometry(newGeometry, newMaterial, newNodeName, newAnimationName);
                     }
 
                     // TODO: b/392948759 - Fix StrictMode violations triggered whenever skybox is
@@ -209,7 +189,7 @@ class SpatialEnvironmentFeatureImpl extends BaseRenderingFeature
                         if (newSkybox == null) {
                             applySkybox(null);
                         } else {
-                            applySkybox((ExrImageResourceImpl) newSkybox);
+                            applySkybox(newSkybox);
                         }
                     }
 

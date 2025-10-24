@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 import android.app.Activity;
 
 import androidx.xr.runtime.NodeHolder;
+import androidx.xr.runtime.math.BoundingBox;
+import androidx.xr.runtime.math.Vector3;
 import androidx.xr.scenecore.runtime.GltfEntity;
 import androidx.xr.scenecore.runtime.GltfFeature;
 import androidx.xr.scenecore.runtime.MaterialResource;
@@ -97,6 +99,17 @@ public class GltfEntityImplTest {
                 mXrExtensions,
                 mEntityManager,
                 mExecutor);
+    }
+
+    @Test
+    public void getGltfModelBoundingBox_returnsBoundingBox() {
+        BoundingBox expectedResult = BoundingBox.fromMinMax(Vector3.Zero, Vector3.One);
+        when(mMockGltfFeature.getGltfModelBoundingBox()).thenReturn(expectedResult);
+
+        BoundingBox boundingBox = mGltfEntity.getGltfModelBoundingBox();
+
+        verify(mMockGltfFeature).getGltfModelBoundingBox();
+        assertThat(boundingBox).isEqualTo(expectedResult);
     }
 
     @Test

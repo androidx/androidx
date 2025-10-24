@@ -84,9 +84,9 @@ constructor(
     public val flow: Flow<PagingData<Value>> =
         PageFetcher(
                 pagingSourceFactory =
-                    @Suppress("USELESS_IS_CHECK")
-                    if (pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>) {
-                        pagingSourceFactory::create
+                    if ((pagingSourceFactory as Any) is SuspendingPagingSourceFactory<*, *>) {
+                        @Suppress("CAST_NEVER_SUCCEEDS")
+                        (pagingSourceFactory as SuspendingPagingSourceFactory<Key, Value>)::create
                     } else {
                         // cannot pass it as is since it is not a suspend function. Hence, we wrap
                         // it in {}

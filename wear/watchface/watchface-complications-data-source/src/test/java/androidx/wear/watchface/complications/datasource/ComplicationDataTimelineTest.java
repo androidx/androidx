@@ -286,6 +286,6 @@ public class ComplicationDataTimelineTest {
     @SuppressWarnings("KotlinInternal")
     private android.support.wearable.complications.ComplicationData asWireComplicationData(
             ComplicationDataTimeline timeline) {
-        return timeline.asWireComplicationData$watchface_complications_data_source_release();
+        return timeline.asWireComplicationData$watchface_complications_data_source();
     }
 }

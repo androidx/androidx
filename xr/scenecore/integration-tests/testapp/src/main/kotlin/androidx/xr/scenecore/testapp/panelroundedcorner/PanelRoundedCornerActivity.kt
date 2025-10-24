@@ -33,7 +33,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.PanelEntity
-import androidx.xr.scenecore.SpatialCapabilities
+import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.activitypanel.ActivityPanel
@@ -153,11 +153,8 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
         panelEntity?.dispose()
     }
 
-    fun tryToCreateActivityPanel(capabilities: SpatialCapabilities) {
-        if (
-            capabilities.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY) &&
-                !activityPanelCreated
-        ) {
+    fun tryToCreateActivityPanel(capabilities: Set<SpatialCapability>) {
+        if (capabilities.contains(SpatialCapability.EMBED_ACTIVITY) && !activityPanelCreated) {
             activityPanelEntity =
                 ActivityPanelEntity.create(session!!, IntSize2d(640, 480), "activity_panel")
             val intent = Intent(this, ActivityPanel::class.java)

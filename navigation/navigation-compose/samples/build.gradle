@@ -30,7 +30,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id ("kotlin-parcelize")
     alias(libs.plugins.kotlinSerialization)
 }

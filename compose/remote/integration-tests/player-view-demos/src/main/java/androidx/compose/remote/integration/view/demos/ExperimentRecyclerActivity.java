@@ -66,7 +66,7 @@ import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths;
 import androidx.compose.remote.integration.view.demos.utils.RCDoc;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -490,7 +490,7 @@ public class ExperimentRecyclerActivity extends Activity {
         String showComposeKey = "SHOW_COMPOSE";
         String showOrigamiKey = "SHOW_ORIGAMI";
         String debugComposeKey = "DEBUG_ORIGAMI";
-        Intent intent = new Intent(this, ExperimentActivityKt.class);
+        Intent intent = new Intent(this, ExperimentActivity.class);
         intent.putExtra(composeKey, doc.toString());
         intent.putExtra(showComposeKey, "true");
         intent.putExtra(showOrigamiKey, "true");
@@ -572,7 +572,7 @@ public class ExperimentRecyclerActivity extends Activity {
                 size = sHeight / 2;
             }
             LayoutParams params = new LayoutParams(size, size);
-            mPlayer.setBackground(sDrawable);
+           // mPlayer.setBackground(sDrawable);
             addView(mPlayer, params);
             addView(mTitle);
             addView(mStats);
@@ -670,7 +670,7 @@ public class ExperimentRecyclerActivity extends Activity {
             }
 
             long time = System.nanoTime();
-            RemoteComposeDocument doc = item.getDoc();
+            RemoteDocument doc = item.getDoc();
             if (doc == null) {
                 try {
                     mUi.mPlayer.postDelayed(new Runnable() {
@@ -699,7 +699,7 @@ public class ExperimentRecyclerActivity extends Activity {
                     float diff = (time - mLastTime) * 1E-9f;
 
                     if (diff > 2 && mItem != null) {
-                        RemoteComposeDocument loop = mItem.getLooper();
+                        RemoteDocument loop = mItem.getLooper();
                         if (loop != null) {
                             mLastTime = time;
                             if (BACKGROUND) {
@@ -823,10 +823,10 @@ public class ExperimentRecyclerActivity extends Activity {
             }
 
             @Override
-            public RemoteComposeDocument getDoc() {
+            public RemoteDocument getDoc() {
                 Log.v("perf", "build doc \"" + name + "\"");
                 mWriter = writer();
-                return new RemoteComposeDocument(
+                return new RemoteDocument(
                         new ByteArrayInputStream(writer().buffer(), 0, writer().bufferSize()));
             }
         };
@@ -883,16 +883,16 @@ public class ExperimentRecyclerActivity extends Activity {
             }
 
             @Override
-            public RemoteComposeDocument getLooper() {
+            public RemoteDocument getLooper() {
                 RemoteComposeWriter w = writer2();
-                return new RemoteComposeDocument(
+                return new RemoteDocument(
                         new ByteArrayInputStream(w.buffer(), 0, w.bufferSize()));
             }
 
             @Override
-            public RemoteComposeDocument getDoc() {
+            public RemoteDocument getDoc() {
                 Log.v("perf", "build doc \"" + name + "\"");
-                return new RemoteComposeDocument(
+                return new RemoteDocument(
                         new ByteArrayInputStream(writer().buffer(), 0, writer().bufferSize()));
             }
         };

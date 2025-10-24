@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.list
 
+import android.widget.EditText
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.collections.removeFirst as removeFirstKt
@@ -100,8 +102,8 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
     }
 
     @Composable
-    fun Item(index: Int) {
-        Box(Modifier.size(itemSize).testTag("$index"))
+    fun Item(index: Int, modifier: Modifier = Modifier) {
+        Box(modifier.size(itemSize).testTag("$index"))
         DisposableEffect(index) {
             composed.add(index)
             onDispose { composed.remove(index) }
@@ -692,6 +694,85 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
         }
 
         rule.runOnIdle { assertTrue { focused[9]!! } }
+    }
+
+    @Test
+    fun focusedFocusableItemIsComposedAndPlacedWhenScrolledOut() {
+        val focusRequesters = List(100) { FocusRequester() }
+        val state = LazyListState()
+        // Arrange.
+        rule.setContentParameterized {
+            LazyColumn(Modifier.size(itemSize * 2), state = state) {
+                items(100) { index ->
+                    Item(
+                        index,
+                        modifier = Modifier.focusRequester(focusRequesters[index]).focusable(),
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[1].requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(composed).contains(1)
+            runBlocking { state.scrollToItem(3) }
+        }
+
+        rule.waitUntil {
+            // not visible items were disposed
+            !composed.contains(0)
+        }
+
+        rule.runOnIdle {
+            // item 1 is still pinned
+            assertThat(composed).contains(1)
+        }
+
+        rule.onNodeWithTag("1").assertExists().assertIsNotDisplayed().assertIsPlaced()
+    }
+
+    @Test
+    fun focusedAndroidViewItemIsComposedAndPlacedWhenScrolledOut() {
+        val focusRequesters = List(100) { FocusRequester() }
+        val state = LazyListState()
+        // Arrange.
+        rule.setContentParameterized {
+            LazyColumn(Modifier.size(itemSize * 2), state = state) {
+                items(100) { index ->
+                    AndroidView(
+                        factory = ::EditText,
+                        modifier =
+                            Modifier.size(itemSize)
+                                .focusRequester(focusRequesters[index])
+                                .testTag("$index"),
+                    )
+                    DisposableEffect(index) {
+                        composed.add(index)
+                        onDispose { composed.remove(index) }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[1].requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(composed).contains(1)
+            runBlocking { state.scrollToItem(3) }
+        }
+
+        rule.waitUntil {
+            // not visible items were disposed
+            !composed.contains(0)
+        }
+
+        rule.runOnIdle {
+            // item 1 is still pinned
+            assertThat(composed).contains(1)
+        }
+
+        rule.onNodeWithTag("1").assertExists().assertIsNotDisplayed().assertIsPlaced()
     }
 }
 

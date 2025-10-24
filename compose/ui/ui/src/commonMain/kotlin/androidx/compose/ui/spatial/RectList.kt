@@ -41,6 +41,9 @@ import kotlin.math.min
  * 2. The coordinate system used for this data structure has the positive "x" axis pointing to the
  *    "right", and the positive "y" axis pointing "down". As a result, a rectangle will always have
  *    top <= bottom, and left <= right.
+ * 3. The parent is always inserted in the list before a child. With that we guarantee that we need
+ *    to traverse back from the child index in order to find a parent. And the parent keeps track of
+ *    the offset to the last child.
  */
 @Suppress("NAME_SHADOWING")
 internal class RectList {
@@ -133,6 +136,8 @@ internal class RectList {
      *   the results of certain queries for
      * @param gesturable true if this element is a pointer input gesture detector. This is a flag
      *   which we can use to limit the results of certain queries for
+     * @param parentIndexInRectList after inserting we need to find a parent and update the
+     *   lastChildOffset on it. if we know the index of the parent we can do it faster.
      */
     fun insert(
         value: Int,
@@ -143,6 +148,7 @@ internal class RectList {
         parentId: Int = -1,
         focusable: Boolean = false,
         gesturable: Boolean = false,
+        parentIndexInRectList: Int = -1,
     ) {
         val value = value and Lower26Bits
         val index = allocateItemsIndex()
@@ -170,7 +176,7 @@ internal class RectList {
         if (parentId < 0) return
         val parentId = parentId and Lower26Bits
         // After inserting, find the item with id = parentId and update it's "last child offset".
-        var i = index - LongsPerItem
+        var i = if (parentIndexInRectList != -1) parentIndexInRectList else index - LongsPerItem
         while (i >= 0) {
             val meta = items[i + 2]
             if (unpackMetaValue(meta) == parentId) {
@@ -185,6 +191,68 @@ internal class RectList {
             }
             i -= LongsPerItem
         }
+        throw IllegalStateException("Inserted child $value before its parent $parentId")
+    }
+
+    /**
+     * Insert a value and corresponding bounding rectangle into the RectList, to be used when we
+     * only know the relative offset of this node from its parent. This method does not check to see
+     * that [value] doesn't already exist somewhere in the list.
+     *
+     * @param value The value to be stored. Intended to be a layout node id. Must be a positive
+     *   integer of 28 bits or less
+     * @param parentId If this element is inside of a "scrollable" container which we want to update
+     *   with the [updateSubhierarchy] API, then this is the id of that scroll container.
+     * @param offsetFromParentX the x offset from the parent
+     * @param offsetFromParentY the y offset from the parent
+     * @param width the width of the rectangle
+     * @param height the height of the rectangle
+     * @param focusable true if this element is focusable. This is a flag which we can use to limit
+     *   the results of certain queries for
+     * @param gesturable true if this element is a pointer input gesture detector. This is a flag
+     *   which we can use to limit the results of certain queries for
+     */
+    fun insertBasedOnParentOffset(
+        value: Int,
+        parentId: Int,
+        offsetFromParentX: Int,
+        offsetFromParentY: Int,
+        width: Int,
+        height: Int,
+        focusable: Boolean,
+        gesturable: Boolean,
+    ) {
+        val value = value and Lower26Bits
+        val items = items
+        val size = itemsSize
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            val meta = items[i + 2]
+            if (unpackMetaValue(meta) == parentId) {
+                val parentLT = items[i + 0]
+                val parentX = unpackX(parentLT)
+                val parentY = unpackY(parentLT)
+                val l = parentX + offsetFromParentX
+                val t = parentY + offsetFromParentY
+                val r = l + width
+                val b = t + height
+                insert(
+                    value,
+                    l,
+                    t,
+                    r,
+                    b,
+                    parentId = parentId,
+                    parentIndexInRectList = i,
+                    focusable = focusable,
+                    gesturable = gesturable,
+                )
+                return
+            }
+            i += LongsPerItem
+        }
+        throw IllegalStateException("Inserted child $value before its parent $parentId")
     }
 
     /**
@@ -272,7 +340,7 @@ internal class RectList {
      * more efficient than calling update() for all of the rectangles included in the subhierarchy
      * of the item.
      */
-    fun move(value: Int, l: Int, t: Int, r: Int, b: Int): Boolean {
+    fun move(value: Int, l: Int, t: Int, r: Int, b: Int) {
         val value = value and Lower26Bits
         val items = items
         val size = itemsSize
@@ -291,11 +359,73 @@ internal class RectList {
                 if ((deltaX != 0) or (deltaY != 0)) {
                     updateSubhierarchy(metaWithParentId(meta, i + LongsPerItem), deltaX, deltaY)
                 }
-                return true
+                return
             }
             i += LongsPerItem
         }
-        return false
+        throw IllegalStateException("Didn't find the node with $value")
+    }
+
+    /**
+     * Moves the node when we only know the relative offset of this node from its parent. This
+     * method allows to both find the parent offset and apply the new child offset in one pass.
+     * Similarly to [move], it also updates every item that is "below" by the associated offset.
+     */
+    fun moveBasedOnParentOffset(
+        value: Int,
+        parentId: Int,
+        offsetFromParentX: Int,
+        offsetFromParentY: Int,
+        width: Int,
+        height: Int,
+    ) {
+        val value = value and Lower26Bits
+        val items = items
+        val size = itemsSize
+        var i = 0
+        // finding the parent first
+        while (i < items.size - 2) {
+            if (i >= size) break
+            val meta = items[i + 2]
+            if (unpackMetaValue(meta) == parentId) {
+                val parentLT = items[i + 0]
+                val parentX = unpackX(parentLT)
+                val parentY = unpackY(parentLT)
+                val l = parentX + offsetFromParentX
+                val t = parentY + offsetFromParentY
+                val r = l + width
+                val b = t + height
+
+                i += LongsPerItem
+                // finding the node with "value"
+                while (i < items.size - 2) {
+                    if (i >= size) break
+                    val meta = items[i + 2]
+                    if (unpackMetaValue(meta) == value) {
+                        val oldLT = items[i + 0]
+                        val oldL = unpackX(oldLT)
+                        val oldT = unpackY(oldLT)
+                        val deltaX = l - oldL
+                        val deltaY = t - oldT
+                        items[i + 0] = packXY(l, t)
+                        items[i + 1] = packXY(r, b)
+                        items[i + 2] = metaMarkUpdated(meta)
+                        if (deltaX != 0 || deltaY != 0) {
+                            updateSubhierarchy(
+                                metaWithParentId(meta, i + LongsPerItem),
+                                deltaX,
+                                deltaY,
+                            )
+                        }
+                        return
+                    }
+                    i += LongsPerItem
+                }
+                throw IllegalStateException("Didn't find the node with $value")
+            }
+            i += LongsPerItem
+        }
+        throw IllegalStateException("Didn't find the parent with $parentId")
     }
 
     fun updateSubhierarchy(id: Int, deltaX: Int, deltaY: Int) {
@@ -427,6 +557,23 @@ internal class RectList {
             i += LongsPerItem
         }
         return false
+    }
+
+    fun getTopLeft(value: Int): Long {
+        val value = value and Lower26Bits
+        val items = items
+        val size = itemsSize
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            val meta = items[i + 2]
+            if (unpackMetaValue(meta) == value) {
+                val topLeft = items[i + 0]
+                return topLeft
+            }
+            i += LongsPerItem
+        }
+        return Long.MAX_VALUE
     }
 
     operator fun contains(value: Int): Boolean {

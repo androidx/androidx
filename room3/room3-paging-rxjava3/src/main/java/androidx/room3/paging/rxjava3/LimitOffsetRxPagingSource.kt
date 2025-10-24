@@ -16,101 +16,107 @@
 
 package androidx.room3.paging.rxjava3
 
-import android.database.Cursor
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingState
 import androidx.paging.rxjava3.RxPagingSource
 import androidx.room3.RoomDatabase
-import androidx.room3.RoomSQLiteQuery
-import androidx.room3.paging.CursorSQLiteStatement
+import androidx.room3.RoomRawQuery
+import androidx.room3.Transactor.SQLiteTransactionType
+import androidx.room3.concurrent.AtomicBoolean
+import androidx.room3.concurrent.AtomicInt
 import androidx.room3.paging.util.INITIAL_ITEM_COUNT
-import androidx.room3.paging.util.INVALID
-import androidx.room3.paging.util.ThreadSafeInvalidationObserver
 import androidx.room3.paging.util.getClippedRefreshKey
 import androidx.room3.paging.util.queryDatabase
 import androidx.room3.paging.util.queryItemCount
-import androidx.room3.rxjava3.createSingle
-import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.db.SupportSQLiteQuery
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.concurrent.Callable
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.rxSingle
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class LimitOffsetRxPagingSource<Value : Any>(
-    private val sourceQuery: RoomSQLiteQuery,
-    private val db: RoomDatabase,
-    vararg tables: String,
+    protected val sourceQuery: RoomRawQuery,
+    protected val db: RoomDatabase,
+    protected vararg val tables: String,
 ) : RxPagingSource<Int, Value>() {
 
-    public constructor(
-        supportSQLiteQuery: SupportSQLiteQuery,
-        db: RoomDatabase,
-        vararg tables: String,
-    ) : this(sourceQuery = RoomSQLiteQuery.copyFrom(supportSQLiteQuery), db = db, tables = tables)
+    internal val itemCount = AtomicInt(INITIAL_ITEM_COUNT)
+    internal val refreshComplete = AtomicBoolean(false)
+    private var invalidationFlowJob: Job? = null
 
-    @VisibleForTesting internal val itemCount: AtomicInteger = AtomicInteger(INITIAL_ITEM_COUNT)
-    @VisibleForTesting
-    internal val observer = ThreadSafeInvalidationObserver(tables = tables) { invalidate() }
+    init {
+        invalidationFlowJob =
+            db.getCoroutineScope().launch {
+                db.invalidationTracker.createFlow(*tables, emitInitialState = false).collect {
+                    if (invalid) {
+                        throw CancellationException("PagingSource is invalid")
+                    }
+                    if (refreshComplete.get()) {
+                        invalidate()
+                    }
+                }
+            }
+        registerInvalidatedCallback { invalidationFlowJob?.cancel() }
+    }
 
     override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, Value>> {
-        val scheduler = Schedulers.from(db.queryExecutor)
-        return createSingle {
-                observer.registerIfNecessary(db)
-                val tempCount = itemCount.get()
+        return rxSingle(db.getQueryContext().minusKey(Job)) {
+            val tempCount = itemCount.get()
+            // if itemCount is < 0, then it is initial load
+            try {
                 if (tempCount == INITIAL_ITEM_COUNT) {
-                    initialLoad(params)
+                    initialLoad(params).also { refreshComplete.compareAndSet(false, true) }
                 } else {
                     nonInitialLoad(params, tempCount)
                 }
+            } catch (e: Exception) {
+                LoadResult.Error(e)
             }
-            .subscribeOn(scheduler)
+        }
     }
 
-    private fun initialLoad(params: LoadParams<Int>): LoadResult<Int, Value> {
-        return db.runInTransaction(
-            Callable {
+    private suspend fun initialLoad(params: LoadParams<Int>): LoadResult<Int, Value> {
+        return db.useConnection(isReadOnly = true) { connection ->
+            // Using a transaction to ensure initial load's data integrity.
+            connection.withTransaction(SQLiteTransactionType.DEFERRED) {
                 val tempCount = queryItemCount(sourceQuery, db)
                 itemCount.set(tempCount)
                 queryDatabase(
                     params = params,
                     sourceQuery = sourceQuery,
-                    db = db,
                     itemCount = tempCount,
                     convertRows = ::convertRows,
                 )
             }
-        )
+        }
     }
 
-    private fun nonInitialLoad(params: LoadParams<Int>, tempCount: Int): LoadResult<Int, Value> {
-        val result =
+    private suspend fun nonInitialLoad(
+        params: LoadParams<Int>,
+        tempCount: Int,
+    ): LoadResult<Int, Value> {
+        val loadResult =
             queryDatabase(
                 params = params,
                 sourceQuery = sourceQuery,
-                db = db,
                 itemCount = tempCount,
                 convertRows = ::convertRows,
             )
-        // manually check if database has been updated. If so, the observer's
-        // invalidation callback will invalidate this paging source
-        db.invalidationTracker.refreshVersionsSync()
+        // TODO(b/192269858): Create a better API to facilitate source invalidation.
+        // Manually check if database has been updated. If so, invalidate the source and the result.
+        if (db.invalidationTracker.refresh(*tables)) {
+            invalidate()
+        }
+
         @Suppress("UNCHECKED_CAST")
-        return if (invalid) INVALID as LoadResult.Invalid<Int, Value> else result
+        return if (invalid) INVALID as LoadResult.Invalid<Int, Value> else loadResult
     }
 
-    protected open fun convertRows(cursor: Cursor): List<Value> {
-        return convertRows(CursorSQLiteStatement(cursor))
-    }
-
-    protected open fun convertRows(statement: SQLiteStatement): List<Value> {
-        throw NotImplementedError(
-            "Unexpected call to a function with no implementation that Room is suppose to " +
-                "generate. Please file a bug at: $BUG_LINK."
-        )
-    }
+    protected abstract suspend fun convertRows(
+        limitOffsetQuery: RoomRawQuery,
+        itemCount: Int,
+    ): List<Value>
 
     override fun getRefreshKey(state: PagingState<Int, Value>): Int? {
         return state.getClippedRefreshKey()
@@ -119,8 +125,7 @@ public abstract class LimitOffsetRxPagingSource<Value : Any>(
     override val jumpingSupported: Boolean
         get() = true
 
-    private companion object {
-        const val BUG_LINK =
-            "https://issuetracker.google.com/issues/new?component=413107&template=1096568"
+    public companion object {
+        private val INVALID = LoadResult.Invalid<Any, Any>()
     }
 }

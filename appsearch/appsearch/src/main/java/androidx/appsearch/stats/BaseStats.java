@@ -278,6 +278,26 @@ public class BaseStats {
         return mNumIcingCalls;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "  enabledFeatures=%s,\n"
+                        + "  javaLockAcquisitionLatencyMillis=%d,\n"
+                        + "  lastBlockingOperation=%d,\n"
+                        + "  lastBlockingOperationLatencyMillis=%d,\n"
+                        + "  getVmLatencyMillis=%d,\n"
+                        + "  unblockedAppSearchLatencyMillis=%d,\n"
+                        + "  numIcingCalls=%d\n",
+                Long.toBinaryString(mEnabledFeatures),
+                mJavaLockAcquisitionLatencyMillis,
+                mLastBlockingOperation,
+                mLastBlockingOperationLatencyMillis,
+                mGetVmLatencyMillis,
+                mUnblockedAppSearchLatencyMillis,
+                mNumIcingCalls);
+    }
+
     /**
      * Builder for {@link BaseStats}.
      *

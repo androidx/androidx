@@ -20,7 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.test.filters.SdkSuppress
@@ -36,8 +36,7 @@ class RemoteDpTest {
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
-    val creationState =
-        RemoteComposeCreationState(AndroidxPlatformServices(), density = 1f, Size(1f, 1f))
+    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
 
     @Test
     fun constructor_createsCorrectly() {
@@ -80,6 +79,36 @@ class RemoteDpTest {
         val resultDpId = remoteFloatDp.value.getIdForCreationState(creationState)
 
         assertThat(resultId).isEqualTo(resultDpId)
+    }
+
+    @Test
+    fun toPx_hasDifferentFloatValueAsOriginalRemoteFloat() {
+        val floatValue = 10.5f
+        val density = 2f
+        val remoteFloatDp = RemoteDp(floatValue.rf)
+        val remoteFloatPx = remoteFloatDp.toPx()
+
+        context.density = density
+
+        val resultDpId = remoteFloatDp.value.getIdForCreationState(creationState)
+        val resultPxId = remoteFloatPx.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(resultDpId)).isEqualTo(floatValue)
+        assertThat(context.getFloat(resultPxId)).isEqualTo(floatValue * density)
+    }
+
+    @Test
+    fun toPx_remoteFloatHasDifferentIdFromOriginal() {
+        val floatValue = 10.5f
+        val remoteFloatDp = RemoteDp(floatValue.rf)
+        val remoteFloatPx = remoteFloatDp.toPx()
+
+        val resultDpId = remoteFloatDp.value.getIdForCreationState(creationState)
+        val resultPxId = remoteFloatPx.getIdForCreationState(creationState)
+
+        assertThat(resultDpId).isNotEqualTo(resultPxId)
     }
 
     private fun makeAndPaintCoreDocument() =

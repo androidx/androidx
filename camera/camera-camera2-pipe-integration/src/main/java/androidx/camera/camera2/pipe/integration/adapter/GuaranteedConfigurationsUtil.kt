@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraDevice.CameraDeviceSetup
 import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.StreamUseCase
 import androidx.camera.core.impl.SurfaceCombination
@@ -37,6 +38,11 @@ public object GuaranteedConfigurationsUtil {
      * The list of [SurfaceCombination] that are guaranteed to be queryable with feature combination
      * query APIs.
      *
+     * When using these streams with the Camera2 framework API for feature combination query (i.e.
+     * [android.hardware.camera2.CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported]),
+     * the [CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION] value on the device must
+     * be at least [android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM].
+     *
      * Note that these stream combinations are not guaranteed to be always supported, but rather
      * guaranteed to provide a valid result via feature combination query (i.e.
      * [CameraDeviceSetup.isSessionConfigurationSupported] API).
@@ -44,8 +50,25 @@ public object GuaranteedConfigurationsUtil {
      * These combinations are generated based on the documentation of
      * [CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION].
      */
-    public val QUERYABLE_FCQ_COMBINATIONS: List<SurfaceCombination> by lazy {
-        generateQueryableFcqCombinations()
+    public val QUERYABLE_VIC_FCQ_COMBINATIONS: List<SurfaceCombination> by lazy {
+        generateVicQueryableFcqCombinations()
+    }
+
+    /**
+     * The list of [SurfaceCombination] that are guaranteed to be queryable with feature combination
+     * query APIs on Baklava (Android 16) and above.
+     *
+     * When using these streams with the Camera2 framework API for feature combination query (i.e.
+     * [android.hardware.camera2.CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported]),
+     * the [CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION] value on the device must
+     * be at least [android.os.Build.VERSION_CODES.BAKLAVA].
+     *
+     * Note that these streams are not queryable with preview stabilization.
+     *
+     * @see QUERYABLE_VIC_FCQ_COMBINATIONS
+     */
+    public val QUERYABLE_BAKLAVA_FCQ_COMBINATIONS: List<SurfaceCombination> by lazy {
+        generateBaklavaQueryableFcqCombinations()
     }
 
     @JvmStatic
@@ -933,9 +956,9 @@ public object GuaranteedConfigurationsUtil {
      * Generates queryable FCQ combinations based on the documentation of
      * [CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION].
      *
-     * @see QUERYABLE_FCQ_COMBINATIONS
+     * @see QUERYABLE_VIC_FCQ_COMBINATIONS
      */
-    private fun generateQueryableFcqCombinations(): List<SurfaceCombination> {
+    private fun generateVicQueryableFcqCombinations(): List<SurfaceCombination> {
         val combinations = mutableListOf<SurfaceCombination>()
 
         // (PRIV, S1080P)
@@ -991,7 +1014,45 @@ public object GuaranteedConfigurationsUtil {
             createPrivJpegXCombinations(ConfigSize.S1080P_4_3, ConfigSize.MAXIMUM_4_3)
         )
 
-        // TODO: Add the combinations for Android 16
+        return combinations
+    }
+
+    /** Returns the minimally guaranteed stream combinations for Android 16 (Baklava). */
+    private fun generateBaklavaQueryableFcqCombinations(): List<SurfaceCombination> {
+        val combinations = mutableListOf<SurfaceCombination>()
+
+        // (PRIV, S1080P) + (PRIV, S1080P)
+        combinations.add(
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.S1080P_16_9))
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.S1080P_16_9))
+            }
+        )
+
+        // (PRIV, S1080P) + (PRIV, S1440P)
+        combinations.add(
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.S1080P_16_9))
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.S1440P_16_9))
+            }
+        )
+
+        // (PRIV, S1080P) + (PRIV, UHD)
+        combinations.add(
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.S1080P_16_9))
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.UHD))
+            }
+        )
+
+        // (PRIV, S1080P) + (YUV, S1080P) + (PRIV, S1080P)
+        combinations.add(
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.S1080P_16_9))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.YUV, ConfigSize.S1080P_16_9))
+                addSurfaceConfig(SurfaceConfig.create(PRIV, ConfigSize.S1080P_16_9))
+            }
+        )
 
         return combinations
     }
@@ -1020,5 +1081,33 @@ public object GuaranteedConfigurationsUtil {
         )
 
         return combinationList
+    }
+
+    internal fun getQueryableFcqCombinations(
+        cameraMetadata: CameraMetadata,
+        isPreviewStabilizationOn: Boolean,
+    ): List<SurfaceCombination> {
+        val combinations = mutableListOf<SurfaceCombination>()
+
+        // TODO: b/406372518 - Remove the version checks here when supporting FCQ GMS queries
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val sessionConfigQueryVersion =
+                requireNotNull(
+                    cameraMetadata[CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION]
+                )
+
+            if (sessionConfigQueryVersion >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                combinations.addAll(QUERYABLE_VIC_FCQ_COMBINATIONS)
+            }
+
+            if (
+                sessionConfigQueryVersion >= Build.VERSION_CODES.BAKLAVA &&
+                    !isPreviewStabilizationOn
+            ) {
+                combinations.addAll(QUERYABLE_BAKLAVA_FCQ_COMBINATIONS)
+            }
+        }
+
+        return combinations
     }
 }

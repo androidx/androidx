@@ -24,6 +24,7 @@ import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SpatialCapabilities
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.util.function.Consumer
@@ -59,6 +60,7 @@ class MainPanelEntityTest {
         whenever(mockSceneRuntime.headActivityPose).thenReturn(mock())
         whenever(mockSceneRuntime.perceptionSpaceActivityPose).thenReturn(mock())
         whenever(mockSceneRuntime.mainPanelEntity).thenReturn(mock())
+        whenever(mockSceneRuntime.spatialCapabilities).thenReturn(SpatialCapabilities(0))
         session =
             Session(
                 activity,

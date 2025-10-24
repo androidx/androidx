@@ -143,8 +143,9 @@ abstract class SafeArgsPlugin protected constructor(private val providerFactory:
                     task.incrementalFolder.set(
                         project.layout.buildDirectory.dir("$INCREMENTAL_PATH/${task.name}")
                     )
+                    // TODO: Remove this check once this moves to AGP 9.0+
                     task.useAndroidX.set(
-                        (project.findProperty("android.useAndroidX") == "true").also {
+                        (project.findProperty("android.useAndroidX") != "false").also {
                             if (!it) {
                                 throw GradleException(
                                     "androidx.navigation.safeargs can only be used with an androidx " +

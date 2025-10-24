@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("TraceSinkUtils") // Provide a reasonable name for Java users.
+
 package androidx.tracing.driver.wire
 
 import android.content.ComponentCallbacks2

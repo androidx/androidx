@@ -22,8 +22,8 @@ import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import androidx.collection.IntObjectMap
-import androidx.compose.runtime.retain.ForgetfulRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -2975,8 +2975,8 @@ private class TestOwner : Owner {
     override val autofillManager: AutofillManager?
         get() = null
 
-    override val retainScope: RetainScope
-        get() = ForgetfulRetainScope
+    override val retainedValuesStore: RetainedValuesStore
+        get() = ForgetfulRetainedValuesStore
 
     override val density: Density
         get() = Density(1f)

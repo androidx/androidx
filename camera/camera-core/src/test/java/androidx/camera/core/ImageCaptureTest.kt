@@ -1069,7 +1069,6 @@ class ImageCaptureTest {
         assertThat(imageCapture.currentConfig.dynamicRange).isEqualTo(DynamicRange.SDR)
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Test
     fun dynamicRange_isSetToUnspecified_whenUltraHdrFeatureIsSetButImageCaptureNotBoundYet() {
         val imageCapture = ImageCapture.Builder().build()
@@ -1079,7 +1078,6 @@ class ImageCaptureTest {
         assertThat(imageCapture.currentConfig.dynamicRange).isEqualTo(DynamicRange.UNSPECIFIED)
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Test
     fun dynamicRange_isSetToUnspecified_whenUltraHdrFeatureIsSetAndImageCaptureBoundWithDefaults() {
         val imageCapture = ImageCapture.Builder().build()

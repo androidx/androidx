@@ -186,6 +186,12 @@ public final class AppSearchLoggerHelper {
                         fromNativeStats.getQueryProcessorParserConsumeQueryLatencyMs())
                 .setNativeQueryProcessorQueryVisitorLatencyMillis(
                         fromNativeStats.getQueryProcessorQueryVisitorLatencyMs())
+                .setNativeNumUnquantizedEmbeddingsScored(
+                        fromNativeStats.getNumUnquantizedEmbeddingsScored())
+                .setNativeNumQuantizedEmbeddingsScored(
+                        fromNativeStats.getNumQuantizedEmbeddingsScored())
+                .setNativeNumEmbeddingShardsRead(fromNativeStats.getNumEmbeddingShardsRead())
+                .setNativeNumEmbeddingBytesRead(fromNativeStats.getNumEmbeddingBytesRead())
                 .build();
     }
 

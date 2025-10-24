@@ -50,8 +50,15 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .toList()
     }
 
-    /** Resolves valid functions annotated with @AppFunction annotation. */
-    fun resolveAnnotatedAppFunctions(): List<AnnotatedAppFunctions> {
+    /**
+     * Resolves functions annotated with @AppFunction annotation ***that are not validated yet***.
+     *
+     * The caller should generally prefer using [resolveAnnotatedAppFunctions] to ensure that the
+     * processor is working on validated AppFunctions. This should only be used when the visibility
+     * to invalidated AppFunctions is required, such as for determining the symbols for next turn
+     * processing.
+     */
+    fun resolveUnvalidatedAnnotatedAppFunctions(): List<AnnotatedAppFunctions> {
         return resolver
             .getSymbolsWithAnnotation(AppFunctionAnnotation.CLASS_NAME.canonicalName)
             .map { declaration ->
@@ -71,8 +78,15 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
                     )
             }
             .map { (classDeclaration, appFunctionsDeclarations) ->
-                AnnotatedAppFunctions(classDeclaration, appFunctionsDeclarations).validate()
+                AnnotatedAppFunctions(classDeclaration, appFunctionsDeclarations)
             }
+    }
+
+    /** Resolves valid functions annotated with @AppFunction annotation. */
+    fun resolveAnnotatedAppFunctions(): List<AnnotatedAppFunctions> {
+        return resolveUnvalidatedAnnotatedAppFunctions().map { annotatedAppFunction ->
+            annotatedAppFunction.validate()
+        }
     }
 
     /**

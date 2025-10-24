@@ -1663,11 +1663,7 @@ class AppFunctionDataTest {
                                 itemType = AppFunctionBooleanTypeMetadata(false),
                                 isNullable = false,
                             ),
-                        "byteArray" to
-                            AppFunctionArrayTypeMetadata(
-                                itemType = AppFunctionBytesTypeMetadata(false),
-                                isNullable = false,
-                            ),
+                        "byteArray" to AppFunctionBytesTypeMetadata(false),
                         "stringList" to
                             AppFunctionArrayTypeMetadata(
                                 itemType = AppFunctionStringTypeMetadata(false),
@@ -1770,11 +1766,7 @@ class AppFunctionDataTest {
                 AppFunctionParameterMetadata(
                     name = "byteArray",
                     isRequired = true,
-                    dataType =
-                        AppFunctionArrayTypeMetadata(
-                            itemType = AppFunctionBytesTypeMetadata(isNullable = false),
-                            isNullable = false,
-                        ),
+                    dataType = AppFunctionBytesTypeMetadata(isNullable = false),
                 ),
                 AppFunctionParameterMetadata(
                     name = "stringList",

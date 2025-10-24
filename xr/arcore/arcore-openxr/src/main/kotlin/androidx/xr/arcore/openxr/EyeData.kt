@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.openxr
 
-import androidx.xr.arcore.runtime.EyeStatus
 import androidx.xr.runtime.math.Pose
 
 internal data class EyeData(val state: EyeStatus, val pose: Pose) {}
@@ -28,3 +27,14 @@ internal fun EyeStatus.Companion.fromOpenXrEyeState(nativeValue: Int): EyeStatus
         2 -> EyeStatus.SHUT
         else -> throw IllegalStateException("Unknown eye state")
     }
+
+internal class EyeStatus(private val value: Int) {
+    internal companion object {
+        /** Value indicating information about the eye is unavailable, or invalid. */
+        @JvmField val INVALID: EyeStatus = EyeStatus(0)
+        /** Value indicating the eye is open and looking at something. */
+        @JvmField val GAZING: EyeStatus = EyeStatus(1)
+        /** Value indicating the eye is closed and not looking at something. */
+        @JvmField val SHUT: EyeStatus = EyeStatus(2)
+    }
+}

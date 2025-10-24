@@ -27,12 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.retain.LocalRetainScope
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.retain.RetainedContentHost
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
-import androidx.compose.runtime.retain.retainControlledRetainScope
-import androidx.compose.runtime.retain.retainRetainScopeHolder
+import androidx.compose.runtime.retain.retainControlledRetainedValuesStore
+import androidx.compose.runtime.retain.retainRetainedValuesStoreRegistry
 import androidx.compose.ui.graphics.painter.Painter
 
 @Sampled
@@ -85,44 +85,46 @@ fun retainedContentHostSample() {
 
 @Suppress("UnnecessaryLambdaCreation")
 @Sampled
-fun retainControlledRetainScopeSample() {
+fun retainControlledRetainedValuesStoreSample() {
     @Composable
     fun AnimatedRetainedContentHost(active: Boolean, content: @Composable () -> Unit) {
-        // Create a retain scope. It will be added as a child to the current scope and start
-        // keeping exited values when the parent does. On Android, this scope will implicitly
+        // Create a RetainedValuesStore. It will be added as a child to the current store and start
+        // retaining exited values when the parent does. On Android, this store will implicitly
         // survive and forward retention events caused by configuration changes.
-        val retainScope = retainControlledRetainScope()
+        val retainedValuesStore = retainControlledRetainedValuesStore()
         AnimatedContent(active) { targetState ->
             if (targetState) {
-                // Install the retain scope over the child content
-                CompositionLocalProvider(LocalRetainScope provides retainScope) {
+                // Install the RetainedValuesStore over the child content
+                CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
                     // Values retained here will be kept when this content is faded out,
                     // and restored when the content is added back to the composition.
                     content()
                 }
 
-                // Define the retention scenario that will issue commands to start and stop keeping
+                // Define the retention scenario that will issue commands to start and stop
+                // retaining
                 // exited values. If you use this effect in your code, it must come AFTER the
                 // content is composed to correctly capture values. This effect is not mandatory,
-                // but is a convenient way to match the RetainScope's state to the visibility of its
-                // content. You can manage the retain scope in any way suitable for your content.
+                // but is a convenient way to match the RetainedValuesStore's state to the
+                // visibility of its content. You can manage the RetainedValuesStore in any way
+                // suitable for your content.
                 val composer = currentComposer
-                DisposableEffect(retainScope) {
-                    // Stop keeping exited values when we become active. Use the request count to
+                DisposableEffect(retainedValuesStore) {
+                    // Stop retaining exited values when we become active. Use the request count to
                     // only look at our state and to ignore any parent-influenced requests.
                     val cancellationHandle =
-                        if (retainScope.keepExitedValuesRequestsFromSelf > 0) {
+                        if (retainedValuesStore.retainExitedValuesRequestsFromSelf > 0) {
                             composer.scheduleFrameEndCallback {
-                                retainScope.stopKeepingExitedValues()
+                                retainedValuesStore.stopRetainingExitedValues()
                             }
                         } else {
                             null
                         }
 
                     onDispose {
-                        // Start keeping exited values when we deactivate
+                        // Start retaining exited values when we deactivate
                         cancellationHandle?.cancel()
-                        retainScope.startKeepingExitedValues()
+                        retainedValuesStore.startRetainingExitedValues()
                     }
                 }
             }
@@ -131,7 +133,7 @@ fun retainControlledRetainScopeSample() {
 }
 
 @Sampled
-fun retainScopeHolderSample() {
+fun retainedValuesStoreRegistrySample() {
     // List item that retains a value
     @Composable
     fun Contact(contact: Contact) {
@@ -145,25 +147,25 @@ fun retainScopeHolderSample() {
 
     @Composable
     fun ContactsList(contacts: List<Contact>) {
-        // Create the RetainScopeHolder
-        val retainScopeHolder = retainRetainScopeHolder()
+        // Create the RetainedValuesStoreRegistry
+        val retainedValuesStoreRegistry = retainRetainedValuesStoreRegistry()
         LazyColumn {
             items(contacts) { contact ->
                 // Install it for an item in a list
-                retainScopeHolder.RetainScopeProvider(contact.id) {
-                    // This contact now gets its own retain scope.
-                    // If the scope of ContactsList starts keeping exited values, this nested
-                    // scope will too. If this contact leaves re-enters composition, it will keep
+                retainedValuesStoreRegistry.ProvideChildRetainedValuesStore(contact.id) {
+                    // This contact now gets its own retain store.
+                    // If the store of ContactsList starts retaining exited values, this nested
+                    // store will too. If this contact leaves re-enters composition, it will keep
                     // its previously retained values.
                     Contact(contact)
                 }
             }
         }
 
-        // Optional: Purge child scopes if a contact gets deleted.
+        // Optional: Purge child stores if a contact gets deleted.
         DisposableEffect(contacts) {
             val contactIdsSet = contacts.map { it.id }
-            retainScopeHolder.clearChildren { it !in contactIdsSet }
+            retainedValuesStoreRegistry.clearChildren { it !in contactIdsSet }
             onDispose {}
         }
     }

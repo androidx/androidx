@@ -27,6 +27,7 @@ import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteC
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -135,6 +136,56 @@ class RemoteTextTest {
                     fontSize = 32.sp,
                     color = color,
                     textAlign = TextAlign.Right,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun longText_overflow() {
+        remoteComposeTestRule.runScreenshotTest(backgroundColor = Color.Black) {
+            val text = rememberRemoteString {
+                "a piece of writing in which the expression of feelings and ideas is given intensity by particular attention to diction (sometimes involving rhyme), rhythm, and imagery."
+            }
+            val color = rememberRemoteColor("longtext") { Color.Green }
+
+            RemoteColumn(RemoteModifier.fillMaxSize()) {
+                // Default
+                RemoteText(text = text, fontSize = 18.sp, color = color)
+                RemoteText(
+                    text = text,
+                    fontSize = 18.sp,
+                    color = color,
+                    overflow = TextOverflow.Clip,
+                    maxLines = 1,
+                )
+                RemoteText(
+                    text = text,
+                    fontSize = 18.sp,
+                    color = color,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                )
+                RemoteText(
+                    text = text,
+                    fontSize = 18.sp,
+                    color = color,
+                    overflow = TextOverflow.Visible,
+                    maxLines = 1,
+                )
+                RemoteText(
+                    text = text,
+                    fontSize = 18.sp,
+                    color = color,
+                    overflow = TextOverflow.MiddleEllipsis,
+                    maxLines = 1,
+                )
+                RemoteText(
+                    text = text,
+                    fontSize = 18.sp,
+                    color = color,
+                    overflow = TextOverflow.StartEllipsis,
+                    maxLines = 1,
                 )
             }
         }

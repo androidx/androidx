@@ -25,7 +25,7 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Relation
 import androidx.room3.RoomDatabase
-import androidx.room3.RoomWarnings
+import androidx.room3.Transaction
 
 @Database(entities = [User::class, Item::class], version = 1, exportSchema = false)
 abstract class TestDatabase : RoomDatabase() {
@@ -38,17 +38,15 @@ abstract class TestDatabase : RoomDatabase() {
 
 @Dao
 interface UserDao {
-    @Insert fun insert(user: User)
+    @Insert suspend fun insert(user: User)
 
-    @Insert fun insertUsers(user: List<User>)
+    @Insert suspend fun insertUsers(user: List<User>)
 
-    @Insert fun insertItems(item: List<Item>)
+    @Insert suspend fun insertItems(item: List<Item>)
 
-    @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
-    @Query("SELECT * FROM User")
-    fun getUserWithItems(): List<UserWithItems>
+    @Transaction @Query("SELECT * FROM User") suspend fun getUserWithItems(): List<UserWithItems>
 
-    @Query("DELETE FROM User") fun deleteAll(): Int
+    @Query("DELETE FROM User") suspend fun deleteAll(): Int
 }
 
 data class UserWithItems(

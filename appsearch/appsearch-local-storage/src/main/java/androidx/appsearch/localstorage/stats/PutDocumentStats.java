@@ -206,6 +206,52 @@ public final class PutDocumentStats extends BaseStats {
         return mEmbeddingIndexLatencyMillis;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "PutDocumentStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  generateDocumentProtoLatencyMillis=%d,\n"
+                        + "  rewriteDocumentTypesLatencyMillis=%d,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreLatencyMillis=%d,\n"
+                        + "  nativeIndexLatencyMillis=%d,\n"
+                        + "  nativeIndexMergeLatencyMillis=%d,\n"
+                        + "  nativeDocumentSizeBytes=%d,\n"
+                        + "  nativeNumTokensIndexed=%d,\n"
+                        + "  nativeTermIndexLatencyMillis=%d,\n"
+                        + "  nativeIntegerIndexLatencyMillis=%d,\n"
+                        + "  nativeQualifiedIdJoinIndexLatencyMillis=%d,\n"
+                        + "  nativeLiteIndexSortLatencyMillis=%d,\n"
+                        + "  metadataTermIndexLatencyMillis=%d,\n"
+                        + "  embeddingIndexLatencyMillis=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mGenerateDocumentProtoLatencyMillis,
+                mRewriteDocumentTypesLatencyMillis,
+                mNativeLatencyMillis,
+                mNativeDocumentStoreLatencyMillis,
+                mNativeIndexLatencyMillis,
+                mNativeIndexMergeLatencyMillis,
+                mNativeDocumentSizeBytes,
+                mNativeNumTokensIndexed,
+                mNativeTermIndexLatencyMillis,
+                mNativeIntegerIndexLatencyMillis,
+                mNativeQualifiedIdJoinIndexLatencyMillis,
+                mNativeLiteIndexSortLatencyMillis,
+                mMetadataTermIndexLatencyMillis,
+                mEmbeddingIndexLatencyMillis);
+    }
+
     /** Builder for {@link PutDocumentStats}. */
     public static class Builder extends BaseStats.Builder<PutDocumentStats.Builder> {
         final @NonNull String mPackageName;

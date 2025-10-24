@@ -175,6 +175,42 @@ public final class RemoveStats extends BaseStats {
         return mDocumentRemovalLatencyMillis;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "RemoveStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  nativeDeleteType=%d,\n"
+                        + "  nativeNumDocumentsDeleted=%d,\n"
+                        + "  queryLength=%d,\n"
+                        + "  numTerms=%d,\n"
+                        + "  numNamespacesFiltered=%d,\n"
+                        + "  numSchemaTypesFiltered=%d,\n"
+                        + "  parseQueryLatencyMillis=%d,\n"
+                        + "  documentRemovalLatencyMillis=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mNativeLatencyMillis,
+                mNativeDeleteType,
+                mNativeNumDocumentsDeleted,
+                mQueryLength,
+                mNumTerms,
+                mNumNamespacesFiltered,
+                mNumSchemaTypesFiltered,
+                mParseQueryLatencyMillis,
+                mDocumentRemovalLatencyMillis);
+    }
+
     /** Builder for {@link RemoveStats}. */
     public static class Builder extends BaseStats.Builder<RemoveStats.Builder> {
         final @NonNull String mPackageName;

@@ -18,4 +18,7 @@
     <color name="default_palette_color">#FCBD00</color>
     <color name="default_brush_preview_color">#1E6586</color>
     <color name="default_brush_size_selector_background_color">#FFFFFF</color>
+    <color name="default_light_tick_color">#EEF1F6</color>
+    <color name="default_dark_tick_color">#71787E</color>
+    <color name="default_outline_color">#C4C7C5</color>
 </resources>

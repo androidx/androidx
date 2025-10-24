@@ -24,8 +24,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.Text
-import androidx.compose.runtime.retain.LocalRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.CountingRetainObject
@@ -122,8 +122,8 @@ class FragmentRetainTest {
                     1 -> {
                         assertNotNull(child.view, "Fragment $index should have a view")
                         assertFalse(
-                            child.retainScope.isKeepingExitedValues,
-                            "Fragment $index should not be keeping exited values",
+                            child.retainedValuesStore.isRetainingExitedValues,
+                            "Fragment $index should not be retaining exited values",
                         )
                     }
                     else -> assertNull(child.view, "Fragment $index's view shouldn't exist")
@@ -142,8 +142,8 @@ class FragmentRetainTest {
                         assertNull(child.view, "Fragment $index's view should be destroyed")
                         assertTrue(child.isDetached, "Fragment $index should be detached")
                         assertTrue(
-                            child.retainScope.isKeepingExitedValues,
-                            "Fragment $index should be keeping exited values",
+                            child.retainedValuesStore.isRetainingExitedValues,
+                            "Fragment $index should be retaining exited values",
                         )
                     }
                     2,
@@ -151,8 +151,8 @@ class FragmentRetainTest {
                     4 -> {
                         assertNotNull(child.view, "Fragment $index should have a view")
                         assertFalse(
-                            child.retainScope.isKeepingExitedValues,
-                            "Fragment $index should not be keeping exited values",
+                            child.retainedValuesStore.isRetainingExitedValues,
+                            "Fragment $index should not be retaining exited values",
                         )
                     }
                     else -> assertNull(child.view, "Fragment $index's view shouldn't exist")
@@ -171,8 +171,8 @@ class FragmentRetainTest {
                         assertNotNull(child.view, "Fragment $index should have a view")
                         assertFalse(child.isDetached, "Fragment $index should not be detached")
                         assertFalse(
-                            child.retainScope.isKeepingExitedValues,
-                            "Fragment $index should not be keeping exited values",
+                            child.retainedValuesStore.isRetainingExitedValues,
+                            "Fragment $index should not be retaining exited values",
                         )
                     }
                     2,
@@ -181,8 +181,8 @@ class FragmentRetainTest {
                         assertNull(child.view, "Fragment $index's view should be destroyed")
                         assertTrue(child.isDetached, "Fragment $index should be detached")
                         assertTrue(
-                            child.retainScope.isKeepingExitedValues,
-                            "Fragment $index should be keeping exited values",
+                            child.retainedValuesStore.isRetainingExitedValues,
+                            "Fragment $index should be retaining exited values",
                         )
                     }
                     else -> assertNull(child.view, "Fragment $index's view shouldn't exist")
@@ -267,7 +267,7 @@ class TestRetainFragment : Fragment() {
     var view: ComposeView? = null
         private set
 
-    lateinit var retainScope: RetainScope
+    lateinit var retainedValuesStore: RetainedValuesStore
     val rootRetainedObjects = mutableListOf<CountingRetainObject>()
 
     override fun onCreateView(
@@ -279,7 +279,7 @@ class TestRetainFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             view = this
             setContent {
-                retainScope = LocalRetainScope.current
+                retainedValuesStore = LocalRetainedValuesStore.current
                 retain { CountingRetainObject().also { rootRetainedObjects += it } }
                 val viewInstanceId = viewCreationCounter++
                 val viewRetainedInstanceId = retain { viewInstanceId }

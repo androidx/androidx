@@ -19,10 +19,22 @@ package androidx.aab.analysis
 import androidx.aab.*
 import androidx.aab.analysis.R8Issues.getPrimaryOptimizationIssue
 import androidx.aab.cli.OutputContext
+import androidx.aab.cli.OutputContext.Companion.PackagePrefixDepths
 import androidx.aab.cli.outputContext
 import kotlin.math.roundToInt
 
-data class PackageStats(val packagePrefix: String, var classesSeen: Int, var obfClassesSeen: Int)
+data class PackagePrefixKey(val packagePrefix: String, val identifierCount: Int)
+
+data class PackageStats(
+    val packagePrefix: String,
+    val identifierCount: Int,
+    var lowObfAppCount: Int,
+    var appCount: Int,
+    var classesSeen: Long,
+    var obfClassesSeen: Long,
+    var obfBytesSeen: Long,
+    var bytesSeen: Long,
+)
 
 /**
  * Tracks stats respecting minification/obfuscation heuristics.
@@ -53,52 +65,83 @@ data class MinificationStats(
             var isObfuscatedLowerCaseHits = 0
             var isObfuscatedAppearsMinifiedHits = 0
 
-            val packagePrefixInfo = mutableMapOf<String, PackageStats>()
-            classInfo.forEach { clazz ->
-                val isObfuscatedAccordingToMappingFile =
-                    (prunedMappingFileInfo[clazz.fullName]?.wasRemapped ?: false)
+            val packagePrefixInfo = mutableMapOf<PackagePrefixKey, PackageStats>()
 
-                val packageName =
-                    prunedMappingFileInfo[clazz.fullName]?.originalName?.substringBeforeLast(".")
-                        ?: clazz.packageName
-                val packagePrefix =
-                    if (packageName.startsWith("com.google")) {
-                        // need more package sections to point at what's not being optimized
-                        packageName.split(".").take(4).joinToString(".")
-                    } else {
-                        packageName.split(".").take(2).joinToString(".")
+            val obfOutput = appOutputDir.obfuscatedClasses?.bufferedWriter()
+            val unobfOutput = appOutputDir.unobfuscatedClasses?.bufferedWriter()
+
+            try {
+                classInfo.forEach { clazz ->
+                    val remapInfo = prunedMappingFileInfo[clazz.fullName]
+
+                    val isObfuscatedAccordingToMappingFile = remapInfo?.wasRemapped ?: false
+                    val packageName =
+                        remapInfo?.originalName?.substringBeforeLast(".") ?: clazz.packageName
+
+                    val packageIdentifiers = packageName.split(".")
+                    for (identifierCount in PackagePrefixDepths) {
+                        val key =
+                            PackagePrefixKey(
+                                packagePrefix =
+                                    packageIdentifiers.take(identifierCount).joinToString("."),
+                                identifierCount = identifierCount,
+                            )
+                        packagePrefixInfo
+                            .computeIfAbsent(key) {
+                                PackageStats(
+                                    packagePrefix = key.packagePrefix,
+                                    identifierCount = key.identifierCount,
+                                    classesSeen = 0,
+                                    obfClassesSeen = 0,
+                                    bytesSeen = 0,
+                                    obfBytesSeen = 0,
+                                    lowObfAppCount = 0,
+                                    appCount = 1,
+                                )
+                            }
+                            .apply {
+                                classesSeen += 1
+                                bytesSeen += clazz.size
+                                if (isObfuscatedAccordingToMappingFile) {
+                                    obfClassesSeen++
+                                    obfBytesSeen += clazz.size
+                                }
+
+                                lowObfAppCount =
+                                    if (obfClassesSeen * 1.0 / classesSeen < 0.25) {
+                                        1
+                                    } else {
+                                        0
+                                    }
+                            }
                     }
-                packagePrefixInfo
-                    .computeIfAbsent(packagePrefix) { PackageStats(packagePrefix, 0, 0) }
-                    .apply {
-                        classesSeen += 1
-                        if (isObfuscatedAccordingToMappingFile) obfClassesSeen++
+
+                    if (clazz.startsWithLowerCase == isObfuscatedAccordingToMappingFile) {
+                        isObfuscatedLowerCaseHits++
+                    }
+                    if (clazz.classNameAppearsMinified == isObfuscatedAccordingToMappingFile) {
+                        isObfuscatedAppearsMinifiedHits++
+                    }
+                    if (isObfuscatedAccordingToMappingFile) {
+                        isObfuscatedCount++
                     }
 
-                if (clazz.startsWithLowerCase == isObfuscatedAccordingToMappingFile) {
-                    isObfuscatedLowerCaseHits++
+                    if (isObfuscatedAccordingToMappingFile) {
+                            obfOutput
+                        } else {
+                            unobfOutput
+                        }
+                        ?.write(
+                            "${clazz.size}, \"${clazz.fullName}\", \"${remapInfo?.originalName}\", \"${remapInfo?.mapLine}\",\n"
+                        )
                 }
-                if (clazz.classNameAppearsMinified == isObfuscatedAccordingToMappingFile) {
-                    isObfuscatedAppearsMinifiedHits++
-                }
-                if (isObfuscatedAccordingToMappingFile) {
-                    isObfuscatedCount++
-                }
-
-                if (isObfuscatedAccordingToMappingFile) {
-                    appOutputDir.obfuscatedClasses?.appendText(
-                        "${clazz.fullName.padEnd(100)} -> ${prunedMappingFileInfo[clazz.fullName]}\n"
-                    )
-                } else {
-                    appOutputDir.unobfuscatedClasses?.appendText(
-                        "${clazz.fullName.padEnd(100)} -> ${prunedMappingFileInfo[clazz.fullName]}\n"
-                    )
-                }
+            } finally {
+                obfOutput?.close()
+                unobfOutput?.close()
             }
 
-            outputContext.dumpPackagePrefixInfoToFile(appOutputDir.outputDir, packagePrefixInfo)
-
             if (isObfuscatedCount > 0.25 * classInfo.count()) {
+                outputContext.dumpPackagePrefixInfoToFile(appOutputDir.outputDir, packagePrefixInfo)
                 // only register to global stats if app looks somewhat obfuscated
                 outputContext.registerPackagePrefixInfo(packagePrefixInfo)
             }

@@ -16,39 +16,47 @@
 
 package androidx.tracing.driver
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.collection.mutableIntObjectMapOf
 
 /**
  * This is something that is only typically created once per process. All the traces emitted are
  * managed and written into a single [TraceSink] in an optimal way based on the underlying platform.
  */
+// False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
+@Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+@RestrictTo(Scope.LIBRARY_GROUP)
 public open class TraceContext
 internal constructor(
     /** The sink all the trace events are written to. */
-    public val sink: TraceSink,
+    @JvmField public val sink: TraceSink,
     /** Is tracing enabled ? */
-    public val isEnabled: Boolean,
+    @JvmField public val isEnabled: Boolean,
     /** Debug mode */
     // When debugging is on, we keep track of outstanding allocations in the pool,
     // and provide useful logging to help with debugging & testing.
-    internal val isDebug: Boolean,
+    @JvmField internal val isDebug: Boolean,
 ) : AutoCloseable {
 
     public constructor(sink: TraceSink, isEnabled: Boolean) : this(sink, isEnabled, isDebug = false)
 
-    internal val processTrackLock = Any()
-    internal val processes = mutableIntObjectMapOf<ProcessTrack>()
+    @JvmField internal val processTrackLock = Any()
+    @JvmField internal val processes = mutableIntObjectMapOf<ProcessTrack>()
+
+    /** Create an instance of a [Tracer] that can be used to emit trace events. */
+    public open fun createTracer(name: String): Tracer {
+        return PerfettoTracer(context = this, name = name)
+    }
 
     /**
      * @return A [ProcessTrack] using the unique process [id], a [name] and the provided
      *   [TraceContext].
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public open fun getOrCreateProcessTrack(id: Int, name: String): ProcessTrack {
         return synchronized(processTrackLock) {
-            val track =
-                processes.getOrPut(id) { ProcessTrack(context = this, id = id, name = name) }
-            check(track.name == name)
-            track
+            processes.getOrPut(id) { ProcessTrack(context = this, id = id, name = name) }
         }
     }
 
@@ -104,7 +112,6 @@ internal constructor(
 }
 
 // An empty trace context when tracing is disabled.
-
 internal object EmptyTraceContext : TraceContext(sink = EmptyTraceSink(), isEnabled = false) {
     internal val process = EmptyProcessTrack(this)
     internal val thread = EmptyThreadTrack(process)

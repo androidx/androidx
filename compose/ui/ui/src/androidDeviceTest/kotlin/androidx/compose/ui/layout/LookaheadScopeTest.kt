@@ -3478,7 +3478,7 @@ class LookaheadScopeTest {
                                     }
                                     .onPlaced {
                                         actualLookaheadScopeCoordinates =
-                                            it.lookaheadScopeCoordinates(this@LookaheadScope)
+                                            lookaheadScopeCoordinates(it)
                                     }
                             )
                         }

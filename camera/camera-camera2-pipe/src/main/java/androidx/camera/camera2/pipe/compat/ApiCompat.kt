@@ -236,6 +236,11 @@ internal object Api28Compat {
         }
         return null
     }
+
+    @JvmStatic
+    fun getHardwareBuffer(image: Image): HardwareBuffer? {
+        return image.hardwareBuffer
+    }
 }
 
 @RequiresApi(29)

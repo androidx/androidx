@@ -25,7 +25,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm()
+    desktop()
     androidLibrary {
         namespace = "androidx.tracing.driver.wire"
     }
@@ -43,13 +43,12 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(libs.kotlinCoroutinesTest)
             }
         }
-        jvmTest {
+        desktopTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTestJunit)
@@ -57,7 +56,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinBenchmarkRuntime)
             }
         }
-        jvmMain {
+        desktopMain {
             dependsOn(commonMain)
         }
         androidMain {
@@ -109,8 +108,8 @@ benchmark {
         }
     }
     targets {
-        // Benchmarks live in the `jvmTest` sourceSet.
-        register("jvmTest")
+        // Benchmarks live in the `desktopTest` sourceSet.
+        register("desktopTest")
     }
 }
 

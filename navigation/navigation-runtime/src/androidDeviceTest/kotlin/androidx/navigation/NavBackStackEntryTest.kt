@@ -17,7 +17,6 @@
 package androidx.navigation
 
 import android.app.Application
-import androidx.core.os.bundleOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.Lifecycle
@@ -30,6 +29,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.internal.NavContext
 import androidx.navigation.test.R
+import androidx.savedstate.savedState
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -282,9 +282,7 @@ class NavBackStackEntryTest {
 
         val extras =
             MutableCreationExtras(entry.defaultViewModelCreationExtras).apply {
-                this[DEFAULT_ARGS_KEY] =
-                    @Suppress("DEPRECATION") // bundleOf is deprecated
-                    bundleOf("test" to "value")
+                this[DEFAULT_ARGS_KEY] = savedState { putString("test", "value") }
             }
 
         val actualValue =

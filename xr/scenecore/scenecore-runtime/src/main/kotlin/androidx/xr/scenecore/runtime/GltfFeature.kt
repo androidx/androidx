@@ -16,15 +16,40 @@
 
 package androidx.xr.scenecore.runtime
 
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.FloatSize3d
 import java.util.concurrent.Executor
 
 /** Provide the rendering implementation for [GltfEntity] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface GltfFeature : RenderingFeature {
 
+    /**
+     * The unscaled size of the glTF model's axis-aligned bounding box in the entity's local space,
+     * in meters.
+     *
+     * @return A [FloatSize3d] object representing the width (x-axis), height (y-axis), and depth
+     *   (z-axis).
+     */
+    @get:MainThread public val size: FloatSize3d
+
     /** Returns the current animation state of the glTF entity. */
     public val animationState: Int
+
+    /**
+     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model.
+     *
+     * The bounding box is defined in the model's local coordinate space, before any transformations
+     * (like scaling) from the entity are applied.
+     *
+     * @return A [BoundingBox] object representing the model's bounding box. The
+     *   [BoundingBox.center] defines the geometric center of the box, and the
+     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
+     *   of the box is twice the half-extent. All values are in meters.
+     */
+    @MainThread public fun getGltfModelBoundingBox(): BoundingBox
 
     /**
      * Starts the animation with the given name.
@@ -34,10 +59,10 @@ public interface GltfFeature : RenderingFeature {
      * @param loop Whether the animation should loop.
      * @param executor The Entity's executor to use for the animation.
      */
-    public fun startAnimation(loop: Boolean, animationName: String?, executor: Executor)
+    @MainThread public fun startAnimation(loop: Boolean, animationName: String?, executor: Executor)
 
     /** Stops the animation of the glTF entity. */
-    public fun stopAnimation()
+    @MainThread public fun stopAnimation()
 
     /**
      * Sets a material override for a specific mesh of a node.
@@ -46,6 +71,7 @@ public interface GltfFeature : RenderingFeature {
      * @param nodeName The name of the node containing the mesh to override.
      * @param primitiveIndex The zero-based index of the mesh in the node.
      */
+    @MainThread
     public fun setMaterialOverride(
         material: MaterialResource,
         nodeName: String,
@@ -58,12 +84,12 @@ public interface GltfFeature : RenderingFeature {
      * @param nodeName The name of the node containing the mesh for which to clear the override.
      * @param primitiveIndex The zero-based index of the mesh in the node.
      */
-    public fun clearMaterialOverride(nodeName: String, primitiveIndex: Int)
+    @MainThread public fun clearMaterialOverride(nodeName: String, primitiveIndex: Int)
 
     /**
      * Sets whether the collider is enabled.
      *
      * @param enableCollider Whether the collider is enabled.
      */
-    public fun setColliderEnabled(enableCollider: Boolean)
+    @MainThread public fun setColliderEnabled(enableCollider: Boolean)
 }

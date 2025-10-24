@@ -21,15 +21,24 @@ import androidx.xr.scenecore.InputEvent
 
 class VideoInputManager() {
     interface InputHandler {
-        fun onClick(pointerType: Int, origin: Vector3, direction: Vector3, count: Int) {}
+        fun onClick(
+            pointerType: InputEvent.Pointer,
+            origin: Vector3,
+            direction: Vector3,
+            count: Int,
+        ) {}
 
-        fun onDragStart(pointerType: Int, downOrigin: Vector3, downDirection: Vector3) {}
+        fun onDragStart(
+            pointerType: InputEvent.Pointer,
+            downOrigin: Vector3,
+            downDirection: Vector3,
+        ) {}
 
-        fun onDragMove(pointerType: Int, origin: Vector3, direction: Vector3) {}
+        fun onDragMove(pointerType: InputEvent.Pointer, origin: Vector3, direction: Vector3) {}
 
-        fun onDragEnd(pointerType: Int, origin: Vector3, direction: Vector3) {}
+        fun onDragEnd(pointerType: InputEvent.Pointer, origin: Vector3, direction: Vector3) {}
 
-        fun onDragCanceled(pointerType: Int) {}
+        fun onDragCanceled(pointerType: InputEvent.Pointer) {}
 
         fun canDrag(): Boolean {
             return false
@@ -53,7 +62,7 @@ class VideoInputManager() {
     val clickInterval = 200L
     val dragStartLen = 0.008f
 
-    private val pointersStateMap = mutableMapOf<Int, PointerState>()
+    private val pointersStateMap = mutableMapOf<InputEvent.Pointer, PointerState>()
 
     val canDrag
         get() = handler?.canDrag() ?: false
@@ -64,7 +73,7 @@ class VideoInputManager() {
 
         val state = pointersStateMap.getOrPut(inputEvent.pointerType) { PointerState() }
         when (inputEvent.action) {
-            InputEvent.Action.ACTION_DOWN -> {
+            InputEvent.Action.DOWN -> {
                 state.downTime = inputEvent.timestamp
                 state.downOrigin = inputEvent.origin
                 state.downDirection = inputEvent.direction
@@ -72,7 +81,7 @@ class VideoInputManager() {
                     state.clickCount = 0
                 }
             }
-            InputEvent.Action.ACTION_MOVE -> {
+            InputEvent.Action.MOVE -> {
                 if (!state.isDragging) {
                     if (canDrag && dragEnabled) {
                         // detect if need to start drag
@@ -101,7 +110,7 @@ class VideoInputManager() {
                     hdl.onDragMove(inputEvent.pointerType, inputEvent.origin, inputEvent.direction)
                 }
             }
-            InputEvent.Action.ACTION_UP -> {
+            InputEvent.Action.UP -> {
                 state.upTime = inputEvent.timestamp
                 if (!state.isDragging) {
                     if (inputEvent.timestamp - state.downTime < clickInterval) {
@@ -126,7 +135,7 @@ class VideoInputManager() {
                     state.isDragging = false
                 }
             }
-            InputEvent.Action.ACTION_CANCEL -> {
+            InputEvent.Action.CANCEL -> {
                 if (state.isDragging) {
                     hdl.onDragCanceled(inputEvent.pointerType)
                     state.isDragging = false

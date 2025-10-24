@@ -48,6 +48,7 @@ class DrawableContainerCompatTest {
         assertTrue(container.calledSetTintList)
     }
 
+    @Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
     internal class MyDrawableContainerState : DrawableContainerCompat.DrawableContainerState {
         constructor() : super(null, null, null)
 

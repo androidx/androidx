@@ -87,6 +87,18 @@ public class VmStartAttemptStats {
         return mLatencyMillis;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "VmStartAttemptStats {\n"
+                        + "  statusCode=%d,\n"
+                        + "  latencyMillis=%d\n"
+                        + "}",
+                mStatusCode,
+                mLatencyMillis);
+    }
+
     /** Builder for {@link VmStartAttemptStats}. */
     public static class Builder {
         @VmStartStatus private int mStatusCode;

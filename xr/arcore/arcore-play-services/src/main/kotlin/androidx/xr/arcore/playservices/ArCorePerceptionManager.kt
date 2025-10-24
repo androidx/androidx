@@ -28,6 +28,7 @@ import androidx.xr.arcore.runtime.HitResult
 import androidx.xr.arcore.runtime.PerceptionManager
 import androidx.xr.arcore.runtime.RenderViewpoint
 import androidx.xr.arcore.runtime.Trackable
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.VpsAvailabilityAvailable
 import androidx.xr.runtime.VpsAvailabilityErrorInternal
 import androidx.xr.runtime.VpsAvailabilityNetworkError
@@ -35,8 +36,12 @@ import androidx.xr.runtime.VpsAvailabilityNotAuthorized
 import androidx.xr.runtime.VpsAvailabilityResourceExhausted
 import androidx.xr.runtime.VpsAvailabilityResult
 import androidx.xr.runtime.VpsAvailabilityUnavailable
+import androidx.xr.runtime.internal.UnsupportedDeviceException
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
+import com.google.ar.core.AugmentedFace as ARCore1xAugmentedFace
+import com.google.ar.core.CameraConfig
+import com.google.ar.core.CameraConfigFilter
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane as ARCore1xPlane
 import com.google.ar.core.Session
@@ -72,6 +77,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     internal fun timeSinceLastFrame(): Duration = lastFrameTimeMark?.elapsedNow() ?: Duration.ZERO
 
     private val xrResources: XrResources = XrResources()
+    internal var depthEstimationMode = Config.DepthEstimationMode.DISABLED
 
     private var displayRotation = Surface.ROTATION_0
     private var displayWidth = 0
@@ -84,6 +90,13 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     internal fun lastFrame(value: Frame) {
         _latestFrame = value
     }
+
+    internal val usingFrontFacingCamera: Boolean
+        get() =
+            if (::session.isInitialized) {
+                val arCoreCameraConfig: CameraConfig? = session.cameraConfig
+                arCoreCameraConfig?.facingDirection == CameraConfig.FacingDirection.FRONT
+            } else false
 
     /**
      * Creates an anchor in the scene.
@@ -227,12 +240,12 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val earth: ArCoreEarth = xrResources.earth
 
-    /** Returns the [androidx.xr.arcore.runtime.ArDevice] instance. */
+    /** Returns the [ArDevice] instance. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val arDevice: ArCoreDevice = xrResources.arDevice
 
     /**
-     * Returns the left [androidx.xr.arcore.runtime.RenderViewpoint] object.
+     * Returns the left [RenderViewpoint] object.
      *
      * This is not available in ARCore.
      */
@@ -240,7 +253,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     override val leftRenderViewpoint: RenderViewpoint? = null
 
     /**
-     * Returns the right [androidx.xr.arcore.runtime.RenderViewpoint] object.
+     * Returns the right [RenderViewpoint] object.
      *
      * This is not available in ARCore.
      */
@@ -248,7 +261,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     override val rightRenderViewpoint: RenderViewpoint? = null
 
     /**
-     * Returns the mono[androidx.xr.arcore.runtime.RenderViewpoint] object.
+     * Returns the mono[RenderViewpoint] object.
      *
      * This is not currently implemented in ARCore.
      */
@@ -256,25 +269,22 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     override val monoRenderViewpoint: RenderViewpoint? = null
 
     /**
-     * Returns the left [androidx.xr.arcore.runtime.DepthMap] object.
+     * Returns the left [DepthMap] object.
      *
      * This is not available in ARCore.
      */
     override val leftDepthMap: DepthMap? = null
 
     /**
-     * Returns the right [androidx.xr.arcore.runtime.DepthMap] object.
+     * Returns the right [DepthMap] object.
      *
      * This is not available in ARCore.
      */
     override val rightDepthMap: DepthMap? = null
 
-    /**
-     * Returns the mono [androidx.xr.arcore.runtime.DepthMap] object.
-     *
-     * This is not available in ARCore.
-     */
-    override val monoDepthMap: DepthMap? = null
+    /** Returns the mono [DepthMap] object. */
+    override val monoDepthMap: DepthMap?
+        get() = xrResources.depthMap
 
     /**
      * Updates the perception manager.
@@ -284,7 +294,6 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
      * perception manager.
      */
     internal fun update() {
-
         if (displayChanged) {
             session.setDisplayGeometry(displayRotation, displayWidth, displayHeight)
         }
@@ -303,7 +312,24 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         val planes = _latestFrame.getUpdatedTrackables(ARCore1xPlane::class.java)
         planes.forEach { xrResources.addTrackable(it, ArCorePlane(it, xrResources)) }
 
+        val augmentedFaces = session.getAllTrackables(ARCore1xAugmentedFace::class.java)
+        // Don't retain any AugmentedFaces that the ArCore Session is no longer tracking
+        xrResources.trackables
+            .filter { it.value is ArCoreFace }
+            .keys
+            .forEach {
+                if (!augmentedFaces.contains(it)) {
+                    xrResources.removeTrackable(it)
+                }
+            }
+        augmentedFaces.forEach { xrResources.addTrackable(it, ArCoreFace(it)) }
+
         arDevice.update(_latestFrame)
+
+        if (depthEstimationMode != Config.DepthEstimationMode.DISABLED) {
+            xrResources.depthMap.update(_latestFrame)
+        }
+
         earth.update(session)
     }
 
@@ -323,5 +349,44 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
             displayHeight = height
             displayChanged = true
         }
+    }
+
+    /**
+     * Sets the Depth Estimation Mode for the Perception Manager and the [xrResources.depthMap]
+     *
+     * @param depthMode The desired [Config.DepthEstimationMode].
+     */
+    public fun setDepthEstimationMode(depthMode: Config.DepthEstimationMode) {
+        depthEstimationMode = depthMode
+        xrResources.depthMap.updateDepthEstimationMode(depthMode)
+    }
+
+    /**
+     * Clears any lingering resources within [xrResources].
+     *
+     * @see ArCoreDepthMap.dispose
+     */
+    public fun dispose() {
+        xrResources.depthMap.dispose()
+    }
+
+    internal fun setCameraFacingDirection(facingDirection: Config.CameraFacingDirection) {
+        val arCoreFacingDirection =
+            when (facingDirection) {
+                Config.CameraFacingDirection.USER -> CameraConfig.FacingDirection.FRONT
+                Config.CameraFacingDirection.WORLD -> CameraConfig.FacingDirection.BACK
+                else ->
+                    throw IllegalArgumentException(
+                        "Unsupported CameraFacingDirection ${facingDirection}."
+                    )
+            }
+        val filter = CameraConfigFilter(session)
+        filter.facingDirection = arCoreFacingDirection
+        val supportedConfigs = session.getSupportedCameraConfigs(filter)
+        if (supportedConfigs.isEmpty()) {
+            throw UnsupportedDeviceException()
+        }
+        // Element 0 contains the best match
+        session.cameraConfig = supportedConfigs[0]
     }
 }

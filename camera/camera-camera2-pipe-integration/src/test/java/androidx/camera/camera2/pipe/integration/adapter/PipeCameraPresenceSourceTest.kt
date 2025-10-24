@@ -52,10 +52,12 @@ class PipeCameraPresenceSourceTest {
     private lateinit var mockContext: Context
     private lateinit var mockCameraManager: CameraManager
 
-    private val id1 = CameraIdentifier.Factory.create("1")
-    private val id2 = CameraIdentifier.Factory.create("2")
-    private val pipeId1 = CameraId.fromCamera2Id("1")
-    private val pipeId2 = CameraId.fromCamera2Id("2")
+    private val stringId1 = "1"
+    private val stringId2 = "2"
+    private val id1 = CameraIdentifier.Factory.create(stringId1)
+    private val id2 = CameraIdentifier.Factory.create(stringId2)
+    private val pipeId1 = CameraId.fromCamera2Id(stringId1)
+    private val pipeId2 = CameraId.fromCamera2Id(stringId2)
 
     @Before
     fun setUp() {
@@ -84,6 +86,7 @@ class PipeCameraPresenceSourceTest {
                 observer.awaitNextResult() // Consume initial empty set
 
                 // Act
+                `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf(stringId1))
                 idFlow.emit(listOf(pipeId1))
 
                 // Assert
@@ -91,6 +94,7 @@ class PipeCameraPresenceSourceTest {
                 assertThat(result.data).containsExactly(id1)
 
                 // Act: Emit another update
+                `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf(stringId1, stringId2))
                 idFlow.emit(listOf(pipeId1, pipeId2))
 
                 // Assert

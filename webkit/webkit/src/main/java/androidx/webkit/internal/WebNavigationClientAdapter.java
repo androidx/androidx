@@ -19,10 +19,6 @@ package androidx.webkit.internal;
 
 import androidx.webkit.WebNavigationClient;
 
-import org.chromium.support_lib_boundary.WebViewNavigationBoundaryInterface;
-import org.chromium.support_lib_boundary.WebViewNavigationClientBoundaryInterface;
-import org.chromium.support_lib_boundary.WebViewPageBoundaryInterface;
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.chromium.support_lib_boundary.util.Features;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -31,12 +27,13 @@ import java.lang.reflect.InvocationHandler;
 
 /**
  * Adapter between {@link WebNavigationClient} and
- * {@link WebViewNavigationClientBoundaryInterface}. It handles the delegation for callback
- * triggers.
+ * {@link org.chromium.support_lib_boundary.WebViewNavigationClientBoundaryInterface}.
+ * It handles the delegation for callback triggers.
  */
 @WebNavigationClient.ExperimentalNavigationCallback
+@SuppressWarnings("deprecation")
 public class WebNavigationClientAdapter implements
-        WebViewNavigationClientBoundaryInterface {
+        org.chromium.support_lib_boundary.WebViewNavigationClientBoundaryInterface {
     WebNavigationClient mWebNavigationClient;
 
     public WebNavigationClientAdapter(@NonNull WebNavigationClient client) {
@@ -49,73 +46,41 @@ public class WebNavigationClientAdapter implements
 
     @Override
     public void onNavigationStarted(@NonNull InvocationHandler navigation) {
-        WebViewNavigationBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewNavigationBoundaryInterface.class, navigation);
-
         mWebNavigationClient.onNavigationStarted(
-                (NavigationAdapter) boundaryInterface.getOrCreatePeer(
-                        () -> new NavigationAdapter(boundaryInterface)));
+                NavigationImpl.forInvocationHandler(navigation));
     }
 
     @Override
     public void onNavigationRedirected(@NonNull InvocationHandler navigation) {
-        WebViewNavigationBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewNavigationBoundaryInterface.class, navigation);
-
         mWebNavigationClient.onNavigationRedirected(
-                (NavigationAdapter) boundaryInterface.getOrCreatePeer(
-                        () -> new NavigationAdapter(boundaryInterface)));
+                NavigationImpl.forInvocationHandler(navigation));
     }
 
     @WebNavigationClient.ExperimentalNavigationCallback
     @Override
     public void onNavigationCompleted(@NonNull InvocationHandler navigation) {
-        WebViewNavigationBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewNavigationBoundaryInterface.class, navigation);
-
         mWebNavigationClient.onNavigationCompleted(
-                (NavigationAdapter) boundaryInterface.getOrCreatePeer(
-                        () -> new NavigationAdapter(boundaryInterface)));
+                NavigationImpl.forInvocationHandler(navigation));
     }
 
     @Override
     public void onPageDeleted(@NonNull InvocationHandler page) {
-        final WebViewPageBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewPageBoundaryInterface.class, page);
-        mWebNavigationClient.onPageDeleted((PageImpl) boundaryInterface.getOrCreatePeer(
-                () -> new PageImpl(boundaryInterface)));
+        mWebNavigationClient.onPageDeleted(PageImpl.forInvocationHandler(page));
     }
 
     @Override
     public void onPageLoadEventFired(@NonNull InvocationHandler page) {
-        final WebViewPageBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewPageBoundaryInterface.class, page);
-        mWebNavigationClient.onPageLoadEventFired((PageImpl) boundaryInterface.getOrCreatePeer(
-                () -> new PageImpl(boundaryInterface)));
+        mWebNavigationClient.onPageLoadEventFired(PageImpl.forInvocationHandler(page));
     }
 
     @Override
     public void onPageDOMContentLoadedEventFired(@NonNull InvocationHandler page) {
-        final WebViewPageBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewPageBoundaryInterface.class, page);
-        mWebNavigationClient.onPageDomContentLoadedEventFired(
-                (PageImpl) boundaryInterface.getOrCreatePeer(
-                        () -> new PageImpl(boundaryInterface)));
+        mWebNavigationClient.onPageDomContentLoadedEventFired(PageImpl.forInvocationHandler(page));
     }
 
     @Override
     public void onFirstContentfulPaint(@NonNull InvocationHandler page) {
-        final WebViewPageBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewPageBoundaryInterface.class, page);
-        mWebNavigationClient.onFirstContentfulPaint((PageImpl) boundaryInterface.getOrCreatePeer(
-                () -> new PageImpl(boundaryInterface)));
+        mWebNavigationClient.onFirstContentfulPaint(PageImpl.forInvocationHandler(page));
     }
 
     @NonNull

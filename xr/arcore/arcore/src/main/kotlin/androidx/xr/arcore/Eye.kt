@@ -18,9 +18,9 @@ package androidx.xr.arcore
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Eye as RuntimeEye
-import androidx.xr.arcore.runtime.EyeStatus
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,8 +32,6 @@ import kotlinx.coroutines.flow.asStateFlow
  * An [Eye] instance provides the state of the eye (shut or gazing), as well as a [Pose] indicating
  * where the user is currently looking.
  */
-// TODO(b/446971597): Add a new EyeStatus enum for the top-level namespace.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class Eye internal constructor(internal val runtimeEye: RuntimeEye) : Updatable {
 
     public companion object {
@@ -73,27 +71,20 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) : Upd
      * The [Pose]s provided are the position and rotation of the eye itself, relative to the head
      * pose.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public class State(
-        /** The [EyeStatus] from coarse eye tracking, or `null` if not available. */
-        public val coarseEyeStatus: EyeStatus?,
-        /** The [Pose] from coarse eye tracking, or `null` if not available. */
-        public val coarseEyePose: Pose?,
-        /** The [EyeStatus] from fine eye tracking, or `null` if not available. */
-        public val fineEyeStatus: EyeStatus?,
-        /** The [Pose] from fine eye tracking, or `null` if not available. */
-        public val fineEyePose: Pose?,
+        /**
+         * a flag indicating whether or not the eye is open. It's set to true if it's open, false if
+         * it's closed. *
+         */
+        public val isOpen: Boolean,
+        /** The eye's pose */
+        public val pose: Pose,
+        /** the tracking state of the eye */
+        public val trackingState: TrackingState,
     ) {}
 
     private var _state =
-        MutableStateFlow(
-            State(
-                runtimeEye.coarseStatus,
-                runtimeEye.coarsePose,
-                runtimeEye.fineStatus,
-                runtimeEye.finePose,
-            )
-        )
+        MutableStateFlow(State(runtimeEye.isOpen, runtimeEye.pose, runtimeEye.trackingState))
 
     /** A [StateFlow] that contains the latest [State] of an [Eye]. */
     public val state: StateFlow<State> = _state.asStateFlow()
@@ -104,13 +95,6 @@ public class Eye internal constructor(internal val runtimeEye: RuntimeEye) : Upd
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
-        _state.emit(
-            State(
-                runtimeEye.coarseStatus,
-                runtimeEye.coarsePose,
-                runtimeEye.fineStatus,
-                runtimeEye.finePose,
-            )
-        )
+        _state.emit(State(runtimeEye.isOpen, runtimeEye.pose, runtimeEye.trackingState))
     }
 }

@@ -112,7 +112,7 @@ class ActivitySpaceTest {
     @Test
     fun recommendedContentBoxInFullSpace_returnsCorrectBoundingBox() {
         whenever(mockActivitySpace.recommendedContentBoxInFullSpace)
-            .thenReturn(BoundingBox(Vector3.Zero, Vector3.One))
+            .thenReturn(BoundingBox.fromMinMax(Vector3.Zero, Vector3.One))
         val activitySpace = ActivitySpace.create(mockSceneRuntime, entityManager)
         val recommendedContentBoxInFullSpace = activitySpace.recommendedContentBoxInFullSpace
         assertThat(recommendedContentBoxInFullSpace.min).isEqualTo(Vector3.Zero)
@@ -127,7 +127,7 @@ class ActivitySpaceTest {
 
     @Test
     fun getActivitySpacePose_returnsIdentity() {
-        whenever(mockActivitySpace.getPose(Space.ACTIVITY))
+        whenever(mockActivitySpace.getPose(Space.ACTIVITY.toRtSpace()))
             .thenReturn(Pose(Vector3.Zero, Quaternion.Identity))
         val activitySpace = ActivitySpace.create(mockSceneRuntime, entityManager)
         val pose = activitySpace.getPose(Space.ACTIVITY)
@@ -137,7 +137,7 @@ class ActivitySpaceTest {
 
     @Test
     fun getRealWorldSpacePose_returnsPerceptionSpacePose() {
-        whenever(mockActivitySpace.getPose(Space.REAL_WORLD))
+        whenever(mockActivitySpace.getPose(Space.REAL_WORLD.toRtSpace()))
             .thenReturn(Pose(Vector3.Zero, Quaternion.Identity))
         val activitySpace = ActivitySpace.create(mockSceneRuntime, entityManager)
         val pose = activitySpace.getPose(Space.REAL_WORLD)
@@ -161,7 +161,7 @@ class ActivitySpaceTest {
 
     @Test
     fun getActivitySpaceScale_returnsIdentity() {
-        whenever(mockActivitySpace.getScale(Space.ACTIVITY)).thenReturn(Vector3.One)
+        whenever(mockActivitySpace.getScale(Space.ACTIVITY.toRtSpace())).thenReturn(Vector3.One)
         val activitySpace = ActivitySpace.create(mockSceneRuntime, entityManager)
         val scale = activitySpace.getScale(Space.ACTIVITY)
         assertThat(scale).isEqualTo(1f)
@@ -169,7 +169,7 @@ class ActivitySpaceTest {
 
     @Test
     fun getRealWorldSpaceScale_returnsIdentity() {
-        whenever(mockActivitySpace.getScale(Space.REAL_WORLD)).thenReturn(Vector3.One)
+        whenever(mockActivitySpace.getScale(Space.REAL_WORLD.toRtSpace())).thenReturn(Vector3.One)
         val activitySpace = ActivitySpace.create(mockSceneRuntime, entityManager)
         val scale = activitySpace.getScale(Space.REAL_WORLD)
         assertThat(scale).isEqualTo(1f)

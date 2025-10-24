@@ -42,6 +42,7 @@ import kotlin.math.tan
  * @return The [androidx.xr.scenecore.runtime.CameraViewScenePose] for the left eye if found;
  *   otherwise, `null` if no such camera view is registered or available in the [EntityManager].
  */
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal fun getPerceivedResolutionCameraView(entityManager: EntityManager): CameraViewScenePose? {
     val cameraViews =
         entityManager.getSystemSpaceActivityPoseOfType(CameraViewScenePose::class.java)

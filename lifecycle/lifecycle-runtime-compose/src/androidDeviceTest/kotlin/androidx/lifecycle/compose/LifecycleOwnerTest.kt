@@ -248,4 +248,21 @@ class LifecycleOwnerTest {
         rule.awaitIdle()
         assertThat(childLifecycle.currentState).isEqualTo(State.DESTROYED)
     }
+
+    @Test
+    fun rememberLifecycleOwner_whenOnDestroyWhileInitialized_ignoresEvent() = runTest {
+        lateinit var childOwner: LifecycleOwner
+        var inComposition by mutableStateOf(true)
+
+        rule.setContent {
+            if (inComposition) {
+                childOwner = rememberLifecycleOwner(parent = null, maxLifecycle = State.INITIALIZED)
+            }
+        }
+
+        inComposition = false
+        rule.awaitIdle()
+
+        assertThat(childOwner.lifecycle.currentState).isEqualTo(State.INITIALIZED)
+    }
 }

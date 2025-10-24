@@ -25,6 +25,18 @@ AddedAbstractMethod: androidx.constraintlayout.compose.VerticalAnchorable#linkTo
     Binary breaking change: Added method androidx.constraintlayout.compose.VerticalAnchorable.linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor,float,float)
 
 
+BecameUnchecked: androidx.constraintlayout.compose.MotionLayoutKt:
+    Removed class androidx.constraintlayout.compose.MotionLayoutKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.MotionSceneKt:
+    Removed class androidx.constraintlayout.compose.MotionSceneKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.MotionSceneScopeKt:
+    Removed class androidx.constraintlayout.compose.MotionSceneScopeKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.TransitionKt:
+    Removed class androidx.constraintlayout.compose.TransitionKt from compatibility checked API surface
+BecameUnchecked: androidx.constraintlayout.compose.TransitionScopeKt:
+    Removed class androidx.constraintlayout.compose.TransitionScopeKt from compatibility checked API surface
+
+
 ParameterNameChange: androidx.constraintlayout.compose.ConstraintLayoutBaseScope#createGuidelineFromAbsoluteLeft(float) parameter #0:
     Source breaking change: Attempted to change parameter name from offset to fraction in method androidx.constraintlayout.compose.ConstraintLayoutBaseScope.createGuidelineFromAbsoluteLeft
 ParameterNameChange: androidx.constraintlayout.compose.ConstraintLayoutBaseScope#createGuidelineFromAbsoluteRight(float) parameter #0:

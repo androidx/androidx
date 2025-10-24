@@ -110,7 +110,7 @@ internal class SelectionActionModeCallback(
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
         // If we don't know about page layout, defer to the default implementation
         val localPageLayoutManager =
-            pdfView.pageMetadataLoader ?: return super.onGetContentRect(mode, view, outRect)
+            pdfView.pageLayoutManager ?: return super.onGetContentRect(mode, view, outRect)
         val viewport = pdfView.getVisibleAreaInContentCoords()
         val firstSelection = pdfView.currentSelection?.bounds?.firstOrNull()
         val lastSelection = pdfView.currentSelection?.bounds?.lastOrNull()

@@ -27,6 +27,7 @@ buildscript {
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    // Remove when b/442128557 is fixed
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("androidx.room3")

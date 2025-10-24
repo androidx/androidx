@@ -51,12 +51,12 @@ import androidx.compose.remote.creation.compose.layout.createIds
 import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
-import androidx.compose.remote.creation.compose.modifier.onClick
 import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
@@ -67,7 +67,7 @@ import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
 import androidx.compose.remote.creation.compose.state.rememberRemoteString
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.remote.serialization.yaml.YAMLSerializer
 import androidx.compose.runtime.Composable
@@ -80,7 +80,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
@@ -145,10 +144,10 @@ class LayoutTest {
                     var documentWidth by remember { mutableStateOf(300) }
                     var documentHeight by remember { mutableStateOf(300) }
                     var documentContent = remember { mutableStateOf("") }
-                    var docu = remember(doc.value) { mutableStateOf<RemoteComposeDocument?>(null) }
+                    var docu = remember(doc.value) { mutableStateOf<RemoteDocument?>(null) }
 
                     if (doc.value != null) {
-                        docu.value = RemoteComposeDocument(doc.value!!)
+                        docu.value = RemoteDocument(doc.value!!)
                     }
                     AndroidView(
                         modifier =
@@ -215,10 +214,10 @@ class LayoutTest {
                     var documentWidth by remember { mutableStateOf(300) }
                     var documentHeight by remember { mutableStateOf(300) }
                     var documentContent = remember { mutableStateOf("") }
-                    var docu = remember(doc.value) { mutableStateOf<RemoteComposeDocument?>(null) }
+                    var docu = remember(doc.value) { mutableStateOf<RemoteDocument?>(null) }
 
                     if (doc.value != null) {
-                        docu.value = RemoteComposeDocument(doc.value!!)
+                        docu.value = RemoteDocument(doc.value!!)
                     }
                     AndroidView(
                         modifier =
@@ -305,10 +304,10 @@ class LayoutTest {
                     var documentWidth by remember { mutableStateOf(300) }
                     var documentHeight by remember { mutableStateOf(300) }
                     var documentContent = remember { mutableStateOf("") }
-                    var docu = remember(doc.value) { mutableStateOf<RemoteComposeDocument?>(null) }
+                    var docu = remember(doc.value) { mutableStateOf<RemoteDocument?>(null) }
 
                     if (doc.value != null) {
-                        docu.value = RemoteComposeDocument(doc.value!!)
+                        docu.value = RemoteDocument(doc.value!!)
                     }
                     AndroidView(
                         modifier =
@@ -500,6 +499,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                             modifier =
                                 RemoteModifier.background(Color.Black).fillMaxWidth().height(30.dp)
                         ) {
+                            @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                             Text("Hello, World", color = Color.White)
                         }
                     }
@@ -508,6 +508,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                             modifier =
                                 RemoteModifier.width(32.dp).height(10.dp).background(Color.Blue)
                         )
+                        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                         CaptureAsBitmap(onCapture = { it.value = true }) {
                             Column(modifier = RemoteModifier.background(Color.Yellow)) {
                                 Text("🏄 🐶 élo! 🥳")
@@ -575,7 +576,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 val text = rememberRemoteString("test") { "Bonjour le monde!" }
-                val white = RemoteColor(Color.White.toArgb())
+                val white = RemoteColor(Color.White)
 
                 RemoteRow(
                     modifier = RemoteModifier.background(Color.LightGray),
@@ -671,7 +672,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 val text = rememberRemoteString("plop") { "Bonjour Le Monde!" }
-                val white = RemoteColor(Color.White.toArgb())
+                val white = RemoteColor(Color.White)
 
                 RemoteText(
                     text,
@@ -760,7 +761,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 RemoteBox(
-                    modifier = RemoteModifier.size(100.dp).onClick(HostAction("my_host_action"))
+                    modifier = RemoteModifier.size(100.dp).clickable(HostAction("my_host_action"))
                 )
             }
         }
@@ -792,7 +793,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                 val param = rememberRemoteIntValue { 128 }
                 RemoteBox(
                     modifier =
-                        RemoteModifier.size(100.dp).onClick(HostAction("my_host_action", param))
+                        RemoteModifier.size(100.dp).clickable(HostAction("my_host_action", param))
                 )
             }
         }
@@ -1043,6 +1044,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
       BACKGROUND = [0.0, 0.0, 825.0, 55.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
 """
         testLayout(result) {
+            @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
             Column {
                 Row(modifier = RemoteModifier.background(Color.Cyan).height(IntrinsicSize.Min)) {
                     Box(
@@ -1083,8 +1085,8 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     CANVAS [-5:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
       MODIFIERS
       CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-        ComponentValue value 45 set to WIDTH of Component -7
-        ComponentValue value 46 set to HEIGHT of Component -7
+        ComponentValue value 44 set to WIDTH of Component -7
+        ComponentValue value 45 set to HEIGHT of Component -7
     TEXT_LAYOUT [-8:-1] = [305.0, 364.0, 215.0, 97.0] VISIBLE (43:"Green")
       MODIFIERS
 """
@@ -1096,7 +1098,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                     RemoteModifier.fillMaxSize()
                         .background(RemoteBrush.radialGradient(colors = colors))
             ) {
-                val green = RemoteColor(Color.Green.toArgb())
+                val green = RemoteColor(Color.Green)
                 RemoteText("Green", color = green, fontSize = 30.sp)
             }
         }
@@ -1112,6 +1114,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     ) {
         val captureMode = LocalRemoteComposeCreationState.current
         if (true || captureMode is NoRemoteCompose) {
+            @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
             Icon(
                 imageVector = icon,
                 contentDescription = null,

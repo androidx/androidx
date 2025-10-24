@@ -68,6 +68,11 @@ final class SurfaceEntityImpl extends BaseRenderingEntity implements SurfaceEnti
     }
 
     @Override
+    public void setSurfacePixelDimensions(int width, int height) {
+        mSurfaceFeature.setSurfacePixelDimensions(width, height);
+    }
+
+    @Override
     public void setEdgeFeather(@NonNull EdgeFeather edgeFeather) {
         mSurfaceFeature.setEdgeFeather(edgeFeather);
     }

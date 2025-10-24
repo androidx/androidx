@@ -45,8 +45,14 @@ internal interface SubspaceOwner {
     public fun onDetach(node: SubspaceLayoutNode)
 
     /**
+     * Called by [SubspaceLayoutNode] when it needs to be re-measured due to a change that doesn't
+     * trigger a recomposition.
+     */
+    public fun requestMeasure(node: SubspaceLayoutNode, forceRequest: Boolean = false)
+
+    /**
      * Called by [SubspaceLayoutNode] when it needs to be re-laid out due to a change that doesn't
      * trigger a recomposition.
      */
-    public fun requestRelayout()
+    public fun requestLayout(node: SubspaceLayoutNode, forceRequest: Boolean = false)
 }

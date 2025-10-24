@@ -183,19 +183,11 @@ public class Nickname {
     }
 
     /** Builder for {@link Nickname}. */
-    public static final class Builder {
-        private final String mNamespace;
-        private final String mId;
-        private final String mReferencedQualifiedId;
-        private List<String> mAlternateNames = new ArrayList<>();
-        private boolean mBuilt = false;
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /** Constructor for {@link Nickname.Builder}. */
         public Builder(@NonNull String namespace, @NonNull String id,
                 @NonNull String referencedQualifiedId) {
-            mNamespace = Preconditions.checkNotNull(namespace);
-            mId = Preconditions.checkNotNull(id);
-            mReferencedQualifiedId = Preconditions.checkNotNull(referencedQualifiedId);
+            super(namespace, id, referencedQualifiedId);
         }
 
         /**
@@ -203,6 +195,26 @@ public class Nickname {
          * Nickname}.
          */
         public Builder(@NonNull Nickname nickname) {
+            super(nickname);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> {
+        protected final String mNamespace;
+        protected final String mId;
+        protected final String mReferencedQualifiedId;
+        protected List<String> mAlternateNames = new ArrayList<>();
+        private boolean mBuilt = false;
+
+        BuilderImpl(@NonNull String namespace, @NonNull String id,
+                @NonNull String referencedQualifiedId) {
+            mNamespace = Preconditions.checkNotNull(namespace);
+            mId = Preconditions.checkNotNull(id);
+            mReferencedQualifiedId = Preconditions.checkNotNull(referencedQualifiedId);
+        }
+
+        BuilderImpl(@NonNull Nickname nickname) {
             Preconditions.checkNotNull(nickname);
             mNamespace = nickname.mNamespace;
             mId = nickname.mId;
@@ -211,14 +223,14 @@ public class Nickname {
         }
 
         /** Sets a list of aliases for the item. */
-        public @NonNull Builder setAlternateNames(@Nullable List<String> alternateNames) {
+        public @NonNull T setAlternateNames(@Nullable List<String> alternateNames) {
             resetIfBuilt();
             if (alternateNames == null) {
                 mAlternateNames = Collections.emptyList();
             } else {
                 mAlternateNames = new ArrayList<>(alternateNames);
             }
-            return this;
+            return (T) this;
         }
 
         /**

@@ -31,8 +31,7 @@ import java.util.Objects
  *
  * This class encapsulates a [uri] along with the specific access [modeFlags] (e.g.,
  * [FLAG_GRANT_READ_URI_PERMISSION]) that define the type of temporary access to be granted for that
- * URI. However, [FLAG_GRANT_PERSISTABLE_URI_PERMISSION] is not allowed as only temporary access can
- * be granted.
+ * URI.
  *
  * Using this class in the [ExecuteAppFunctionResponse.Success.returnValue] is equivalent to calling
  * [Context.grantUriPermission] for the agent that is executing the function.
@@ -44,6 +43,7 @@ import java.util.Objects
  * @see FLAG_GRANT_READ_URI_PERMISSION
  * @see FLAG_GRANT_WRITE_URI_PERMISSION
  * @see FLAG_GRANT_PREFIX_URI_PERMISSION
+ * @see FLAG_GRANT_PERSISTABLE_URI_PERMISSION
  */
 @AppFunctionSerializable
 public class AppFunctionUriGrant(
@@ -54,16 +54,11 @@ public class AppFunctionUriGrant(
      *
      * This value must include at least one of [FLAG_GRANT_READ_URI_PERMISSION] or
      * [FLAG_GRANT_WRITE_URI_PERMISSION]. It may optionally also include
-     * [FLAG_GRANT_PREFIX_URI_PERMISSION].
+     * [FLAG_GRANT_PREFIX_URI_PERMISSION] or [FLAG_GRANT_PERSISTABLE_URI_PERMISSION].
      */
     @GrantUriMode public val modeFlags: Int,
 ) {
     init {
-        require(isAllowedFlags(modeFlags)) {
-            ("Contains invalid flags: Allowed flags are FLAG_GRANT_READ_URI_PERMISSION, " +
-                "FLAG_GRANT_WRITE_URI_PERMISSION and " +
-                "FLAG_GRANT_PREFIX_URI_PERMISSION")
-        }
         require(isAccessUriMode(modeFlags)) {
             ("Must set either FLAG_GRANT_READ_URI_PERMISSION or " +
                 "FLAG_GRANT_WRITE_URI_PERMISSION to specify the access mode")
@@ -77,6 +72,7 @@ public class AppFunctionUriGrant(
                 FLAG_GRANT_READ_URI_PERMISSION,
                 FLAG_GRANT_WRITE_URI_PERMISSION,
                 FLAG_GRANT_PREFIX_URI_PERMISSION,
+                FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
             ],
     )
     @Retention(AnnotationRetention.SOURCE)
@@ -98,18 +94,9 @@ public class AppFunctionUriGrant(
     }
 
     private companion object {
-        private fun isAllowedFlags(modeFlags: Int): Boolean {
-            return (modeFlags and ALLOWED_MODE_FLAG_MASK.inv()) == 0
-        }
-
         private fun isAccessUriMode(modeFlags: Int): Boolean {
             return (modeFlags and
                 (FLAG_GRANT_READ_URI_PERMISSION or FLAG_GRANT_WRITE_URI_PERMISSION)) != 0
         }
-
-        private const val ALLOWED_MODE_FLAG_MASK =
-            FLAG_GRANT_READ_URI_PERMISSION or
-                FLAG_GRANT_WRITE_URI_PERMISSION or
-                FLAG_GRANT_PREFIX_URI_PERMISSION
     }
 }

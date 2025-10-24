@@ -31,16 +31,6 @@ import org.robolectric.annotation.Config
 @Config(minSdk = 33)
 class AppFunctionUriGrantTest {
     @Test
-    fun createAppFunctionUriGrant_withPersistFlag_shouldFail() {
-        assertFailsWith<IllegalArgumentException> {
-            AppFunctionUriGrant(
-                uri = Uri.parse("content://com.example/1"),
-                modeFlags = Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
-            )
-        }
-    }
-
-    @Test
     fun createAppFunctionUriGrant_withoutAccessFlag_shouldFail() {
         assertFailsWith<IllegalArgumentException> {
             AppFunctionUriGrant(

@@ -18,14 +18,13 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.Platform
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.remember
 
 /**
  * Abstract base class for all remote long representations. This class extends [RemoteState<Long>].
@@ -111,7 +110,7 @@ public class MutableRemoteLong(
     public override val id: Int
         get() {
             FallbackCreationState.state.platform.log(
-                Platform.LogCategory.TODO,
+                RcPlatformServices.LogCategory.TODO,
                 "Use RemoteLong.getIdForCreationState directly",
             )
             return getIdForCreationState(FallbackCreationState.state)
@@ -151,7 +150,7 @@ public fun rememberRemoteLongValue(
     domain: RemoteDomains = RemoteDomains.USER,
     value: () -> Long,
 ): MutableRemoteLong {
-    return remember(name) {
+    return rememberNamedState(name, domain) {
         val initial = value()
         MutableRemoteLong(mutableLongStateOf(initial), constantValue = null) { creationState ->
             val id = creationState.document.addNamedLong(name, initial)

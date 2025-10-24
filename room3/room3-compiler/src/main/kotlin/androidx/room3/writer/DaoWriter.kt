@@ -308,13 +308,7 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
 
     private fun createRawQueryFunction(function: RawQueryFunction): XFunSpec {
         return overrideWithoutAnnotations(function.element, declaredDao)
-            .addCode(
-                if (function.queryResultBinder.usesCompatQueryWriter) {
-                    compatCreateRawQueryFunctionBody(function)
-                } else {
-                    createRawQueryFunctionBody(function)
-                }
-            )
+            .addCode(createRawQueryFunctionBody(function))
             .build()
     }
 
@@ -623,14 +617,7 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
         val queryWriter = QueryWriter(function)
         val sqlStringVar = scope.getTmpVar("_sql")
 
-        val (sqlVar, listSizeArgs) =
-            if (function.queryResultBinder.usesCompatQueryWriter) {
-                val roomSQLiteQueryVar = scope.getTmpVar("_statement")
-                queryWriter.prepareReadAndBind(sqlStringVar, roomSQLiteQueryVar, scope)
-                roomSQLiteQueryVar to emptyList()
-            } else {
-                sqlStringVar to queryWriter.prepareQuery(sqlStringVar, scope)
-            }
+        val (sqlVar, listSizeArgs) = sqlStringVar to queryWriter.prepareQuery(sqlStringVar, scope)
 
         val bindStatement: (CodeGenScope.(String) -> Unit)? =
             if (queryWriter.parameters.isNotEmpty()) {

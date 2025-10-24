@@ -26,6 +26,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.Lifecycle.State.DESTROYED
+import androidx.lifecycle.Lifecycle.State.INITIALIZED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -123,10 +124,10 @@ private class ComposeLifecycleOwner : LifecycleOwner {
         get() = lifecycleRegistry
 
     // Tracks the last known state from the parent lifecycle.
-    private var parentLifecycleState: State = State.INITIALIZED
+    private var parentLifecycleState: State = INITIALIZED
 
     // The maximum state this lifecycle can enter.
-    var maxLifecycleState: State = State.INITIALIZED
+    var maxLifecycleState: State = INITIALIZED
         set(value) {
             field = value
             updateLifecycleState()
@@ -140,11 +141,20 @@ private class ComposeLifecycleOwner : LifecycleOwner {
     private fun updateLifecycleState() {
         // The child's state is capped at the minimum of the parent's state and the max state.
         // For example, if parent is RESUMED and max is STARTED, the child state becomes STARTED.
-        lifecycleRegistry.currentState =
+        val targetState =
             if (parentLifecycleState.ordinal < maxLifecycleState.ordinal) {
                 parentLifecycleState
             } else {
                 maxLifecycleState
             }
+
+        if (lifecycleRegistry.currentState == INITIALIZED && targetState == DESTROYED) {
+            // b/444594991: Skip ON_DESTROY if the local was never CREATED. Some
+            // OEM (e.g., Samsung freeform/transform) can emit ON_DESTROY while
+            // the lifecycle is still INITIALIZED, which would otherwise crash.
+            return
+        }
+
+        lifecycleRegistry.currentState = targetState
     }
 }

@@ -17,11 +17,11 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Color
-import androidx.compose.remote.core.Profiles
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 
 @Suppress("RestrictedApiAndroidX")
 fun RcTextDemo(): RemoteComposeContext {
@@ -30,8 +30,8 @@ fun RcTextDemo(): RemoteComposeContext {
         600,
         "Demo",
         7,
-        Profiles.PROFILE_ANDROIDX or Profiles.PROFILE_EXPERIMENTAL,
-        AndroidxPlatformServices(),
+        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+        AndroidxRcPlatformServices(),
     ) {
         root {
             box(Modifier.fillMaxSize().background(Color.YELLOW)) {

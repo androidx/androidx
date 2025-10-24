@@ -41,4 +41,5 @@ interface IProjectedPerceptionService {
   androidx.xr.arcore.projected.ProjectedEarthPose createGeospatialPoseFromPose(in androidx.xr.arcore.projected.ProjectedPose pose) = 4;
   androidx.xr.arcore.projected.ProjectedEarthPose createGeospatialPoseFromDevicePose() = 5;
   androidx.xr.arcore.projected.ProjectedUpdateResult update() = 6;
+  byte startWithConfiguration(in androidx.xr.arcore.projected.ProjectedConfig config) = 7;
 }

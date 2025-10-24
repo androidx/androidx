@@ -127,7 +127,7 @@ final class ExtensionsInfo {
 
         // Adds the CameraFilter that determines which cameras can support the Extensions mode
         // to the CameraSelector.
-        builder.addCameraFilter(getFilter(mode));
+        builder.addCameraFilter(getCameraFilter(mode));
 
         return builder.build();
     }
@@ -143,7 +143,7 @@ final class ExtensionsInfo {
             @NonNull CameraSelector baseCameraSelector,
             @ExtensionMode.Mode int mode) {
         CameraSelector.Builder builder = CameraSelector.Builder.fromSelector(baseCameraSelector);
-        builder.addCameraFilter(getFilter(mode));
+        builder.addCameraFilter(getCameraFilter(mode));
 
         List<CameraInfo> cameraInfos = builder.build().filter(
                 mCameraProvider.getAvailableCameraInfos());
@@ -173,7 +173,7 @@ final class ExtensionsInfo {
         // extension mode. Checks this first so that the API behavior will be the same no matter
         // the vendor library is above version 1.2 or not.
         CameraSelector newCameraSelector = CameraSelector.Builder.fromSelector(
-                cameraSelector).addCameraFilter(getFilter(mode)).build();
+                cameraSelector).addCameraFilter(getCameraFilter(mode)).build();
 
         CameraInfo extensionsCameraInfo;
         List<CameraInfo> cameraInfos =
@@ -205,7 +205,7 @@ final class ExtensionsInfo {
     boolean isImageAnalysisSupported(@NonNull CameraSelector cameraSelector,
             @ExtensionMode.Mode int mode) {
         CameraSelector newCameraSelector = CameraSelector.Builder.fromSelector(
-                cameraSelector).addCameraFilter(getFilter(mode)).build();
+                cameraSelector).addCameraFilter(getCameraFilter(mode)).build();
         CameraInfo extensionsCameraInfo;
         List<CameraInfo> cameraInfos =
                 newCameraSelector.filter(mCameraProvider.getAvailableCameraInfos());
@@ -228,7 +228,11 @@ final class ExtensionsInfo {
         mVendorExtenderFactory = factory;
     }
 
-    private CameraFilter getFilter(@ExtensionMode.Mode int mode) {
+    /**
+     * Obtains the extension camera filter for the given extension mode.
+     */
+    @NonNull
+    CameraFilter getCameraFilter(@ExtensionMode.Mode int mode) {
         CameraFilter filter;
         String id = getExtendedCameraConfigProviderId(mode);
 
@@ -242,7 +246,7 @@ final class ExtensionsInfo {
      * Injects {@link CameraConfigProvider} for specified extension mode to the
      * {@link ExtendedCameraConfigProviderStore}.
      */
-    private void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
+    void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
         Identifier id = Identifier.create(getExtendedCameraConfigProviderId(mode));
 
         if (ExtendedCameraConfigProviderStore.getConfigProvider(id) == CameraConfigProvider.EMPTY) {
@@ -315,7 +319,8 @@ final class ExtensionsInfo {
         return ExtensionVersion.isAdvancedExtenderSupported();
     }
 
-    private static String getExtendedCameraConfigProviderId(@ExtensionMode.Mode int mode) {
+    @VisibleForTesting
+    static String getExtendedCameraConfigProviderId(@ExtensionMode.Mode int mode) {
         String id;
 
         switch (mode) {

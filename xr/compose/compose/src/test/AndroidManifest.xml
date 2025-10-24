@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2024 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,21 +14,18 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.SCENE_UNDERSTANDING_COARSE" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
-        <activity android:name="androidx.xr.compose.testing.SubspaceTestingActivity"
-                  android:exported="true">
-            <meta-data
-                android:name="androidx.xr.compose.testing.USE_REAL_RUNTIME"
-                android:value="false" />
-
+        <activity
+            android:name="androidx.xr.compose.testing.SubspaceTestingActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.SCENE_UNDERSTANDING_COARSE" />
 </manifest>

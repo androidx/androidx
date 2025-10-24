@@ -382,6 +382,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         assertTrue(networkRequest.hasCapability(NET_CAPABILITY_TEMPORARILY_NOT_METERED));
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452723223
     @Test
     @SmallTest
     public void testNetworkRequest() {

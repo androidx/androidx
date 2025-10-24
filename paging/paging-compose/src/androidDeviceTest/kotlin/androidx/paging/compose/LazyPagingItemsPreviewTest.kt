@@ -39,7 +39,9 @@ import org.junit.Test
 
 class LazyPagingItemsPreviewTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<PreviewActivity>()
+    @get:Rule
+    val composeTestRule =
+        createAndroidComposeRule<PreviewActivity>(effectContext = StandardTestDispatcher())
 
     @Test
     fun pagingPreviewTest() {

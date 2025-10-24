@@ -40,7 +40,7 @@ import androidx.pdf.selection.model.HyperLinkSelection
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
 import androidx.pdf.view.PageManager
-import androidx.pdf.view.layout.PageMetadataLoader
+import androidx.pdf.view.layout.PageLayoutManager
 import kotlin.collections.firstOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -58,7 +58,7 @@ internal class SelectionStateManager(
     private val backgroundScope: CoroutineScope,
     private val handleTouchTargetSizePx: Int,
     private val errorFlow: MutableSharedFlow<Throwable>,
-    private val pageMetadataLoader: PageMetadataLoader?,
+    private val pageLayoutManager: PageLayoutManager?,
     private val pageManager: PageManager?,
     initialSelection: SelectionModel? = null,
 ) {
@@ -434,7 +434,7 @@ internal class SelectionStateManager(
         prevEnd: PdfPoint,
     ): List<PageSelection?> {
 
-        val newPageSize = pageMetadataLoader?.getPageSize(draggedPoint.pageNum) ?: Point(0, 0)
+        val newPageSize = pageLayoutManager?.getPageSize(draggedPoint.pageNum) ?: Point(0, 0)
         // Find selection bounds for all the skipped pages
         val intermediateSelection =
             getPageSelectionsForRange(draggedPoint.pageNum + 1, prevStart.pageNum - 1)
@@ -497,7 +497,7 @@ internal class SelectionStateManager(
         draggedPoint: PdfPoint,
     ): PageSelection? {
         return if (prevStart.pageNum == prevEnd.pageNum) {
-            val prevPageSize = pageMetadataLoader?.getPageSize(prevEnd.pageNum) ?: Point(0, 0)
+            val prevPageSize = pageLayoutManager?.getPageSize(prevEnd.pageNum) ?: Point(0, 0)
             pdfDocument.getSelectionBounds(
                 prevEnd.pageNum,
                 PointF(prevStart.x, prevStart.y),

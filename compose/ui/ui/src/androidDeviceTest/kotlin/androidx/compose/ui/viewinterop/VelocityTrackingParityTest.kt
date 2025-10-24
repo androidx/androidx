@@ -65,6 +65,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 import kotlin.math.absoluteValue
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -75,7 +76,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class VelocityTrackingParityTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     private val draggableView: VelocityTrackingView
         get() = rule.activity.findViewById(R.id.draggable_view)
@@ -124,6 +125,7 @@ class VelocityTrackingParityTest {
             composeView.dispatchTouchEvent(event)
         }
 
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.x, latestVelocityInViewX)
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
@@ -158,6 +160,7 @@ class VelocityTrackingParityTest {
             composeView.dispatchTouchEvent(event)
         }
 
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.x, latestVelocityInViewX)
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
@@ -191,6 +194,7 @@ class VelocityTrackingParityTest {
         for (event in draggableView.motionEvents) {
             composeView.dispatchTouchEvent(event)
         }
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.x, latestVelocityInViewX)
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
@@ -225,6 +229,7 @@ class VelocityTrackingParityTest {
             composeView.dispatchTouchEvent(event)
         }
 
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.x, latestVelocityInViewX)
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
@@ -259,6 +264,7 @@ class VelocityTrackingParityTest {
             composeView.dispatchTouchEvent(event)
         }
 
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.x, latestVelocityInViewX)
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
@@ -293,6 +299,7 @@ class VelocityTrackingParityTest {
             composeView.dispatchTouchEvent(event)
         }
 
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.x, latestVelocityInViewX)
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
@@ -325,7 +332,7 @@ class VelocityTrackingParityTest {
         for (event in draggableView.motionEvents) {
             composeView.dispatchTouchEvent(event)
         }
-
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
     }
@@ -358,6 +365,7 @@ class VelocityTrackingParityTest {
             composeView.dispatchTouchEvent(event)
         }
 
+        rule.waitForIdle()
         // assert
         assertIsWithinTolerance(latestComposeVelocity.y, latestVelocityInViewY)
     }

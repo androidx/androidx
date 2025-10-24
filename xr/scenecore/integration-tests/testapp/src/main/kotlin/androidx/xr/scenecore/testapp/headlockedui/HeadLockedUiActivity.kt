@@ -28,12 +28,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.xr.arcore.ArDevice
+import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.CameraView
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.ScenePose
 import androidx.xr.scenecore.Space
@@ -50,11 +51,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class HeadLockedUiActivity : AppCompatActivity() {
     private val TAG = "HeadLockedUiActivity"
     private var session: Session? = null
+    private lateinit var device: ArDevice
+    private var cameraLeft: RenderViewpoint? = null
+    private var cameraRight: RenderViewpoint? = null
     private var mUserForward = MutableStateFlow(Pose(Vector3(0f, 0.00f, -1.0f)))
     private lateinit var mHeadLockedPanel: PanelEntity
     private lateinit var mHeadLockedPanelView: View
     private lateinit var mDebugPanel: DebugTextPanel
-    private var mProjectionSource: ScenePose? = null
+    private var mProjectionSource: ProjectionSource = ProjectionSource.Head
     private var mIsDebugPanelEnabled: Boolean = true
 
     private var sliderPositionZ: Float = -1.0f
@@ -62,6 +66,12 @@ class HeadLockedUiActivity : AppCompatActivity() {
     private var sliderPositionX: Float = 0.0f
 
     private val animationRunnable: Runnable = Runnable { updateHeadLockedPose() }
+
+    enum class ProjectionSource {
+        Head,
+        CameraLeft,
+        CameraRight,
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +87,9 @@ class HeadLockedUiActivity : AppCompatActivity() {
                 headTracking = Config.HeadTrackingMode.LAST_KNOWN,
             )
         )
+        device = ArDevice.getInstance(session!!)
+        cameraLeft = RenderViewpoint.left(session!!)
+        cameraRight = RenderViewpoint.right(session!!)
 
         // Toolbar action
         findViewById<Toolbar>(R.id.top_app_bar).also {
@@ -216,16 +229,41 @@ class HeadLockedUiActivity : AppCompatActivity() {
         }
     }
 
+    private fun getProjectionSource(): ScenePose? {
+        return when (mProjectionSource) {
+            ProjectionSource.Head ->
+                session!!
+                    .scene
+                    .perceptionSpace
+                    .getScenePoseFromPerceptionPose(device.state.value.devicePose)
+            ProjectionSource.CameraLeft ->
+                cameraLeft?.let {
+                    session!!
+                        .scene
+                        .perceptionSpace
+                        .getScenePoseFromPerceptionPose(it.state.value.pose)
+                }
+            ProjectionSource.CameraRight ->
+                cameraRight?.let {
+                    session!!
+                        .scene
+                        .perceptionSpace
+                        .getScenePoseFromPerceptionPose(it.state.value.pose)
+                }
+        }
+    }
+
     private fun updateHeadLockedPose() {
-        if (this.mProjectionSource != null) {
+        val projectionSource = getProjectionSource()
+        if (projectionSource != null) {
             // Since the panel is parented by the activitySpace, we need to inverse its scale
             // so that the panel stays at a fixed size in the view even when ActivitySpace scales.
             this.mHeadLockedPanel.setScale(
                 0.5f / session!!.scene.activitySpace.getScale(Space.REAL_WORLD)
             )
-            this.mProjectionSource
-                ?.transformPoseTo(mUserForward.value, session!!.scene.activitySpace)
-                ?.let {
+            projectionSource
+                .transformPoseTo(mUserForward.value, session!!.scene.activitySpace)
+                .let {
                     this.mHeadLockedPanel.setPose(it)
                     if (mIsDebugPanelEnabled) updateDebugPanel(it)
                 }
@@ -246,14 +284,19 @@ class HeadLockedUiActivity : AppCompatActivity() {
         mDebugPanel.view.setLine("Head Locked Panel WorldScale", worldScaleValue)
         mDebugPanel.view.setLine(
             "Head ActivityPose",
-            session!!.scene.spatialUser.head?.activitySpacePose!!.toFormattedString(),
+            session!!
+                .scene
+                .perceptionSpace
+                .getScenePoseFromPerceptionPose(device.state.value.devicePose)
+                .activitySpacePose
+                .toFormattedString(),
         )
         mDebugPanel.view.setLine(
             "Left Eye ActivityPose",
             session!!
                 .scene
-                .spatialUser
-                .cameraViews[CameraView.CameraType.LEFT_EYE]!!
+                .perceptionSpace
+                .getScenePoseFromPerceptionPose(cameraLeft!!.state.value.pose)
                 .activitySpacePose
                 .toFormattedString(),
         )
@@ -261,14 +304,14 @@ class HeadLockedUiActivity : AppCompatActivity() {
             "Right Eye ActivityPose",
             session!!
                 .scene
-                .spatialUser
-                .cameraViews[CameraView.CameraType.RIGHT_EYE]!!
+                .perceptionSpace
+                .getScenePoseFromPerceptionPose(cameraRight!!.state.value.pose)
                 .activitySpacePose
                 .toFormattedString(),
         )
         mDebugPanel.view.setLine(
             "Projection Source ActivityPose",
-            this.mProjectionSource?.activitySpacePose!!.toFormattedString(),
+            getProjectionSource()?.activitySpacePose!!.toFormattedString(),
         )
         mDebugPanel.view.setLine(
             "Head locked Pose ActivitySpace",
@@ -286,13 +329,9 @@ class HeadLockedUiActivity : AppCompatActivity() {
 
     private fun setProjectionSource(source: String) {
         when (source) {
-            "LeftEye" ->
-                mProjectionSource =
-                    session!!.scene.spatialUser.cameraViews[CameraView.CameraType.LEFT_EYE]
-            "RightEye" ->
-                mProjectionSource =
-                    session!!.scene.spatialUser.cameraViews[CameraView.CameraType.RIGHT_EYE]
-            "Head" -> mProjectionSource = session!!.scene.spatialUser.head!!
+            "LeftEye" -> mProjectionSource = ProjectionSource.CameraLeft
+            "RightEye" -> mProjectionSource = ProjectionSource.CameraRight
+            "Head" -> mProjectionSource = ProjectionSource.Head
             else -> Log.e(TAG, "Unknown projection source: $source")
         }
     }

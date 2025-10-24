@@ -81,20 +81,20 @@ public fun ShortNavigationBar(
                     Modifier.defaultMinSize(minHeight = XrNavigationBarTokens.ContainerHeight)
                         .selectableGroup(),
                 horizontalArrangement =
-                    Arrangement.spacedBy(XrShortNavigationBarDefaults.paddingAroundItems),
+                    Arrangement.spacedBy(XrShortNavigationBarTokens.PaddingAroundItems),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Spacer(Modifier.width(XrShortNavigationBarDefaults.paddingAroundItems))
+                Spacer(Modifier.width(XrShortNavigationBarTokens.PaddingAroundItems))
                 content()
-                Spacer(Modifier.width(XrShortNavigationBarDefaults.paddingAroundItems))
+                Spacer(Modifier.width(XrShortNavigationBarTokens.PaddingAroundItems))
             }
         }
     }
 }
 
 @ExperimentalMaterial3XrApi
-internal object XrShortNavigationBarDefaults {
-    internal val paddingAroundItems: Dp = 32.dp
+internal object XrShortNavigationBarTokens {
+    val PaddingAroundItems: Dp = 32.dp
 }
 
 /** [ShortNavigationBarOverride] that uses the XR-specific [ShortNavigationBar]. */

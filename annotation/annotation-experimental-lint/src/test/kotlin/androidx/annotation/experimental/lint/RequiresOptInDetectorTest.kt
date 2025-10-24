@@ -488,7 +488,7 @@ No warnings.
 
         val expected =
             """
-src/sample/optin/RegressionTestKotlin298322402.kt:22: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+src/sample/optin/RegressionTestKotlin298322402.kt:23: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
         player.accessor
                ~~~~~~~~
 1 errors, 0 warnings

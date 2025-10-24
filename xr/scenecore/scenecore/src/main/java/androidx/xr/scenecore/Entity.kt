@@ -60,7 +60,7 @@ public interface Entity : ScenePose {
      * @param pose The [Pose] offset from the parent.
      * @param relativeTo Set the pose relative to given Space. Default value is the parent space.
      */
-    public fun setPose(pose: Pose, @SpaceValue relativeTo: Int = Space.PARENT)
+    public fun setPose(pose: Pose, relativeTo: Space = Space.PARENT)
 
     /** Sets the [Pose] for this Entity, relative to its parent. */
     public fun setPose(pose: Pose): Unit = setPose(pose, Space.PARENT)
@@ -71,7 +71,7 @@ public interface Entity : ScenePose {
      * @param relativeTo Get the Pose relative to given Space. Default value is the parent space.
      * @return Current [Pose] of the Entity relative to the given space.
      */
-    public fun getPose(@SpaceValue relativeTo: Int = Space.PARENT): Pose
+    public fun getPose(relativeTo: Space = Space.PARENT): Pose
 
     /**
      * Returns the [Pose] for this Entity, relative to its parent.
@@ -81,6 +81,21 @@ public interface Entity : ScenePose {
     public fun getPose(): Pose = getPose(Space.PARENT)
 
     /**
+     * Calculates a gravity-aligned version of a given pose.
+     *
+     * This function takes a pose in **PARENT space** and returns a new pose in the **PARENT
+     * space**. The new pose will have the same position as the input, but its rotation will be
+     * aligned with the direction of gravity. This effectively preserves the original yaw (Y-axis
+     * rotation) while setting the pitch (X-axis rotation) and roll (Z-axis rotation) to zero.
+     *
+     * @param pose The input [Pose] relative to the **PARENT space**.
+     * @return A new [Pose] in the **PARENT space**, with its rotation aligned to gravity.
+     * @throws IllegalStateException if the entity does not have a parent.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun getGravityAlignedPose(pose: Pose = Pose.Identity): Pose
+
+    /**
      * Sets the scale of this Entity relative to the given Space. This value will affect the
      * rendering of this Entity's children. As the scale increases, this will uniformly stretch the
      * content of the Entity.
@@ -88,10 +103,7 @@ public interface Entity : ScenePose {
      * @param scale The uniform scale factor.
      * @param relativeTo Set the scale relative to given Space. Default value is the parent Space.
      */
-    public fun setScale(
-        @FloatRange(from = 0.0) scale: Float,
-        @SpaceValue relativeTo: Int = Space.PARENT,
-    )
+    public fun setScale(@FloatRange(from = 0.0) scale: Float, relativeTo: Space = Space.PARENT)
 
     /**
      * Sets the scale of this Entity relative to the given Space. This value will affect the
@@ -103,7 +115,7 @@ public interface Entity : ScenePose {
      */
     // TODO - b/440157781: Add a getter method for non uniform scale
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun setScale(scale: Vector3, @SpaceValue relativeTo: Int = Space.PARENT)
+    public fun setScale(scale: Vector3, relativeTo: Space = Space.PARENT)
 
     /**
      * Sets the scale of this Entity relative to its parent. This value will affect the rendering of
@@ -120,7 +132,7 @@ public interface Entity : ScenePose {
      * @param relativeTo Get the scale relative to given Space. Default value is the parent space.
      * @return Current uniform scale applied to self and children.
      */
-    @FloatRange(from = 0.0) public fun getScale(@SpaceValue relativeTo: Int = Space.PARENT): Float
+    @FloatRange(from = 0.0) public fun getScale(relativeTo: Space = Space.PARENT): Float
 
     /**
      * Returns the local scale of this Entity, not inclusive of the parent's scale.
@@ -146,7 +158,7 @@ public interface Entity : ScenePose {
     // TODO - b/421456320: Can a child have an alpha greater than its parent?
     public fun setAlpha(
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
-        @SpaceValue relativeTo: Int = Space.PARENT,
+        relativeTo: Space = Space.PARENT,
     )
 
     /**
@@ -164,8 +176,7 @@ public interface Entity : ScenePose {
      *
      * @param relativeTo Gets alpha relative to given Space. Default value is the parent space.
      */
-    @FloatRange(from = 0.0, to = 1.0)
-    public fun getAlpha(@SpaceValue relativeTo: Int = Space.PARENT): Float
+    @FloatRange(from = 0.0, to = 1.0) public fun getAlpha(relativeTo: Space = Space.PARENT): Float
 
     /**
      * Returns the alpha transparency set for this Entity.
@@ -184,7 +195,7 @@ public interface Entity : ScenePose {
      *
      * @param enabled The new local enabled state of this Entity.
      */
-    public fun setEnabled(enabled: Boolean): Unit
+    public fun setEnabled(enabled: Boolean)
 
     /**
      * Returns the enabled status of this Entity.
@@ -305,38 +316,44 @@ internal constructor(rtEntity: RtEntityType, private val entityManager: EntityMa
             return getChildrenInternal()
         }
 
-    override fun setPose(pose: Pose, @SpaceValue relativeTo: Int) {
+    override fun setPose(pose: Pose, relativeTo: Space) {
         checkNotDisposed()
         rtEntity!!.setPose(pose, relativeTo.toRtSpace())
     }
 
-    override fun getPose(@SpaceValue relativeTo: Int): Pose {
+    override fun getPose(relativeTo: Space): Pose {
         checkNotDisposed()
         return rtEntity!!.getPose(relativeTo.toRtSpace())
     }
 
-    override fun setScale(scale: Float, relativeTo: Int) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun getGravityAlignedPose(pose: Pose): Pose {
         checkNotDisposed()
-        setScale(Vector3(scale, scale, scale), relativeTo.toRtSpace())
+        return rtEntity!!.getGravityAlignedPose(pose)
+    }
+
+    override fun setScale(scale: Float, relativeTo: Space) {
+        checkNotDisposed()
+        setScale(Vector3(scale, scale, scale), relativeTo)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun setScale(scale: Vector3, relativeTo: Int) {
+    override fun setScale(scale: Vector3, relativeTo: Space) {
         checkNotDisposed()
         rtEntity!!.setScale(scale, relativeTo.toRtSpace())
     }
 
-    override fun getScale(@SpaceValue relativeTo: Int): Float {
+    override fun getScale(relativeTo: Space): Float {
         checkNotDisposed()
         return rtEntity!!.getScale(relativeTo.toRtSpace()).x
     }
 
-    override fun setAlpha(alpha: Float, @SpaceValue relativeTo: Int) {
+    override fun setAlpha(alpha: Float, relativeTo: Space) {
         checkNotDisposed()
         rtEntity!!.setAlpha(alpha, relativeTo.toRtSpace())
     }
 
-    override fun getAlpha(@SpaceValue relativeTo: Int): Float {
+    override fun getAlpha(relativeTo: Space): Float {
         checkNotDisposed()
         return rtEntity!!.getAlpha(relativeTo.toRtSpace())
     }

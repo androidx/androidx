@@ -56,7 +56,7 @@ import androidx.xr.compose.testapp.common.composables.FixedSizeFullSpaceLayout
 import androidx.xr.compose.testapp.common.composables.TestResult
 import androidx.xr.compose.testapp.common.composables.TestResultsDisplay
 import androidx.xr.compose.testapp.common.composables.addTestResult
-import androidx.xr.scenecore.SpatialCapabilities
+import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import kotlinx.coroutines.delay
 
@@ -122,9 +122,7 @@ class SpatialPanelActivity : ComponentActivity() {
                     session.scene.requestFullSpaceMode()
                     delay(1000)
                     testResult =
-                        session.scene.spatialCapabilities.hasCapability(
-                            SpatialCapabilities.SPATIAL_CAPABILITY_UI
-                        )
+                        session.scene.spatialCapabilities.contains(SpatialCapability.SPATIAL_UI)
                     addTestResult(
                         testResults,
                         tag,

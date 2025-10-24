@@ -16,7 +16,6 @@
 
 package androidx.camera.core.featuregroup.impl.feature
 
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.featuregroup.GroupableFeature
 
 /**
@@ -25,7 +24,6 @@ import androidx.camera.core.featuregroup.GroupableFeature
  * This feature should not be instantiated directly for usage, instead use the
  * [GroupableFeature.PREVIEW_STABILIZATION] object.
  */
-@OptIn(ExperimentalSessionConfig::class)
 public class VideoStabilizationFeature(public val mode: StabilizationMode) : GroupableFeature() {
     public enum class StabilizationMode {
         OFF,

@@ -106,7 +106,11 @@ busytown/impl/monitor.sh 3600 busytown/impl/showJavaStacks.sh &
 
 # run the build
 if run ./gradlew --ci "$@"; then
-  echo build passed
+  echo "build passed"
+  if [[ "$IS_POSTSUBMIT" == "true" && "$ENABLE_PRESUBMIT_COMPATIBLE_CC_STORE" == "true" ]]; then
+    echo "Caching configuration for reuse in presubmit."
+    run IS_POSTSUBMIT=false ./gradlew --ci "$@" --dry-run
+  fi
 else
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase

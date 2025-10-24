@@ -74,13 +74,9 @@ public class SearchAction extends TakenAction {
         return mFetchedResultCount;
     }
 
-    // TODO(b/314026345): redesign builder to enable inheritance for SearchAction.
     /** Builder for {@link SearchAction}. */
     @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
-        private String mQuery;
-        private int mFetchedResultCount;
-
         /**
          * Constructor for {@link SearchAction.Builder}.
          *
@@ -90,17 +86,14 @@ public class SearchAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_SEARCH);
+            super(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_SEARCH);
         }
 
         /**
-         * Constructor for {@link Builder} with all the existing values.
+         * Constructor for {@link SearchAction.Builder} with all the existing values.
          */
         public Builder(@NonNull SearchAction searchAction) {
-            super(Preconditions.checkNotNull(searchAction));
-
-            mQuery = searchAction.getQuery();
-            mFetchedResultCount = searchAction.getFetchedResultCount();
+            super(searchAction);
         }
 
         /**
@@ -118,17 +111,50 @@ public class SearchAction extends TakenAction {
         Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis,
                 @TakenAction.ActionType int actionType) {
             super(namespace, id, actionTimestampMillis, actionType);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends
+            TakenAction.BuilderImpl<T> {
+        protected String mQuery;
+        protected int mFetchedResultCount;
+
+        /**
+         * Constructs {@link BuilderImpl} with given {@code namespace}, {@code id},
+         * {@code actionTimestampMillis} and {@code actionType}.
+         *
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
+         * @param actionType            Action type enum for the Document. See
+         *                              {@link TakenAction.ActionType}.
+         */
+        BuilderImpl(@NonNull String namespace, @NonNull String id,
+                long actionTimestampMillis, @TakenAction.ActionType int actionType) {
+            super(namespace, id, actionTimestampMillis, actionType);
 
             // Default for unset fetchedResultCount. Since negative number is invalid for fetched
             // result count, -1 is used as an unset value and AppSearch will ignore it.
             mFetchedResultCount = -1;
         }
 
+        /**
+         * Constructor for {@link BuilderImpl} with all the existing values.
+         */
+        BuilderImpl(@NonNull SearchAction searchAction) {
+            super(Preconditions.checkNotNull(searchAction));
+
+            mQuery = searchAction.getQuery();
+            mFetchedResultCount = searchAction.getFetchedResultCount();
+        }
+
         /** Sets the user-entered search input (without any operators or rewriting). */
         @CanIgnoreReturnValue
-        public @NonNull Builder setQuery(@Nullable String query) {
+        public @NonNull T setQuery(@Nullable String query) {
             mQuery = query;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -138,9 +164,9 @@ public class SearchAction extends TakenAction {
          * @see SearchAction#getFetchedResultCount
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setFetchedResultCount(int fetchedResultCount) {
+        public @NonNull T setFetchedResultCount(int fetchedResultCount) {
             mFetchedResultCount = fetchedResultCount;
-            return this;
+            return (T) this;
         }
 
         /** Builds a {@link SearchAction}. */

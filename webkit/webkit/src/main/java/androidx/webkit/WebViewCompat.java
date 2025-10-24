@@ -17,15 +17,19 @@
 package androidx.webkit;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -66,12 +70,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 
 /**
- * Compatibility version of {@link android.webkit.WebView}
+ * Compatibility version of {@link WebView}
  */
 public class WebViewCompat {
     private static final Uri WILDCARD_URI = Uri.parse("*");
@@ -100,7 +105,7 @@ public class WebViewCompat {
 
     /**
      * This listener receives messages sent on the JavaScript object which was injected by {@link
-     * #addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
+     * #addWebMessageListener(WebView, String, Set, WebMessageListener)}.
      */
     public interface WebMessageListener {
         /**
@@ -153,22 +158,22 @@ public class WebViewCompat {
      * after the {@link VisualStateCallback#onComplete} method has been called a set of
      * conditions must be met:
      * <ul>
-     * <li>If the {@link WebView}'s visibility is set to {@link android.view.View#VISIBLE VISIBLE}
+     * <li>If the {@link WebView}'s visibility is set to {@link View#VISIBLE VISIBLE}
      * then * the {@link WebView} must be attached to the view hierarchy.</li>
      * <li>If the {@link WebView}'s visibility is set to
-     * {@link android.view.View#INVISIBLE INVISIBLE} then the {@link WebView} must be attached to
-     * the view hierarchy and must be made {@link android.view.View#VISIBLE VISIBLE} from the
+     * {@link View#INVISIBLE INVISIBLE} then the {@link WebView} must be attached to
+     * the view hierarchy and must be made {@link View#VISIBLE VISIBLE} from the
      * {@link VisualStateCallback#onComplete} method.</li>
-     * <li>If the {@link WebView}'s visibility is set to {@link android.view.View#GONE GONE} then
+     * <li>If the {@link WebView}'s visibility is set to {@link View#GONE GONE} then
      * the {@link WebView} must be attached to the view hierarchy and its
      * {@link android.widget.AbsoluteLayout.LayoutParams LayoutParams}'s width and height need to be
-     * set to fixed values and must be made {@link android.view.View#VISIBLE VISIBLE} from the
+     * set to fixed values and must be made {@link View#VISIBLE VISIBLE} from the
      * {@link VisualStateCallback#onComplete} method.</li>
      * </ul>
      *
      * <p>When using this API it is also recommended to enable pre-rasterization if the {@link
      * WebView} is off screen to avoid flickering. See
-     * {@link android.webkit.WebSettings#setOffscreenPreRaster} for more details and do consider its
+     * {@link WebSettings#setOffscreenPreRaster} for more details and do consider its
      * caveats.
      *
      * <p>
@@ -202,7 +207,7 @@ public class WebViewCompat {
      * devices {@code callback} will receive {@code false}.
      * <p>
      * This should not be called if Safe Browsing has been disabled by manifest tag or {@link
-     * android.webkit.WebSettings#setSafeBrowsingEnabled}. This prepares resources used for Safe
+     * WebSettings#setSafeBrowsingEnabled}. This prepares resources used for Safe
      * Browsing.
      * <p>
      * This should be called with the Application Context (and will always use the Application
@@ -913,7 +918,7 @@ public class WebViewCompat {
      * returns true for {@link WebViewFeature#GET_WEB_VIEW_RENDERER}.
      *
      * @return the {@link WebViewRenderProcess} renderer handle associated
-     * with this {@link android.webkit.WebView}, or {@code null} if
+     * with this {@link WebView}, or {@code null} if
      * WebView is not running in multiprocess mode.
      */
     @UiThread
@@ -1085,7 +1090,7 @@ public class WebViewCompat {
      * /client_variations.proto</a>
      *
      * @return the variations header. The string may be empty if the header is not available.
-     * @see WebView#loadUrl(String, java.util.Map)
+     * @see WebView#loadUrl(String, Map)
      */
     @AnyThread
     @RequiresFeature(
@@ -1204,11 +1209,12 @@ public class WebViewCompat {
     @Retention(RetentionPolicy.CLASS)
     @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
     @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-    public @interface ExperimentalAsyncStartUp {}
+    public @interface ExperimentalAsyncStartUp {
+    }
 
     /**
      * Callback interface for
-     * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewStartUpCallback)}.
+     * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewStartUpCallback)}.
      */
     @ExperimentalAsyncStartUp
     public interface WebViewStartUpCallback {
@@ -1290,13 +1296,13 @@ public class WebViewCompat {
     }
 
     /**
-     * Sets the default {@link android.net.TrafficStats} tag to use when accounting socket traffic
+     * Sets the default {@link TrafficStats} tag to use when accounting socket traffic
      * caused by WebView. If set, this tag is global for all requests sent by the WebView library
      * within your app.
      *
      * <p>If no tag is set (e.g. this method isn't called), then Android accounts for the socket
      * traffic caused by WebView as if the tag value were set to 0. See
-     * {@link android.net.TrafficStats#setThreadStatsTag(int)} for more information.
+     * {@link TrafficStats#setThreadStatsTag(int)} for more information.
      *
      * <p><b>NOTE</b>: Setting a tag disallows sharing of sockets with requests with other tags,
      * which may adversely affect performance by prohibiting connection sharing. In other words, use
@@ -1306,7 +1312,7 @@ public class WebViewCompat {
      * @param tag the tag value used when accounting for socket traffic caused by the WebView
      *            library in your app. <em>Tags between {@code 0xFFFFFF00} and {@code 0xFFFFFFFF}
      *            are reserved and used internally by system services like
-     *            {@link android.app.DownloadManager} when performing traffic on behalf of an
+     *            {@link DownloadManager} when performing traffic on behalf of an
      *            application</em>.
      */
     @AnyThread
@@ -1348,7 +1354,7 @@ public class WebViewCompat {
      * Starts a URL prerender request for this WebView. Must be called from the UI thread.
      * <p>
      * This WebView will match a prerender request to a navigation, such as a call to
-     * {@link android.webkit.WebView#loadUrl(String)} or a click on a hyperlink. The matching
+     * {@link WebView#loadUrl(String)} or a click on a hyperlink. The matching
      * behavior is as follows:
      * <ul>
      *   <li>By default, if the server does not provide a {@code No-Vary-Search} HTTP header, an
@@ -1366,7 +1372,7 @@ public class WebViewCompat {
      * (i.e., through a new network request).
      * <p>
      * Applications will still be responsible for calling
-     * {@link android.webkit.WebView#loadUrl(String)} to display web contents
+     * {@link WebView#loadUrl(String)} to display web contents
      * in a WebView.
      * <p>
      * A prerendered page can also match a navigation initiated by clicking a
@@ -1453,7 +1459,7 @@ public class WebViewCompat {
 
     /**
      * Saves the state of the provided WebView, such as for use with
-     * {@link android.app.Activity#onSaveInstanceState}. This is an extension of
+     * {@link Activity#onSaveInstanceState}. This is an extension of
      * {@link WebView#saveState(Bundle)} and the returned state can be restored through
      * {@link WebView#restoreState(Bundle)}.
      *
@@ -1529,6 +1535,90 @@ public class WebViewCompat {
         }
     }
 
+    /**
+     * Adds a {@link NavigationListener} to the given {@link WebView}.
+     *
+     * <p>A listener can only be added to a WebView once. Attempting to add the same listener to the
+     * same WebView twice will result in an {@link IllegalStateException}.
+     *
+     * @param webView  The {@link WebView} to set the client for.
+     * @param executor {@link Executor} where callbacks to the {@code listener} will be executed.
+     * @param listener The {@link NavigationListener} to add.
+     * @throws IllegalStateException if the {@code listener} has already been added to the
+     *                               {@code webView}.
+     * @throws UnsupportedOperationException if the
+     *                                       {@link WebViewFeature#NAVIGATION_CALLBACK_BASIC}
+     *                                       feature is not supported.
+     */
+    @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void addNavigationListener(@NonNull WebView webView, @NonNull Executor executor,
+            @NonNull NavigationListener listener) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.NAVIGATION_LISTENER_V1;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).addNavigationListener(executor, listener);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Adds a {@link NavigationListener} to the given {@link WebView}.
+     *
+     * <p>The callback will be executed on the main thread using
+     * {@link Looper#getMainLooper()}. To specify the execution thread, use
+     * {@link #addNavigationListener(WebView, Executor, NavigationListener)}.
+     *
+     * @param webView  The {@link WebView} to set the client for.
+     * @param listener The {@link NavigationListener} to add.
+     * @throws UnsupportedOperationException if the
+     *                                       {@link WebViewFeature#NAVIGATION_CALLBACK_BASIC}
+     *                                       feature is not supported.
+     * @see #addNavigationListener(WebView, Executor, NavigationListener)
+     */
+    @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void addNavigationListener(@NonNull WebView webView,
+            @NonNull NavigationListener listener) {
+        addNavigationListener(webView, new Handler(Looper.getMainLooper())::post,
+                listener);
+    }
+
+
+    /**
+     * Removes a {@link NavigationListener} from the given {@link WebView}.
+     *
+     * <p>This method does nothing, if the {@code listener} has not previously been added with
+     * {@link #addNavigationListener(WebView, Executor, NavigationListener)}.
+     *
+     * @param webView  The {@link WebView} to set the client for.
+     * @param listener The {@link NavigationListener} to remove.
+     * @throws UnsupportedOperationException if the
+     *                                       {@link WebViewFeature#NAVIGATION_CALLBACK_BASIC}
+     *                                       feature is not supported.
+     * @see #addNavigationListener(WebView, Executor, NavigationListener)
+     */
+    @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public static void removeNavigationListener(@NonNull WebView webView,
+            @NonNull NavigationListener listener) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.NAVIGATION_LISTENER_V1;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).removeNavigationListener(listener);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebViewProviderFactory getFactory() {
         return WebViewGlueCommunicator.getFactory();
     }
@@ -1562,6 +1652,7 @@ public class WebViewCompat {
         }
     }
 
+    // The indentation rules in the linter states this needs 12 spaces of indentation.
     @VisibleForTesting
     /*package*/ static WeakHashMap<WebView, WebViewProviderAdapter>
             getProviderAdapterCacheForTesting() {

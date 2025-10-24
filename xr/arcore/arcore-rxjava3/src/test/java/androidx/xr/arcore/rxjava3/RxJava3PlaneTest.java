@@ -115,7 +115,7 @@ public class RxJava3PlaneTest {
                         mSession =
                                 ((SessionCreateSuccess) Session.create(activity, mTestDispatcher))
                                         .getSession();
-                        mXrResourcesManager.setLifecycleManager$arcore_release(
+                        mXrResourcesManager.setLifecycleManager$arcore(
                                 SessionExtKt.getPerceptionRuntime(mSession).getLifecycleManager());
                         mSession.configure(
                                 new Config(Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL));

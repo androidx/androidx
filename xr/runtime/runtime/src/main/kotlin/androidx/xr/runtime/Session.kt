@@ -198,7 +198,6 @@ public constructor(
             }
 
             val features = getDeviceFeatures(activity)
-            println("Detected device features: $features")
 
             val runtimes = mutableListOf<JxrRuntime>()
 

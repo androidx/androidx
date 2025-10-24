@@ -33,6 +33,7 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -169,6 +170,7 @@ class AutoClosingDatabaseTest {
      * reactive query (Flow) is also syncing triggers and grabbing InvalidationTracker locks.
      * b/446643789
      */
+    @SdkSuppress(minSdkVersion = 24) // b/454114873
     @Test
     fun flowReadAndInsertConcurrentlyStressTest() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()

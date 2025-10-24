@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.tv.material3.CarouselKt:
+    Removed class androidx.tv.material3.CarouselKt from compatibility checked API surface
+BecameUnchecked: androidx.tv.material3.ChipKt:
+    Removed class androidx.tv.material3.ChipKt from compatibility checked API surface
+
+
 ChangedType: androidx.tv.material3.TabRowDefaults#contentColor():
     Source breaking change: Method androidx.tv.material3.TabRowDefaults.contentColor has changed return type from long to androidx.compose.ui.graphics.Color
 

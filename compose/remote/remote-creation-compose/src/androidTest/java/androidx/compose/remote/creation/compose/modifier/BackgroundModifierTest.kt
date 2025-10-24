@@ -23,16 +23,19 @@ import androidx.compose.remote.creation.compose.capture.shaders.horizontalGradie
 import androidx.compose.remote.creation.compose.capture.shaders.radialGradient
 import androidx.compose.remote.creation.compose.capture.shaders.sweepGradient
 import androidx.compose.remote.creation.compose.capture.shaders.verticalGradient
+import androidx.compose.remote.creation.compose.layout.Arrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -52,28 +55,22 @@ class BackgroundModifierTest {
             targetPlayer = TargetPlayer.View,
         )
 
-    val size = Size(100f, 100f)
+    val size = Size(200f, 200f)
 
     @SuppressLint("UnrememberedMutableState")
     @Test
     fun backgroundSolidColor() {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
-            val blue = RemoteColor(Color.Blue.toArgb())
-
-            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+            DemoBox("background(Color.Blue)") {
                 RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Blue)) {}
-
-                RemoteText("background(Color.Blue)", color = blue)
             }
         }
     }
 
-    @SuppressLint("UnrememberedMutableState")
     @Test
     fun backgroundVerticalGradient() {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
-            val white = RemoteColor(Color.White.toArgb())
-            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+            DemoBox("verticalGradient(listOf(Color.Blue, Color.Red))") {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
@@ -81,22 +78,18 @@ class BackgroundModifierTest {
                                 RemoteBrush.verticalGradient(
                                     listOf(Color.Blue, Color.Red),
                                     startY = 0f,
-                                    endY = 100f,
+                                    endY = 200f,
                                 )
                             )
                 ) {}
-                RemoteText("verticalGradient(listOf(Color.Blue, Color.Red)", color = white)
             }
         }
     }
 
-    @SuppressLint("UnrememberedMutableState")
     @Test
     fun backgroundHorizontalGradient() {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
-            val white = RemoteColor(Color.White.toArgb())
-
-            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+            DemoBox("horizontalGradient(listOf(Color.Blue, Color.Red))") {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
@@ -104,56 +97,79 @@ class BackgroundModifierTest {
                                 RemoteBrush.horizontalGradient(
                                     listOf(Color.Blue, Color.Red),
                                     startX = 0f,
-                                    endX = 100f,
+                                    endX = 200f,
                                 )
                             )
                 ) {}
-                RemoteText("horizontalGradient(listOf(Color.Blue, Color.Red)", color = white)
             }
         }
     }
 
-    @SuppressLint("UnrememberedMutableState")
     @Test
     fun backgroundRadialGradient() {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
-            val white = RemoteColor(Color.White.toArgb())
-
-            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+            DemoBox("radialGradient(listOf(Color.Blue, Color.Red))") {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .background(
                                 RemoteBrush.radialGradient(
                                     listOf(Color.Blue, Color.Red),
-                                    radius = 50f,
-                                    center = Offset(50f, 50f),
+                                    radius = 100f,
+                                    center = Offset(100f, 100f),
                                 )
                             )
                 ) {}
-                RemoteText("radialGradient(listOf(Color.Blue, Color.Red)", color = white)
             }
         }
     }
 
-    @SuppressLint("UnrememberedMutableState")
     @Test
     fun backgroundSweepGradient() {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
-            val white = RemoteColor(Color.White.toArgb())
-
-            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+            DemoBox("sweepGradient(listOf(Color.Blue, Color.Red))") {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .background(
                                 RemoteBrush.sweepGradient(
                                     listOf(Color.Blue, Color.Red),
-                                    center = Offset(50f, 50f),
+                                    center = Offset(100f, 100f),
                                 )
                             )
                 ) {}
-                RemoteText("sweepGradient(listOf(Color.Blue, Color.Red)", color = white)
+            }
+        }
+    }
+
+    @Test
+    fun backgroundRemoteColor() {
+        remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
+            // workaround issue with createNamedRemoteFloat
+            val alpha = rememberRemoteIntValue("a1") { 1 }.toRemoteFloat()
+            val red = rememberRemoteIntValue("r1") { 1 }.toRemoteFloat()
+            val green = rememberRemoteIntValue("g1") { 0 }.toRemoteFloat()
+            val blue = rememberRemoteIntValue("b1") { 0 }.toRemoteFloat()
+
+            val color = RemoteColor.fromARGB(alpha, red, green, blue)
+
+            DemoBox("background(RemoteColor.fromARGB(alpha, red, green, blue))") {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(color)) {}
+            }
+        }
+    }
+
+    @SuppressLint("UnrememberedMutableState")
+    @RemoteComposable
+    @Composable
+    private fun DemoBox(title: String, content: @RemoteComposable @Composable () -> Unit) {
+        RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
+            content()
+            RemoteBox(
+                modifier = RemoteModifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Bottom,
+            ) {
+                RemoteText(title, color = RemoteColor(Color.White), fontSize = 8.sp)
             }
         }
     }

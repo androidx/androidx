@@ -95,7 +95,7 @@ internal class PdfViewKeyboardActionHandler(pdfView: PdfView) :
 
     private fun findPreviousPage(): Int? {
         val firstPageRect =
-            pdfView.pageMetadataLoader?.getPageLocation(
+            pdfView.pageLayoutManager?.getPageLocation(
                 pdfView.firstVisiblePage,
                 pdfView.getVisibleAreaInContentCoords(),
             ) ?: return null

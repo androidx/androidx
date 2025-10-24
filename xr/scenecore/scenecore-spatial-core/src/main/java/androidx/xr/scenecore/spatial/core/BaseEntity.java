@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.xr.runtime.math.Pose;
+import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
 import androidx.xr.scenecore.runtime.Component;
 import androidx.xr.scenecore.runtime.Entity;
@@ -202,6 +203,63 @@ abstract class BaseEntity extends BaseScenePose implements Entity {
                         new Pose(
                                 mPose.getTranslation().scale(mParent.getWorldSpaceScale()),
                                 mPose.getRotation()));
+    }
+
+    @Override
+    @NonNull
+    public Pose getGravityAlignedPose(@NonNull Pose pose) {
+        if (mParent == null) {
+            throw new IllegalStateException("Cannot get gravity aligned pose with a null parent");
+        }
+
+        // 1. Determine the world pose of the reference frame for the PARENT space.
+        //    This is needed to convert rotations between the local space and world space.
+        Pose referenceFrameWorldPose = mParent.getPose(Space.REAL_WORLD);
+
+        // 2. Convert the input pose's local rotation to a world-space rotation.
+        Quaternion inputWorldRotation =
+                referenceFrameWorldPose.getRotation().times(pose.getRotation());
+
+        // 3. Perform the gravity-alignment calculation in world space. The yaw of the resulting
+        // gravity-aligned pose is generally derived from the world-space yaw of the input `pose`.
+        // This world-space yaw is a combination of the parent's world rotation and the entity's
+        // local rotation (`pose.getRotation()`).
+        //    - Get the "forward" vector from the world rotation.
+        //    - Project it onto the horizontal (X-Z) ground plane.
+        //    - Create a new rotation that looks in that projected direction.
+        Vector3 worldForward = inputWorldRotation.times(new Vector3(0f, 0f, 1f));
+        Vector3 gravityAlignedForward = new Vector3(worldForward.getX(), 0f, worldForward.getZ());
+
+        Quaternion gravityAlignedWorldRotation;
+        if (gravityAlignedForward.getLengthSquared() < 1e-6f) {
+            // The original pose was looking straight up or down, so its yaw is undefined.
+            // As a fallback, we create a rotation that is upright but uses the yaw of the reference
+            // frame (`mParent`) in world space..
+            Vector3 referenceForward =
+                    referenceFrameWorldPose.getRotation().times(new Vector3(0f, 0f, 1f));
+            Vector3 projectedReference =
+                    new Vector3(referenceForward.getX(), 0f, referenceForward.getZ());
+            if (projectedReference.getLengthSquared() < 1e-6f) {
+                gravityAlignedWorldRotation = Quaternion.Identity; // Ultimate fallback
+            } else {
+                gravityAlignedWorldRotation =
+                        Quaternion.fromLookTowards(projectedReference.toNormalized(), Vector3.Up);
+            }
+        } else {
+            gravityAlignedWorldRotation =
+                    Quaternion.fromLookTowards(gravityAlignedForward.toNormalized(), Vector3.Up);
+        }
+
+        // 4. Convert the new, aligned world rotation back to the PARENT space.
+        Quaternion finalLocalRotation =
+                referenceFrameWorldPose
+                        .getRotation()
+                        .getInverse()
+                        .times(gravityAlignedWorldRotation);
+
+        // 5. Return a new pose using the original translation rotated by the NEWLY calculated local
+        // rotation.
+        return new Pose(pose.getTranslation(), finalLocalRotation);
     }
 
     @Override

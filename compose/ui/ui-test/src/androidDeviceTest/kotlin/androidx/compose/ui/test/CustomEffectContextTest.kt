@@ -102,6 +102,8 @@ class CustomEffectContextTest {
                 }
 
                 @OptIn(ExperimentalCoroutinesApi::class)
+                @Deprecated("override")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun limitedParallelism(parallelism: Int): CoroutineDispatcher {
                     throw AssertionError("This dispatcher should be unused")
                 }

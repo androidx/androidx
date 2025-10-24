@@ -27,7 +27,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.Profiles
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
@@ -37,7 +37,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.test.R
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -66,11 +66,10 @@ class RecordingCanvasTest {
 
     private val creationState =
         RemoteComposeCreationState(
-            AndroidxPlatformServices(),
-            1f,
+            AndroidxRcPlatformServices(),
             Size(WIDTH.toFloat(), HEIGHT.toFloat()),
             CoreDocument.DOCUMENT_API_LEVEL,
-            Profiles.PROFILE_ANDROIDX,
+            RcProfiles.PROFILE_ANDROIDX,
         )
 
     private val recordingCanvas =

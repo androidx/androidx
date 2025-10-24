@@ -15,6 +15,21 @@ package androidx.xr.arcore.playservices {
     property public java.util.UUID? uuid;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArCoreDepthMap implements androidx.xr.arcore.runtime.DepthMap {
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getSmoothConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getSmoothDepthMap();
+    method @InaccessibleFromKotlin public int getWidth();
+    property public int height;
+    property public java.nio.ByteBuffer? rawConfidenceMap;
+    property public java.nio.FloatBuffer? rawDepthMap;
+    property public java.nio.ByteBuffer? smoothConfidenceMap;
+    property public java.nio.FloatBuffer? smoothDepthMap;
+    property public int width;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArCoreDevice implements androidx.xr.arcore.runtime.ArDevice {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getDevicePose();
     method public void update(com.google.ar.core.Frame frame);
@@ -34,6 +49,29 @@ package androidx.xr.arcore.playservices {
     property public androidx.xr.arcore.runtime.Earth.State state;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArCoreFace implements androidx.xr.arcore.runtime.Face {
+    method @SuppressCompatibility @androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi public com.google.ar.core.AugmentedFace arCoreAugmentedFace();
+    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method @InaccessibleFromKotlin public float[]? getBlendShapeValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public float[]? getConfidenceValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getForeheadLeftPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getForeheadRightPose();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Mesh getMesh();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getNoseTipPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isValid();
+    property public float[]? blendShapeValues;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public float[]? confidenceValues;
+    property public androidx.xr.runtime.math.Pose foreheadLeftPose;
+    property public androidx.xr.runtime.math.Pose foreheadRightPose;
+    property public boolean isValid;
+    property public androidx.xr.arcore.runtime.Mesh mesh;
+    property public androidx.xr.runtime.math.Pose noseTipPose;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArCoreManager implements androidx.xr.runtime.internal.LifecycleManager {
     method public void configure(androidx.xr.runtime.Config config);
     method public void create();
@@ -49,6 +87,7 @@ package androidx.xr.arcore.playservices {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArCorePerceptionManager implements androidx.xr.arcore.runtime.PerceptionManager {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public suspend Object? checkVpsAvailability(double latitude, double longitude, kotlin.coroutines.Continuation<? super androidx.xr.runtime.VpsAvailabilityResult>);
     method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void dispose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.playservices.ArCoreDevice getArDevice();
     method @InaccessibleFromKotlin public androidx.xr.arcore.playservices.ArCoreEarth getEarth();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.DepthMap? getLeftDepthMap();
@@ -67,6 +106,7 @@ package androidx.xr.arcore.playservices {
     method public java.util.List<androidx.xr.arcore.runtime.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
     method @SuppressCompatibility @androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi public com.google.ar.core.Frame lastFrame();
     method public androidx.xr.arcore.runtime.Anchor loadAnchor(java.util.UUID uuid);
+    method public void setDepthEstimationMode(androidx.xr.runtime.Config.DepthEstimationMode depthMode);
     method public void setDisplayRotation(int rotation, int width, int height);
     method public void unpersistAnchor(java.util.UUID uuid);
     property public androidx.xr.arcore.playservices.ArCoreDevice arDevice;

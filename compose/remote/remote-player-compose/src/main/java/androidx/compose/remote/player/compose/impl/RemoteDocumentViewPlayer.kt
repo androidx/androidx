@@ -22,7 +22,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Theme
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.action.NamedActionHandler
 import androidx.compose.remote.player.core.action.StateUpdaterActionCallback
 import androidx.compose.remote.player.core.platform.BitmapLoader
@@ -55,7 +55,7 @@ internal fun RemoteDocumentViewPlayer(
     var inDarkTheme by remember { mutableStateOf(false) }
     var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
 
-    val remoteDoc = remember(document) { RemoteComposeDocument(document) }
+    val remoteDoc = remember(document) { RemoteDocument(document) }
 
     inDarkTheme =
         when (AppCompatDelegate.getDefaultNightMode()) {

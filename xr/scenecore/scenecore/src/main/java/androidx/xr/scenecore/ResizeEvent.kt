@@ -16,8 +16,6 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.FloatSize3d
 
 /**
@@ -29,7 +27,7 @@ import androidx.xr.runtime.math.FloatSize3d
  */
 public class ResizeEvent(
     public val entity: Entity,
-    @ResizeStateValue public val resizeState: Int,
+    public val resizeState: ResizeState,
     public val newSize: FloatSize3d,
 ) {
 
@@ -50,24 +48,22 @@ public class ResizeEvent(
         return result
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        ResizeState.RESIZE_STATE_UNKNOWN,
-        ResizeState.RESIZE_STATE_START,
-        ResizeState.RESIZE_STATE_ONGOING,
-        ResizeState.RESIZE_STATE_END,
-    )
-    public annotation class ResizeStateValue
+    public class ResizeState private constructor(private val name: String) {
 
-    public object ResizeState {
-        /** The resize state is unknown. */
-        public const val RESIZE_STATE_UNKNOWN: Int = 0
-        /** The user has started dragging the resize handles. */
-        public const val RESIZE_STATE_START: Int = 1
-        /** The user is continuing to drag the resize handles. */
-        public const val RESIZE_STATE_ONGOING: Int = 2
-        /** The user has stopped dragging the resize handles. */
-        public const val RESIZE_STATE_END: Int = 3
+        public companion object {
+            /** The resize state is unknown. */
+            @JvmField public val UNKNOWN: ResizeState = ResizeState("UNKNOWN")
+
+            /** The user has started dragging the resize handles. */
+            @JvmField public val START: ResizeState = ResizeState("START")
+
+            /** The user is continuing to drag the resize handles. */
+            @JvmField public val ONGOING: ResizeState = ResizeState("ONGOING")
+
+            /** The user has stopped dragging the resize handles. */
+            @JvmField public val END: ResizeState = ResizeState("END")
+        }
+
+        override fun toString(): String = name
     }
 }

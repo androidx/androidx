@@ -16,15 +16,18 @@
 
 package androidx.xr.compose.testing
 
-import android.view.Display
 import androidx.activity.ComponentActivity
-import org.robolectric.shadows.ShadowDisplay
+import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
+import com.android.extensions.xr.ShadowConfig
 
 /**
  * Custom test class that should be used for testing
  * [androidx.xr.compose.subspace.SubspaceComposable] content.
  */
 class SubspaceTestingActivity : ComponentActivity() {
-    /** Throws an exception by default under test; return Robolectric Display impl instead. */
-    override fun getDisplay(): Display = ShadowDisplay.getDefaultDisplay()
+    init {
+        // TODO(b/447211302) Remove once direct dependency on XrExtensions in Compose XR is removed.
+        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions()!!.config!!)
+            .setDefaultDpPerMeter(1000f)
+    }
 }

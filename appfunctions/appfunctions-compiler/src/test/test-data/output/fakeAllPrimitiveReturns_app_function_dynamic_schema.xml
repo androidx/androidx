@@ -45,12 +45,7 @@
             <valueType>
                 <id>unused</id>
                 <isNullable>false</isNullable>
-                <itemType>
-                    <id>unused</id>
-                    <isNullable>false</isNullable>
-                    <type>2</type>
-                </itemType>
-                <type>10</type>
+                <type>2</type>
             </valueType>
         </response>
         <schemaCategory>fake_schema_category</schemaCategory>
@@ -251,12 +246,7 @@
             <valueType>
                 <id>unused</id>
                 <isNullable>true</isNullable>
-                <itemType>
-                    <id>unused</id>
-                    <isNullable>false</isNullable>
-                    <type>2</type>
-                </itemType>
-                <type>10</type>
+                <type>2</type>
             </valueType>
         </response>
         <schemaCategory>fake_schema_category</schemaCategory>

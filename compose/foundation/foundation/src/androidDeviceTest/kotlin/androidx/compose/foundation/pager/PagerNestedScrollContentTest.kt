@@ -21,8 +21,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +40,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -50,7 +56,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
@@ -533,6 +543,44 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
             assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
             assertThat(pagerState.currentPage).isEqualTo(5)
         }
+    }
+
+    @Test
+    fun nestedScrollContent_onLastPage_shouldScrollCorrectly() {
+        var movingDeltas by mutableFloatStateOf(0f)
+        createPager(
+            pageSize = {
+                object : PageSize {
+                    override fun Density.calculateMainAxisPageSize(
+                        availableSpace: Int,
+                        pageSpacing: Int,
+                    ): Int = availableSpace - 1
+                }
+            }
+        ) {
+            Box(
+                Modifier.fillMaxSize()
+                    .scrollable(
+                        rememberScrollableState {
+                            movingDeltas += it
+                            it
+                        },
+                        orientation = if (vertical) Orientation.Horizontal else Orientation.Vertical,
+                    )
+            )
+        }
+
+        rule.runOnIdle { runBlocking { pagerState.scrollToPage(pagerState.pageCount - 1) } }
+
+        rule.onRoot().performTouchInput {
+            if (vertical) {
+                swipeRight()
+            } else {
+                swipeUp()
+            }
+        }
+
+        rule.runOnIdle { assertThat(movingDeltas).isNonZero() }
     }
 
     companion object {

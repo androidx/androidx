@@ -20,8 +20,8 @@ package androidx.compose.ui.layout
 
 import androidx.collection.IntObjectMap
 import androidx.collection.intObjectMapOf
-import androidx.compose.runtime.retain.ForgetfulRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
@@ -204,8 +204,8 @@ private class FakeOwner(
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
 
-    override val retainScope: RetainScope
-        get() = ForgetfulRetainScope
+    override val retainedValuesStore: RetainedValuesStore
+        get() = ForgetfulRetainedValuesStore
 
     override val density: Density
         get() = TODO("Not yet implemented")

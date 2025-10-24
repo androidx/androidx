@@ -116,7 +116,7 @@ class FakeActivitySpaceTest {
     fun getRecommendedContentBoxInFullSpace_returnsRecommendedContentBoxInFullSpace() {
         check(
             underTest.recommendedContentBoxInFullSpace ==
-                BoundingBox(
+                BoundingBox.fromMinMax(
                     min = Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
                     max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
                 )

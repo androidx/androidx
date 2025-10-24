@@ -61,6 +61,7 @@ import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.AnchorLoadInvalidUuid
+import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
@@ -132,7 +133,11 @@ class PersistentAnchorsActivity : ComponentActivity() {
 
                     startPanelInViewStatusUpdates()
 
-                    lifecycleScope.launch { session.state.collect { updatePlaneEntity() } }
+                    lifecycleScope.launch {
+                        ArDevice.getInstance(session).state.collect { arDeviceState ->
+                            updatePlaneEntity(arDeviceState)
+                        }
+                    }
                 },
             )
         sessionHelper.tryCreateSession()
@@ -190,10 +195,12 @@ class PersistentAnchorsActivity : ComponentActivity() {
         configureComposeView(composeView, this)
     }
 
-    private fun updatePlaneEntity() {
-        session.scene.spatialUser.head?.let {
+    private fun updatePlaneEntity(arDeviceState: ArDevice.State) {
+        arDeviceState.devicePose.let { headPose ->
+            val headScenePose =
+                session.scene.perceptionSpace.getScenePoseFromPerceptionPose(headPose)
             movableEntity.setPose(
-                it.transformPoseTo(movableEntityOffset, session.scene.activitySpace)
+                headScenePose.transformPoseTo(movableEntityOffset, session.scene.activitySpace)
             )
         }
     }

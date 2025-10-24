@@ -120,7 +120,8 @@ internal suspend fun PointerInputScope.awaitSelectionGestures(
         } else if (!isPrecise) {
             when (clicksCounter.clicks) {
                 1 -> touchSelectionFirstPress(textDragObserver, downEvent)
-                else -> touchSelectionSubsequentPress(textDragObserver, downEvent)
+                else ->
+                    touchSelectionSubsequentPress(textDragObserver, downEvent, clicksCounter.clicks)
             }
         }
     }
@@ -139,7 +140,7 @@ internal suspend fun AwaitPointerEventScope.touchSelectionFirstPress(
         val firstDown = downEvent.changes.first()
         val longPress = awaitLongPressOrCancellation(firstDown.id)
         if (longPress != null && distanceIsTolerable(viewConfiguration, firstDown, longPress)) {
-            observer.onStart(longPress.position)
+            observer.onStart(longPress.position, SelectionAdjustment.Word)
             val dragCompletedWithUp =
                 drag(longPress.id) {
                     observer.onDrag(it.positionChange())
@@ -169,14 +170,23 @@ private enum class DownResolution {
 /**
  * Gesture handler for touch selection on all presses except for the first. Subsequent presses
  * immediately starts looking for drags when the press is received.
+ *
+ * @param clicks How many clicks were registered in succession.
  */
 private suspend fun AwaitPointerEventScope.touchSelectionSubsequentPress(
     observer: TextDragObserver,
     downEvent: PointerEvent,
+    clicks: Int,
 ) {
     try {
         val firstDown = downEvent.changes.first()
         val pointerId = firstDown.id
+
+        // With a subsequent click it is guaranteed that a selection is started.
+        observer.onStart(
+            firstDown.position,
+            if (clicks > 2) SelectionAdjustment.Paragraph else SelectionAdjustment.Word,
+        )
 
         var overSlop: Offset = Offset.Unspecified
         val downResolution =
@@ -203,12 +213,10 @@ private suspend fun AwaitPointerEventScope.touchSelectionSubsequentPress(
             } ?: DownResolution.Timeout
 
         if (downResolution == DownResolution.Cancel) {
-            // On a cancel, we simply take no action.
+            // On a cancel, we simply take no further action.
+            observer.onCancel()
             return
         }
-
-        // For any non-cancel, we will start a selection.
-        observer.onStart(firstDown.position)
 
         if (downResolution == DownResolution.Up) {
             // This is a tap, immediately stop and let the initiated selection remain.

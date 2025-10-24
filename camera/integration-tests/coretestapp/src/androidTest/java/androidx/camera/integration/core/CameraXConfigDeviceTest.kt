@@ -840,12 +840,12 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         }
 
         override fun addObserver(executor: Executor, observer: Observable.Observer<in T>) {
-            observers.add(observer as Observable.Observer<T>)
+            @Suppress("UNCHECKED_CAST") observers.add(observer as Observable.Observer<T>)
             executor.execute { observer.onNewData(value) }
         }
 
         override fun removeObserver(observer: Observable.Observer<in T>) {
-            observers.remove(observer as Observable.Observer<T>)
+            @Suppress("UNCHECKED_CAST") observers.remove(observer as Observable.Observer<T>)
         }
     }
 

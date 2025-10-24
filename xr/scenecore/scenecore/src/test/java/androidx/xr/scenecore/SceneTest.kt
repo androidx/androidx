@@ -193,19 +193,11 @@ class SceneTest {
     }
 
     @Test
-    fun addAndRemoveSpatialCapabilitiesChangedListener_callsRuntimeAddAndRemove() {
-        val listener = Consumer<SpatialCapabilities> { _ -> }
-        session.scene.addSpatialCapabilitiesChangedListener(listener = listener)
-        verify(mockSceneRuntime).addSpatialCapabilitiesChangedListener(any(), any())
-        session.scene.removeSpatialCapabilitiesChangedListener(listener)
-        verify(mockSceneRuntime).removeSpatialCapabilitiesChangedListener(any())
-    }
-
-    @Test
     fun setSpatialVisibilityChangedListener_receivesRuntimeSpatialVisibilityChangedEvent() {
-        var listenerCalledWithValue = SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN
+        var listenerCalledWithValue = SpatialVisibility.UNKNOWN
         val captor = argumentCaptor<Consumer<RtSpatialVisibility>>()
-        val listener = Consumer<Int> { visibility -> listenerCalledWithValue = visibility }
+        val listener =
+            Consumer<SpatialVisibility> { visibility -> listenerCalledWithValue = visibility }
 
         // Test that it calls into the runtime and capture the runtime listener.
         val executor = directExecutor()
@@ -215,26 +207,23 @@ class SceneTest {
         // Simulate the runtime listener being called with any value.
         val rtListener = captor.firstValue
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.WITHIN_FOV))
-        assertThat(listenerCalledWithValue)
-            .isNotEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN)
-        assertThat(listenerCalledWithValue)
-            .isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW)
+        assertThat(listenerCalledWithValue).isNotEqualTo(SpatialVisibility.UNKNOWN)
+        assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.WITHIN_FIELD_OF_VIEW)
 
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.PARTIALLY_WITHIN_FOV))
         assertThat(listenerCalledWithValue)
-            .isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW)
+            .isEqualTo(SpatialVisibility.PARTIALLY_WITHIN_FIELD_OF_VIEW)
 
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.OUTSIDE_FOV))
-        assertThat(listenerCalledWithValue)
-            .isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW)
+        assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.OUTSIDE_FIELD_OF_VIEW)
 
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.UNKNOWN))
-        assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN)
+        assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.UNKNOWN)
     }
 
     @Test
     fun setSpatialVisibilityChangedListener_withNoExecutor_callsRuntimeSetSpatialVisibilityChangedListenerWithMainThreadExecutor() {
-        val listener = Consumer<Int> { _ -> }
+        val listener = Consumer<SpatialVisibility> { _ -> }
         session.scene.setSpatialVisibilityChangedListener(listener)
         verify(mockSceneRuntime)
             .setSpatialVisibilityChangedListener(eq(HandlerExecutor.mainThreadExecutor), any())
@@ -366,15 +355,6 @@ class SceneTest {
     }
 
     @Test
-    fun getSpatialCapabilities_invokesAdapterGetSpatialCapabilities() {
-        val expectedCapabilities = SpatialCapabilities(1)
-        whenever(mockSceneRuntime.spatialCapabilities).thenReturn(RtSpatialCapabilities(1))
-        val actualCapabilities = session.scene.spatialCapabilities
-        verify(mockSceneRuntime).spatialCapabilities
-        assertThat(actualCapabilities).isEqualTo(expectedCapabilities)
-    }
-
-    @Test
     fun requestFullSpaceMode_callsThrough() {
         session.scene.requestFullSpaceMode()
         verify(mockSceneRuntime).requestFullSpaceMode()
@@ -502,7 +482,7 @@ class SceneTest {
 
     @Test
     fun sceneClose_removesSpatialCapabilitiesListeners() {
-        val capabilitiesListener = Consumer<SpatialCapabilities> {}
+        val capabilitiesListener = Consumer<Set<SpatialCapability>> {}
         session.scene.addSpatialCapabilitiesChangedListener(capabilitiesListener)
         val rtCapabilitiesListenerCaptor = argumentCaptor<Consumer<RtSpatialCapabilities>>()
         verify(mockSceneRuntime)
@@ -517,7 +497,7 @@ class SceneTest {
 
     @Test
     fun sceneClose_clearsSpatialVisibilityListener() {
-        val visibilityListener = Consumer<@SpatialVisibilityValue Int> {}
+        val visibilityListener = Consumer<SpatialVisibility> {}
         session.scene.setSpatialVisibilityChangedListener(visibilityListener)
         verify(mockSceneRuntime).setSpatialVisibilityChangedListener(any(), any())
 

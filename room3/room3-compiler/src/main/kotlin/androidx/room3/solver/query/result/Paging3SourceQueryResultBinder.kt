@@ -35,10 +35,10 @@ import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.binderprovider.ConvertRowsOverrideInfo
 
 /**
- * This Binder binds queries directly to KMP Compatible Paging3 PagingSource (i.e.
- * [androidx.room3.paging.LimitOffsetPagingSource]). Used solely by KMP Paging3.
+ * This binder binds queries for Paging 3 PagingSource (i.e.
+ * [androidx.room3.paging.LimitOffsetPagingSource]).
  */
-class Paging3PagingSourceQueryResultBinder(
+class MultiTypePagingSourceQueryResultBinder(
     private val listAdapter: ListQueryResultAdapter?,
     private val tableNames: Set<String>,
     private val convertRowsOverrideInfo: ConvertRowsOverrideInfo,

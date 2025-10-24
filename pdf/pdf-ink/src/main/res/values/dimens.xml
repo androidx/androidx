@@ -18,6 +18,8 @@
     <dimen name="margin_8dp">8dp</dimen>
     <dimen name="margin_4dp">4dp</dimen>
     <dimen name="padding_8dp">8dp</dimen>
+    <dimen name="margin_16dp">16dp</dimen>
+    <dimen name="corner_radius_8dp">8dp</dimen>
 
     <!-- Annotation Toolbar dimens - BEGIN -->
     <dimen name="annotation_tool_width">48dp</dimen>
@@ -28,7 +30,12 @@
 
     <dimen name="brush_preview_width">48dp</dimen>
     <dimen name="brush_preview_height">48dp</dimen>
-    <dimen name="brush_selector_container_corner_radius">20dp</dimen>
+    <dimen name="corner_radius_20dp">20dp</dimen>
     <dimen name="default_brush_preview_size">16dp</dimen>
+
+    <dimen name="color_palette_item_size">48dp</dimen>
+    <dimen name="color_palette_drawing_bounds">32dp</dimen>
+    <dimen name="color_palette_expanded_item_width">56dp</dimen>
+    <dimen name="color_palette_item_stroke_width">1dp</dimen>
     <!-- Annotation Toolbar dimens - END -->
 </resources>

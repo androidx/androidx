@@ -16,157 +16,111 @@
 
 package androidx.room3.paging.guava
 
-import android.database.Cursor
-import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.PagingState
 import androidx.room3.RoomDatabase
-import androidx.room3.RoomSQLiteQuery
-import androidx.room3.guava.createListenableFuture
-import androidx.room3.paging.CursorSQLiteStatement
+import androidx.room3.RoomRawQuery
+import androidx.room3.Transactor.SQLiteTransactionType
+import androidx.room3.concurrent.AtomicBoolean
+import androidx.room3.concurrent.AtomicInt
 import androidx.room3.paging.util.INITIAL_ITEM_COUNT
-import androidx.room3.paging.util.INVALID
-import androidx.room3.paging.util.ThreadSafeInvalidationObserver
 import androidx.room3.paging.util.getClippedRefreshKey
 import androidx.room3.paging.util.queryDatabase
 import androidx.room3.paging.util.queryItemCount
-import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.db.SupportSQLiteQuery
-import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.Callable
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.guava.asListenableFuture
+import kotlinx.coroutines.launch
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
-    private val sourceQuery: RoomSQLiteQuery,
-    private val db: RoomDatabase,
-    vararg tables: String,
+    protected val sourceQuery: RoomRawQuery,
+    protected val db: RoomDatabase,
+    protected vararg val tables: String,
 ) : ListenableFuturePagingSource<Int, Value>() {
 
-    public constructor(
-        supportSQLiteQuery: SupportSQLiteQuery,
-        db: RoomDatabase,
-        vararg tables: String,
-    ) : this(sourceQuery = RoomSQLiteQuery.copyFrom(supportSQLiteQuery), db = db, tables = tables)
+    internal val itemCount = AtomicInt(INITIAL_ITEM_COUNT)
+    internal val refreshComplete = AtomicBoolean(false)
+    private var invalidationFlowJob: Job? = null
 
-    @VisibleForTesting internal val itemCount: AtomicInteger = AtomicInteger(INITIAL_ITEM_COUNT)
-    private val observer = ThreadSafeInvalidationObserver(tables = tables, ::invalidate)
-
-    /**
-     * Returns a [ListenableFuture] immediately before loading from the database completes
-     *
-     * If PagingSource is invalidated while the [ListenableFuture] is still pending, the
-     * invalidation will cancel the load() coroutine that calls await() on this future. The
-     * cancellation of await() will transitively cancel this future as well.
-     */
-    override fun loadFuture(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Value>> {
-        return Futures.transformAsync(
-            @Suppress("DEPRECATION") // Due to createListenableFuture() with Callable
-            createListenableFuture(db, false) { observer.registerIfNecessary(db) },
-            {
-                val tempCount = itemCount.get()
-                if (tempCount == INITIAL_ITEM_COUNT) {
-                    initialLoad(params)
-                } else {
-                    nonInitialLoad(params, tempCount)
+    init {
+        invalidationFlowJob =
+            db.getCoroutineScope().launch {
+                db.invalidationTracker.createFlow(*tables, emitInitialState = false).collect {
+                    if (invalid) {
+                        throw CancellationException("PagingSource is invalid")
+                    }
+                    if (refreshComplete.get()) {
+                        invalidate()
+                    }
                 }
-            },
-            db.queryExecutor,
-        )
+            }
+        registerInvalidatedCallback { invalidationFlowJob?.cancel() }
     }
 
-    /**
-     * For refresh loads
-     *
-     * To guarantee a valid initial load, it is run in transaction so that db writes cannot happen
-     * in between [queryItemCount] and [queryDatabase] to ensure a valid [itemCount]. [itemCount]
-     * must be correct in order to calculate correct LIMIT and OFFSET for the query.
-     *
-     * However, the database load will be canceled via the cancellation signal if the future it
-     * returned has been canceled before it has completed.
-     */
-    private fun initialLoad(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Value>> {
-        val cancellationSignal = CancellationSignal()
-        val loadCallable =
-            Callable<LoadResult<Int, Value>> {
-                db.runInTransaction(
-                    Callable {
-                        val tempCount = queryItemCount(sourceQuery, db)
-                        itemCount.set(tempCount)
-                        queryDatabase(
-                            params,
-                            sourceQuery,
-                            db,
-                            tempCount,
-                            cancellationSignal,
-                            ::convertRows,
-                        )
+    override fun loadFuture(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Value>> {
+        return db.getCoroutineScope()
+            .async(CoroutineName("LimitOffsetListenableFuturePagingSource.loadFuture")) {
+                val tempCount = itemCount.get()
+                // if itemCount is < 0, then it is initial load
+                try {
+                    if (tempCount == INITIAL_ITEM_COUNT) {
+                        initialLoad(params).also { refreshComplete.compareAndSet(false, true) }
+                    } else {
+                        nonInitialLoad(params, tempCount)
                     }
+                } catch (e: Exception) {
+                    LoadResult.Error(e)
+                }
+            }
+            .asListenableFuture()
+    }
+
+    private suspend fun initialLoad(params: LoadParams<Int>): LoadResult<Int, Value> {
+        return db.useConnection(isReadOnly = true) { connection ->
+            // Using a transaction to ensure initial load's data integrity.
+            connection.withTransaction(SQLiteTransactionType.DEFERRED) {
+                val tempCount = queryItemCount(sourceQuery, db)
+                itemCount.set(tempCount)
+                queryDatabase(
+                    params = params,
+                    sourceQuery = sourceQuery,
+                    itemCount = tempCount,
+                    convertRows = ::convertRows,
                 )
             }
-
-        @Suppress("DEPRECATION") // Due to createListenableFuture() with Callable
-        return createListenableFuture(
-            db,
-            true,
-            loadCallable,
-            sourceQuery,
-            false,
-            cancellationSignal,
-        )
+        }
     }
 
-    /**
-     * For append and prepend loads
-     *
-     * The cancellation signal cancels room database operation if its running, or cancels it the
-     * moment it starts. The signal is triggered when the future is canceled.
-     */
-    private fun nonInitialLoad(
+    private suspend fun nonInitialLoad(
         params: LoadParams<Int>,
         tempCount: Int,
-    ): ListenableFuture<LoadResult<Int, Value>> {
-        val cancellationSignal = CancellationSignal()
-        val loadCallable =
-            Callable<LoadResult<Int, Value>> {
-                val result =
-                    queryDatabase(
-                        params,
-                        sourceQuery,
-                        db,
-                        tempCount,
-                        cancellationSignal,
-                        ::convertRows,
-                    )
-                db.invalidationTracker.refreshVersionsSync()
-                @Suppress("UNCHECKED_CAST")
-                if (invalid) INVALID as LoadResult.Invalid<Int, Value> else result
-            }
+    ): LoadResult<Int, Value> {
+        val loadResult =
+            queryDatabase(
+                params = params,
+                sourceQuery = sourceQuery,
+                itemCount = tempCount,
+                convertRows = ::convertRows,
+            )
+        // TODO(b/192269858): Create a better API to facilitate source invalidation.
+        // Manually check if database has been updated. If so, invalidate the source and the result.
+        if (db.invalidationTracker.refresh(*tables)) {
+            invalidate()
+        }
 
-        @Suppress("DEPRECATION") // Due to createListenableFuture() with Callable
-        return createListenableFuture(
-            db,
-            false,
-            loadCallable,
-            sourceQuery,
-            false,
-            cancellationSignal,
-        )
+        @Suppress("UNCHECKED_CAST")
+        return if (invalid) INVALID as LoadResult.Invalid<Int, Value> else loadResult
     }
 
-    protected open fun convertRows(cursor: Cursor): List<Value> {
-        return convertRows(CursorSQLiteStatement(cursor))
-    }
-
-    protected open fun convertRows(statement: SQLiteStatement): List<Value> {
-        throw NotImplementedError(
-            "Unexpected call to a function with no implementation that Room is suppose to " +
-                "generate. Please file a bug at: $BUG_LINK."
-        )
-    }
+    protected abstract suspend fun convertRows(
+        limitOffsetQuery: RoomRawQuery,
+        itemCount: Int,
+    ): List<Value>
 
     override val jumpingSupported: Boolean
         get() = true
@@ -176,7 +130,6 @@ public abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
     }
 
     public companion object {
-        public const val BUG_LINK: String =
-            "https://issuetracker.google.com/issues/new?component=413107&template=1096568"
+        private val INVALID = LoadResult.Invalid<Any, Any>()
     }
 }

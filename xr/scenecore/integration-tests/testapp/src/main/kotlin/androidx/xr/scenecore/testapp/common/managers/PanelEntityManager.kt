@@ -102,7 +102,7 @@ class PanelEntityManager(
             val movableComponent = MovableComponent.createSystemMovable(session)
             val simpleResizeListener =
                 Consumer<ResizeEvent> { resizeEvent: ResizeEvent ->
-                    if (resizeEvent.resizeState == ResizeEvent.ResizeState.RESIZE_STATE_END) {
+                    if (resizeEvent.resizeState == ResizeEvent.ResizeState.END) {
                         newPanel.size = resizeEvent.newSize.to2d()
                         val panelWidthInActivitySpace: Float =
                             newPanel.size.width * resizeEvent.entity.getScale(Space.ACTIVITY)

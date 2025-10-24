@@ -16,38 +16,32 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
-
 /**
  * Defines the constants for a [Material]'s alpha mode, which corresponds to the
  * [glTF specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html).
  */
-public object AlphaMode {
-    /**
-     * The material is fully opaque and the alpha channel is ignored. Corresponds to glTF's
-     * [OPAQUE alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
-     */
-    public const val ALPHA_MODE_OPAQUE: Int = 0
+public class AlphaMode private constructor(private val name: String) {
 
-    /**
-     * The material is opaque where alpha is greater than or equal to cutoff, otherwise it is
-     * discarded. Corresponds to glTF's
-     * [MASK alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
-     */
-    public const val ALPHA_MODE_MASK: Int = 1
+    public companion object {
+        /**
+         * The material is fully opaque and the alpha channel is ignored. Corresponds to glTF's
+         * [OPAQUE alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
+         */
+        @JvmField public val OPAQUE: AlphaMode = AlphaMode("OPAQUE")
 
-    /**
-     * The material is alpha-blended with the background. Corresponds to glTF's
-     * [BLEND alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
-     */
-    public const val ALPHA_MODE_BLEND: Int = 2
+        /**
+         * The material is opaque where alpha is greater than or equal to cutoff, otherwise it is
+         * discarded. Corresponds to glTF's
+         * [MASK alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
+         */
+        @JvmField public val MASK: AlphaMode = AlphaMode("MASK")
+
+        /**
+         * The material is alpha-blended with the background. Corresponds to glTF's
+         * [BLEND alpha mode](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material-alphamode).
+         */
+        @JvmField public val BLEND: AlphaMode = AlphaMode("BLEND")
+    }
+
+    public override fun toString(): String = name
 }
-
-/** Defines the constants for alpha mode. */
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(
-    value = [AlphaMode.ALPHA_MODE_OPAQUE, AlphaMode.ALPHA_MODE_MASK, AlphaMode.ALPHA_MODE_BLEND]
-)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public annotation class AlphaModeValues

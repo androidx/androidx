@@ -131,3 +131,17 @@ package androidx.xr.scenecore.impl.perception.exceptions {
 
 }
 
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) androidx.xr.scenecore.spatial.core {
+
+  public class OpenXrScenePose implements androidx.xr.scenecore.runtime.ScenePose {
+    method public androidx.xr.runtime.math.Pose getActivitySpacePose();
+    method public androidx.xr.runtime.math.Vector3 getActivitySpaceScale();
+    method public androidx.xr.runtime.math.Pose getPoseInActivitySpace();
+    method public androidx.xr.runtime.math.Pose? getPoseInOpenXrReferenceSpace();
+    method public androidx.xr.runtime.math.Vector3 getWorldSpaceScale();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.runtime.HitTestResult!> hitTest(androidx.xr.runtime.math.Vector3, androidx.xr.runtime.math.Vector3, @androidx.xr.scenecore.runtime.ScenePose.HitTestFilterValue int);
+    method public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose, androidx.xr.scenecore.runtime.ScenePose);
+  }
+
+}
+

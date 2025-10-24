@@ -605,14 +605,17 @@ public class SupportedOutputSizesSorter {
 
         switch (aspectRatio) {
             case AspectRatio.RATIO_4_3:
+                // RATIO_DEFAULT was added for VideoCapture's Recorder. It won't use the
+                // SupportedOutputSizesSorter to sort the output sizes. For other use cases
+                // like Preview, ImageCapture, and ImageAnalysis, the default aspect ratio
+                // is 4:3. Therefore, set the outputRatio to the 4:3 value here.
+            case AspectRatio.RATIO_DEFAULT:
                 outputRatio = isSensorLandscapeResolution ? ASPECT_RATIO_4_3
                         : ASPECT_RATIO_3_4;
                 break;
             case AspectRatio.RATIO_16_9:
                 outputRatio = isSensorLandscapeResolution ? ASPECT_RATIO_16_9
                         : ASPECT_RATIO_9_16;
-                break;
-            case AspectRatio.RATIO_DEFAULT:
                 break;
             default:
                 Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);

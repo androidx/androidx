@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.compose.material3.adaptive.navigation:
+    Removed package androidx.compose.material3.adaptive.navigation from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.AndroidThreePaneScaffold_androidKt:
+    Removed class androidx.compose.material3.adaptive.navigation.AndroidThreePaneScaffold_androidKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigatorKt:
+    Removed class androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigatorKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldPredictiveBackHandler_androidKt:
+    Removed class androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldPredictiveBackHandler_androidKt from compatibility checked API surface

@@ -40,8 +40,8 @@ internal interface CoreEntityNode : DelegatableSubspaceNode {
  * [CoreEntityNode.modifyCoreEntity] is called during layout and [requestRelayout] will cause a
  * relayout loop.
  */
-internal fun CoreEntityNode.requestRelayout() {
-    (this as SubspaceModifier.Node).layoutNode?.requestRelayout()
+internal fun CoreEntityNode.invalidatePlacement() {
+    (this as SubspaceModifier.Node).layoutNode?.requestLayout()
 }
 
 /**
@@ -77,8 +77,8 @@ internal interface CoreEntityScope {
 }
 
 private class CoreEntityAccumulator : CoreEntityScope {
-    var alpha: Float = 1f
-    var scale: Float = 1f
+    var alpha: Float? = null
+    var scale: Float? = null
 
     override fun setOrAppendScale(scale: Float) {
         this.scale = scale
@@ -90,14 +90,14 @@ private class CoreEntityAccumulator : CoreEntityScope {
 
     fun merge(next: CoreEntityAccumulator): CoreEntityAccumulator {
         val result = CoreEntityAccumulator()
-        result.alpha = alpha * next.alpha
-        result.scale = scale * next.scale
+        result.alpha = alpha?.times(next.alpha ?: 1f) ?: next.alpha
+        result.scale = scale?.times(next.scale ?: 1f) ?: next.scale
         return result
     }
 
     fun applyChanges(coreEntity: CoreEntity) {
-        coreEntity.scale = scale
-        coreEntity.alpha = alpha
+        scale?.let { coreEntity.scale = it }
+        alpha?.let { coreEntity.alpha = it }
     }
 }
 

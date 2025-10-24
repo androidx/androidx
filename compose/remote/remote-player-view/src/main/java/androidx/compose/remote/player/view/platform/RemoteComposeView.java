@@ -41,7 +41,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
 
 import org.jspecify.annotations.NonNull;
@@ -68,7 +68,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
     Clock mClock;
 
-    RemoteComposeDocument mDocument = null;
+    RemoteDocument mDocument = null;
     int mTheme = Theme.LIGHT;
     boolean mInActionDown = false;
     int mDebug = 0;
@@ -183,13 +183,13 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     }
 
     /**
-     * Sets the {@link RemoteComposeDocument} for the view to render. This will also reset the clock
+     * Sets the {@link RemoteDocument} for the view to render. This will also reset the clock
      * and frame rate, initialize the context, and update click areas.
      *
-     * @param value The {@link RemoteComposeDocument} to set.
+     * @param value The {@link RemoteDocument} to set.
      */
     @SuppressWarnings("ReferenceEquality") // newClock != mClock
-    public void setDocument(@NonNull RemoteComposeDocument value) {
+    public void setDocument(@NonNull RemoteDocument value) {
         Clock newClock = value.getClock();
         if (newClock != mClock) {
             mClock = newClock;
@@ -338,7 +338,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @return the document
      */
-    public RemoteComposeDocument getDocument() {
+    public RemoteDocument getDocument() {
         return mDocument;
     }
 
@@ -531,7 +531,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param document document containing updates
      */
-    public void applyUpdate(RemoteComposeDocument document) {
+    public void applyUpdate(RemoteDocument document) {
         mDocument.getDocument().applyUpdate(document.getDocument());
     }
 

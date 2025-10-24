@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
  * results in `json`.
  */
 class DarwinBenchmarkPlugin : Plugin<Project> {
+    @Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
     override fun apply(project: Project) {
         val extension =
             project.extensions.create("darwinBenchmark", DarwinBenchmarkPluginExtension::class.java)

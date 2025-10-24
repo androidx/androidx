@@ -1229,7 +1229,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 26)
+    @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 26) // minSdk b/454185919
     @Test
     public void testSetNotification_setLargeIconBitmapScales() {
         // Original icon is 860x860

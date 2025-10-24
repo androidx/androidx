@@ -188,7 +188,17 @@ object Release {
                 )
                 it.projectRepositoryDir.set(project.getPerProjectRepositoryDirectory())
             }
-        if (!projectIsolationEnabled) project.addToAnchorTask(taskProvider)
+        if (!projectIsolationEnabled) {
+            project.addToAnchorTask(taskProvider)
+            project.addZipToAttestation(
+                taskProvider.map { task ->
+                    task.archiveFile
+                        .get()
+                        .asFile
+                        .toRelativeString(project.getDistributionDirectory().get().asFile)
+                }
+            )
+        }
         return taskProvider
     }
 }

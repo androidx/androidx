@@ -24,6 +24,7 @@ import android.os.Build;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
@@ -63,6 +64,7 @@ import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.collection.ArraySet;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -318,9 +320,9 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull SearchSuggestionSpec searchSuggestionSpec) {
         Preconditions.checkNotNull(suggestionQueryExpression);
         Preconditions.checkNotNull(searchSuggestionSpec);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.U_BASE) {
             ResolvableFuture<List<SearchSuggestionResult>> future = ResolvableFuture.create();
-            ApiHelperForU.searchSuggestion(
+            ApiHelperForSdkExtensionUBase.searchSuggestion(
                     mPlatformSession,
                     suggestionQueryExpression,
                     SearchSuggestionSpecToPlatformConverter
@@ -471,9 +473,10 @@ class SearchSessionImpl implements AppSearchSession {
                 && appsearchVersionCode < AppSearchVersionUtil.APPSEARCH_M2023_11_VERSION_CODE;
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    static class ApiHelperForU {
-        private ApiHelperForU() {
+    @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+            version = AppSearchVersionUtil.TExtensionVersions.U_BASE)
+    private static class ApiHelperForSdkExtensionUBase {
+        private ApiHelperForSdkExtensionUBase() {
             // This class is not instantiable.
         }
 

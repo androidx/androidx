@@ -46,7 +46,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(project(":paging:paging-common"))
-                implementation(libs.kotlinTest)
+                implementation("org.jetbrains.kotlin:kotlin-test:2.2.20")
             }
         }
     }

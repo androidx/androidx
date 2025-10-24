@@ -20,15 +20,36 @@ import androidx.webkit.Page;
 import androidx.webkit.WebNavigationClient;
 
 import org.chromium.support_lib_boundary.WebViewPageBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
 
+import java.lang.reflect.InvocationHandler;
+import java.util.Objects;
+
+/**
+ * Adapter for {@link WebViewPageBoundaryInterface} objects.
+ *
+ * <p>These objects are isomorphic, and should be obtained through
+ * {@link #forInvocationHandler(InvocationHandler)}.
+ */
 @WebNavigationClient.ExperimentalNavigationCallback
 public class PageImpl implements Page {
-    @SuppressWarnings("UnusedVariable")
+    @SuppressWarnings({"UnusedVariable", "FieldCanBeLocal"})
     private final WebViewPageBoundaryInterface mPageBoundaryInterface;
 
-    public PageImpl(@NonNull WebViewPageBoundaryInterface impl) {
-        mPageBoundaryInterface = impl;
+    /**
+     * Factory method that returns the PageImpl associated with the given invocationHandler.
+     */
+    public static @NonNull Page forInvocationHandler(@NonNull InvocationHandler invocationHandler) {
+        WebViewPageBoundaryInterface boundaryInterface =
+                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                        WebViewPageBoundaryInterface.class, invocationHandler);
+        assert boundaryInterface != null;
+        return (Page) Objects.requireNonNull(
+                boundaryInterface.getOrCreatePeer(() -> new PageImpl(boundaryInterface)));
     }
 
+    private PageImpl(@NonNull WebViewPageBoundaryInterface impl) {
+        mPageBoundaryInterface = impl;
+    }
 }

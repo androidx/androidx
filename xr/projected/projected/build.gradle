@@ -27,7 +27,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
@@ -50,7 +50,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.xr.projected"
 
     buildFeatures {

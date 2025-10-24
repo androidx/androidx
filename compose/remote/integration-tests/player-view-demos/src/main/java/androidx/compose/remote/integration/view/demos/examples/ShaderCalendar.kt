@@ -19,11 +19,11 @@ package androidx.compose.remote.integration.view.demos.examples
 import android.graphics.Color
 import android.graphics.Typeface
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Profiles
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
@@ -42,8 +42,8 @@ fun ShaderCalendar(): RemoteComposeContext {
             th.toInt(),
             "Demo",
             CoreDocument.DOCUMENT_API_LEVEL,
-            Profiles.PROFILE_ANDROIDX or Profiles.PROFILE_DEPRECATED,
-            AndroidxPlatformServices(),
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_DEPRECATED,
+            AndroidxRcPlatformServices(),
         ) {
             setRootContentBehavior(
                 RootContentBehavior.SCROLL_VERTICAL,

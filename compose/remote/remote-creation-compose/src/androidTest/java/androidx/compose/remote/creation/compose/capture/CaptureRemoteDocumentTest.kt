@@ -17,14 +17,25 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
+import android.graphics.Paint
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Operations
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -64,5 +75,54 @@ class CaptureRemoteDocumentTest {
             }
 
         assertTrue(remoteComposeDocument.docInfo.mNumberOfOps > 0)
+    }
+
+    @Test
+    fun captureDocumentWithCustomProfile() = runTest {
+        val customProfile =
+            Profile(
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROID_NATIVE,
+                AndroidxRcPlatformServices(),
+            ) { width, height, contentDescription, profile ->
+                RcPlatformProfiles.ANDROIDX.profileFactory
+                    .create(width, height, contentDescription, profile)
+                    .apply {
+                        buffer.setVersion(
+                            CoreDocument.DOCUMENT_API_LEVEL,
+                            setOf(Operations.DRAW_TEXT_ON_CIRCLE),
+                        )
+                    }
+            }
+        val document: ByteArray =
+            withContext(Dispatchers.Main) {
+                captureRemoteDocument(context, profile = customProfile) {
+                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                        val textPaint =
+                            Paint().apply {
+                                isAntiAlias = true
+                                color = Color.LightGray.toArgb()
+                                textSize = 12f
+                            }
+
+                        val canvas = drawScope.drawContext.canvas.nativeCanvas
+                        if (canvas is RecordingCanvas) {
+                            canvas.drawTextOnCircle(
+                                text = RemoteString("10:09"),
+                                centerX = size.width / 2,
+                                centerY = size.height / 2,
+                                radius = size.width / 2,
+                                startAngle = 0f,
+                                warpRadiusOffset = 0f,
+                                alignment = DrawTextOnCircle.Alignment.CENTER,
+                                placement = DrawTextOnCircle.Placement.INSIDE,
+                                paint = textPaint,
+                            )
+                        }
+                    }
+                }
+            }
+
+        assertTrue(document.isNotEmpty())
     }
 }

@@ -19,7 +19,7 @@ import androidx.build.ApkCopyHelperKt
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
@@ -121,3 +121,5 @@ dependencies {
 
 // Publish the APK to dist/apk for testing.
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
+
+androidx.deviceTests.minSdkForFtlOverride = 24 // b/437944630

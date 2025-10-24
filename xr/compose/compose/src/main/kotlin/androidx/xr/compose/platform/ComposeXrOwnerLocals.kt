@@ -39,28 +39,8 @@ import androidx.xr.scenecore.scene
 internal val LocalComposeXrOwners: CompositionLocal<ComposeXrOwnerLocals?> =
     compositionLocalWithComputedDefaultOf {
         val activity = LocalContext.currentValue.getActivity()
-        if (activity != null && LocalIsXrEnabled.currentValue) {
-            activity.window.decorView.getOrCreateXrOwnerLocals(
-                activity = activity,
-                sessionFactory = LocalSessionFactory.currentValue,
-            )
-        } else {
-            null
-        }
+        activity?.window?.decorView?.getOrCreateXrOwnerLocals(activity)
     }
-
-@VisibleForTesting
-internal val LocalIsXrEnabled = compositionLocalWithComputedDefaultOf {
-    SpatialConfiguration.hasXrSpatialFeature(LocalContext.currentValue.requireActivity())
-}
-
-@VisibleForTesting
-internal val LocalSessionFactory = compositionLocalWithComputedDefaultOf {
-    {
-        (Session.create(LocalContext.currentValue.requireActivity()) as? SessionCreateSuccess)
-            ?.session
-    }
-}
 
 /**
  * A storage container for singletons tied to the current [Activity].
@@ -101,25 +81,17 @@ internal class ComposeXrOwnerLocals(
 }
 
 @VisibleForTesting
-internal fun View.getOrCreateXrOwnerLocals(
-    activity: Activity,
-    sessionFactory: () -> Session?,
-): ComposeXrOwnerLocals? = getXrOwnerLocals() ?: createXrOwnerLocals(activity, sessionFactory)
+internal fun View.getOrCreateXrOwnerLocals(activity: Activity): ComposeXrOwnerLocals? =
+    getXrOwnerLocals() ?: createXrOwnerLocals(activity)
 
-@VisibleForTesting
-internal fun View.getXrOwnerLocals(): ComposeXrOwnerLocals? =
+private fun View.getXrOwnerLocals(): ComposeXrOwnerLocals? =
     getTag(R.id.compose_xr_owner_locals) as? ComposeXrOwnerLocals
 
-private fun View.createXrOwnerLocals(
-    activity: Activity,
-    sessionFactory: () -> Session?,
-): ComposeXrOwnerLocals? {
-    val session = sessionFactory() ?: return null
+private fun View.createXrOwnerLocals(activity: Activity): ComposeXrOwnerLocals? {
+    val session = getOrCreateSession(activity) ?: return null
 
     // When the owning lifecycle is destroyed, clear the cached  `ComposeXrOwnerLocals` from the
-    // View's tag. This is critical to prevent crashes from using a stale `Session` after Activity
-    // recreation, as `Session` lifecycle is currently tied to the lifecycle of an activity so that
-    // it forces a fresh `Session` instance to be created on next access.
+    // View's tag.
     if (activity is LifecycleOwner) {
         activity.lifecycle.addObserver(
             object : DefaultLifecycleObserver {
@@ -143,4 +115,39 @@ private fun View.createXrOwnerLocals(
             dialogManager = DefaultDialogManager(),
         )
         .also { setTag(R.id.compose_xr_owner_locals, it) }
+}
+
+private fun View.getOrCreateSession(activity: Activity): Session? {
+    return getSession() ?: createSession(activity)
+}
+
+private fun View.getSession(): Session? {
+    return getTag(R.id.compose_xr_session) as? Session
+}
+
+private fun View.createSession(activity: Activity): Session? {
+    // When the owning lifecycle is destroyed, clear the cached `Session` from the
+    // View's tag. This is critical to prevent crashes from using a stale `Session` after Activity
+    // recreation as `Session` lifecycle is currently tied to the lifecycle of an activity so that
+    // it forces a fresh `Session` instance to be created on next access.
+    if (activity is LifecycleOwner) {
+        activity.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onDestroy(owner: LifecycleOwner) {
+                    setTag(R.id.compose_xr_session, null)
+                    owner.lifecycle.removeObserver(this)
+                }
+            }
+        )
+    }
+
+    return getSessionFactory(activity).invoke()?.also { setTag(R.id.compose_xr_session, it) }
+}
+
+private fun View.getSessionFactory(activity: Activity): () -> Session? {
+    @Suppress("UNCHECKED_CAST")
+    return getTag(R.id.compose_xr_session_factory) as? () -> Session?
+        ?: {
+            (Session.create(activity) as? SessionCreateSuccess)?.session
+        }
 }

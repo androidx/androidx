@@ -17,6 +17,7 @@
 package androidx.compose.ui.layout
 
 import android.os.Build
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +30,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.draw.drawBehind
@@ -45,14 +47,17 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -677,6 +682,50 @@ class PlacedChildTest {
         rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(5f, 5f)) }
         rule.runOnIdle { assertThat(actualPositionChild).isEqualTo(Offset(5f, 5f)) }
     }
+
+    @Test
+    fun onPlaced_invocation() {
+        var additionalOffset by mutableStateOf(IntOffset.Zero)
+        var alignment by mutableStateOf(Alignment.Center)
+        val invocations = mutableListOf(0, 0, 0)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity.provides(Density(1f))) {
+                Box(Modifier.offset(200.dp, 100.dp).size(300.dp)) {
+                    Box(
+                        Modifier.align(alignment = alignment)
+                            .offset { additionalOffset }
+                            .onPlaced {
+                                assertEquals(additionalOffset, it.placementInParent())
+                                invocations[0] = invocations[0] + 1
+                            }
+                            .clickable {}
+                            .onPlaced {
+                                assertEquals(additionalOffset, it.placementInParent())
+                                invocations[1] = invocations[1] + 1
+                            }
+                            .testTag("Test")
+                            .onPlaced {
+                                assertEquals(additionalOffset, it.placementInParent())
+                                invocations[2] = invocations[2] + 1
+                            }
+                            .size(100.dp)
+                    )
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(invocations).containsExactlyElementsIn(listOf(1, 1, 1))
+            alignment = Alignment.TopStart
+        }
+        rule.runOnIdle {
+            assertThat(invocations).containsExactlyElementsIn(listOf(2, 2, 2))
+            additionalOffset = IntOffset(0, 10)
+        }
+        rule.runOnIdle { assertThat(invocations).containsExactlyElementsIn(listOf(3, 3, 3)) }
+    }
+
+    private fun LayoutCoordinates.placementInParent() =
+        parentCoordinates!!.localPositionOf(this, Offset.Zero).round()
 }
 
 private val UseChildSizeButNotPlace =

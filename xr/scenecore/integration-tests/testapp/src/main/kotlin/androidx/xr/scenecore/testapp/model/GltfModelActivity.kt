@@ -112,8 +112,7 @@ class GltfModelActivity : AppCompatActivity() {
         // Create Khronos PBR Material
         findViewById<Button>(R.id.gltf_model_button2_1).setOnClickListener {
             lifecycleScope.launch {
-                khronosPbrMaterial =
-                    KhronosPbrMaterial.create(session!!, AlphaMode.ALPHA_MODE_BLEND)
+                khronosPbrMaterial = KhronosPbrMaterial.create(session!!, AlphaMode.BLEND)
             }
         }
         // Dispose Khronos PBR Material

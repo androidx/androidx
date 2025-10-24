@@ -4429,7 +4429,7 @@ class SupportedSurfaceCombinationTest {
                 },
             )
         val surfaceConfigList =
-            GuaranteedConfigurationsUtil.QUERYABLE_FCQ_COMBINATIONS.first().surfaceConfigList
+            GuaranteedConfigurationsUtil.QUERYABLE_VIC_FCQ_COMBINATIONS.first().surfaceConfigList
 
         // Act: Check for a FCQ SurfaceConfig combination
         supportedSurfaceCombination.checkSupported(
@@ -4454,7 +4454,7 @@ class SupportedSurfaceCombinationTest {
                 fakeFeatureCombinationQuery.apply { isSupported = false },
             )
         val surfaceConfigList =
-            GuaranteedConfigurationsUtil.QUERYABLE_FCQ_COMBINATIONS.first().surfaceConfigList
+            GuaranteedConfigurationsUtil.QUERYABLE_VIC_FCQ_COMBINATIONS.first().surfaceConfigList
 
         // Act & assert
         assertThat(
@@ -4481,7 +4481,7 @@ class SupportedSurfaceCombinationTest {
                 fakeFeatureCombinationQuery.apply { isSupported = true },
             )
         val surfaceConfigList =
-            GuaranteedConfigurationsUtil.QUERYABLE_FCQ_COMBINATIONS.first().surfaceConfigList
+            GuaranteedConfigurationsUtil.QUERYABLE_VIC_FCQ_COMBINATIONS.first().surfaceConfigList
 
         // Act & assert
         assertThat(
@@ -4533,6 +4533,120 @@ class SupportedSurfaceCombinationTest {
         // Assert: Waits a small time for latch update in isSupported call just in case any code
         // flow happens asynchronously in future
         assertThat(latch.await(100, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
+    fun checkSupported_returnsFalseForVicFcqStreamCombo_whenSessionConfigQueryVersionIsUdc() {
+        // Arrange: Setup resources with a FeatureCombinationQuery impl. always returning true
+        setupCamera(sessionConfigQueryVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                context,
+                fakeCameraMetadata,
+                mockEncoderProfilesAdapter,
+                fakeFeatureCombinationQuery.apply { isSupported = true },
+            )
+        val surfaceConfigList =
+            GuaranteedConfigurationsUtil.QUERYABLE_VIC_FCQ_COMBINATIONS.first().surfaceConfigList
+
+        // Act & assert
+        assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    createFeatureSettings(requiresFeatureComboQuery = true),
+                    surfaceConfigList,
+                    surfaceConfigList.associateWith { DynamicRange.UNSPECIFIED },
+                    surfaceConfigList.toUseCaseConfigs(),
+                    (0 until surfaceConfigList.size).toList(),
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun checkSupported_returnsFalseForBaklavaFcqStreamCombo_whenSessionConfigQueryVersionIsVic() {
+        // Arrange: Setup resources with a FeatureCombinationQuery impl. always returning true
+        setupCamera(sessionConfigQueryVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                context,
+                fakeCameraMetadata,
+                mockEncoderProfilesAdapter,
+                fakeFeatureCombinationQuery.apply { isSupported = true },
+            )
+        val surfaceConfigList =
+            GuaranteedConfigurationsUtil.QUERYABLE_BAKLAVA_FCQ_COMBINATIONS.first()
+                .surfaceConfigList
+
+        // Act & assert: Baklava configs should not be supported
+        assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    createFeatureSettings(requiresFeatureComboQuery = true),
+                    surfaceConfigList,
+                    surfaceConfigList.associateWith { DynamicRange.UNSPECIFIED },
+                    surfaceConfigList.toUseCaseConfigs(),
+                    (0 until surfaceConfigList.size).toList(),
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun checkSupported_returnsTrueForBaklavaFcqStreamCombo_whenQueryVersionIsBaklava() {
+        // Arrange: Setup resources with a FeatureCombinationQuery impl. always returning true
+        setupCamera(sessionConfigQueryVersion = Build.VERSION_CODES.BAKLAVA)
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                context,
+                fakeCameraMetadata,
+                mockEncoderProfilesAdapter,
+                fakeFeatureCombinationQuery.apply { isSupported = true },
+            )
+        val surfaceConfigList =
+            GuaranteedConfigurationsUtil.QUERYABLE_BAKLAVA_FCQ_COMBINATIONS.first()
+                .surfaceConfigList
+
+        // Act & assert
+        assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    createFeatureSettings(requiresFeatureComboQuery = true),
+                    surfaceConfigList,
+                    surfaceConfigList.associateWith { DynamicRange.UNSPECIFIED },
+                    surfaceConfigList.toUseCaseConfigs(),
+                    (0 until surfaceConfigList.size).toList(),
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun checkSupported_returnsFalseForBaklavaFcqStreamCombo_whenPreviewStabilizationIsOn() {
+        // Arrange: Setup resources with a FeatureCombinationQuery impl. always returning true
+        setupCamera(sessionConfigQueryVersion = Build.VERSION_CODES.BAKLAVA)
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                context,
+                fakeCameraMetadata,
+                mockEncoderProfilesAdapter,
+                fakeFeatureCombinationQuery.apply { isSupported = true },
+            )
+        val surfaceConfigList =
+            GuaranteedConfigurationsUtil.QUERYABLE_BAKLAVA_FCQ_COMBINATIONS.first()
+                .surfaceConfigList
+
+        // Act & assert
+        assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    createFeatureSettings(
+                        requiresFeatureComboQuery = true,
+                        isPreviewStabilizationOn = true,
+                    ),
+                    surfaceConfigList,
+                    surfaceConfigList.associateWith { DynamicRange.UNSPECIFIED },
+                    surfaceConfigList.toUseCaseConfigs(),
+                    (0 until surfaceConfigList.size).toList(),
+                )
+            )
+            .isFalse()
     }
 
     @Test
@@ -4699,6 +4813,7 @@ class SupportedSurfaceCombinationTest {
         requiresFeatureComboQuery: Boolean = false,
         targetFpsRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
         isStrictFpsRequired: Boolean = false,
+        isPreviewStabilizationOn: Boolean = false,
     ) =
         SupportedSurfaceCombination.FeatureSettings(
             CameraMode.DEFAULT,
@@ -4707,6 +4822,7 @@ class SupportedSurfaceCombinationTest {
             requiresFeatureComboQuery = requiresFeatureComboQuery,
             targetFpsRange = targetFpsRange,
             isStrictFpsRequired = isStrictFpsRequired,
+            isPreviewStabilizationOn = isPreviewStabilizationOn,
         )
 
     private fun setupCamera(
@@ -4725,6 +4841,8 @@ class SupportedSurfaceCombinationTest {
         cameraId: CameraId = CameraId.fromCamera1Id(0),
         maxFpsBySizeMap: Map<Size, Int> = emptyMap(),
         deviceFPSRanges: Array<Range<Int>> = defaultFpsRanges,
+        // VIC used as default as it's the first version supporting FCQ combinations
+        sessionConfigQueryVersion: Int = Build.VERSION_CODES.VANILLA_ICE_CREAM,
     ) {
         cameraFactory = FakeCameraFactory()
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
@@ -4818,6 +4936,11 @@ class SupportedSurfaceCombinationTest {
                 )
             }
         characteristicsMap[CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES] = vs
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            characteristicsMap[CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION] =
+                sessionConfigQueryVersion
+        }
 
         // set up FakeCafakeCameraMetadatameraMetadata
         fakeCameraMetadata =

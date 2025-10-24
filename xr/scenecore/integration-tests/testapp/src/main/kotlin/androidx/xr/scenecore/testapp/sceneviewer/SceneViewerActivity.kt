@@ -59,7 +59,7 @@ class SceneViewerActivity : AppCompatActivity() {
                 val intentUri =
                     Uri.parse("https://arvr.google.com/scene-viewer/1.2")
                         .buildUpon()
-                        .appendQueryParameter("file", ALT_THREE_D_MODEL_URL)
+                        .appendQueryParameter("file", THREE_D_MODEL_URL)
                         .build()
 
                 Log.i("SCENE_VIEWER_INTENT", intentUri.toString())
@@ -81,12 +81,9 @@ class SceneViewerActivity : AppCompatActivity() {
     }
 
     private companion object {
-        const val ALT_THREE_D_MODEL_URL =
-            "https://assets.science.nasa.gov/content/dam/science/psd/mars/resources" +
-                "/gltf_files/25042_Perseverance.glb?emrc=67ddb74ba1d27"
         const val THREE_D_MODEL_URL =
             "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master" +
-                "/2.0/FlightHelmet/glTF/FlightHelmet.gltf"
+                "/2.0/BarramundiFish/glTF-Binary/BarramundiFish.glb"
         const val SCENE_VIEWER_XR_PACKAGE = "com.google.vr.sceneviewerxr"
         const val SCENE_VIEWER_XR_ACTIVITY = "com.google.vr.sceneviewerxr.SceneViewerXrActivity"
     }

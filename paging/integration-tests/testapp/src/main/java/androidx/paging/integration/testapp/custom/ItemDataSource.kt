@@ -26,6 +26,7 @@ import kotlinx.coroutines.delay
 val dataSourceError = AtomicBoolean(false)
 
 /** Sample position-based PagingSource with artificial data. */
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal class ItemDataSource : PagingSource<Int, Item>() {
     class RetryableItemError : Exception()
 

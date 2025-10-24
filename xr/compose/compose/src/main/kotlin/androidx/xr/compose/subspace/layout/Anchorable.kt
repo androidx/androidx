@@ -249,8 +249,10 @@ internal class AnchorableNode(
             component = MovableComponent.createAnchorable(session, anchorPlacement)
             component?.addMoveListener(this)
         }
-        check(component?.let { coreEntity.addComponent(it) } == true) {
-            "Could not add MovableComponent to Core Entity."
+        coreEntity.onEntityAttached {
+            check(component?.let { coreEntity.addComponent(it) } == true) {
+                "Could not add MovableComponent to Core Entity."
+            }
         }
     }
 

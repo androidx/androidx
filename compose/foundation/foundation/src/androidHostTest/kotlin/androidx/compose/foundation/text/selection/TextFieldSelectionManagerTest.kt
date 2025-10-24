@@ -193,7 +193,7 @@ class TextFieldSelectionManagerTest {
     fun TextFieldSelectionManager_touchSelectionObserver_onLongPress() {
         whenever(layoutResultProxy.isPositionOnText(dragBeginPosition)).thenReturn(true)
 
-        manager.touchSelectionObserver.onStart(dragBeginPosition)
+        manager.touchSelectionObserver.onStart(dragBeginPosition, SelectionAdjustment.Word)
 
         assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(state.showFloatingToolbar).isFalse()
@@ -211,7 +211,7 @@ class TextFieldSelectionManagerTest {
         whenever(layoutResultProxy.getOffsetForPosition(dragBeginPosition)).thenReturn(fakeLineEnd)
 
         // Act
-        manager.touchSelectionObserver.onStart(dragBeginPosition)
+        manager.touchSelectionObserver.onStart(dragBeginPosition, SelectionAdjustment.Word)
 
         // Assert
         assertThat(state.handleState).isEqualTo(HandleState.None)
@@ -226,7 +226,7 @@ class TextFieldSelectionManagerTest {
     fun TextFieldSelectionManager_touchSelectionObserver_onDrag() {
         whenever(layoutResultProxy.isPositionOnText(dragBeginPosition)).thenReturn(true)
 
-        manager.touchSelectionObserver.onStart(dragBeginPosition)
+        manager.touchSelectionObserver.onStart(dragBeginPosition, SelectionAdjustment.Word)
         manager.touchSelectionObserver.onDrag(dragDistance)
 
         assertThat(state.handleState).isEqualTo(HandleState.None)
@@ -239,7 +239,7 @@ class TextFieldSelectionManagerTest {
     fun TextFieldSelectionManager_touchSelectionObserver_onStop() {
         whenever(layoutResultProxy.isPositionOnText(dragBeginPosition)).thenReturn(true)
 
-        manager.touchSelectionObserver.onStart(dragBeginPosition)
+        manager.touchSelectionObserver.onStart(dragBeginPosition, SelectionAdjustment.Word)
         manager.touchSelectionObserver.onDrag(dragDistance)
         manager.value = value
         manager.touchSelectionObserver.onStop()
@@ -294,7 +294,7 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun TextFieldSelectionManager_handleDragObserver_onStop() {
-        manager.handleDragObserver(false).onStart(Offset.Zero)
+        manager.handleDragObserver(false).onStart(Offset.Zero, SelectionAdjustment.Word)
         manager.handleDragObserver(false).onDrag(Offset.Zero)
 
         verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -308,7 +308,7 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun TextFieldSelectionManager_cursorDragObserver_onStart() {
-        manager.cursorDragObserver().onStart(Offset.Zero)
+        manager.cursorDragObserver().onStart(Offset.Zero, SelectionAdjustment.Word)
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
@@ -352,7 +352,7 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun TextFieldSelectionManager_cursorDragObserver_onStop() {
-        manager.handleDragObserver(false).onStart(Offset.Zero)
+        manager.handleDragObserver(false).onStart(Offset.Zero, SelectionAdjustment.Word)
         manager.handleDragObserver(false).onDrag(Offset.Zero)
 
         verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -817,7 +817,7 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun isTextChanged_text_changed_return_true() {
-        manager.touchSelectionObserver.onStart(dragBeginPosition)
+        manager.touchSelectionObserver.onStart(dragBeginPosition, SelectionAdjustment.Word)
         manager.value = TextFieldValue(text + text)
 
         assertThat(manager.isTextChanged()).isTrue()
@@ -825,7 +825,7 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun isTextChanged_text_unchange_return_false() {
-        manager.touchSelectionObserver.onStart(dragBeginPosition)
+        manager.touchSelectionObserver.onStart(dragBeginPosition, SelectionAdjustment.Word)
 
         assertThat(manager.isTextChanged()).isFalse()
     }

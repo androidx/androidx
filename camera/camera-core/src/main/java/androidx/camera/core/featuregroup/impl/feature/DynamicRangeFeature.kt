@@ -17,7 +17,6 @@
 package androidx.camera.core.featuregroup.impl.feature
 
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -32,7 +31,6 @@ import androidx.camera.core.impl.CameraInfoInternal
  * This feature can not be instantiated directly, instead use the [GroupableFeature.HDR_HLG10]
  * object.
  */
-@OptIn(ExperimentalSessionConfig::class)
 internal class DynamicRangeFeature(val dynamicRange: DynamicRange) : GroupableFeature() {
     override val featureTypeInternal: FeatureTypeInternal = FeatureTypeInternal.DYNAMIC_RANGE
 

@@ -27,12 +27,18 @@ class WearWidgetRequestTest {
     @Test
     fun fromParcel_matchesOriginalRequest() {
         val originalRequest =
-            WearWidgetRequest(instanceId = 123, widthDp = 200.5f, heightDp = 300.25f)
+            WearWidgetRequest(
+                instanceId = 123,
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 200.5f,
+                heightDp = 300.25f,
+            )
 
         val parcel = originalRequest.toParcel()
         val restoredRequest = WearWidgetRequest.fromParcel(parcel)
 
         assertThat(restoredRequest.instanceId).isEqualTo(originalRequest.instanceId)
+        assertThat(restoredRequest.containerType).isEqualTo(originalRequest.containerType)
         assertThat(restoredRequest.widthDp).isEqualTo(originalRequest.widthDp)
         assertThat(restoredRequest.heightDp).isEqualTo(originalRequest.heightDp)
     }

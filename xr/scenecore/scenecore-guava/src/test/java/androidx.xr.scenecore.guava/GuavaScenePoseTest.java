@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.guava;
 
-import static androidx.xr.scenecore.SessionExt.getScene;
 import static androidx.xr.scenecore.guava.GuavaScenePose.hitTestAsync;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -26,14 +25,16 @@ import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.StandardTestDis
 import androidx.activity.ComponentActivity;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.xr.runtime.Config;
 import androidx.xr.runtime.Session;
 import androidx.xr.runtime.SessionCreateSuccess;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.CameraView;
-import androidx.xr.scenecore.Head;
 import androidx.xr.scenecore.HitTestResult;
-import androidx.xr.scenecore.PerceptionSpace;
+import androidx.xr.scenecore.Scene;
 import androidx.xr.scenecore.ScenePose.HitTestFilter;
+import androidx.xr.scenecore.SessionExt;
+import androidx.xr.scenecore.testing.FakeActivitySpace;
+import androidx.xr.scenecore.testing.FakeSceneRuntime;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -46,13 +47,15 @@ import org.junit.runner.RunWith;
 public class GuavaScenePoseTest {
     private Session mSession;
     private TestDispatcher mTestDispatcher;
-    private Head mHead;
-    private CameraView mCamera;
-    private PerceptionSpace mPerceptionSpace;
+
+    private FakeActivitySpace mFakeRtActivitySpace;
+
+    private Scene mScene;
 
     private void createTestSessionAndRunTest(TestBodyRunnable testBody) {
+
         try (ActivityScenario<ComponentActivity> scenario =
-                ActivityScenario.launch(ComponentActivity.class)) {
+                     ActivityScenario.launch(ComponentActivity.class)) {
             scenario.onActivity(
                     activity -> {
                         mTestDispatcher =
@@ -60,13 +63,14 @@ public class GuavaScenePoseTest {
                         mSession =
                                 ((SessionCreateSuccess) Session.create(activity, mTestDispatcher))
                                         .getSession();
-                        mHead = getScene(mSession).getSpatialUser().getHead();
-                        mCamera =
-                                getScene(mSession)
-                                        .getSpatialUser()
-                                        .getCameraViews()
-                                        .get(CameraView.CameraType.LEFT_EYE);
-                        mPerceptionSpace = getScene(mSession).getPerceptionSpace();
+                        mSession.configure(new Config());
+                        FakeSceneRuntime fakeSceneRt =
+                                (FakeSceneRuntime) mSession.getRuntimes().stream()
+                                        .filter(rt -> rt instanceof FakeSceneRuntime)
+                                        .findAny()
+                                        .get();
+                        mFakeRtActivitySpace = fakeSceneRt.getActivitySpace();
+                        mScene = SessionExt.getScene(mSession);
 
                         try {
                             testBody.run();
@@ -87,146 +91,63 @@ public class GuavaScenePoseTest {
     }
 
     @Test
-    public void hitTestAsync_head_returnsExpectedHitTestResult() {
+    public void hitTestAsync_returnsExpectedHitTestResult() {
         createTestSessionAndRunTest(
                 () -> {
                     Vector3 origin = new Vector3(1f, 2f, 3f);
                     Vector3 direction = new Vector3(4f, 5f, 6f);
-                    int hitTestFilter = HitTestFilter.SELF_SCENE;
-                    // TODO: b/424171690 - update once FakeActivityPose is more robust
+                    Vector3 hitPosition = new Vector3(7f, 8f, 9f);
+                    float distance = 7f;
+                    Vector3 surfaceNormal = new Vector3(10f, 11f, 12f);
+                    @androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceTypeValue int
+                            surfaceType =
+                            androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType
+                                    .HIT_TEST_RESULT_SURFACE_TYPE_PLANE;
+
+                    androidx.xr.scenecore.runtime.HitTestResult rtHitTestResult =
+                            new androidx.xr.scenecore.runtime.HitTestResult(hitPosition,
+                                    surfaceNormal, surfaceType, distance);
+                    mFakeRtActivitySpace.setHitTestResult(rtHitTestResult);
                     HitTestResult expectedHitTestResult =
-                            new HitTestResult(
-                                    /* hitPosition= */ null,
-                                    /* surfaceNormal= */ null,
-                                    /* surfaceType= */ 0,
-                                    /* distance= */ 0f);
+                            new HitTestResult(hitPosition, surfaceNormal, surfaceType, distance);
+
+                    ListenableFuture<HitTestResult> hitTestResultFuture =
+                            GuavaScenePose.hitTestAsync(mScene.getActivitySpace(), mSession, origin,
+                                    direction,
+                                    HitTestFilter.SELF_SCENE);
+
+                    mTestDispatcher.getScheduler().advanceUntilIdle();
+                    HitTestResult hitTestResult = hitTestResultFuture.get();
+                    assertThat(hitTestResult).isNotNull();
+                    assertHitTestResult(hitTestResult, expectedHitTestResult);
+                });
+    }
+
+    @Test
+    public void hitTestAsync_returnsNullHitTestResult() {
+        createTestSessionAndRunTest(
+                () -> {
+                    Vector3 origin = new Vector3(1f, 2f, 3f);
+                    Vector3 direction = new Vector3(4f, 5f, 6f);
+                    float distance = 7f;
+                    Vector3 surfaceNormal = new Vector3(10f, 11f, 12f);
+                    @androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceTypeValue int
+                            surfaceType =
+                            androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType
+                                    .HIT_TEST_RESULT_SURFACE_TYPE_PLANE;
+
+                    androidx.xr.scenecore.runtime.HitTestResult rtHitTestResult =
+                            new androidx.xr.scenecore.runtime.HitTestResult(null, surfaceNormal,
+                                    surfaceType, distance);
+                    mFakeRtActivitySpace.setHitTestResult(rtHitTestResult);
 
                     ListenableFuture<HitTestResult> headHitTestResultFuture =
-                            hitTestAsync(mHead, mSession, origin, direction, hitTestFilter);
+                            hitTestAsync(mScene.getActivitySpace(), mSession, origin, direction,
+                                    HitTestFilter.SELF_SCENE);
 
                     mTestDispatcher.getScheduler().advanceUntilIdle();
                     HitTestResult headHitTestResult = headHitTestResultFuture.get();
-                    assertHitTestResult(headHitTestResult, expectedHitTestResult);
-                });
-    }
-
-    @Test
-    public void hitTestAsync_camera_returnsExpectedHitTestResult() {
-        createTestSessionAndRunTest(
-                () -> {
-                    Vector3 origin = new Vector3(1f, 2f, 3f);
-                    Vector3 direction = new Vector3(4f, 5f, 6f);
-                    int hitTestFilter = HitTestFilter.SELF_SCENE;
-                    // TODO: b/424171690 - update once FakeActivityPose is more robust
-                    HitTestResult expectedHitTestResult =
-                            new HitTestResult(
-                                    /* hitPosition= */ null,
-                                    /* surfaceNormal= */ null,
-                                    /* surfaceType= */ 0,
-                                    /* distance= */ 0f);
-
-                    ListenableFuture<HitTestResult> cameraHitTestResultFuture =
-                            hitTestAsync(mCamera, mSession, origin, direction, hitTestFilter);
-
-                    mTestDispatcher.getScheduler().advanceUntilIdle();
-                    HitTestResult cameraHitTestResult = cameraHitTestResultFuture.get();
-                    assertHitTestResult(cameraHitTestResult, expectedHitTestResult);
-                });
-    }
-
-    @Test
-    public void hitTestAsync_perceptionSpace_returnsExpectedHitTestResult() {
-        createTestSessionAndRunTest(
-                () -> {
-                    Vector3 origin = new Vector3(1f, 2f, 3f);
-                    Vector3 direction = new Vector3(4f, 5f, 6f);
-                    int hitTestFilter = HitTestFilter.SELF_SCENE;
-                    // TODO: b/424171690 - update once FakeActivityPose is more robust
-                    HitTestResult expectedHitTestResult =
-                            new HitTestResult(
-                                    /* hitPosition= */ null,
-                                    /* surfaceNormal= */ null,
-                                    /* surfaceType= */ 0,
-                                    /* distance= */ 0f);
-
-                    ListenableFuture<HitTestResult> perceptionSpaceHitTestResultFuture =
-                            hitTestAsync(
-                                    mPerceptionSpace, mSession, origin, direction, hitTestFilter);
-
-                    mTestDispatcher.getScheduler().advanceUntilIdle();
-                    HitTestResult perceptionSpaceHitTestResult =
-                            perceptionSpaceHitTestResultFuture.get();
-                    assertHitTestResult(perceptionSpaceHitTestResult, expectedHitTestResult);
-                });
-    }
-
-    @Test
-    public void hitTestAsync_head_withDefaultHitTestFilter_returnsExpectedHitTestResult() {
-        createTestSessionAndRunTest(
-                () -> {
-                    Vector3 origin = new Vector3(1f, 2f, 3f);
-                    Vector3 direction = new Vector3(4f, 5f, 6f);
-                    // TODO: b/424171690 - update once FakeActivityPose is more robust
-                    HitTestResult expectedHitTestResult =
-                            new HitTestResult(
-                                    /* hitPosition= */ null,
-                                    /* surfaceNormal= */ null,
-                                    /* surfaceType= */ 0,
-                                    /* distance= */ 0f);
-
-                    ListenableFuture<HitTestResult> headHitTestResultFuture =
-                            hitTestAsync(mHead, mSession, origin, direction);
-
-                    mTestDispatcher.getScheduler().advanceUntilIdle();
-                    HitTestResult headHitTestResult = headHitTestResultFuture.get();
-                    assertHitTestResult(headHitTestResult, expectedHitTestResult);
-                });
-    }
-
-    @Test
-    public void hitTestAsync_camera_withDefaultHitTestFilter_returnsExpectedHitTestResult() {
-        createTestSessionAndRunTest(
-                () -> {
-                    Vector3 origin = new Vector3(1f, 2f, 3f);
-                    Vector3 direction = new Vector3(4f, 5f, 6f);
-                    // TODO: b/424171690 - update once FakeActivityPose is more robust
-                    HitTestResult expectedHitTestResult =
-                            new HitTestResult(
-                                    /* hitPosition= */ null,
-                                    /* surfaceNormal= */ null,
-                                    /* surfaceType= */ 0,
-                                    /* distance= */ 0f);
-
-                    ListenableFuture<HitTestResult> cameraHitTestResultFuture =
-                            hitTestAsync(mCamera, mSession, origin, direction);
-
-                    mTestDispatcher.getScheduler().advanceUntilIdle();
-                    HitTestResult cameraHitTestResult = cameraHitTestResultFuture.get();
-                    assertHitTestResult(cameraHitTestResult, expectedHitTestResult);
-                });
-    }
-
-    @Test
-    public void hitTestAsync_perceptionSpace_withDefaultHitTestFilter_returnsExpectedHTR() {
-        createTestSessionAndRunTest(
-                () -> {
-                    Vector3 origin = new Vector3(1f, 2f, 3f);
-                    Vector3 direction = new Vector3(4f, 5f, 6f);
-                    // TODO: b/424171690 - update once FakeActivityPose is more robust
-                    HitTestResult expectedHitTestResult =
-                            new HitTestResult(
-                                    /* hitPosition= */ null,
-                                    /* surfaceNormal= */ null,
-                                    /* surfaceType= */ 0,
-                                    /* distance= */ 0f);
-
-                    ListenableFuture<HitTestResult> perceptionSpaceHitTestResultFuture =
-                            hitTestAsync(mPerceptionSpace, mSession, origin, direction);
-
-                    mTestDispatcher.getScheduler().advanceUntilIdle();
-                    HitTestResult perceptionSpaceHitTestResult =
-                            perceptionSpaceHitTestResultFuture.get();
-                    assertHitTestResult(perceptionSpaceHitTestResult, expectedHitTestResult);
+                    assertThat(headHitTestResult).isNull();
                 });
     }
 

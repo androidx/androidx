@@ -48,9 +48,11 @@
     <string name="cuj_field_of_view_visibility_test">Field Of View Visibility Test Case</string>
     <string name="cuj_hit_test">Digital Hit Test Case</string>
     <string name="cuj_accessibility_test">Accessibility Test Case</string>
+    <string name="cuj_surface_entity_imagetest">Surface Entity Image Display Test Case</string>
     <string name="cuj_surface_entity_interaction_test">Surface Entity Interaction Test Case</string>
     <string name="cuj_surface_entity_playbacktest">Surface Entity Playback Test Case</string>
     <string name="dev_memory_leak_test">Memory Leak (Dev) Test Case</string>
+    <string name="cuj_gravity_aligned_pose_test">Gravity Aligned Pose Test</string>
 
     <string name="recreate_activity" description="button text to recreate current activity [CHAR LIMIT=40]">Recreate Activity</string>
     <string name="panel_text" description="Arbitrary test string which appears in a TestPanel. [CHAR_LIMIT=30]">Dragons!!</string>
@@ -138,5 +140,17 @@
     <!-- spatialaudiotest -->
     <string name="spatial_panel_label" description="Label for the spatial audio panel. [CHAR_LIMIT=50]">Spatial Audio Panel</string>
     <string name="sound_panel_help_text">Drag around this panel to experience the spatial audio</string>
+
+    <!-- gravityaligned -->
+    <string name="gravity_aligned_parent_panel">Parent Panel</string>
+    <string name="gravity_aligned_child_panel">Child Panel</string>
+    <string name="default_pose_button">Default Pose (Parent)</string>
+    <string name="default_pose_button_activity">Default Pose (Activity)</string>
+    <string name="default_pose_button_world">Default Pose (World)</string>
+    <string name="gravity_aligned_pose_button">Gravity Aligned Pose (Parent)</string>
+    <string name="gravity_aligned_pose_button_activity">Gravity Aligned Pose (Activity)</string>
+    <string name="gravity_aligned_pose_button_world">Gravity Aligned Pose (World)</string>
+    <string name="create_surface_entity">Create Surface Entity</string>
+    <string name="destroy_surface_entity">Destroy Surface Entity</string>
 
 </resources>

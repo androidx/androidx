@@ -42,17 +42,24 @@ public class ClickActionModifier(public val actions: List<Action>) : RemoteModif
 }
 
 // TODO provide an onClickLabel
-public fun RemoteModifier.onClick(
+public fun RemoteModifier.clickable(
     vararg actions: Action,
+    enabled: Boolean = true,
     role: Role? = Role.Button,
-): RemoteModifier =
-    then(ClickActionModifier(actions.toList()))
-        .then(if (role != null) RemoteModifier.semantics { this.role = role } else RemoteModifier)
+): RemoteModifier = clickable(actions.toList(), enabled, role)
 
 // TODO provide an onClickLabel
-public fun RemoteModifier.onClick(
+public fun RemoteModifier.clickable(
     actions: List<Action>,
+    enabled: Boolean = true,
     role: Role? = Role.Button,
 ): RemoteModifier =
-    then(ClickActionModifier(actions))
-        .then(if (role != null) RemoteModifier.semantics { this.role = role } else RemoteModifier)
+    then(if (enabled) ClickActionModifier(actions) else RemoteModifier)
+        .then(
+            if (role != null)
+                RemoteModifier.semantics {
+                    this.role = role
+                    this.enabled = enabled
+                }
+            else RemoteModifier
+        )

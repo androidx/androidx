@@ -21,7 +21,7 @@ public expect class AtomicInteger(initial: Int) {
 
     public fun set(newValue: Int)
 
-    public fun compareAndSet(expected: Int, actual: Int): Boolean
+    public fun compareAndSet(expected: Int, newValue: Int): Boolean
 
     public fun get(): Int
 }

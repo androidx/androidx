@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -68,9 +67,6 @@ class UseCaseCameraStateTest {
 
     private val surface = FakeSurface()
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId> = mapOf(surface to StreamId(0))
-    private val useCaseThreads by lazy {
-        UseCaseThreads(testScope, testDispatcher.asExecutor(), testDispatcher)
-    }
 
     private val fakeCameraGraphSession = FakeCameraGraphSession()
     private val fakeCameraGraph = FakeCameraGraph(fakeCameraGraphSession)
@@ -80,7 +76,6 @@ class UseCaseCameraStateTest {
     private val useCaseCameraState =
         UseCaseCameraState(
             useCaseGraphConfig = fakeUseCaseGraphConfig,
-            threads = useCaseThreads,
             templateParamsOverride = NoOpTemplateParamsOverride,
         )
 
@@ -195,7 +190,6 @@ class UseCaseCameraStateTest {
         val useCaseCameraState =
             UseCaseCameraState(
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
-                threads = useCaseThreads,
                 templateParamsOverride =
                     TemplateParamsQuirkOverride(
                         Quirks(listOf(object : CaptureIntentPreviewQuirk {}))

@@ -40,7 +40,7 @@ import androidx.compose.remote.core.operations.TextFromFloat;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.creation.Painter;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -80,7 +80,7 @@ public class FloatTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, run);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -110,7 +110,7 @@ public class FloatTest {
                     rdoc.drawPath(v);
                 };
         TestUtils.Callback use = cb == null ? basic : cb;
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, use);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, use);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         String result = debugContext.getTestResults();
@@ -209,7 +209,7 @@ public class FloatTest {
                     rdoc.drawOval(0, fid, tw, th);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         doc.initializeContext(debugContext);
         String result = doc.toString();
         String expected =
@@ -265,7 +265,7 @@ public class FloatTest {
                     rdoc.drawOval(0, fid, tw, th);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         doc.initializeContext(debugContext);
         String result = doc.toString();
         String expected =
@@ -322,7 +322,7 @@ public class FloatTest {
                     rdoc.drawOval(0, fid, halfWidth, th);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         doc.initializeContext(debugContext);
         String result = doc.toString();
         String expected =
@@ -397,7 +397,7 @@ public class FloatTest {
                     rdoc.drawPath(pid);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         String expected =
@@ -482,7 +482,7 @@ public class FloatTest {
                     rdoc.drawPath(pid);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         String expected =
@@ -593,7 +593,7 @@ public class FloatTest {
                     rdoc.drawPath(pid);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         String expected =
@@ -711,7 +711,7 @@ public class FloatTest {
                     rdoc.drawPath(pid);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         String expected =
@@ -791,7 +791,7 @@ public class FloatTest {
                     rdoc.drawTextAnchored(strId, tw / 2f, th / 2.f, 0f, 0f, 0);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         String expected =
@@ -862,7 +862,7 @@ public class FloatTest {
                     // rdoc.drawTextRun(nstr,0,nstr.length(),0,1,10f,th/2.f,false);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         doc.initializeContext(debugContext);
         String result = doc.toString();
         String expected =
@@ -977,7 +977,7 @@ public class FloatTest {
                     rdoc.drawTextRun(id, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         String expected =
@@ -1068,7 +1068,7 @@ public class FloatTest {
                     rdoc.drawTextAnchored(ans, tw / 2f, th / 2.f, 0f, 0f, 0);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         String expected =
@@ -1182,7 +1182,7 @@ public class FloatTest {
                     float end = rdoc.addFloatConstant(0.99f);
                     rdoc.drawTweenPath(id1, id2, 0.5f, start, end);
                 };
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         String result = doc.toString();
         Log.v("TEST", result);

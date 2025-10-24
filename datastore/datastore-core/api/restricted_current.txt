@@ -14,6 +14,10 @@ package androidx.datastore.core {
     ctor @BytecodeOnly public CorruptionException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
+  public interface CorruptionHandler<T> {
+    method public suspend Object? handleCorruption(androidx.datastore.core.CorruptionException ex, kotlin.coroutines.Continuation<? super T>);
+  }
+
   public interface DataMigration<T> {
     method public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? migrate(T currentData, kotlin.coroutines.Continuation<? super T>);
@@ -123,7 +127,7 @@ package androidx.datastore.core {
 
 package androidx.datastore.core.handlers {
 
-  public final class ReplaceFileCorruptionHandler<T> {
+  public final class ReplaceFileCorruptionHandler<T> implements androidx.datastore.core.CorruptionHandler<T> {
     ctor public ReplaceFileCorruptionHandler(kotlin.jvm.functions.Function1<? super androidx.datastore.core.CorruptionException,? extends T> produceNewData);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? handleCorruption(androidx.datastore.core.CorruptionException ex, kotlin.coroutines.Continuation<? super T>) throws java.io.IOException;
   }

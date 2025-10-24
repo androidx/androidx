@@ -35,6 +35,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal class GridLayoutManagerSnappingTest(
     val mConfig: Config,
     private val mReverseScroll: Boolean,

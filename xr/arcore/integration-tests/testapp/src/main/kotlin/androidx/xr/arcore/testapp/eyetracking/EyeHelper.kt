@@ -18,30 +18,17 @@ package androidx.xr.arcore.testapp.eyetracking
 
 import android.graphics.Color
 import androidx.xr.arcore.Eye
-import androidx.xr.arcore.runtime.EyeStatus
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
-fun getEyeGazePose(config: Config, eye: Eye?): Pose? = getEyeGazePose(config, eye?.state?.value)
+fun getEyeIsOpen(config: Config, eye: Eye?): Boolean? = getEyeIsOpen(config, eye?.state?.value)
 
-fun getEyeGazePose(config: Config, eye: Eye.State?): Pose? {
-    if (eye == null) return null
+fun getEyeIsOpen(config: Config, eye: Eye.State?): Boolean? = eye?.isOpen
 
-    return when (config.eyeTracking) {
-        Config.EyeTrackingMode.COARSE_TRACKING -> {
-            eye.coarseEyePose
-        }
-        Config.EyeTrackingMode.FINE_TRACKING -> {
-            eye.fineEyePose
-        }
-        Config.EyeTrackingMode.COARSE_AND_FINE_TRACKING -> {
-            eye.fineEyePose ?: eye.coarseEyePose
-        }
-        else -> {
-            return null
-        }
-    }
-}
+fun getEyePose(config: Config, eye: Eye?): Pose? = getEyePose(config, eye?.state?.value)
+
+fun getEyePose(config: Config, eye: Eye.State?): Pose? = eye?.pose
 
 const val GAZE_LEFT = Color.GREEN
 const val GAZE_RIGHT = Color.RED
@@ -49,23 +36,7 @@ const val SHUT_LEFT = Color.BLUE
 const val SHUT_RIGHT = Color.YELLOW
 const val INVALID = Color.WHITE
 
-fun getEyeState(config: Config, eye: Eye?): EyeStatus? = getEyeState(config, eye?.state?.value)
+fun getEyeTrackingState(config: Config, eye: Eye?): TrackingState? =
+    getEyeTrackingState(config, eye?.state?.value)
 
-fun getEyeState(config: Config, eye: Eye.State?): EyeStatus? {
-    if (eye == null) return null
-
-    return when (config.eyeTracking) {
-        Config.EyeTrackingMode.COARSE_TRACKING -> {
-            eye.coarseEyeStatus
-        }
-        Config.EyeTrackingMode.FINE_TRACKING -> {
-            eye.fineEyeStatus
-        }
-        Config.EyeTrackingMode.COARSE_AND_FINE_TRACKING -> {
-            eye.fineEyeStatus ?: eye.coarseEyeStatus
-        }
-        else -> {
-            return null
-        }
-    }
-}
+fun getEyeTrackingState(config: Config, eye: Eye.State?): TrackingState? = eye?.trackingState

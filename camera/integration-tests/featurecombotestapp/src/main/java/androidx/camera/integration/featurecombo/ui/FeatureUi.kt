@@ -20,6 +20,7 @@ import androidx.camera.integration.featurecombo.AppFeatures
 import androidx.camera.integration.featurecombo.DynamicRange
 import androidx.camera.integration.featurecombo.Fps
 import androidx.camera.integration.featurecombo.ImageFormat
+import androidx.camera.integration.featurecombo.RecordingQuality
 import androidx.camera.integration.featurecombo.StabilizationMode
 
 data class FeatureUi(
@@ -33,8 +34,9 @@ data class FeatureUi(
 enum class AppFeatureTitle(val value: String) {
     HDR("HDR"),
     FPS("FPS"),
-    STABILIZATION("Stabilization Mode"),
-    IMAGE_FORMAT("Image Format"),
+    STABILIZATION("Stabilization"),
+    IMAGE_FORMAT("Img Format"),
+    RECORDING_QUALITY("Recording"),
 }
 
 fun AppFeatures.toFeatureUiList(isVideoMode: Boolean): List<FeatureUi> {
@@ -45,6 +47,12 @@ fun AppFeatures.toFeatureUiList(isVideoMode: Boolean): List<FeatureUi> {
                 selectedValue = dynamicRange.text,
                 unsupportedValues = unsupportedDynamicRanges.map { it.text },
                 possibleValues = DynamicRange.values().map { it.text },
+            ),
+            FeatureUi(
+                title = AppFeatureTitle.RECORDING_QUALITY,
+                selectedValue = recordingQuality.text,
+                unsupportedValues = unsupportedRecordingQualities.map { it.text },
+                possibleValues = RecordingQuality.values().map { it.text },
             ),
             FeatureUi(
                 title = AppFeatureTitle.FPS,

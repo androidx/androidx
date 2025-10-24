@@ -71,6 +71,7 @@ public fun FitBox(
 ) {
     val captureMode = LocalRemoteComposeCreationState.current
     if (captureMode is NoRemoteCompose) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Box(
             modifier.toComposeUi(),
             contentAlignment = boxAlignment(horizontalAlignment, verticalArrangement),
@@ -79,6 +80,7 @@ public fun FitBox(
         }
     } else {
         val background = modifier.find<BackgroundModifier>()
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Box(
             RemoteComposeFitBoxModifier(modifier, horizontalAlignment, verticalArrangement)
                 .then(modifier.toComposeUiLayout())

@@ -18,9 +18,10 @@ package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSuggestionResult;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -34,7 +35,8 @@ import java.util.List;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+        version = AppSearchVersionUtil.TExtensionVersions.U_BASE)
 public class SearchSuggestionResultToPlatformConverter {
     private SearchSuggestionResultToPlatformConverter() {}
 

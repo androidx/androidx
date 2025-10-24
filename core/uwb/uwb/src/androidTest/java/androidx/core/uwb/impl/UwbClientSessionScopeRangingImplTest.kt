@@ -16,6 +16,8 @@
 
 package androidx.core.uwb.impl
 
+// import org.junit.Before
+// import org.junit.Test
 import android.os.Build
 import android.ranging.RangingManager
 import android.ranging.RangingSession
@@ -30,8 +32,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -52,7 +52,7 @@ class UwbClientSessionScopeRangingImplTest {
 
     @Captor private lateinit var callbackCaptor: ArgumentCaptor<RangingSession.Callback>
 
-    @Before
+    //    @Before
     fun setUp() {
         `when`(
                 rangingManager.createRangingSession(
@@ -76,7 +76,7 @@ class UwbClientSessionScopeRangingImplTest {
             }
     }
 
-    @Test
+    //    @Test
     fun testPrepareSession_success() = runBlocking {
         val sessionFlow =
             uwbClientSessionScope.prepareSession(

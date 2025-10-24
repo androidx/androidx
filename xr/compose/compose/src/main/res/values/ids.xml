@@ -16,5 +16,8 @@
 
 <resources>
     <item name="compose_xr_owner_locals" type="id" />
+    <item name="compose_xr_session" type="id" />
+    <item name="compose_xr_session_factory" type="id" />
     <item name="compose_xr_panel_volume_constraints" type="id" />
+    <item name="compose_xr_registered_scenes" type="id" />
 </resources>

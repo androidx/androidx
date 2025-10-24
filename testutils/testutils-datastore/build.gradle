@@ -41,7 +41,7 @@ androidXMultiplatform {
             dependencies {
                 api(project(":datastore:datastore-core"))
                 api(project(":datastore:datastore-core-okio"))
-                api(libs.kotlinTestCommon)
+                api(libs.kotlinTest)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinCoroutinesTest)
                 api(libs.okio)

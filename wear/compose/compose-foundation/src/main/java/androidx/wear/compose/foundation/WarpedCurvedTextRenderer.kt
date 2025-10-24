@@ -63,6 +63,14 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
         paint: TextPaint,
         warpRadiusOffset: Float,
     ) {
+        this.center = center
+        this.radius = radius
+        this.clockwise = clockwise
+        this.sweepDegree = sweepDegree
+        this.startAngleRadians = startAngleRadians
+        this.text = text
+        this.warpRadiusOffset = warpRadiusOffset
+
         // Get text direction
         val hasRtl = TextDirectionHeuristicsCompat.ANYRTL_LTR.isRtl(text, 0, text.length)
         val textDir = if (hasRtl) TextDirectionHeuristics.RTL else TextDirectionHeuristics.LTR
@@ -111,27 +119,39 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
         }
 
         warpRadius = if (clockwise) radius + warpRadiusOffset else radius - warpRadiusOffset
-        this.clockwise = clockwise
-        this.center = center
-        baselineRadius = radius
-        this.startAngle = startAngleRadians + if (clockwise) 0f else sweepDegree.toRadians()
-        this.warpRadiusOffset = warpRadiusOffset
     }
 
+    private var text: String = ""
     private var textRuns: MutableList<TextRunInfo> = mutableListOf()
     private var emojis: MutableList<EmojiInfo> = mutableListOf()
     private var clockwise: Boolean = true
     private var warpRadius: Float = 0f
     private var center: Offset = Offset.Zero
-    private var baselineRadius: Float = 0f
-    private var startAngle: Float = 0f
+    private var radius: Float = 0f
+    private var startAngleRadians: Float = 0f
     private var warpRadiusOffset: Float = 0f
+    private var sweepDegree: Float = 0f
 
     private var textPath = Path()
 
     override fun render(canvas: Canvas, text: String, paint: TextPaint) {
+        // if the text doesn't match (usually because of ellipsising), we have to redo the preRender
+        if (text != this@WarpedCurvedTextRenderer.text) {
+            preRender(
+                center,
+                radius,
+                clockwise,
+                sweepDegree,
+                startAngleRadians,
+                text,
+                paint,
+                warpRadiusOffset,
+            )
+        }
+
         // Render warped paths
         val d = if (clockwise) 1f else -1f
+        var actualStartAngle = startAngleRadians + if (clockwise) 0f else sweepDegree.toRadians()
         textRuns.fastForEach { run ->
             val tt = text.substring(run.start, run.end)
             val angleAdj = run.startPosition / warpRadius * d
@@ -145,8 +165,8 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
                     run.advance,
                     center.x,
                     center.y,
-                    baselineRadius,
-                    startAngle + angleAdj,
+                    radius,
+                    actualStartAngle + angleAdj,
                     clockwise,
                     warpRadiusOffset,
                 )
@@ -159,14 +179,15 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
             val prevAlign = paint.textAlign
             paint.textAlign = Paint.Align.CENTER
             if (!clockwise)
-                startAngle = 2f * PI.toFloat() - startAngle // account for inside path being CCW
+                actualStartAngle =
+                    2f * PI.toFloat() - actualStartAngle // account for inside path being CCW
             val dir = if (clockwise) Path.Direction.CW else Path.Direction.CCW
             val circle = Path()
-            circle.addCircle(center.x, center.y, baselineRadius, dir)
+            circle.addCircle(center.x, center.y, radius, dir)
             val pm = PathMeasure(circle, false)
             emojis.fastForEach { emoji ->
-                val warpRadiusDist = warpRadius * startAngle + emoji.centeredPosition
-                val baselineDist = (warpRadiusDist * baselineRadius / warpRadius).mod(pm.length)
+                val warpRadiusDist = warpRadius * actualStartAngle + emoji.centeredPosition
+                val baselineDist = (warpRadiusDist * radius / warpRadius).mod(pm.length)
 
                 val pos = FloatArray(2)
                 val tan = FloatArray(2)

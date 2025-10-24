@@ -23,7 +23,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.compose.testing.toDp
 import androidx.xr.compose.unit.IntVolumeSize
 import com.google.common.truth.Truth.assertThat
@@ -41,7 +40,7 @@ class OnGloballyPositionedModifierTest {
     @Test
     fun onGloballyPositioned_coordinates_positionIsSet() {
         var coordinates: SubspaceLayoutCoordinates? = null
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.offset(20.dp, 20.dp, 20.dp).onGloballyPositioned {
@@ -63,7 +62,7 @@ class OnGloballyPositionedModifierTest {
     @Test
     fun onGloballyPositioned_coordinates_sizeIsSet() {
         var coordinates: SubspaceLayoutCoordinates? = null
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.size(100.dp).onGloballyPositioned { coordinates = it }

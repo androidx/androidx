@@ -23,6 +23,7 @@ import de.javagl.obj.ObjReader
 import de.javagl.obj.ObjUtils
 import java.io.Closeable
 import java.io.InputStream
+import java.nio.ShortBuffer
 
 /**
  * A collection of vertices, faces, and other attributes that define how to render a 3D object.
@@ -153,7 +154,11 @@ class Mesh(
             GLES30.glDrawElements(
                 primitiveMode.glesEnum,
                 indexBuffer.getSize(),
-                GLES30.GL_UNSIGNED_INT,
+                if (indexBuffer.entries is ShortBuffer) {
+                    GLES30.GL_UNSIGNED_SHORT
+                } else {
+                    GLES30.GL_UNSIGNED_INT
+                },
                 0,
             )
             maybeThrowGLException(

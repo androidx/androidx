@@ -16,16 +16,15 @@
 
 package androidx.tracing.driver
 
-import androidx.tracing.driver.PlatformThreadContextElement.Companion.STATE_BEGIN
-import androidx.tracing.driver.PlatformThreadContextElement.Companion.STATE_END
-import kotlin.coroutines.coroutineContext
-import kotlinx.coroutines.withContext
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 
 /**
  * Horizontal track of time in a trace which contains slice events (`beginSection` / `endSection`).
  */
 // False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
 @Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+@RestrictTo(Scope.LIBRARY_GROUP)
 public abstract class SliceTrack(
     /** The [TraceContext] instance. */
     context: TraceContext,
@@ -39,79 +38,12 @@ public abstract class SliceTrack(
 ) : Track(context = context, uuid = uuid) {
 
     // Use a single shared trace event scope to avoid allocations.
-    @PublishedApi internal val traceEventScope: TraceEventScope = TraceEventScope()
+    @JvmField
+    internal val traceEventScope: TraceEventScope =
+        TraceEventScope().apply { owner = this@SliceTrack }
 
-    /**
-     * This gives the ability to control how context propagation works for a
-     * [androidx.tracing.driver.SliceTrack].
-     *
-     * The default implementation does not support context propagation in non-suspending contexts.
-     * Alternative implementations can choose to override this method to do something different.
-     * Examples include using a `ThreadLocal` like primitive track of [PropagationToken]s across
-     * threads.
-     */
-    @DelicateTracingApi public open fun tokenFromThreadContext(): PropagationToken? = null
-
-    /**
-     * This gives the ability to control how context propagation works for a
-     * [androidx.tracing.driver.SliceTrack].
-     *
-     * The default implementation uses a [kotlin.coroutines.CoroutineContext] for tracking
-     * [PropagationToken] instances. Alternative implementations can choose to override this method
-     * to do something different. Examples include using a `ThreadLocal` like primitive track of
-     * [PropagationToken]s across suspending methods.
-     */
-    @DelicateTracingApi
-    public open suspend fun tokenFromCoroutineContext(): PropagationToken {
-        // Currently, Perfetto flows cannot fully represent fanouts and fanin's.
-        // Therefore we simply propagate a single flowId from the parent to the child
-        // and carry that throughout. This way, there is only 1 flow id that is used.
-        val contextElement = coroutineContext[PlatformThreadContextElement.KEY]
-        return contextElement?.token ?: FlowToken(flowIds = listOf(monotonicId()))
-    }
-
-    /**
-     * Writes a trace message indicating that a given section of code has begun.
-     *
-     * Should be followed by a corresponding call to [endSection] on the same [SliceTrack]. If a
-     * corresponding [endSection] is missing, the section will be present in the trace, but
-     * non-terminating (generally shown as fading out to the left).
-     *
-     * @param name The name of the code section to appear in the trace.
-     * @param metadataBlock The block that can include metadata about to the [TraceEvent].
-     */
-    @JvmOverloads
-    public open fun beginSection(
-        name: String,
-        metadataBlock: (TraceEventScope.() -> Unit)? = null,
-    ) {
-        if (context.isEnabled) {
-            val token = tokenFromThreadContext()
-            when (token) {
-                null -> {
-                    beginSectionInternal(name = name, metadataBlock = metadataBlock)
-                }
-
-                else -> {
-                    beginSection(name = name, token = token, metadataBlock = metadataBlock)
-                }
-            }
-        }
-    }
-
-    internal fun beginSectionInternal(
-        name: String,
-        metadataBlock: (TraceEventScope.() -> Unit)? = null,
-    ) {
-        synchronized(traceEventScope) {
-            conditionalEmitTraceEvent { event ->
-                traceEventScope.event = event
-                event.setBeginSection(uuid, name)
-                metadataBlock?.invoke(traceEventScope)
-                true
-            }
-        }
-    }
+    // Use a single shared instance of MetadataCloseable
+    @JvmField internal val metadataCloseable: MetadataHandleCloseable = MetadataHandleCloseable()
 
     /**
      * Writes a trace message indicating that a given section of code has begun.
@@ -128,22 +60,53 @@ public abstract class SliceTrack(
      *   to each `flow` in the trace.
      * @param metadataBlock The block that can include metadata about to the [TraceEvent].
      */
-    @JvmOverloads
-    public open fun beginSection(
+    internal inline fun beginSection(
+        category: String,
         name: String,
         token: PropagationToken,
-        metadataBlock: (TraceEventScope.() -> Unit)? = null,
-    ) {
-        if (context.isEnabled) {
-            synchronized(traceEventScope) {
-                require(token is FlowToken) { "Unexpected PropagationToken $token" }
-                conditionalEmitTraceEvent { event ->
+        crossinline metadataBlock: (MetadataHandle.() -> Unit) = {},
+    ): MetadataHandleCloseable {
+        // Its okay to return the instance of the MetadataCloseable outside this method because
+        // the only way to dispatch the call to beginSection is by using the currentThreadTrack()
+        // so effectively the call to the outer beginSection on the track is being executed on
+        // the same thread.
+        return synchronized(traceEventScope) {
+            metadataCloseable.metadata = EmptyMetadataHandle
+            metadataCloseable.closeable = EmptyCloseable
+            if (context.isEnabled) {
+                val event = obtainTraceEvent()
+                if (event != null) {
+                    event.primaryCategory = category
                     traceEventScope.event = event
-                    event.setBeginSectionWithFlows(uuid, name, flowIds = token.flowIds)
-                    metadataBlock?.invoke(traceEventScope)
-                    true
+                    metadataCloseable.metadata = traceEventScope
+                    metadataCloseable.closeable =
+                        when (token) {
+                            is PropagationUnsupportedToken -> {
+                                event.setBeginSection(trackUuid = uuid, name = name)
+                                metadataBlock(traceEventScope)
+                                // The closeable will just end up calling endSection()
+                                this
+                            }
+                            is PlatformThreadContextElement<*> -> {
+                                event.setBeginSectionWithFlows(
+                                    trackUuid = uuid,
+                                    name = name,
+                                    flowIds = token.flowIds,
+                                )
+                                metadataBlock(traceEventScope)
+                                // The context element knows how to endSection() while tracking
+                                // suspension and resumption points
+                                token
+                            }
+                            else -> {
+                                throw IllegalArgumentException(
+                                    "Unsupported PropagationToken: $token"
+                                )
+                            }
+                        }
                 }
             }
+            metadataCloseable
         }
     }
 
@@ -156,9 +119,10 @@ public abstract class SliceTrack(
     public open fun endSection() {
         if (context.isEnabled) {
             synchronized(traceEventScope) {
-                conditionalEmitTraceEvent { event ->
-                    event.setEndSection(uuid)
-                    true
+                val event = obtainTraceEvent()
+                event?.apply {
+                    event.setEndSection(trackUuid = uuid)
+                    dispatchTraceEvent(event)
                 }
             }
         }
@@ -178,153 +142,17 @@ public abstract class SliceTrack(
     public fun instant(name: String) {
         if (context.isEnabled) {
             synchronized(traceEventScope) {
-                conditionalEmitTraceEvent { event ->
-                    event.setInstant(uuid, name)
-                    true
+                val event = obtainTraceEvent()
+                event?.apply {
+                    setInstant(trackUuid = uuid, name = name)
+                    dispatchTraceEvent(event)
                 }
             }
         }
     }
 
-    /**
-     * Traces the [block] as a named section of code in the trace - this is one of the primary entry
-     * points for tracing synchronous blocks of code.
-     */
-    @JvmOverloads
-    public inline fun <T> trace(
-        name: String,
-        noinline metadataBlock: (TraceEventScope.() -> Unit)? = null,
-        crossinline block: () -> T,
-    ): T {
-        beginSection(name, metadataBlock)
-        try {
-            return block()
-        } finally {
-            endSection()
-        }
-    }
-
-    /** Traces the [block] as a named section of code in the trace with context propagation. */
-    @JvmOverloads
-    @DelicateTracingApi
-    public inline fun <T> tracePropagated(
-        name: String,
-        element: PropagationToken,
-        noinline metadataBlock: (TraceEventScope.() -> Unit)? = null,
-        crossinline block: () -> T,
-    ): T {
-        beginSection(name, element, metadataBlock)
-        try {
-            return block()
-        } finally {
-            endSection()
-        }
-    }
-
-    @JvmOverloads
-    public suspend inline fun <T> traceCoroutine(
-        name: String,
-        noinline metadataBlock: (TraceEventScope.() -> Unit)? = null,
-        crossinline block: suspend () -> T,
-    ): T {
-        val element = tokenFromCoroutineContext()
-        return traceCoroutine(
-            name = name,
-            element = element,
-            metadataBlock = metadataBlock,
-            block = block,
-        )
-    }
-
-    @JvmOverloads
-    @DelicateTracingApi
-    public suspend inline fun <T> traceCoroutine(
-        name: String,
-        element: PropagationToken,
-        noinline metadataBlock: (TraceEventScope.() -> Unit)? = null,
-        crossinline block: suspend () -> T,
-    ): T {
-        return when (element) {
-            // Standard context propagation.
-            is FlowToken ->
-                traceCoroutineInternal(
-                    name = name,
-                    element = element,
-                    metadataBlock = metadataBlock,
-                    block = block,
-                )
-
-            // Custom context propagation
-            // We expect developers to have overridden beginSection and endSection at this point.
-            else -> {
-                beginSection(name = name, token = element, metadataBlock = metadataBlock)
-                try {
-                    block()
-                } finally {
-                    endSection()
-                }
-            }
-        }
-    }
-
-    /** [Track] scoped async trace slices with flow ids. */
-    @PublishedApi
-    internal suspend inline fun <T> traceCoroutineInternal(
-        name: String,
-        element: FlowToken,
-        noinline metadataBlock: (TraceEventScope.() -> Unit)? = null,
-        crossinline block: suspend () -> T,
-    ): T {
-        val threadContextElement =
-            buildThreadContextElement(
-                name = name,
-                element = element,
-                // This method is called before a coroutine is resumed on a thread that
-                // belongs to a dispatcher. This can be called more than once. So avoid creating
-                // slices unless we transition to `STATE_END`.
-                updateThreadContextBlock = { context ->
-                    val contextElement = context[PlatformThreadContextElement.KEY]
-                    if (
-                        contextElement != null &&
-                            contextElement.started.compareAndSet(
-                                expected = STATE_END,
-                                actual = STATE_BEGIN,
-                            )
-                    ) {
-                        beginSection(name = contextElement.name, token = contextElement.token)
-                    }
-                },
-                // This method is called **after** a coroutine is suspend on the current thread.
-                // This method might be called more than once as well. So we want to be idempotent.
-                restoreThreadContextBlock = { context ->
-                    val element = context[PlatformThreadContextElement.KEY]
-                    if (
-                        element != null &&
-                            element.started.compareAndSet(
-                                expected = STATE_BEGIN,
-                                actual = STATE_END,
-                            )
-                    ) {
-                        endSection()
-                    }
-                },
-            )
-        return withContext(coroutineContext + threadContextElement) {
-            beginSection(name = name, token = element, metadataBlock = metadataBlock)
-            try {
-                block()
-            } finally {
-                if (
-                    threadContextElement.started.compareAndSet(
-                        expected = STATE_BEGIN,
-                        actual = STATE_END,
-                    )
-                ) {
-                    // Only end if still in STATE_STARTED.
-                    // This prevents superfluous endSection() markers.
-                    endSection()
-                }
-            }
-        }
+    override fun close() {
+        // Used when the token is an instance of PropagationUnsupportedToken
+        endSection()
     }
 }

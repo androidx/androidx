@@ -119,7 +119,7 @@ public fun NavigationRail(
     }
 }
 
-private object XrNavigationRailTokens {
+internal object XrNavigationRailTokens {
     /** The [OrbiterOffset] for NavigationRail Orbiters in Full Space Mode (FSM). */
     val OrbiterOffset = 24.dp
 

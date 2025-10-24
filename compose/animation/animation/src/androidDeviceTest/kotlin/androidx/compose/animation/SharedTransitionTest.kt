@@ -85,6 +85,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.approachLayout
@@ -5055,3 +5057,17 @@ private fun assertEquals(a: Offset, b: Offset, delta: Offset) {
     assertEquals(a.x, b.x, delta.x)
     assertEquals(a.y, b.y, delta.y)
 }
+
+private fun SharedContentConfig(
+    isEnabled: SharedTransitionScope.SharedContentState.() -> Boolean
+): SharedTransitionScope.SharedContentConfig {
+    return object : SharedTransitionScope.SharedContentConfig {
+        override val SharedTransitionScope.SharedContentState.isEnabled: Boolean
+            get() = isEnabled()
+    }
+}
+
+private fun LayoutCoordinates.lookaheadScopeCoordinates(
+    lookaheadScope: LookaheadScope
+): LayoutCoordinates =
+    with(lookaheadScope) { lookaheadScopeCoordinates(this@lookaheadScopeCoordinates) }

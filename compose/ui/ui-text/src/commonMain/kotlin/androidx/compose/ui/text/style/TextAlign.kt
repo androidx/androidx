@@ -15,9 +15,14 @@
  */
 package androidx.compose.ui.text.style
 
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.text.internal.requirePrecondition
+
 /**
  * Defines how to align text horizontally. `TextAlign` controls how text aligns in the space it
  * appears.
+ *
+ * @property value The integer representation of the TextAlign.
  */
 @kotlin.jvm.JvmInline
 value class TextAlign internal constructor(val value: Int) {
@@ -34,14 +39,6 @@ value class TextAlign internal constructor(val value: Int) {
             else -> "Invalid"
         }
     }
-
-    /**
-     * Returns `true` if this baseline shift is not [TextAlign.Unspecified].
-     *
-     * @see TextAlign.Unspecified
-     */
-    val isSpecified: Boolean
-        get() = value != 0
 
     companion object {
         /** Align the text on the left edge of the container. */
@@ -92,11 +89,33 @@ value class TextAlign internal constructor(val value: Int) {
          * Creates a TextAlign from the given integer value. This can be useful if you need to
          * serialize/deserialize TextAlign values.
          *
+         * This function throws an [IllegalArgumentException] if the given [value] is not recognized
+         * by the preset [TextAlign] values.
+         *
          * @param value The integer representation of the TextAlign.
          * @see [TextAlign.value]
          */
         fun valueOf(value: Int): TextAlign {
+            requirePrecondition(value in 0..6) {
+                "The given value=$value is not recognized by TextAlign."
+            }
             return TextAlign(value)
         }
     }
+}
+
+/**
+ * Returns `true` if this [TextAlign] is not [TextAlign.Unspecified].
+ *
+ * @see TextAlign.Unspecified
+ */
+inline val TextAlign.isSpecified: Boolean
+    get() = value != 0
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun TextAlign.takeOrElse(block: () -> TextAlign): TextAlign {
+    return if (isSpecified) this else block()
 }

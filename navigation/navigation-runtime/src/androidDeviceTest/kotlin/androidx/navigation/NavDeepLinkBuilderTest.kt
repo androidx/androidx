@@ -18,8 +18,8 @@ package androidx.navigation
 
 import android.content.Context
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import androidx.navigation.test.R
+import androidx.savedstate.savedState
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -191,16 +191,8 @@ class NavDeepLinkBuilderTest {
         val deepLinkBuilder = NavDeepLinkBuilder(targetContext)
 
         deepLinkBuilder.setGraph(R.navigation.nav_simple) // startDest=start_test
-        deepLinkBuilder.addDestination(
-            R.id.start_test,
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("arg" to "arg1"),
-        )
-        deepLinkBuilder.addDestination(
-            R.id.second_test,
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("arg" to "arg2"),
-        )
+        deepLinkBuilder.addDestination(R.id.start_test, savedState { putString("arg", "arg1") })
+        deepLinkBuilder.addDestination(R.id.second_test, savedState { putString("arg", "arg2") })
         val intent = deepLinkBuilder.createTaskStackBuilder().intents[0]
 
         val ids = intent.getIntArrayExtra(NavController.KEY_DEEP_LINK_IDS)
@@ -220,11 +212,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setGraph(R.navigation.nav_simple) // startDest=start_test
         // nav_root is the root id of nav_simple. Similar to adding the startDest explicitly.
-        deepLinkBuilder.addDestination(
-            R.id.nav_root,
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("arg" to "arg1"),
-        )
+        deepLinkBuilder.addDestination(R.id.nav_root, savedState { putString("arg", "arg1") })
 
         val intent = deepLinkBuilder.createTaskStackBuilder().intents[0]
 
@@ -332,9 +320,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setGraph(R.navigation.nav_simple)
         deepLinkBuilder.setDestination(R.id.second_test)
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
         deepLinkBuilder.setArguments(args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()
 
@@ -351,9 +337,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setGraph(nav_simple_route_graph)
         deepLinkBuilder.setDestination("second_test/{arg2}")
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
         deepLinkBuilder.setArguments(args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()
 
@@ -370,9 +354,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setGraph(R.navigation.nav_simple)
         deepLinkBuilder.setDestination(R.id.second_test)
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
 
         deepLinkBuilder.setArguments(args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()
@@ -391,9 +373,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setGraph(nav_simple_route_graph)
         deepLinkBuilder.setDestination("second_test/{arg2}")
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
 
         deepLinkBuilder.setArguments(args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()
@@ -412,9 +392,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setGraph(R.navigation.nav_simple)
         deepLinkBuilder.setDestination(R.id.second_test)
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
 
         deepLinkBuilder.setArguments(args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()
@@ -433,9 +411,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setGraph(nav_simple_route_graph)
         deepLinkBuilder.setDestination("second_test/{arg2}")
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
 
         deepLinkBuilder.setArguments(args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()
@@ -453,9 +429,7 @@ class NavDeepLinkBuilderTest {
         val deepLinkBuilder = NavDeepLinkBuilder(targetContext)
 
         deepLinkBuilder.setGraph(R.navigation.nav_simple)
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
 
         deepLinkBuilder.setDestination(R.id.second_test, args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()
@@ -473,9 +447,7 @@ class NavDeepLinkBuilderTest {
         val deepLinkBuilder = NavDeepLinkBuilder(targetContext)
 
         deepLinkBuilder.setGraph(nav_simple_route_graph)
-        val args =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("test" to "test")
+        val args = savedState { putString("test", "test") }
 
         deepLinkBuilder.setDestination("second_test/{arg2}", args)
         val firstPendingIntent = deepLinkBuilder.createPendingIntent()

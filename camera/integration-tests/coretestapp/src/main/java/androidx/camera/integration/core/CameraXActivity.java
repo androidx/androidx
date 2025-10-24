@@ -118,7 +118,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalLensFacing;
-import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -158,7 +157,7 @@ import androidx.camera.video.VideoCapabilities;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.ScreenFlashView;
-import androidx.camera.view.impl.ZoomGestureDetector;
+import androidx.camera.viewfinder.core.ZoomGestureDetector;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -2252,7 +2251,6 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Binds use cases to the current lifecycle.
      */
-    @OptIn(markerClass = ExperimentalSessionConfig.class)
     private Camera bindToLifecycleSafely(List<UseCase> useCases) {
         Log.d(TAG, "bindToLifecycleSafely: mDisableViewPort = " + mDisableViewPort
                 + ", mForceEnableStreamSharing = " + mForceEnableStreamSharing);

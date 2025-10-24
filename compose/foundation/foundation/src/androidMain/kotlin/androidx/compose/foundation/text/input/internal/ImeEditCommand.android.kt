@@ -262,21 +262,34 @@ internal fun ImeEditCommandScope.setComposingText(
 internal fun ImeEditCommandScope.deleteSurroundingText(
     lengthBeforeCursor: Int,
     lengthAfterCursor: Int,
-) = edit {
-    requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
-        "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
-            "$lengthBeforeCursor and $lengthAfterCursor respectively."
+) {
+    edit {
+        requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
+            "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
+                "$lengthBeforeCursor and $lengthAfterCursor respectively."
+        }
+
+        // All IME edit commands are generated in the transformed space because that's all the IME
+        // knows. Therefore the [lengthBeforeCursor] and [lengthAfterCursor] values are actually
+        // tailored around the transformed selection. We need to find the range that needs to be
+        // deleted in the transformed space, then come back to untransformed space to do the actual
+        // deletion.
+        val transformedSelection = mapToTransformed(selection)
+
+        // calculate the end with safe addition since lengthAfterCursor can be set to e.g. Int.MAX
+        // by the input
+        val end = transformedSelection.end.addExactOrElse(lengthAfterCursor) { length }
+        val untransformedDeleteRangeAfter =
+            mapFromTransformed(TextRange(transformedSelection.end, minOf(end, length)))
+        imeDelete(untransformedDeleteRangeAfter.min, untransformedDeleteRangeAfter.max)
+
+        // calculate the start with safe subtraction since lengthBeforeCursor can be set to e.g.
+        // Int.MAX by the input
+        val start = transformedSelection.start.subtractExactOrElse(lengthBeforeCursor) { 0 }
+        val untransformedDeleteRangeBefore =
+            mapFromTransformed(TextRange(maxOf(0, start), transformedSelection.start))
+        imeDelete(untransformedDeleteRangeBefore.min, untransformedDeleteRangeBefore.max)
     }
-
-    // calculate the end with safe addition since lengthAfterCursor can be set to e.g. Int.MAX
-    // by the input
-    val end = selection.end.addExactOrElse(lengthAfterCursor) { length }
-    imeDelete(selection.end, minOf(end, length))
-
-    // calculate the start with safe subtraction since lengthBeforeCursor can be set to e.g.
-    // Int.MAX by the input
-    val start = selection.start.subtractExactOrElse(lengthBeforeCursor) { 0 }
-    imeDelete(maxOf(0, start), selection.start)
 }
 
 /**
@@ -446,6 +459,7 @@ internal fun TextFieldBuffer.imeDelete(start: Int, end: Int) {
 
     val min = minOf(start, end)
     val max = maxOf(start, end)
+
     delete(min, max)
 
     // composition is lost by calling delete but we should restore it for delete calls that

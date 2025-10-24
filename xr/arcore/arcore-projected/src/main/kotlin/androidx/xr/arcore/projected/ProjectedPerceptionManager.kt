@@ -197,13 +197,13 @@ internal constructor(private val timeSource: ProjectedTimeSource) : PerceptionMa
     override val monoRenderViewpoint: ProjectedRuntimeRenderViewpoint? =
         ProjectedRuntimeRenderViewpoint(Pose(Vector3(0f, 0f, 1f), Quaternion.Identity))
 
-    /** Left [androidx.xr.arcore.internal.DepthMap]'s current frame information */
+    /** Left [androidx.xr.arcore.runtime.DepthMap]'s current frame information */
     override val leftDepthMap: DepthMap? = null
 
-    /** Right [androidx.xr.arcore.internal.DepthMap]'s current frame information */
+    /** Right [androidx.xr.arcore.runtime.DepthMap]'s current frame information */
     override val rightDepthMap: DepthMap? = null
 
-    /** Mono [androidx.xr.arcore.internal.DepthMap]'s current frame information */
+    /** Mono [androidx.xr.arcore.runtime.DepthMap]'s current frame information */
     override val monoDepthMap: DepthMap? = null
 
     /**

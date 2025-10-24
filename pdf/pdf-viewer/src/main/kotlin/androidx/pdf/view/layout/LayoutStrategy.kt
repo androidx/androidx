@@ -18,6 +18,7 @@ package androidx.pdf.view.layout
 
 import android.graphics.Point
 import android.graphics.RectF
+import android.os.Parcelable
 
 /**
  * An alias for [android.graphics.Point] used to semantically represent the width and height of a
@@ -33,13 +34,19 @@ internal typealias Dimension = Point
  * carousel, or two-page spread/book view) by abstracting the coordinate system and visibility
  * calculations.
  */
-internal interface LayoutStrategy {
+internal interface LayoutStrategy : Parcelable {
     /**
      * The number of pages displayed side-by-side in a single row within this layout.
      *
      * This is typically 1 for single page layout or 2 for a book layout.
      */
     val pagesPerRow: Int
+
+    /** The maximum width of a page row out of all page rows whose dimensions are known. */
+    val maxWidth: Float
+
+    /** The total height of PDF content with current layout strategy. */
+    val totalHeight: Float
 
     /**
      * Calculates and stores the layout position for a specific page.
@@ -69,9 +76,9 @@ internal interface LayoutStrategy {
      *
      * @param viewport The current visible viewport (used as context for certain layouts).
      * @param pageNum The zero-based index of the page to locate.
-     * @param pageDimensions An array containing the dimensions of all pages in the document.
+     * @param pageDimension The dimension of [pageNum] in the document.
      * @return A [RectF] defining the page's position (left, top, right, bottom) within the content
      *   area.
      */
-    fun getPageLocation(viewport: RectF, pageNum: Int, pageDimensions: Array<Dimension>): RectF
+    fun getPageLocation(viewport: RectF, pageNum: Int, pageDimension: Dimension): RectF
 }

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.media
 
 import android.graphics.Rect
+import android.hardware.HardwareBuffer
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import java.nio.ByteBuffer
 
@@ -41,6 +42,20 @@ public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
 
     /** @see {@link android.media.Image.getCropRect} */
     public var cropRect: Rect
+
+    /**
+     * Returns a handle to the underlying image's hardware buffer, or `null` if this image does not
+     * support hardware buffer.
+     *
+     * The [android.hardware.HardwareBuffer] follows the lifecycle of its associated image. It is
+     * not required to be closed explicitly; however, the image needs to be closed after finishing
+     * processing the hardware buffer. In other words, if the hardware buffer is being used, the
+     * image cannot be closed.
+     *
+     * @see [android.media.Image.getHardwareBuffer]
+     */
+    public val hardwareBuffer: HardwareBuffer?
+        get() = null
 }
 
 public interface ImagePlane : UnsafeWrapper {

@@ -23,9 +23,11 @@ import android.util.Log
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
+import androidx.appfunctions.AppFunctionResourceContainer
 import androidx.appfunctions.AppFunctionSchemaCapability
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionStringValueConstraint
+import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.service.AppFunction
 import java.time.LocalDateTime
@@ -250,6 +252,7 @@ data class FilesData(
     val readOnlyUri: AppFunctionUriGrant,
     val writeOnlyUri: AppFunctionUriGrant,
     val readWriteUri: AppFunctionUriGrant,
+    val persistReadWriteUri: AppFunctionUriGrant,
 )
 
 @Suppress("UNUSED_PARAMETER")
@@ -467,6 +470,17 @@ class TestFunctions {
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                 ),
+            persistReadWriteUri =
+                AppFunctionUriGrant(
+                    uri =
+                        Uri.parse(
+                            "content://androidx.appfunctions.integration.tests.provider/persist_read_write_test_file.txt"
+                        ),
+                    modeFlags =
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                            Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
+                ),
         )
     }
 
@@ -541,3 +555,21 @@ class OneOfFunctions {
         oneOfList: List<OneOfSealedInterface>,
     ) = oneOfList.map { OneOfSealedNestedSerializable(sealedInterface = it) }
 }
+
+class ResourceFunctions {
+    @AppFunction
+    fun textResourceFunction(
+        appFunctionContext: AppFunctionContext,
+        text: String,
+    ): ResourceFunctionResponse =
+        ResourceFunctionResponse(
+            stringValue = text,
+            resources = listOf(AppFunctionTextResource(mimeType = "text/plain", content = text)),
+        )
+}
+
+@AppFunctionSerializable
+data class ResourceFunctionResponse(
+    val stringValue: String,
+    override val resources: List<AppFunctionTextResource>,
+) : AppFunctionResourceContainer

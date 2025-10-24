@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.window.java.area {
+package @SuppressCompatibility androidx.window.java.area {
 
   @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaControllerCallbackAdapter extends androidx.window.area.WindowAreaController {
     ctor public WindowAreaControllerCallbackAdapter(androidx.window.area.WindowAreaController controller);

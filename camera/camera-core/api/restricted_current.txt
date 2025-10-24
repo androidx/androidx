@@ -60,15 +60,15 @@ package androidx.camera.core {
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public default java.util.Set<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges();
-    method @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public default java.util.Set<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges(androidx.camera.core.SessionConfig);
+    method public default java.util.Set<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges(androidx.camera.core.SessionConfig);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method public default androidx.lifecycle.LiveData<java.lang.Integer!> getTorchStrengthLevel();
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
-    method @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public default boolean isFeatureGroupSupported(androidx.camera.core.SessionConfig);
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
     method public default boolean isLogicalMultiCameraSupported();
     method public default boolean isLowLightBoostSupported();
+    method public default boolean isSessionConfigSupported(androidx.camera.core.SessionConfig);
     method public default boolean isTorchStrengthSupported();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
     method public static boolean mustPlayShutterSound();
@@ -88,6 +88,7 @@ package androidx.camera.core {
     method public default void addCameraPresenceListener(java.util.concurrent.Executor executor, androidx.camera.core.CameraPresenceListener listener);
     method @InaccessibleFromKotlin public java.util.List<androidx.camera.core.CameraInfo> getAvailableCameraInfos();
     method public default androidx.camera.core.CameraInfo getCameraInfo(androidx.camera.core.CameraSelector cameraSelector);
+    method public default androidx.camera.core.CameraInfo getCameraInfo(androidx.camera.core.CameraSelector cameraSelector, androidx.camera.core.SessionConfig sessionConfig);
     method @kotlin.jvm.Throws(exceptionClasses=CameraInfoUnavailableException::class) public boolean hasCamera(androidx.camera.core.CameraSelector cameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
     method public default void removeCameraPresenceListener(androidx.camera.core.CameraPresenceListener listener);
     property public abstract java.util.List<androidx.camera.core.CameraInfo> availableCameraInfos;
@@ -257,9 +258,6 @@ package androidx.camera.core {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalRetryPolicy {
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSessionConfig {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseApi {
@@ -650,7 +648,7 @@ package androidx.camera.core {
     method public androidx.camera.core.RetryPolicy.RetryConfig.Builder setShouldRetry(boolean);
   }
 
-  @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public class SessionConfig {
+  public class SessionConfig {
     ctor public SessionConfig(androidx.camera.core.UseCase... useCases);
     ctor @BytecodeOnly public SessionConfig(java.util.List!, androidx.camera.core.ViewPort!, java.util.List!, android.util.Range!, java.util.Set!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases);
@@ -680,7 +678,7 @@ package androidx.camera.core {
     property public final androidx.camera.core.ViewPort? viewPort;
   }
 
-  @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public static final class SessionConfig.Builder {
+  public static final class SessionConfig.Builder {
     ctor public SessionConfig.Builder(androidx.camera.core.UseCase... useCases);
     ctor public SessionConfig.Builder(java.util.List<? extends androidx.camera.core.UseCase> useCases);
     method public androidx.camera.core.SessionConfig.Builder addEffect(androidx.camera.core.CameraEffect effect);
@@ -799,15 +797,16 @@ package androidx.camera.core {
 
 }
 
-package @androidx.camera.core.ExperimentalSessionConfig androidx.camera.core.featuregroup {
+package androidx.camera.core.featuregroup {
 
-  @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public abstract class GroupableFeature {
+  public abstract class GroupableFeature {
     method @InaccessibleFromKotlin public final int getFeatureType();
     property public final int featureType;
-    field @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public static final androidx.camera.core.featuregroup.GroupableFeature.Companion Companion;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature.Companion Companion;
     field public static final int FEATURE_TYPE_DYNAMIC_RANGE = 0; // 0x0
     field public static final int FEATURE_TYPE_FPS_RANGE = 1; // 0x1
     field public static final int FEATURE_TYPE_IMAGE_FORMAT = 3; // 0x3
+    field public static final int FEATURE_TYPE_RECORDING_QUALITY = 4; // 0x4
     field public static final int FEATURE_TYPE_VIDEO_STABILIZATION = 2; // 0x2
     field public static final androidx.camera.core.featuregroup.GroupableFeature FPS_60;
     field public static final androidx.camera.core.featuregroup.GroupableFeature HDR_HLG10;
@@ -815,10 +814,11 @@ package @androidx.camera.core.ExperimentalSessionConfig androidx.camera.core.fea
     field public static final androidx.camera.core.featuregroup.GroupableFeature PREVIEW_STABILIZATION;
   }
 
-  @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public static final class GroupableFeature.Companion {
+  public static final class GroupableFeature.Companion {
     property public static int FEATURE_TYPE_DYNAMIC_RANGE;
     property public static int FEATURE_TYPE_FPS_RANGE;
     property public static int FEATURE_TYPE_IMAGE_FORMAT;
+    property public static int FEATURE_TYPE_RECORDING_QUALITY;
     property public static int FEATURE_TYPE_VIDEO_STABILIZATION;
     property public androidx.camera.core.featuregroup.GroupableFeature FPS_60;
     property public androidx.camera.core.featuregroup.GroupableFeature HDR_HLG10;

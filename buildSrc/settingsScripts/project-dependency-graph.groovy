@@ -326,7 +326,7 @@ class ProjectDependencyGraph {
         Matcher matcherMinSdk = minSdk.matcher(line)
         if (matcherMinSdk) {
             String middlePart = matcherMinSdk.group(1)
-            if (middlePart !in [" = "]) {
+            if (middlePart !in [" = ", "ForFtlOverride = "]) {
                 throw new Exception("Invalid way to set minSdk " +
                         "in $buildFile.absolutePath.\n" +
                         "It is minSdk$middlePart${matcherMinSdk.group(2)}, " +

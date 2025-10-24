@@ -94,7 +94,7 @@ class SurfaceEntityManager(private val session: Session, activity: AppCompatActi
                     session = session,
                     pose = Pose.Identity,
                     shape = selectedShapeOption,
-                    stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MONO,
+                    stereoMode = SurfaceEntity.StereoMode.MONO,
                 )
             // Make the video player movable (to make it easier to look at it from
             // different angles and distances)

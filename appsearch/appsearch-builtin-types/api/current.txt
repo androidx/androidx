@@ -167,7 +167,7 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Event.Builder setUrl(String?);
   }
 
-  @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.VERBATIM_SEARCH) @androidx.appsearch.annotation.Document(name="builtin:GlobalSearchApplicationInfo") @androidx.appsearch.app.ExperimentalAppSearchApi public final class GlobalSearchApplicationInfo {
+  @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.VERBATIM_SEARCH) @androidx.appsearch.annotation.Document(name="builtin:GlobalSearchApplicationInfo") @androidx.appsearch.app.ExperimentalAppSearchApi public class GlobalSearchApplicationInfo {
     method public int getApplicationType();
     method public String getId();
     method public String getNamespace();
@@ -183,7 +183,7 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.GlobalSearchApplicationInfo.Builder setSchemaTypes(java.util.List<java.lang.String>);
   }
 
-  @androidx.appsearch.annotation.Document(name="builtin:ImageObject") public final class ImageObject extends androidx.appsearch.builtintypes.Thing {
+  @androidx.appsearch.annotation.Document(name="builtin:ImageObject") public class ImageObject extends androidx.appsearch.builtintypes.Thing {
     method public byte[]? getBytes();
     method public java.util.List<androidx.appsearch.builtintypes.properties.Keyword!> getKeywords();
     method public String? getSha256();

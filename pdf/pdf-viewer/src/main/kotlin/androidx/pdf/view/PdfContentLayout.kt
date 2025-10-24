@@ -47,7 +47,7 @@ public class PdfContentLayout(context: Context, attrs: AttributeSet? = null) :
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        _pdfView.enableDefaultFastScrollerRendering = true
+        _pdfView.enableDefaultFastScrollerRendering = false
     }
 
     override fun dispatchDraw(canvas: Canvas) {
@@ -69,6 +69,6 @@ public class PdfContentLayout(context: Context, attrs: AttributeSet? = null) :
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        pdfView.enableDefaultFastScrollerRendering = false
+        pdfView.enableDefaultFastScrollerRendering = true
     }
 }

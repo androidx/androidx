@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.photopicker {
+package @SuppressCompatibility androidx.photopicker {
 
   @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.photopicker.ExperimentalPhotoPickerApi public final class EmbeddedPhotoPickerView extends android.view.ViewGroup {
     ctor public EmbeddedPhotoPickerView(android.content.Context context);

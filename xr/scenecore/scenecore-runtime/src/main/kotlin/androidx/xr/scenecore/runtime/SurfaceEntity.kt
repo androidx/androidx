@@ -62,6 +62,18 @@ public interface SurfaceEntity : Entity {
     public val surface: Surface
 
     /**
+     * Sets the dimensions of the Surface in pixels. This is needed if the application wishes to use
+     * android.graphics.Canvas apis to render still images into the Surface. It is usually not
+     * needed if the application is using a MediaPlayer or ExoPlayer to render the Surface.
+     *
+     * @param width The width of the Surface in pixels.
+     * @param height The height of the Surface in pixels.
+     * @throws IllegalArgumentException if the dimensions are invalid.
+     * @throws IllegalStateException when setting this value if the Entity has been disposed.
+     */
+    public fun setSurfacePixelDimensions(width: Int, height: Int)
+
+    /**
      * The texture to be composited into the alpha channel of the surface. If null, the alpha mask
      * will be disabled.
      *

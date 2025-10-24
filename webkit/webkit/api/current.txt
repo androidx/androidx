@@ -112,6 +112,7 @@ package androidx.webkit {
 
   public interface Profile {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default void addCustomHeader(androidx.webkit.CustomHeader);
+    method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.ADD_QUIC_HINTS_V1, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.Profile.ExperimentalAddQuicHints public default void addQuicHints(java.util.Set<java.lang.String>);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default void clearAllCustomHeaders();
     method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.ORIGIN_MATCHED_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.Profile.ExperimentalOriginMatchedHeader public void clearAllOriginMatchedHeaders();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CUSTOM_REQUEST_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public default void clearCustomHeader(String);
@@ -135,6 +136,9 @@ package androidx.webkit {
     method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.SPECULATIVE_LOADING_CONFIG, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.Profile.ExperimentalUrlPrefetch public void setSpeculativeLoadingConfig(androidx.webkit.SpeculativeLoadingConfig);
     method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.WARM_UP_RENDERER_PROCESS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.Profile.ExperimentalWarmUpRendererProcess public void warmUpRendererProcess();
     field public static final String DEFAULT_PROFILE_NAME = "Default";
+  }
+
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public static @interface Profile.ExperimentalAddQuicHints {
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public static @interface Profile.ExperimentalOriginMatchedHeader {
@@ -578,6 +582,7 @@ package androidx.webkit {
   public class WebViewFeature {
     method public static boolean isFeatureSupported(String);
     method public static boolean isStartupFeatureSupported(android.content.Context, String);
+    field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalAddQuicHints public static final String ADD_QUIC_HINTS_V1 = "ADD_QUIC_HINTS";
     field public static final String ALGORITHMIC_DARKENING = "ALGORITHMIC_DARKENING";
     field public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR = "ATTRIBUTION_REGISTRATION_BEHAVIOR";
     field public static final String BACK_FORWARD_CACHE = "BACK_FORWARD_CACHE";

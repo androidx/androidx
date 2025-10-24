@@ -18,9 +18,15 @@ package androidx.xr.scenecore.testapp.surfaceinteraction
 
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.InputEvent
 
 open class ClickVideoInputHandler(val player: ExoPlayer) : VideoInputManager.InputHandler {
-    override fun onClick(pointerType: Int, origin: Vector3, direction: Vector3, count: Int) {
+    override fun onClick(
+        pointerType: InputEvent.Pointer,
+        origin: Vector3,
+        direction: Vector3,
+        count: Int,
+    ) {
         when (count) {
             1 -> {
                 // Single Click: Play/Pause

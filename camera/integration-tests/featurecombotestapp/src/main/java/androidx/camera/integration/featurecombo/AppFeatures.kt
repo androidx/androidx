@@ -21,10 +21,12 @@ data class AppFeatures(
     val fps: Fps = Fps.FPS_30,
     val stabilizationMode: StabilizationMode = StabilizationMode.OFF,
     val imageFormat: ImageFormat = ImageFormat.JPEG,
+    val recordingQuality: RecordingQuality = RecordingQuality.SD,
     val unsupportedDynamicRanges: List<DynamicRange> = emptyList(),
     val unsupportedFps: List<Fps> = emptyList(),
     val unsupportedStabilizationModes: List<StabilizationMode> = emptyList(),
     val unsupportedImageFormats: List<ImageFormat> = emptyList(),
+    val unsupportedRecordingQualities: List<RecordingQuality> = emptyList(),
 )
 
 enum class DynamicRange(val text: String) {
@@ -45,4 +47,11 @@ enum class Fps(val text: String) {
 enum class ImageFormat(val text: String) {
     JPEG_R("JPEG_R"),
     JPEG("JPEG"),
+}
+
+enum class RecordingQuality(val text: String) {
+    UHD("UHD"),
+    FHD("FHD"),
+    HD("HD"),
+    SD("SD"),
 }

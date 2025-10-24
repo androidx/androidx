@@ -18,6 +18,8 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
@@ -30,7 +32,21 @@ import androidx.compose.ui.unit.Dp
  *
  * @property value The [RemoteFloat] that holds the actual Dp value.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public class RemoteDp(public var value: RemoteFloat)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public class RemoteDp(public val value: RemoteFloat)
+
+/**
+ * Function to convert this [RemoteDp] to a density-independent pixel value. It multiplies the
+ * current float value by the screen\'s density.
+ */
+public fun RemoteDp.toPx(): RemoteFloat {
+    return RemoteFloatExpression(constantValue = null) { creationState ->
+        floatArrayOf(
+            *value.arrayForCreationState(creationState),
+            RemoteContext.FLOAT_DENSITY,
+            AnimatedFloatExpression.MUL,
+        )
+    }
+}
 
 /** Extension property to convert an [Int] to a [RemoteDp]. */
 public val Int.rdp: RemoteDp

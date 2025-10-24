@@ -101,21 +101,14 @@ public class `$FakeAllPrimitiveReturnsImpl_AppFunctionInventory` : AppFunctionIn
     private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
     )
 
-    private val ARRAY_RESPONSE_VALUE_TYPE_PRIMITIVE_ITEM_TYPE: AppFunctionBytesTypeMetadata =
+    private val PRIMITIVE_RESPONSE_VALUE_TYPE: AppFunctionBytesTypeMetadata =
         AppFunctionBytesTypeMetadata(
             isNullable = false,
             description = ""
         )
 
-    private val ARRAY_RESPONSE_VALUE_TYPE: AppFunctionArrayTypeMetadata =
-        AppFunctionArrayTypeMetadata(
-            itemType = ARRAY_RESPONSE_VALUE_TYPE_PRIMITIVE_ITEM_TYPE,
-            isNullable = false,
-            description = ""
-        )
-
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
-            valueType = ARRAY_RESPONSE_VALUE_TYPE,
+            valueType = PRIMITIVE_RESPONSE_VALUE_TYPE,
             description = ""
         )
 
@@ -306,21 +299,14 @@ public class `$FakeAllPrimitiveReturnsImpl_AppFunctionInventory` : AppFunctionIn
     private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
     )
 
-    private val ARRAY_RESPONSE_VALUE_TYPE_PRIMITIVE_ITEM_TYPE: AppFunctionBytesTypeMetadata =
+    private val PRIMITIVE_RESPONSE_VALUE_TYPE: AppFunctionBytesTypeMetadata =
         AppFunctionBytesTypeMetadata(
-            isNullable = false,
-            description = ""
-        )
-
-    private val ARRAY_RESPONSE_VALUE_TYPE: AppFunctionArrayTypeMetadata =
-        AppFunctionArrayTypeMetadata(
-            itemType = ARRAY_RESPONSE_VALUE_TYPE_PRIMITIVE_ITEM_TYPE,
             isNullable = true,
             description = ""
         )
 
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
-            valueType = ARRAY_RESPONSE_VALUE_TYPE,
+            valueType = PRIMITIVE_RESPONSE_VALUE_TYPE,
             description = ""
         )
 

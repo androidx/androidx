@@ -19,6 +19,7 @@ package androidx.build.sbom
 import androidx.build.AndroidXPlaygroundRootImplPlugin
 import androidx.build.BundleInsideHelper
 import androidx.build.ProjectLayoutType
+import androidx.build.addSbomToAttestation
 import androidx.build.addToBuildOnServer
 import androidx.build.getDistributionDirectory
 import androidx.build.getPrebuiltsRoot
@@ -189,7 +190,7 @@ fun Project.validateAllArchiveInputsRecognized() {
 }
 
 /** Enables the publishing of an sbom that lists our embedded dependencies */
-fun Project.configureSbomPublishing() {
+fun Project.configureSbomPublishing(isolatedProjectsEnabled: Boolean) {
     val uuid = coordinatesToUUID().toString()
     val projectName = name
     val projectVersion = version.toString()
@@ -210,6 +211,18 @@ fun Project.configureSbomPublishing() {
             publishTask.sbomFile.set(sbomBuiltFile)
             publishTask.outputFileName.set("$projectName-$projectVersion.spdx.json")
         }
+
+    if (!isolatedProjectsEnabled) {
+        addSbomToAttestation(
+            publishTask.map { task ->
+                task.destinationDir
+                    .file(task.outputFileName.get())
+                    .get()
+                    .asFile
+                    .toRelativeString(getDistributionDirectory().get().asFile)
+            }
+        )
+    }
 
     tasks.withType(SpdxSbomTask::class.java).configureEach { task ->
         val sbomProjectDir = projectDir

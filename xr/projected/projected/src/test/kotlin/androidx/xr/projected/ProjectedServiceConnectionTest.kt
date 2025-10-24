@@ -22,9 +22,9 @@ import android.content.pm.PackageInfo
 import android.content.pm.ServiceInfo
 import android.os.IBinder
 import androidx.test.core.app.ApplicationProvider
-import androidx.xr.projected.IProjectedService
 import androidx.xr.projected.ProjectedServiceBinding.ACTION_BIND
 import androidx.xr.projected.ProjectedServiceConnection
+import androidx.xr.projected.platform.IProjectedService
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.BeforeTest
 import kotlin.test.assertFailsWith

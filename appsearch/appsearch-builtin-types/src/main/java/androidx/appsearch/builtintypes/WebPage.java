@@ -93,9 +93,9 @@ public class WebPage extends Thing {
     @SuppressWarnings("unchecked")
     static class BuilderImpl<Self extends BuilderImpl<Self>> extends Thing.BuilderImpl<Self> {
 
-        private ImageObject mFavicon;
+        protected ImageObject mFavicon;
         @ExperimentalAppSearchApi
-        private String mSource;
+        protected String mSource;
 
         BuilderImpl(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);

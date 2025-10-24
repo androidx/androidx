@@ -108,7 +108,8 @@ public interface WebNavigationClient {
     void onFirstContentfulPaint(@NonNull Page page);
 
     /**
-     * Denotes {@link Navigation}, {@link Page} and {@link WebNavigationClient} API surfaces are
+     * Denotes {@link Navigation}, {@link Page}, {@link WebNavigationClient}, and
+     * {@link NavigationListener} API surfaces are
      * experimental.
      * <p>
      * It may change without warning and should not be relied upon for non-experimental purposes.

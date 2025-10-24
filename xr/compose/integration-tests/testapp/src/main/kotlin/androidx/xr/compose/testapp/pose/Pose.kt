@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.ApplicationSubspace
-import androidx.xr.compose.subspace.ExperimentalSubspaceVolumeApi
 import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
@@ -270,7 +269,6 @@ fun LabelPanel(text: String) {
  * This is a static asset; it has no internal animation. It only shows the orientation resulting
  * from the [SubspaceModifier] passed to it.
  */
-@OptIn(ExperimentalSubspaceVolumeApi::class)
 @Composable
 @SubspaceComposable
 fun StaticXyzArrow(modifier: SubspaceModifier = SubspaceModifier) {

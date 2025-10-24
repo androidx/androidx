@@ -313,7 +313,6 @@ class AppFunctionTypeReference(val selfTypeReference: KSTypeReference) {
                 FloatArray::class.ensureQualifiedName(),
                 DoubleArray::class.ensureQualifiedName(),
                 BooleanArray::class.ensureQualifiedName(),
-                ByteArray::class.ensureQualifiedName(),
             )
 
         private val SUPPORTED_SINGLE_PRIMITIVE_TYPES =
@@ -325,6 +324,9 @@ class AppFunctionTypeReference(val selfTypeReference: KSTypeReference) {
                 Boolean::class.ensureQualifiedName(),
                 String::class.ensureQualifiedName(),
                 Unit::class.ensureQualifiedName(),
+                // AppFunction considers ByteArray as singular primitive type as Byte is not
+                // supported.
+                ByteArray::class.ensureQualifiedName(),
                 ANDROID_PENDING_INTENT,
             )
 

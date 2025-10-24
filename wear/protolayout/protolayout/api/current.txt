@@ -1674,7 +1674,7 @@ package androidx.wear.protolayout.modifiers {
     method public static androidx.wear.protolayout.modifiers.LayoutModifier semanticsRole(androidx.wear.protolayout.modifiers.LayoutModifier, int semanticsRole);
   }
 
-  public final class TransitionKt {
+  @SuppressCompatibility public final class TransitionKt {
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.modifiers.LayoutModifier enterTransition(androidx.wear.protolayout.modifiers.LayoutModifier, androidx.wear.protolayout.ModifiersBuilders.EnterTransition transition);
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.modifiers.LayoutModifier enterTransition(androidx.wear.protolayout.modifiers.LayoutModifier, optional androidx.wear.protolayout.ModifiersBuilders.FadeInTransition? fadeIn, optional androidx.wear.protolayout.ModifiersBuilders.SlideInTransition? slideIn);
     method @BytecodeOnly @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.modifiers.LayoutModifier! enterTransition$default(androidx.wear.protolayout.modifiers.LayoutModifier!, androidx.wear.protolayout.ModifiersBuilders.FadeInTransition!, androidx.wear.protolayout.ModifiersBuilders.SlideInTransition!, int, Object!);
@@ -1683,7 +1683,7 @@ package androidx.wear.protolayout.modifiers {
     method @BytecodeOnly @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.modifiers.LayoutModifier! exitTransition$default(androidx.wear.protolayout.modifiers.LayoutModifier!, androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition!, androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition!, int, Object!);
   }
 
-  public final class VisibilityKt {
+  @SuppressCompatibility public final class VisibilityKt {
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static androidx.wear.protolayout.modifiers.LayoutModifier visibility(androidx.wear.protolayout.modifiers.LayoutModifier, boolean staticVisibility, optional androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool? dynamicVisibility);
     method @BytecodeOnly @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static androidx.wear.protolayout.modifiers.LayoutModifier! visibility$default(androidx.wear.protolayout.modifiers.LayoutModifier!, boolean, androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool!, int, Object!);
   }

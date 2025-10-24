@@ -17,6 +17,8 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.MaterialResource
@@ -45,6 +47,9 @@ public open class FakeGltfEntity(
         get() {
             return feature?.animationState ?: _animationState
         }
+
+    override fun getGltfModelBoundingBox(): BoundingBox =
+        BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
 
     /**
      * Indicates whether the animation is currently looping. In tests, you can

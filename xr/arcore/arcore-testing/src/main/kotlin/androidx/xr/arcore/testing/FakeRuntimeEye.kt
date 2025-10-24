@@ -16,15 +16,14 @@
 
 package androidx.xr.arcore.testing
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Eye
-import androidx.xr.arcore.runtime.EyeStatus
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeRuntimeEye : Eye {
-    override var coarseStatus: EyeStatus? = EyeStatus.GAZING
-    override var coarsePose: Pose? = Pose()
-    override var fineStatus: EyeStatus? = EyeStatus.GAZING
-    override var finePose: Pose? = Pose()
+    override var isOpen: Boolean = true
+
+    override var pose: Pose = Pose()
+
+    override var trackingState: TrackingState = TrackingState.TRACKING
 }

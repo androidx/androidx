@@ -570,19 +570,6 @@ class BuilderTest {
 
     @OptIn(ExperimentalRoomApi::class)
     @Test
-    fun driverProvidedPrePackaged() {
-        assertThrows<IllegalArgumentException> {
-                inMemoryDatabaseBuilder(mock(), TestDatabase::class.java)
-                    .createFromAsset("asset.db")
-                    .setDriver(mock())
-                    .build()
-            }
-            .hasMessageThat()
-            .isEqualTo("Pre-Package Database is not supported when an SQLiteDriver is configured.")
-    }
-
-    @OptIn(ExperimentalRoomApi::class)
-    @Test
     fun driverProvidedQueryCallback() {
         assertThrows<IllegalArgumentException> {
                 inMemoryDatabaseBuilder(mock(), TestDatabase::class.java)

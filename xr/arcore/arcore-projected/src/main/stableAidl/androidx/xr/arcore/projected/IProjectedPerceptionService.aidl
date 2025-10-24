@@ -20,6 +20,7 @@ import androidx.xr.arcore.projected.IVpsAvailabilityCallback;
 import androidx.xr.arcore.projected.ProjectedEarthPose;
 import androidx.xr.arcore.projected.ProjectedPose;
 import androidx.xr.arcore.projected.ProjectedUpdateResult;
+import androidx.xr.arcore.projected.ProjectedConfig;
 
 /**
  * Projected Perception service interface.
@@ -48,5 +49,8 @@ interface IProjectedPerceptionService {
 
   /** Updates the session and returns tracking states. */
   ProjectedUpdateResult update() = 6;
+
+  /** Starts a perception session with the current configuration. */
+  byte startWithConfiguration(in ProjectedConfig config) = 7;
 }
 

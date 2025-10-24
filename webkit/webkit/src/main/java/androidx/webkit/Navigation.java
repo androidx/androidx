@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
  * <p>
  * The same object will be used by the relevant callbacks for the same navigation,
  * allowing the instance itself to be used as a key/ID to connect the callbacks for
- * the same navigations.
+ * the same navigation through {@link Object#equals(Object)} and {@link Object#hashCode()}.
  */
 @WebNavigationClient.ExperimentalNavigationCallback
 public interface Navigation {

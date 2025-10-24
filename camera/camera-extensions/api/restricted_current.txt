@@ -21,14 +21,42 @@ package androidx.camera.extensions {
     field public static final int NONE = 0; // 0x0
   }
 
+  public final class ExtensionSessionConfig extends androidx.camera.core.SessionConfig {
+    ctor public ExtensionSessionConfig(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager);
+    ctor public ExtensionSessionConfig(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager, androidx.camera.core.UseCase... useCases);
+    ctor @BytecodeOnly public ExtensionSessionConfig(int, androidx.camera.extensions.ExtensionsManager!, java.util.List!, androidx.camera.core.ViewPort!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public ExtensionSessionConfig(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager, optional java.util.List<? extends androidx.camera.core.UseCase> useCases);
+    ctor public ExtensionSessionConfig(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager, optional java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort);
+    ctor public ExtensionSessionConfig(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager, optional java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort, optional java.util.List<? extends androidx.camera.core.CameraEffect> effects);
+    method @InaccessibleFromKotlin public androidx.camera.extensions.ExtensionsManager getExtensionsManager();
+    method @InaccessibleFromKotlin public int getMode();
+    property public androidx.camera.extensions.ExtensionsManager extensionsManager;
+    property public int mode;
+  }
+
+  public static final class ExtensionSessionConfig.Builder {
+    ctor public ExtensionSessionConfig.Builder(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager);
+    method public androidx.camera.extensions.ExtensionSessionConfig.Builder addEffect(androidx.camera.core.CameraEffect effect);
+    method public androidx.camera.extensions.ExtensionSessionConfig.Builder addUseCase(androidx.camera.core.UseCase useCase);
+    method public androidx.camera.extensions.ExtensionSessionConfig build();
+    method public androidx.camera.extensions.ExtensionSessionConfig.Builder setViewPort(androidx.camera.core.ViewPort viewPort);
+  }
+
   public final class ExtensionsManager {
-    method public androidx.camera.extensions.CameraExtensionsControl? getCameraExtensionsControl(androidx.camera.core.CameraControl);
-    method public androidx.camera.extensions.CameraExtensionsInfo getCameraExtensionsInfo(androidx.camera.core.CameraInfo);
-    method public android.util.Range<java.lang.Long!>? getEstimatedCaptureLatencyRange(androidx.camera.core.CameraSelector, int);
-    method public androidx.camera.core.CameraSelector getExtensionEnabledCameraSelector(androidx.camera.core.CameraSelector, int);
-    method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.extensions.ExtensionsManager!> getInstanceAsync(android.content.Context, androidx.camera.core.CameraProvider);
-    method public boolean isExtensionAvailable(androidx.camera.core.CameraSelector, int);
-    method public boolean isImageAnalysisSupported(androidx.camera.core.CameraSelector, int);
+    method public androidx.camera.extensions.CameraExtensionsControl? getCameraExtensionsControl(androidx.camera.core.CameraControl cameraControl);
+    method public androidx.camera.extensions.CameraExtensionsInfo getCameraExtensionsInfo(androidx.camera.core.CameraInfo cameraInfo);
+    method public android.util.Range<java.lang.Long>? getEstimatedCaptureLatencyRange(androidx.camera.core.CameraSelector cameraSelector, int mode);
+    method public androidx.camera.core.CameraSelector getExtensionEnabledCameraSelector(androidx.camera.core.CameraSelector cameraSelector, int mode);
+    method public static suspend Object? getInstance(android.content.Context context, androidx.camera.core.CameraProvider cameraProvider, kotlin.coroutines.Continuation<? super androidx.camera.extensions.ExtensionsManager>);
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.extensions.ExtensionsManager> getInstanceAsync(android.content.Context context, androidx.camera.core.CameraProvider cameraProvider);
+    method public boolean isExtensionAvailable(androidx.camera.core.CameraSelector cameraSelector, int mode);
+    method public boolean isImageAnalysisSupported(androidx.camera.core.CameraSelector cameraSelector, int mode);
+    field public static final androidx.camera.extensions.ExtensionsManager.Companion Companion;
+  }
+
+  public static final class ExtensionsManager.Companion {
+    method public suspend Object? getInstance(android.content.Context context, androidx.camera.core.CameraProvider cameraProvider, kotlin.coroutines.Continuation<? super androidx.camera.extensions.ExtensionsManager>);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.extensions.ExtensionsManager> getInstanceAsync(android.content.Context context, androidx.camera.core.CameraProvider cameraProvider);
   }
 
 }

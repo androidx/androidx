@@ -247,7 +247,7 @@ class EnvironmentActivity : AppCompatActivity() {
         this.dragonGeometry =
             GltfModel.create(session!!, Paths.get("models", "Dragon_Evolved.gltf"))
         this.patternTexture = Texture.create(session!!, Paths.get("textures", "pattern.png"))
-        this.khronosPbrMaterial = KhronosPbrMaterial.create(session!!, AlphaMode.ALPHA_MODE_OPAQUE)
+        this.khronosPbrMaterial = KhronosPbrMaterial.create(session!!, AlphaMode.OPAQUE)
         this.khronosPbrMaterial.setBaseColorTexture(patternTexture, TextureSampler())
     }
 

@@ -100,7 +100,7 @@ class SpatialMediaPlayerTest {
         val mediaPlayer = MediaPlayer()
 
         val soundFieldAttributes =
-            SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
+            SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.THIRD_ORDER)
 
         SpatialMediaPlayer.setSoundFieldAttributes(session, mediaPlayer, soundFieldAttributes)
 
@@ -108,7 +108,8 @@ class SpatialMediaPlayerTest {
             .setSoundFieldAttributes(
                 eq(mediaPlayer),
                 argWhere<RtSoundFieldAttributes> {
-                    it.ambisonicsOrder == SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
+                    it.ambisonicsOrder.ambisonicsOrderToJxr() ==
+                        SpatializerConstants.AmbisonicsOrder.THIRD_ORDER
                 },
             )
     }

@@ -72,6 +72,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @RunWith(RobolectricTestRunner.class)
@@ -149,7 +150,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     private final IBinder mSharedAnchorToken = Mockito.mock(IBinder.class);
     private final FakeScheduledExecutorService mExecutor = new FakeScheduledExecutorService();
     private final EntityManager mEntityManager = new EntityManager();
-    private long mCurrentTimeMillis = 1000000000L;
+    private final long mCurrentTimeMillis = 1000000000L;
     private ActivitySpaceImpl mActivitySpace;
 
     @Rule
@@ -161,7 +162,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
         when(mPerceptionLibrary.getActivity()).thenReturn(activity);
-        Node taskNode = mXrExtensions.createNode();
+        Node taskNode = Objects.requireNonNull(mXrExtensions).createNode();
         mActivitySpace =
                 new ActivitySpaceImpl(
                         taskNode,
@@ -172,9 +173,6 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
                         /* unscaledGravityAlignedActivitySpace= */ false,
                         mExecutor);
         SystemClock.setCurrentTimeMillis(mCurrentTimeMillis);
-
-        // By default, set the activity space to the root of the underlying OpenXR reference space.
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
         mEntityManager.addSystemSpaceActivityPose(
                 new PerceptionSpaceScenePoseImpl(mActivitySpace, mActivitySpace));
     }
@@ -204,7 +202,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     }
 
     private AnchorEntityImpl createAnchorEntity() {
-        Node node = mXrExtensions.createNode();
+        Node node = Objects.requireNonNull(mXrExtensions).createNode();
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
         return AnchorEntityImpl.create(
@@ -243,7 +241,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     }
 
     private AnchorEntityImpl createUnanchoredAnchorEntity() {
-        Node node = mXrExtensions.createNode();
+        Node node = Objects.requireNonNull(mXrExtensions).createNode();
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
         return AnchorEntityImpl.create(
@@ -259,7 +257,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     private AnchorEntityImpl createAnchorEntityFromPlane() {
         when(mAnchor.persist()).thenReturn(UUID.randomUUID());
 
-        Node node = mXrExtensions.createNode();
+        Node node = Objects.requireNonNull(mXrExtensions).createNode();
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
         AnchorEntityImpl entity =
@@ -282,7 +280,8 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     private GltfEntityImpl createGltfEntity() {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
-        NodeHolder<?> nodeHolder = new NodeHolder<>(mXrExtensions.createNode(), Node.class);
+        NodeHolder<?> nodeHolder =
+                new NodeHolder<>(Objects.requireNonNull(mXrExtensions).createNode(), Node.class);
         return new GltfEntityImpl(
                 activity,
                 new FakeGltfFeature(nodeHolder),
@@ -354,7 +353,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     @Test
     public void anchorEntityGetScale_throwsException() {
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
-        assertThrows(UnsupportedOperationException.class, () -> anchorEntity.getScale());
+        assertThrows(UnsupportedOperationException.class, anchorEntity::getScale);
     }
 
     @Test
@@ -366,7 +365,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     @Test
     public void anchorEntityGetActivitySpaceScale_returnsInverseOfActivitySpace() {
         float activitySpaceScale = 5f;
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.fromScale(activitySpaceScale));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(activitySpaceScale));
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         assertVector3(
                 anchorEntity.getActivitySpaceScale(),
@@ -377,8 +376,8 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     public void getPoseInActivitySpace_unanchored_returnsIdentityPose() {
         AnchorEntityImpl anchorEntity = createUnanchoredAnchorEntity();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1));
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getPoseInActivitySpace(), new Pose());
     }
@@ -388,8 +387,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
             getPoseInActivitySpace_noActivitySpaceOpenXrReferenceSpacePose_returnsIdentityPose() {
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1));
-        mActivitySpace.mOpenXrReferenceSpacePose = null;
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
         assertPose(anchorEntity.getPoseInActivitySpace(), new Pose());
     }
 
@@ -397,7 +395,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     public void getPoseInActivitySpace_noAnchorOpenXrReferenceSpacePose_returnsIdentityPose() {
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1));
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
         // anchorEntity.setOpenXrReferenceSpacePose(..) is not called to set the underlying pose.
 
         assertPose(anchorEntity.getPoseInActivitySpace(), new Pose());
@@ -407,10 +405,10 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     public void getPoseInActivitySpace_whenAtSamePose_returnsIdentityPose() {
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1).toNormalized());
-        mActivitySpace.setOpenXrReferenceSpacePose(
+        mActivitySpace.setOpenXrReferenceSpaceTransform(
                 Matrix4.fromTrs(
                         pose.getTranslation(), pose.getRotation(), new Vector3(2f, 2f, 2f)));
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getPoseInActivitySpace(), new Pose());
     }
@@ -419,8 +417,8 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     public void getPoseInActivitySpace_returnsDifferencePose() {
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1).toNormalized());
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getPoseInActivitySpace(), pose);
     }
@@ -430,8 +428,8 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Quaternion activitySpaceQuaternion = Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f));
         Pose pose = new Pose(new Vector3(1, 1, 1), Quaternion.Identity);
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
-        mActivitySpace.setOpenXrReferenceSpacePose(
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(
                 Matrix4.fromTrs(
                         new Vector3(2f, 3f, 4f),
                         activitySpaceQuaternion,
@@ -467,20 +465,22 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     // Modified for no ActivitySpaceRoot case.
     @Test
     public void getActivitySpacePose_whenAtSamePose_returnsIdentityPose() {
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1).toNormalized());
 
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getActivitySpacePose(), pose);
     }
 
     @Test
     public void getActivitySpacePose_returnsDifferencePose() {
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1).toNormalized());
 
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getActivitySpacePose(), pose);
     }
@@ -489,7 +489,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     public void getActivitySpacePose_withNonAndroidXrActivitySpaceRoot_throwsException() {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
-        Node node = mXrExtensions.createNode();
+        Node node = Objects.requireNonNull(mXrExtensions).createNode();
         AnchorEntityImpl anchorEntity =
                 AnchorEntityImpl.create(
                         activity,
@@ -508,8 +508,8 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     public void transformPoseTo_withActivitySpace_returnsTransformedPose() {
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         Pose pose = new Pose(new Vector3(1f, 2f, 3f), Quaternion.Identity);
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         Pose anchorOffset =
                 new Pose(
@@ -531,10 +531,10 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         Pose pose = new Pose(new Vector3(1f, 2f, 3f), Quaternion.Identity);
         Pose childPose = new Pose(new Vector3(-1f, -2f, -3f), Quaternion.Identity);
 
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
         mActivitySpace.addChild(childEntity1);
         childEntity1.setPose(childPose);
-        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         assertPose(
                 mActivitySpace.transformPoseTo(new Pose(), anchorEntity),

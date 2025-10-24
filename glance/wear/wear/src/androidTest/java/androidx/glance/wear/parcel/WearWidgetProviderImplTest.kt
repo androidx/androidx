@@ -19,7 +19,7 @@ package androidx.glance.wear.parcel
 import android.content.ComponentName
 import android.content.Context
 import androidx.compose.remote.creation.compose.layout.RemoteText
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.glance.wear.ActiveWearWidgetHandle
 import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_LARGE
@@ -37,7 +37,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -97,7 +96,7 @@ class WearWidgetProviderImplTest {
 
         assertThat(testWidget.lastRequestedInstanceId).isEqualTo(widgetRequest.instanceId)
         assertThat(
-                RemoteComposeDocument(receivedRawContent.rcDocument)
+                RemoteDocument(receivedRawContent.rcDocument)
                     .document
                     .displayHierarchy()
                     .trimIndent()

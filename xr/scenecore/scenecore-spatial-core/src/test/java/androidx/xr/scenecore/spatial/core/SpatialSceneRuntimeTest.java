@@ -1451,7 +1451,7 @@ public class SpatialSceneRuntimeTest {
         AndroidXrEntity groupEntity = (AndroidXrEntity) createGroupEntity(pose);
         ActivitySpace activitySpace = mRuntime.getActivitySpace();
         ((ActivitySpaceImpl) activitySpace)
-                .setOpenXrReferenceSpacePose(
+                .setOpenXrReferenceSpaceTransform(
                         Matrix4.fromTrs(
                                 new Vector3(5f, 6f, 7f),
                                 Quaternion.fromEulerAngles(22f, 33f, 44f),
@@ -1476,7 +1476,7 @@ public class SpatialSceneRuntimeTest {
         GltfEntityImpl child3 = (GltfEntityImpl) createGltfEntity(localPose);
         ActivitySpace activitySpace = mRuntime.getActivitySpace();
         ((ActivitySpaceImpl) activitySpace)
-                .setOpenXrReferenceSpacePose(
+                .setOpenXrReferenceSpaceTransform(
                         Matrix4.fromTrs(
                                 new Vector3(5f, 6f, 7f),
                                 Quaternion.fromEulerAngles(22f, 33, 44),

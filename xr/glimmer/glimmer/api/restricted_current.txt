@@ -165,9 +165,9 @@ package androidx.xr.glimmer {
     property public androidx.compose.ui.unit.Dp small;
   }
 
-  public final class IndirectTouchGestureKt {
-    method public static androidx.compose.ui.Modifier onIndirectTouchGesture(androidx.compose.ui.Modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeForward, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeBackward);
-    method @BytecodeOnly public static androidx.compose.ui.Modifier! onIndirectTouchGesture$default(androidx.compose.ui.Modifier!, boolean, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, int, Object!);
+  public final class IndirectPointerGestureKt {
+    method public static androidx.compose.ui.Modifier onIndirectPointerGesture(androidx.compose.ui.Modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeForward, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeBackward);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! onIndirectPointerGesture$default(androidx.compose.ui.Modifier!, boolean, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
   public final class ListItemDefaults {
@@ -388,7 +388,7 @@ package androidx.xr.glimmer.stack {
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method @InaccessibleFromKotlin public int getTopItem();
-    method @InaccessibleFromKotlin public float getTopItemOffsetFraction();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getTopItemOffsetFraction();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int item, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -399,7 +399,7 @@ package androidx.xr.glimmer.stack {
     property public boolean lastScrolledBackward;
     property public boolean lastScrolledForward;
     property public int topItem;
-    property public float topItemOffsetFraction;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float topItemOffsetFraction;
     field public static final androidx.xr.glimmer.stack.StackState.Companion Companion;
   }
 

@@ -28,17 +28,24 @@ import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionManagerCompat
+import androidx.appfunctions.AppFunctionResourceContainer.Companion.asAppFunctionResourceContainer
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.AppFunctionTextResource
+import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.PROPERTY_RETURN_VALUE
 import androidx.appfunctions.integration.tests.AppSearchMetadataHelper.isDynamicIndexerAvailable
+import androidx.appfunctions.integration.tests.TestUtil.assertNotPersistedGranted
+import androidx.appfunctions.integration.tests.TestUtil.assertPersistedGranted
 import androidx.appfunctions.integration.tests.TestUtil.assertReadAccessible
 import androidx.appfunctions.integration.tests.TestUtil.assertReadInaccessible
 import androidx.appfunctions.integration.tests.TestUtil.assertWriteAccessible
 import androidx.appfunctions.integration.tests.TestUtil.assertWriteInaccessible
 import androidx.appfunctions.integration.tests.TestUtil.doBlocking
 import androidx.appfunctions.integration.tests.TestUtil.retryAssert
+import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
@@ -104,6 +111,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata("androidx.appfunctions.integration.tests.TestFunctions#add")
 
@@ -121,12 +129,7 @@ class IntegrationTest {
             )
 
         val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
-        assertThat(
-                successResponse.returnValue.getLong(
-                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                )
-            )
-            .isEqualTo(3)
+        assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
     }
 
     @Test
@@ -139,7 +142,7 @@ class IntegrationTest {
                 it.appFunctions
             }
 
-        assertThat(appFunctions).hasSize(21)
+        assertThat(appFunctions).hasSize(22)
     }
 
     @Test
@@ -167,6 +170,14 @@ class IntegrationTest {
                 enumFunctionMetadata.parameters.associateBy { it.name }["stringEnum"]?.dataType
             )
         assertThat(stringEnumParamMetadata.enumValues).containsExactly("A", "B")
+        val intEnumSerializableMetadata =
+            assertIs<AppFunctionObjectTypeMetadata>(
+                enumFunctionMetadata.components.dataTypes[
+                        "androidx.appfunctions.integration.tests.IntEnumSerializable"]
+            )
+        val enumValues =
+            assertIs<AppFunctionIntTypeMetadata>(intEnumSerializableMetadata.properties["value"])
+        assertThat(enumValues.enumValues).containsExactly(10, 20)
     }
 
     @Test
@@ -316,6 +327,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_voidReturnType_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#voidFunction"
@@ -336,6 +348,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_setFactory_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFactory#isCreatedByFactory"
@@ -355,16 +368,12 @@ class IntegrationTest {
         // If the enclosing class was created by the provided factory, the secondary constructor
         // should be called and so the return value would be `true`.
         val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
-        assertThat(
-                successResponse.returnValue.getBoolean(
-                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                )
-            )
-            .isEqualTo(true)
+        assertThat(successResponse.returnValue.getBoolean(PROPERTY_RETURN_VALUE)).isEqualTo(true)
     }
 
     @Test
     fun executeAppFunction_functionInLibraryModule_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.testapp.library.TestFunctions2#concat"
@@ -384,12 +393,7 @@ class IntegrationTest {
             )
 
         val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
-        assertThat(
-                successResponse.returnValue.getString(
-                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                )
-            )
-            .isEqualTo("logcat")
+        assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE)).isEqualTo("logcat")
     }
 
     @Test
@@ -411,6 +415,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_appThrows_fail() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata("androidx.appfunctions.integration.tests.TestFunctions#doThrow")
 
@@ -432,6 +437,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_createNote() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val createNoteMetadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#createNote"
@@ -474,7 +480,7 @@ class IntegrationTest {
             )
         assertThat(
                 successResponse.returnValue
-                    .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
                     ?.deserialize(Note::class.java)
             )
             .isEqualTo(expectedNote)
@@ -482,6 +488,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_createNote_withOpenableCapability_returnsNote() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#getOpenableNote"
@@ -521,7 +528,7 @@ class IntegrationTest {
             )
         assertThat(
                 successResponse.returnValue
-                    .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
                     ?.deserialize(Note::class.java)
             )
             .isEqualTo(expectedNote)
@@ -529,6 +536,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_createNote_withOpenableCapability_returnsOpenableNote() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#getOpenableNote"
@@ -569,7 +577,7 @@ class IntegrationTest {
         val openableNoteResult =
             assertIs<OpenableNote>(
                 successResponse.returnValue
-                    .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
                     ?.deserialize(OpenableNote::class.java)
             )
 
@@ -582,6 +590,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_serializableProxyParam_dateTime_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#logLocalDateTime"
@@ -611,6 +620,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_serializableProxyParam_androidUri_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.testapp.library.TestFunctions2#logUri"
@@ -638,6 +648,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_serializableProxyResponse_dateTime_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#getLocalDate"
@@ -659,7 +670,7 @@ class IntegrationTest {
 
         assertIs<LocalDateTime>(
             successResponse.returnValue
-                .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                .getAppFunctionData(PROPERTY_RETURN_VALUE)
                 ?.deserialize(DateTime::class.java)
                 ?.localDateTime
         )
@@ -667,6 +678,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_serializableProxyResponse_androidUri_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.testapp.library.TestFunctions2#getUri"
@@ -688,7 +700,7 @@ class IntegrationTest {
         val androidUriResult =
             assertIs<Uri>(
                 successResponse.returnValue
-                    .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
                     ?.deserialize(Uri::class.java)
             )
         assertThat(androidUriResult.toString()).isEqualTo("https://www.google.com/")
@@ -696,6 +708,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_updateNote_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#updateNote"
@@ -739,7 +752,7 @@ class IntegrationTest {
             )
         assertThat(
                 successResponse.returnValue
-                    .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
                     ?.deserialize(Note::class.java)
             )
             .isEqualTo(expectedNote)
@@ -747,6 +760,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_updateNoteSetFieldNullContent_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#updateNote"
@@ -785,7 +799,7 @@ class IntegrationTest {
             )
         assertThat(
                 successResponse.returnValue
-                    .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
                     ?.deserialize(Note::class.java)
             )
             .isEqualTo(expectedNote)
@@ -793,6 +807,7 @@ class IntegrationTest {
 
     @Test
     fun executeAppFunction_updateNoteNullSetFields_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#updateNote"
@@ -826,7 +841,7 @@ class IntegrationTest {
             )
         assertThat(
                 successResponse.returnValue
-                    .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
                     ?.deserialize(Note::class.java)
             )
             .isEqualTo(expectedNote)
@@ -877,10 +892,7 @@ class IntegrationTest {
             )
 
         assertIs<ExecuteAppFunctionResponse.Success>(response)
-        val returnValue =
-            response.returnValue.getAppFunctionData(
-                ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-            )
+        val returnValue = response.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE)
         assertThat(returnValue).isNotNull()
         assertThat(checkNotNull(returnValue).getString("title")).isEqualTo("Test Title")
         assertThat(returnValue.getString("content")).isEqualTo("Test Content")
@@ -926,10 +938,7 @@ class IntegrationTest {
             )
 
         assertIs<ExecuteAppFunctionResponse.Success>(response)
-        val returnValue =
-            response.returnValue.getAppFunctionData(
-                ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-            )
+        val returnValue = response.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE)
         assertThat(returnValue).isNotNull()
         val note = checkNotNull(returnValue).deserialize(LegacyNote::class.java)
         assertThat(note.title).isEqualTo("Test Title")
@@ -985,7 +994,7 @@ class IntegrationTest {
         assertIs<ExecuteAppFunctionResponse.Success>(response)
         val resultNote =
             response.returnValue
-                .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                .getAppFunctionData(PROPERTY_RETURN_VALUE)
                 ?.getAppFunctionData("createdNote")
         assertThat(resultNote?.getString("id")).isEqualTo("testId")
         assertThat(resultNote?.getString("title")).isEqualTo("Test Title")
@@ -1038,7 +1047,7 @@ class IntegrationTest {
         assertIs<ExecuteAppFunctionResponse.Success>(response)
         val resultNote =
             response.returnValue
-                .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                .getAppFunctionData(PROPERTY_RETURN_VALUE)
                 ?.getAppFunctionData("createdNote")
         assertThat(resultNote?.getString("id")).isEqualTo("testId")
         assertThat(resultNote?.getString("title")).isEqualTo("Test Title")
@@ -1093,7 +1102,7 @@ class IntegrationTest {
         assertIs<ExecuteAppFunctionResponse.Success>(response)
         val resultNote =
             response.returnValue
-                .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                .getAppFunctionData(PROPERTY_RETURN_VALUE)
                 ?.getAppFunctionData("createdNote")
         assertThrows(IllegalArgumentException::class.java) { resultNote?.getInt(("title")) }
     }
@@ -1168,6 +1177,7 @@ class IntegrationTest {
 
     @Test
     fun echoClassWithOptionalValues_allValuesProvided_shouldNotReturnDefault() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#echoClassWithOptionalValues"
@@ -1227,11 +1237,7 @@ class IntegrationTest {
 
         val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
         assertThat(
-                checkNotNull(
-                        successResponse.returnValue.getAppFunctionData(
-                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                        )
-                    )
+                checkNotNull(successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE))
                     .deserialize(ClassWithOptionalValues::class.java)
             )
             .isEqualTo(classWithOptionalValues)
@@ -1240,6 +1246,7 @@ class IntegrationTest {
     @Test
     fun echoClassWithOptionalValues_noValueProvided_shouldReturnAppFunctionDefinedDefault() =
         doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(context))
             val metadata =
                 findAppFunctionMetadata(
                     "androidx.appfunctions.integration.tests.TestFunctions#echoClassWithOptionalValues"
@@ -1262,9 +1269,7 @@ class IntegrationTest {
             val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
             assertThat(
                     checkNotNull(
-                            successResponse.returnValue.getAppFunctionData(
-                                ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                            )
+                            successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE)
                         )
                         .deserialize(ClassWithOptionalValues::class.java)
                 )
@@ -1307,6 +1312,7 @@ class IntegrationTest {
 
     @Test
     fun echoFunctionWithOptionalParameters_allValuesProvided_shouldNotReturnDefault() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val metadata =
             findAppFunctionMetadata(
                 "androidx.appfunctions.integration.tests.TestFunctions#echoFunctionWithOptionalParameters"
@@ -1400,11 +1406,7 @@ class IntegrationTest {
 
         val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
         assertThat(
-                checkNotNull(
-                        successResponse.returnValue.getAppFunctionData(
-                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                        )
-                    )
+                checkNotNull(successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE))
                     .deserialize(ClassWithOptionalValues::class.java)
             )
             .isEqualTo(
@@ -1449,6 +1451,7 @@ class IntegrationTest {
     @Test
     fun echoFunctionWithOptionalParameters_noValueProvided_shouldReturnAppFunctionDefinedDefault() =
         doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(context))
             val metadata =
                 findAppFunctionMetadata(
                     "androidx.appfunctions.integration.tests.TestFunctions#echoFunctionWithOptionalParameters"
@@ -1467,9 +1470,7 @@ class IntegrationTest {
             val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
             assertThat(
                     checkNotNull(
-                            successResponse.returnValue.getAppFunctionData(
-                                ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                            )
+                            successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE)
                         )
                         .deserialize(ClassWithOptionalValues::class.java)
                 )
@@ -1525,7 +1526,7 @@ class IntegrationTest {
         val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
         val filesData =
             successResponse.returnValue
-                .getAppFunctionData(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                .getAppFunctionData(PROPERTY_RETURN_VALUE)
                 ?.deserialize(FilesData::class.java)
         assertThat(filesData).isNotNull()
         targetContext.assertReadAccessible(checkNotNull(filesData).readOnlyUri.uri)
@@ -1534,6 +1535,44 @@ class IntegrationTest {
         targetContext.assertWriteAccessible(filesData.writeOnlyUri.uri)
         targetContext.assertReadAccessible(filesData.readWriteUri.uri)
         targetContext.assertWriteAccessible(filesData.readWriteUri.uri)
+    }
+
+    @Test
+    fun executeAppFunction_getFileData_persistUriGrantingShouldSucceed() = doBlocking {
+        val request =
+            ExecuteAppFunctionRequest(
+                targetPackageName = context.packageName,
+                functionIdentifier =
+                    "androidx.appfunctions.integration.tests.TestFunctions#getFilesData",
+                functionParameters = AppFunctionData.EMPTY,
+            )
+
+        val response = appFunctionManager.executeAppFunction(request)
+        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        val filesData =
+            checkNotNull(
+                successResponse.returnValue
+                    .getAppFunctionData(PROPERTY_RETURN_VALUE)
+                    ?.deserialize(FilesData::class.java)
+            )
+        val persistGrantedUri = filesData.persistReadWriteUri
+
+        // Persist URI still has read/write access before taking persist granting
+        targetContext.assertReadAccessible(persistGrantedUri.uri)
+        targetContext.assertWriteAccessible(persistGrantedUri.uri)
+        targetContext.assertNotPersistedGranted(persistGrantedUri.uri)
+        // Persist URI is persisted after taking persist granting
+        targetContext.contentResolver.takePersistableUriPermission(
+            persistGrantedUri.uri,
+            persistGrantedUri.getValidPersistableUriFlags(),
+        )
+        targetContext.assertPersistedGranted(persistGrantedUri.uri)
+        // Persist URI is not persisted after releasing
+        targetContext.contentResolver.releasePersistableUriPermission(
+            persistGrantedUri.uri,
+            persistGrantedUri.getValidPersistableUriFlags(),
+        )
+        targetContext.assertNotPersistedGranted(persistGrantedUri.uri)
     }
 
     @Test
@@ -1560,16 +1599,13 @@ class IntegrationTest {
         // Assert responseB is completed successfully
         val successResponse =
             assertIs<ExecuteAppFunctionResponse.Success>(responseBDeferred.await())
-        assertThat(
-                successResponse.returnValue.getString(
-                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
-                )
-            )
+        assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE))
             .isEqualTo("Completed")
     }
 
     @Test
     fun executeAppFunction_oneOfSerializableFunction_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
         val oneOfFunctionMetadata = findAppFunctionMetadata(OneOfFunctionsIds.ONE_OF_FUNCTION_ID)
         val oneOfList =
             listOf(
@@ -1578,7 +1614,7 @@ class IntegrationTest {
             )
         val request =
             ExecuteAppFunctionRequest(
-                targetPackageName = context.packageName,
+                targetPackageName = oneOfFunctionMetadata.packageName,
                 functionIdentifier = OneOfFunctionsIds.ONE_OF_FUNCTION_ID,
                 functionParameters =
                     AppFunctionData.Builder(
@@ -1609,6 +1645,87 @@ class IntegrationTest {
                 oneOfList.map { OneOfFunctions.OneOfSealedNestedSerializable(it) }
             )
     }
+
+    @Test
+    fun resourceFunction_usesResourceHolderAndAppFunctionTextResource_correctRepresentationAsAllOf() =
+        doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(context))
+            val resourceFunctionMetadata =
+                findAppFunctionMetadata(ResourceFunctionsIds.TEXT_RESOURCE_FUNCTION_ID)
+
+            val responseValueType =
+                assertIs<AppFunctionReferenceTypeMetadata>(
+                    resourceFunctionMetadata.response.valueType
+                )
+            val resolvedResponseAllOfType =
+                assertIs<AppFunctionAllOfTypeMetadata>(
+                    resourceFunctionMetadata.components.dataTypes[
+                            responseValueType.referenceDataType]
+                )
+            assertThat(resolvedResponseAllOfType.matchAll)
+                .contains(
+                    AppFunctionObjectTypeMetadata(
+                        properties =
+                            mapOf(
+                                "resources" to
+                                    AppFunctionArrayTypeMetadata(
+                                        itemType =
+                                            AppFunctionReferenceTypeMetadata(
+                                                referenceDataType =
+                                                    "androidx.appfunctions.AppFunctionTextResource",
+                                                isNullable = false,
+                                                description = "",
+                                            ),
+                                        isNullable = false,
+                                        description = "",
+                                    )
+                            ),
+                        required = listOf("resources"),
+                        qualifiedName = "androidx.appfunctions.AppFunctionResourceContainer",
+                        isNullable = true,
+                        description = "",
+                    )
+                )
+        }
+
+    @Test
+    fun resourceFunction_usesResourceHolderAndAppFunctionTextResource_readsResourceHolderInResponse_success() =
+        doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(context))
+            val resourceFunctionMetadata =
+                findAppFunctionMetadata(ResourceFunctionsIds.TEXT_RESOURCE_FUNCTION_ID)
+            val request =
+                ExecuteAppFunctionRequest(
+                    targetPackageName = resourceFunctionMetadata.packageName,
+                    functionIdentifier = ResourceFunctionsIds.TEXT_RESOURCE_FUNCTION_ID,
+                    functionParameters =
+                        AppFunctionData.Builder(
+                                resourceFunctionMetadata.parameters,
+                                resourceFunctionMetadata.components,
+                            )
+                            .setString("text", "Hello World!")
+                            .build(),
+                )
+
+            val response = appFunctionManager.executeAppFunction(request)
+
+            val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+            assertThat(
+                    successResponse.returnValue
+                        .getAppFunctionData(PROPERTY_RETURN_VALUE)
+                        ?.getString("stringValue")
+                )
+                .isEqualTo("Hello World!")
+            assertThat(
+                    successResponse.returnValue
+                        .getAppFunctionData(PROPERTY_RETURN_VALUE)
+                        ?.asAppFunctionResourceContainer()
+                        ?.resources
+                )
+                .containsExactly(
+                    AppFunctionTextResource(mimeType = "text/plain", content = "Hello World!")
+                )
+        }
 
     @Test
     fun serializeAppFunctionSerializable_failsForInvalidValues() {
@@ -1713,6 +1830,11 @@ class IntegrationTest {
             .first()
             .flatMap { it.appFunctions }
             .single { it.id == id }
+    }
+
+    private fun AppFunctionUriGrant.getValidPersistableUriFlags(): Int {
+        return modeFlags and
+            (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
     }
 
     private suspend fun Context.awaitAppFunctionsIndexed(

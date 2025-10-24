@@ -95,7 +95,7 @@ class SpatialAudioActivity : AppCompatActivity() {
 
         val pointSourceParams = PointSourceParams(soundEntity)
         val soundFieldAttributes =
-            SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
+            SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
         val soundPool =
             SoundPool.Builder()
@@ -288,7 +288,7 @@ class SpatialAudioActivity : AppCompatActivity() {
                     .build()
 
             val thirdOrderAttributes =
-                SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
+                SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.THIRD_ORDER)
             SpatialMediaPlayer.setSoundFieldAttributes(session, mediaplayer, thirdOrderAttributes)
 
             mediaplayer.setAudioAttributes(audioAttributes)
@@ -387,16 +387,16 @@ class SpatialAudioActivity : AppCompatActivity() {
             audioTrack.play()
 
             when (SpatialAudioTrack.getSpatialSourceType(session, audioTrack)) {
-                SpatializerConstants.SOURCE_TYPE_DEFAULT -> {
+                SpatializerConstants.SourceType.DEFAULT -> {
                     Log.d(TAG, "Source type is bypass")
                 }
-                SpatializerConstants.SOURCE_TYPE_POINT_SOURCE -> {
+                SpatializerConstants.SourceType.POINT_SOURCE -> {
                     Log.d(
                         TAG,
                         "Point Source: ${SpatialAudioTrack.getPointSourceParams(session, audioTrack)}",
                     )
                 }
-                SpatializerConstants.SOURCE_TYPE_SOUND_FIELD -> {
+                SpatializerConstants.SourceType.SOUND_FIELD -> {
                     Log.d(
                         TAG,
                         "Sound Field: ${SpatialAudioTrack.getSoundFieldAttributes(session, audioTrack)}",

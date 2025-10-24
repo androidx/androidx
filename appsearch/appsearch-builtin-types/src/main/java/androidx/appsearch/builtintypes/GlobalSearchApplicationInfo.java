@@ -60,7 +60,7 @@ import java.util.List;
         enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
         name = Features.VERBATIM_SEARCH)
 @Document(name = "builtin:GlobalSearchApplicationInfo")
-public final class GlobalSearchApplicationInfo {
+public class GlobalSearchApplicationInfo {
     /**
      * Used with {@link #getApplicationType()} to indicate this application is ready and able to
      * index a certain type of data.
@@ -139,12 +139,7 @@ public final class GlobalSearchApplicationInfo {
     }
 
     /** Builder class for {@link GlobalSearchApplicationInfo}. */
-    public static final class Builder {
-        private final String mNamespace;
-        private final String mId;
-        private final @ApplicationType int mApplicationType;
-        private List<String> mSchemaTypes = Collections.emptyList();
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructs a new {@link Builder}.
          *
@@ -159,6 +154,21 @@ public final class GlobalSearchApplicationInfo {
          *                        or {@link #setDocumentClasses}.
          */
         public Builder(
+                @NonNull String namespace,
+                @NonNull String id,
+                @ApplicationType int applicationType) {
+            super(namespace, id, applicationType);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> {
+        protected final String mNamespace;
+        protected final String mId;
+        protected final @ApplicationType int mApplicationType;
+        protected List<String> mSchemaTypes = Collections.emptyList();
+
+        BuilderImpl(
                 @NonNull String namespace,
                 @NonNull String id,
                 @ApplicationType int applicationType) {
@@ -179,13 +189,13 @@ public final class GlobalSearchApplicationInfo {
          * <p>This method is equivalent to {@link #setDocumentClasses} but accepts schema name
          * strings instead of extracting schema information from document classes.
          */
-        public @NonNull Builder setSchemaTypes(@NonNull List<@NonNull String> schemaTypes) {
+        public @NonNull T setSchemaTypes(@NonNull List<@NonNull String> schemaTypes) {
             Preconditions.checkNotNull(schemaTypes);
             for (int i = 0; i < schemaTypes.size(); i++) {
                 Preconditions.checkNotNull(schemaTypes.get(i));
             }
             mSchemaTypes = schemaTypes;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -202,7 +212,7 @@ public final class GlobalSearchApplicationInfo {
          *                            classes or extraction of the schema name fails.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")  // See getSchemaTypes
-        public @NonNull Builder setDocumentClasses(@NonNull List<@NonNull Class<?>> schemaClasses)
+        public @NonNull T setDocumentClasses(@NonNull List<@NonNull Class<?>> schemaClasses)
                 throws AppSearchException {
             Preconditions.checkNotNull(schemaClasses);
             DocumentClassFactoryRegistry documentClassFactoryRegistry =
@@ -215,7 +225,7 @@ public final class GlobalSearchApplicationInfo {
                 schemaTypes.add(documentClassFactory.getSchemaName());
             }
             mSchemaTypes = schemaTypes;
-            return this;
+            return (T) this;
         }
 
         /** Constructs a new {@link GlobalSearchApplicationInfo}. */

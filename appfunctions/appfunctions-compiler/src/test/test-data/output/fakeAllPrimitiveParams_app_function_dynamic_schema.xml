@@ -97,12 +97,7 @@
             <dataTypeMetadata>
                 <id>unused</id>
                 <isNullable>false</isNullable>
-                <itemType>
-                    <id>unused</id>
-                    <isNullable>false</isNullable>
-                    <type>2</type>
-                </itemType>
-                <type>10</type>
+                <type>2</type>
             </dataTypeMetadata>
             <id>unused</id>
             <isRequired>true</isRequired>

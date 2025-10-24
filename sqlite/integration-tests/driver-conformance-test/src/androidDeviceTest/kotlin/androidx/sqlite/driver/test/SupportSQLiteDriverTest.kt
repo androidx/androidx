@@ -24,6 +24,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.sqlite.driver.SupportSQLiteDriver
 import androidx.sqlite.execSQL
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -111,6 +112,7 @@ class SupportSQLiteDriverTest : BaseConformanceTest() {
         fileDriver.open("file_database.db").close()
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452723068
     @Test
     fun walModeChangeMatchesFramework() {
         context.deleteDatabase("test.db")

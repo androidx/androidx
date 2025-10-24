@@ -29,6 +29,12 @@ import androidx.compose.ui.graphics.graphicsLayer
  * the destination with the desired alpha. This layer is sized to the bounds of the composable this
  * modifier is configured on, and contents outside of these bounds are omitted.
  *
+ * Performance Note: For animating alpha, it is highly recommended to use [Modifier.graphicsLayer]
+ * instead (e.g., `Modifier.graphicsLayer { alpha = ... }`). Changing the `alpha` parameter on
+ * `Modifier.alpha` causes the composable to be recomposed, which is less efficient than updating
+ * the `alpha` property within `graphicsLayer`, as `graphicsLayer` can optimize this change without
+ * requiring recomposition.
+ *
  * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
  * @sample androidx.compose.ui.samples.AlphaSample
  * @see graphicsLayer

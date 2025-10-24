@@ -22,15 +22,15 @@ import static org.junit.Assert.assertEquals;
 
 import android.util.Log;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
@@ -43,13 +43,13 @@ import java.io.ByteArrayInputStream;
 @RunWith(JUnit4.class)
 public class LoopOperationTest {
 
-    private final Platform mPlatform = new AndroidxPlatformServices();
+    private final RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
 
     interface Callback {
         void run(RemoteComposeContext foo);
     }
 
-    private RemoteComposeDocument createDocument(RemoteContext context, final Callback cb) {
+    private RemoteDocument createDocument(RemoteContext context, final Callback cb) {
 
         RemoteComposeContext doc =
                 new RemoteComposeContext(
@@ -68,8 +68,8 @@ public class LoopOperationTest {
         byte[] buffer = doc.buffer();
         int bufferSize = doc.bufferSize();
         System.out.println("size of doc " + bufferSize / 1024 + "KB");
-        RemoteComposeDocument recreatedDocument =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         recreatedDocument.initializeContext(context);
         return recreatedDocument;
     }
@@ -80,7 +80,7 @@ public class LoopOperationTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(true);
 
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -92,7 +92,7 @@ public class LoopOperationTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return doc.toString();

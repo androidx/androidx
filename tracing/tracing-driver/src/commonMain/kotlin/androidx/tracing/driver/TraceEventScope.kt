@@ -18,50 +18,45 @@ package androidx.tracing.driver
 
 /** Makes it possible to associate debug annotations & categories to a [TraceEvent]. */
 // False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
-@Suppress("NOTHING_TO_INLINE", "OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
-public class TraceEventScope @PublishedApi internal constructor() {
-    @PublishedApi internal lateinit var event: TraceEvent
+@Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+internal class TraceEventScope() : MetadataHandle() {
+    /** The [TraceEvent] reference being mutated. */
+    // Bare mutable fields for performance
+    @JvmField internal var event: TraceEvent? = null
+    /** The [SliceTrack] that owns the [TraceEvent] instance. */
+    // Bare mutable fields for performance
+    @JvmField internal var owner: SliceTrack? = null
 
-    /** Adds an annotation where the type of the [value] is an [Boolean]. */
-    public fun addMetadataEntry(name: String, value: Boolean) {
+    override fun addMetadataEntry(name: String, value: Boolean) {
         val entry = nextMetadataEntry()
         entry.name = name
         entry.type = METADATA_TYPE_BOOLEAN
         entry.booleanValue = value
     }
 
-    /** Adds an annotation where the type of the [value] is an [Long]. */
-    public fun addMetadataEntry(name: String, value: Long) {
+    override fun addMetadataEntry(name: String, value: Long) {
         val entry = nextMetadataEntry()
         entry.name = name
         entry.type = METADATA_TYPE_LONG
         entry.longValue = value
     }
 
-    /** Adds an annotation where the type of the [value] is an [Double]. */
-    public fun addMetadataEntry(name: String, value: Double) {
+    override fun addMetadataEntry(name: String, value: Double) {
         val entry = nextMetadataEntry()
         entry.name = name
         entry.type = METADATA_TYPE_DOUBLE
         entry.doubleValue = value
     }
 
-    /** Adds an annotation where the type of the [value] is an [String]. */
-    public fun addMetadataEntry(name: String, value: String) {
+    override fun addMetadataEntry(name: String, value: String) {
         val entry = nextMetadataEntry()
         entry.name = name
         entry.type = METADATA_TYPE_STRING
         entry.stringValue = value
     }
 
-    /**
-     * Adds a category to the [TraceEvent].
-     *
-     * This is useful in the when an application is interested in a subset of [TraceEvent]s that
-     * belong to well known categories. These are typically small identifiers useful for namespacing
-     * [TraceEvent]s.
-     */
-    public fun addCategory(name: String) {
+    override fun addCategory(name: String) {
+        val event = event!!
         event.lastCategoryIndex += 1
         if (event.lastCategoryIndex >= event.categories.size) {
             // Resize if necessary.
@@ -70,12 +65,20 @@ public class TraceEventScope @PublishedApi internal constructor() {
         event.categories[event.lastCategoryIndex] = name
     }
 
+    @Suppress("NOTHING_TO_INLINE")
     private inline fun nextMetadataEntry(): MetadataEntry {
+        val event = event!!
         event.lastMetadataEntryIndex += 1
         if (event.lastMetadataEntryIndex >= event.metadataEntries.size) {
             // Resize if necessary.
             event.metadataEntries += MetadataEntry()
         }
         return event.metadataEntries[event.lastMetadataEntryIndex]
+    }
+
+    @DelicateTracingApi
+    override fun dispatchToTraceSink() {
+        val owner = owner!!
+        owner.dispatchTraceEvent(event = event)
     }
 }

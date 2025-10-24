@@ -31,7 +31,7 @@ import androidx.test.uiautomator.Until
  */
 fun MacrobenchmarkScope.setupPokedexBenchmarkTarget(
     numberOfImages: Int = 200,
-    timeout: Long = 15_000,
+    timeout: Long = 30_000,
 ) {
     trace("Set up images") {
         val setupIntent = Intent()

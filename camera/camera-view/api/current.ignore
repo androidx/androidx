@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.camera.view.transform:
+    Removed package androidx.camera.view.transform from compatibility checked API surface
+
+
 RemovedFromKotlin: androidx.camera.view.TapToFocusInfo#getFocusState():
     Source breaking change: method androidx.camera.view.TapToFocusInfo.getFocusState() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.camera.view.TapToFocusInfo#getTapPoint():

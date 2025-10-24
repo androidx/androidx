@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 
@@ -39,42 +38,38 @@ import androidx.annotation.RestrictTo
  *   are handled along the depth axis.
  */
 public class TextureSampler
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 constructor(
     /**
      * an [Int] which describes how neighboring texels are sampled when the rendered size is smaller
      * than the texture.
      */
-    @MinificationFilter public val minificationFilter: Int = MINIFICATION_FILTER_LINEAR,
+    public val minificationFilter: MinificationFilter = MinificationFilter.LINEAR,
     /**
      * an [Int] which describes how neighboring texels are sampled when the rendered size is larger
      * than the texture.
      */
-    @MagnificationFilter public val magnificationFilter: Int = MAGNIFICATION_FILTER_LINEAR,
+    public val magnificationFilter: MagnificationFilter = MagnificationFilter.LINEAR,
     /**
      * an [Int] which describes how texture coordinates outside the [0-1] range are handled along
      * the horizontal axis.
      */
-    @WrapMode public val wrapModeHorizontal: Int = WRAP_MODE_REPEAT,
+    public val wrapModeHorizontal: WrapMode = WrapMode.REPEAT,
     /**
      * an [Int] which describes how texture coordinates outside the [0-1] range are handled along
      * the vertical axis.
      */
-    @WrapMode public val wrapModeVertical: Int = WRAP_MODE_REPEAT,
+    public val wrapModeVertical: WrapMode = WrapMode.REPEAT,
     /**
      * an [Int] which describes how texture coordinates outside the [0-1] range are handled along
      * the depth axis.
      */
-    @WrapMode public val wrapModeDepth: Int = WRAP_MODE_REPEAT,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @CompareMode
-    public val compareMode: Int = COMPARE_MODE_NONE,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @CompareFunction
-    public val compareFunction: Int = COMPARE_FUNCTION_LESSER_OR_EQUAL,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @IntRange(from = 0)
-    public val anisotropyLog2: Int = 0,
+    public val wrapModeDepth: WrapMode = WrapMode.REPEAT,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public val compareMode: CompareMode = CompareMode.NONE,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public val compareFunction: CompareFunction = CompareFunction.LESSER_OR_EQUAL,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) @IntRange(from = 0) public val anisotropyLog2: Int = 0,
 ) {
     /**
      * Defines the sampling behavior for a texture.
@@ -96,134 +91,133 @@ constructor(
      */
     @JvmOverloads
     public constructor(
-        @MinificationFilter minificationFilter: Int = MINIFICATION_FILTER_LINEAR,
-        @MagnificationFilter magnificationFilter: Int = MAGNIFICATION_FILTER_LINEAR,
-        @WrapMode wrapModeHorizontal: Int = WRAP_MODE_REPEAT,
-        @WrapMode wrapModeVertical: Int = WRAP_MODE_REPEAT,
-        @WrapMode wrapModeDepth: Int = WRAP_MODE_REPEAT,
+        minificationFilter: MinificationFilter = MinificationFilter.LINEAR,
+        magnificationFilter: MagnificationFilter = MagnificationFilter.LINEAR,
+        wrapModeHorizontal: WrapMode = WrapMode.REPEAT,
+        wrapModeVertical: WrapMode = WrapMode.REPEAT,
+        wrapModeDepth: WrapMode = WrapMode.REPEAT,
     ) : this(
         minificationFilter,
         magnificationFilter,
         wrapModeHorizontal,
         wrapModeVertical,
         wrapModeDepth,
-        COMPARE_MODE_NONE,
-        COMPARE_FUNCTION_LESSER_OR_EQUAL,
+        CompareMode.NONE,
+        CompareFunction.LESSER_OR_EQUAL,
         0,
     )
 
-    public companion object {
-        /** The edge of the texture extends to infinity. */
-        public const val WRAP_MODE_CLAMP_TO_EDGE: Int = 0
-        /** The texture infinitely repeats in the wrap direction. */
-        public const val WRAP_MODE_REPEAT: Int = 1
-        /** The texture infinitely repeats and mirrors in the wrap direction. */
-        public const val WRAP_MODE_MIRRORED_REPEAT: Int = 2
+    /** Defines the constants for texture wrap modes. */
+    public class WrapMode private constructor(private val name: String) {
+        public companion object {
+            /** The edge of the texture extends to infinity. */
+            @JvmField public val CLAMP_TO_EDGE: WrapMode = WrapMode("CLAMP_TO_EDGE")
 
-        /** Defines the constants for texture wrap modes. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(value = [WRAP_MODE_CLAMP_TO_EDGE, WRAP_MODE_REPEAT, WRAP_MODE_MIRRORED_REPEAT])
-        public annotation class WrapMode
+            /** The texture infinitely repeats in the wrap direction. */
+            @JvmField public val REPEAT: WrapMode = WrapMode("REPEAT")
 
-        /** No filtering. Nearest neighbor is used. */
-        public const val MINIFICATION_FILTER_NEAREST: Int = 0
-        /** Box filtering. Weighted average of 4 neighbors is used. */
-        public const val MINIFICATION_FILTER_LINEAR: Int = 1
-        /** Mip-mapping is activated, but no filtering occurs. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val MINIFICATION_FILTER_NEAREST_MIPMAP_NEAREST: Int = 2
-        /** Box filtering within a mip-map level. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val MINIFICATION_FILTER_LINEAR_MIPMAP_NEAREST: Int = 3
-        /** Mip-map levels are interpolated, but no other filtering occurs. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val MINIFICATION_FILTER_NEAREST_MIPMAP_LINEAR: Int = 4
-        /** Both interpolated Mip-mapping and linear filtering are used. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val MINIFICATION_FILTER_LINEAR_MIPMAP_LINEAR: Int = 5
+            /** The texture infinitely repeats and mirrors in the wrap direction. */
+            @JvmField public val MIRRORED_REPEAT: WrapMode = WrapMode("MIRRORED_REPEAT")
+        }
 
-        /** Defines the constants for texture minification filters. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(
-            value =
-                [
-                    MINIFICATION_FILTER_NEAREST,
-                    MINIFICATION_FILTER_LINEAR,
-                    MINIFICATION_FILTER_NEAREST_MIPMAP_NEAREST,
-                    MINIFICATION_FILTER_LINEAR_MIPMAP_NEAREST,
-                    MINIFICATION_FILTER_NEAREST_MIPMAP_LINEAR,
-                    MINIFICATION_FILTER_LINEAR_MIPMAP_LINEAR,
-                ]
-        )
-        public annotation class MinificationFilter
+        override fun toString(): String = name
+    }
 
-        /** No filtering. Nearest neighbor is used. */
-        public const val MAGNIFICATION_FILTER_NEAREST: Int = 0
-        /** Box filtering. Weighted average of 4 neighbors is used. */
-        public const val MAGNIFICATION_FILTER_LINEAR: Int = 1
+    /** Defines the constants for texture minification filters. */
+    public class MinificationFilter private constructor(private val name: String) {
+        public companion object {
+            /** No filtering. Nearest neighbor is used. */
+            @JvmField public val NEAREST: MinificationFilter = MinificationFilter("NEAREST")
 
-        /** Defines the constants for texture magnification filters. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(value = [MAGNIFICATION_FILTER_NEAREST, MAGNIFICATION_FILTER_LINEAR])
-        public annotation class MagnificationFilter
+            /** Box filtering. Weighted average of 4 neighbors is used. */
+            @JvmField public val LINEAR: MinificationFilter = MinificationFilter("LINEAR")
 
-        /** The comparison function is not used. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_MODE_NONE: Int = 0
-        /** The comparison function is used. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_MODE_COMPARE_TO_TEXTURE: Int = 1
+            /** Mip-mapping is activated, but no filtering occurs. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @JvmField
+            public val NEAREST_MIPMAP_NEAREST: MinificationFilter =
+                MinificationFilter("NEAREST_MIPMAP_NEAREST")
 
-        /** Defines the constants for depth texture comparison modes. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(value = [COMPARE_MODE_NONE, COMPARE_MODE_COMPARE_TO_TEXTURE])
-        public annotation class CompareMode
+            /** Box filtering within a mip-map level. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @JvmField
+            public val LINEAR_MIPMAP_NEAREST: MinificationFilter =
+                MinificationFilter("LINEAR_MIPMAP_NEAREST")
 
-        /** Passes if the incoming depth is less than or equal to the stored depth. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_LESSER_OR_EQUAL: Int = 0
-        /** Passes if the incoming depth is greater than or equal to the stored depth. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_GREATER_OR_EQUAL: Int = 1
-        /** Passes if the incoming depth is strictly less than the stored depth. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_LESSER: Int = 2
-        /** Passes if the incoming depth is strictly greater than the stored depth. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_GREATER: Int = 3
-        /** Passes if the incoming depth is equal to the stored depth. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_EQUAL: Int = 4
-        /** Passes if the incoming depth is not equal to the stored depth. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_NOT_EQUAL: Int = 5
-        /** Always passes. Depth testing is effectively deactivated. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_ALWAYS: Int = 6
-        /** Never passes. The depth test always fails. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public const val COMPARE_FUNCTION_NEVER: Int = 7
+            /** Mip-map levels are interpolated, but no other filtering occurs. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @JvmField
+            public val NEAREST_MIPMAP_LINEAR: MinificationFilter =
+                MinificationFilter("NEAREST_MIPMAP_LINEAR")
 
-        /** Defines the constants for depth texture comparison functions. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(
-            value =
-                [
-                    COMPARE_FUNCTION_LESSER_OR_EQUAL,
-                    COMPARE_FUNCTION_GREATER_OR_EQUAL,
-                    COMPARE_FUNCTION_LESSER,
-                    COMPARE_FUNCTION_GREATER,
-                    COMPARE_FUNCTION_EQUAL,
-                    COMPARE_FUNCTION_NOT_EQUAL,
-                    COMPARE_FUNCTION_ALWAYS,
-                    COMPARE_FUNCTION_NEVER,
-                ]
-        )
-        public annotation class CompareFunction
+            /** Both interpolated Mip-mapping and linear filtering are used. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @JvmField
+            public val LINEAR_MIPMAP_LINEAR: MinificationFilter =
+                MinificationFilter("LINEAR_MIPMAP_LINEAR")
+        }
+
+        override fun toString(): String = name
+    }
+
+    /** Defines the constants for texture magnification filters. */
+    public class MagnificationFilter private constructor(private val name: String) {
+        public companion object {
+            /** No filtering. Nearest neighbor is used. */
+            @JvmField public val NEAREST: MagnificationFilter = MagnificationFilter("NEAREST")
+
+            /** Box filtering. Weighted average of 4 neighbors is used. */
+            @JvmField public val LINEAR: MagnificationFilter = MagnificationFilter("LINEAR")
+        }
+
+        override fun toString(): String = name
+    }
+
+    /** Defines the constants for depth texture comparison modes. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public class CompareMode private constructor(private val name: String) {
+        public companion object {
+            /** The comparison function is not used. */
+            @JvmField public val NONE: CompareMode = CompareMode("NONE")
+
+            /** The comparison function is used. */
+            @JvmField public val COMPARE_TO_TEXTURE: CompareMode = CompareMode("COMPARE_TO_TEXTURE")
+        }
+
+        override fun toString(): String = name
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** Defines the constants for depth texture comparison functions. */
+    public class CompareFunction private constructor(private val name: String) {
+        public companion object {
+            /** Passes if the incoming depth is less than or equal to the stored depth. */
+            @JvmField
+            public val LESSER_OR_EQUAL: CompareFunction = CompareFunction("LESSER_OR_EQUAL")
+
+            /** Passes if the incoming depth is greater than or equal to the stored depth. */
+            @JvmField
+            public val GREATER_OR_EQUAL: CompareFunction = CompareFunction("GREATER_OR_EQUAL")
+
+            /** Passes if the incoming depth is strictly less than the stored depth. */
+            @JvmField public val LESSER: CompareFunction = CompareFunction("LESSER")
+
+            /** Passes if the incoming depth is strictly greater than the stored depth. */
+            @JvmField public val GREATER: CompareFunction = CompareFunction("GREATER")
+
+            /** Passes if the incoming depth is equal to the stored depth. */
+            @JvmField public val EQUAL: CompareFunction = CompareFunction("EQUAL")
+
+            /** Passes if the incoming depth is not equal to the stored depth. */
+            @JvmField public val NOT_EQUAL: CompareFunction = CompareFunction("NOT_EQUAL")
+
+            /** Always passes. Depth testing is effectively deactivated. */
+            @JvmField public val ALWAYS: CompareFunction = CompareFunction("ALWAYS")
+
+            /** Never passes. The depth test always fails. */
+            @JvmField public val NEVER: CompareFunction = CompareFunction("NEVER")
+        }
+
+        override fun toString(): String = name
     }
 }

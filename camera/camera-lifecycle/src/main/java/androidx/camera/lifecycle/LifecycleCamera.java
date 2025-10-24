@@ -22,13 +22,11 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.LegacySessionConfig;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
@@ -60,7 +58,6 @@ import java.util.Set;
 @SuppressLint("UsesNonDefaultVisibleForTesting")
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@OptIn(markerClass = ExperimentalSessionConfig.class)
 public final class LifecycleCamera implements LifecycleObserver, Camera {
     private final Object mLock = new Object();
 

@@ -13,6 +13,10 @@ AddedAbstractMethod: androidx.wear.compose.foundation.lazy.ScalingParams#resolve
     Source breaking change: Added method androidx.wear.compose.foundation.lazy.ScalingParams.resolveViewportVerticalOffset(androidx.compose.ui.unit.Constraints)
 
 
+BecameUnchecked: androidx.wear.compose.foundation.SwipeToRevealKt:
+    Removed class androidx.wear.compose.foundation.SwipeToRevealKt from compatibility checked API surface
+
+
 ChangedType: androidx.wear.compose.foundation.CurvedAlignment.Angular.Companion#Custom(float):
     Source breaking change: Method androidx.wear.compose.foundation.CurvedAlignment.Angular.Companion.Custom has changed return type from float to androidx.wear.compose.foundation.CurvedAlignment.Angular
 ChangedType: androidx.wear.compose.foundation.CurvedAlignment.Radial.Companion#Custom(float):

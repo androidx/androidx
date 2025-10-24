@@ -38,7 +38,7 @@ import java.util.Objects;
  * context.
  */
 @Document(name = "builtin:ImageObject")
-public final class ImageObject extends Thing {
+public class ImageObject extends Thing {
 
     @Document.DocumentProperty(name = "keywords", indexNestedProperties = true)
     private final @NonNull List<Keyword> mKeywords;
@@ -106,7 +106,7 @@ public final class ImageObject extends Thing {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ImageObject)) return false;
         ImageObject that = (ImageObject) o;
         return mKeywords.equals(that.mKeywords) && Objects.equals(mSha256, that.mSha256)
                 && Objects.equals(mThumbnailSha256, that.mThumbnailSha256)

@@ -420,6 +420,11 @@ function runGradle() {
   if [[ "${@} " =~ " -Pandroidx.printTimestamps " ]]; then
     processOutput=true
   fi
+  # Skip build_log_processor as we are re-running an already successful build but with --dry-run so we can cache it
+  if [[ "${@} " =~ " --dry-run" && $ENABLE_PRESUBMIT_COMPATIBLE_CC_STORE == "true" ]]; then
+    processOutput=false
+  fi
+
   if [ "$processOutput" == "true" ]; then
     wrapper="$SCRIPT_PATH/development/build_log_processor.sh"
   else

@@ -127,6 +127,7 @@ package androidx.xr.scenecore.testing {
     method public void clearMaterialOverride(String nodeName, int primitiveIndex);
     method @InaccessibleFromKotlin public int getAnimationState();
     method @InaccessibleFromKotlin public final String? getCurrentAnimationName();
+    method public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
     method @InaccessibleFromKotlin public final androidx.xr.scenecore.testing.FakeGltfEntity.Node getNode();
     method @InaccessibleFromKotlin public final java.util.List<java.lang.String> getSupportedAnimationNames();
     method @InaccessibleFromKotlin public final boolean isLooping();
@@ -154,11 +155,14 @@ package androidx.xr.scenecore.testing {
     ctor public FakeGltfFeature(androidx.xr.runtime.NodeHolder<? extends java.lang.Object?> nodeHolder);
     method public void clearMaterialOverride(String nodeName, int primitiveIndex);
     method @InaccessibleFromKotlin public int getAnimationState();
+    method public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getSize();
     method public void setColliderEnabled(boolean enableCollider);
     method public void setMaterialOverride(androidx.xr.scenecore.runtime.MaterialResource material, String nodeName, int primitiveIndex);
     method public void startAnimation(boolean loop, String? animationName, java.util.concurrent.Executor executor);
     method public void stopAnimation();
     property public int animationState;
+    property public androidx.xr.runtime.math.FloatSize3d size;
     field public static final androidx.xr.scenecore.testing.FakeGltfFeature.Companion Companion;
   }
 
@@ -236,6 +240,8 @@ package androidx.xr.scenecore.testing {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.runtime.MaterialResource> createKhronosPbrMaterial(androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec spec);
     method public androidx.xr.scenecore.runtime.SurfaceEntity createSurfaceEntity(int stereoMode, androidx.xr.runtime.math.Pose pose, androidx.xr.scenecore.runtime.SurfaceEntity.Shape shape, int surfaceProtection, int superSampling, androidx.xr.scenecore.runtime.Entity parentEntity);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.runtime.MaterialResource> createWaterMaterial(boolean isAlphaMapVersion);
+    method public void destroyExrImage(androidx.xr.scenecore.runtime.ExrImageResource exrImage);
+    method public void destroyGltfModel(androidx.xr.scenecore.runtime.GltfModelResource gltfModel);
     method public void destroyKhronosPbrMaterial(androidx.xr.scenecore.runtime.MaterialResource material);
     method public void destroyTexture(androidx.xr.scenecore.runtime.TextureResource texture);
     method public void destroyWaterMaterial(androidx.xr.scenecore.runtime.MaterialResource material);
@@ -564,6 +570,7 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper getMediaPlayerExtensionsWrapper();
     method @InaccessibleFromKotlin public java.util.Map<java.util.concurrent.Executor,java.util.function.Consumer<androidx.xr.scenecore.runtime.PixelDimensions>> getPerceivedResolutionChangedMap();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.PerceptionSpaceScenePose getPerceptionSpaceActivityPose();
+    method public androidx.xr.scenecore.runtime.ScenePose getScenePoseFromPerceptionPose(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper getSoundPoolExtensionsWrapper();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SpatialCapabilities getSpatialCapabilities();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SpatialEnvironment getSpatialEnvironment();
@@ -744,6 +751,7 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public void setShape(androidx.xr.scenecore.runtime.SurfaceEntity.Shape);
     method @InaccessibleFromKotlin public void setStereoMode(int);
     method public void setSurface(android.view.Surface surface);
+    method public void setSurfacePixelDimensions(int width, int height);
     property public androidx.xr.scenecore.runtime.TextureResource? auxiliaryAlphaMask;
     property public int colorRange;
     property public int colorSpace;
@@ -783,6 +791,7 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public void setShape(androidx.xr.scenecore.runtime.SurfaceEntity.Shape);
     method @InaccessibleFromKotlin public void setStereoMode(int);
     method public void setSurface(android.view.Surface surface);
+    method public void setSurfacePixelDimensions(int width, int height);
     property public int colorRange;
     property public int colorSpace;
     property public int colorTransfer;

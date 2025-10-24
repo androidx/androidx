@@ -30,6 +30,7 @@ import android.util.Range
 import android.util.Rational
 import android.util.Size
 import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.adapter.GuaranteedConfigurationsUtil.getQueryableFcqCombinations
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITHOUT_FEATURE_COMBO
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITHOUT_FEATURE_COMBO_FIRST_AND_THEN_WITH_IT
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITH_FEATURE_COMBO
@@ -295,7 +296,10 @@ public class SupportedSurfaceCombination(
         var supportedSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
         if (featureSettings.requiresFeatureComboQuery) {
             supportedSurfaceCombinations.addAll(
-                GuaranteedConfigurationsUtil.QUERYABLE_FCQ_COMBINATIONS
+                getQueryableFcqCombinations(
+                    cameraMetadata,
+                    featureSettings.isPreviewStabilizationOn,
+                )
             )
         } else if (featureSettings.isUltraHdrOn) {
             if (surfaceCombinationsUltraHdr.isEmpty()) {

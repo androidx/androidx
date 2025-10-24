@@ -27,7 +27,7 @@ public object SpatialAudioTrack {
      * Gets the [SpatializerConstants.SourceType] of the provided [AudioTrack]. If
      * [setPointSourceParams] has not yet been called, this value is determined by how the
      * [SpatialAudioTrackBuilder] was constructed. Will return
-     * [SpatializerConstants.SOURCE_TYPE_DEFAULT] for tracks that didn't use spatial audio
+     * [SpatializerConstants.SourceType.DEFAULT] for tracks that didn't use spatial audio
      * attributes.
      *
      * @param session The current [Session] instance.
@@ -35,8 +35,10 @@ public object SpatialAudioTrack {
      * @return The [SpatializerConstants.SourceType] of the provided track.
      */
     @JvmStatic
-    @SpatializerConstants.SourceType
-    public fun getSpatialSourceType(session: Session, track: AudioTrack): Int {
+    public fun getSpatialSourceType(
+        session: Session,
+        track: AudioTrack,
+    ): SpatializerConstants.SourceType {
         return session.sceneRuntime.audioTrackExtensionsWrapper
             .getSpatialSourceType(track)
             .sourceTypeToJxr()
@@ -74,16 +76,16 @@ public object SpatialAudioTrack {
      * Sets a new [PointSourceParams] on the provided [AudioTrack].
      *
      * The new [PointSourceParams] will be applied if the [SpatializerConstants.SourceType] of the
-     * AudioTrack was either [SpatializerConstants.SOURCE_TYPE_DEFAULT] or
-     * [SpatializerConstants.SOURCE_TYPE_POINT_SOURCE]. If the [SpatializerConstants.SourceType] was
-     * [SpatializerConstants.SOURCE_TYPE_POINT_SOURCE], then this method will throw an
+     * AudioTrack was either [SpatializerConstants.SourceType.DEFAULT] or
+     * [SpatializerConstants.SourceType.POINT_SOURCE]. If the [SpatializerConstants.SourceType] was
+     * [SpatializerConstants.SourceType.POINT_SOURCE], then this method will throw an
      * [IllegalStateException].
      *
      * @param session The current [Session] instance.
      * @param track The [AudioTrack] on which to set the [PointSourceParams].
      * @param params The [PointSourceParams] to be set.
      * @throws IllegalStateException if the [SpatializerConstants.SourceType] of the [AudioTrack] is
-     *   [SpatializerConstants.SOURCE_TYPE_SOUND_FIELD].
+     *   [SpatializerConstants.SourceType.SOUND_FIELD].
      * @throws IllegalArgumentException if the [PointSourceParams] cannot be set on this
      *   [AudioTrack] instance.
      */

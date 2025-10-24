@@ -30,6 +30,7 @@ import androidx.fragment.app.SpecialEffectsController.Operation.State.Companion.
  *
  * Each SpecialEffectsController is responsible for a single [ViewGroup] container.
  */
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal abstract class SpecialEffectsController(val container: ViewGroup) {
     private val pendingOperations = mutableListOf<Operation>()
     private val runningOperations = mutableListOf<Operation>()

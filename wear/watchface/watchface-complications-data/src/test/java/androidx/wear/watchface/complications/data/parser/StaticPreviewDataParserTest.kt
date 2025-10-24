@@ -360,6 +360,44 @@ class StaticPreviewDataParserTest {
 
     @Test
     @Throws(Exception::class)
+    fun longIntegerResourceComplication() {
+        runTestForLocale(Locale("ar", "SA")) { context ->
+            context.resources.getXml(R.xml.static_preview_data_long_number).use { parser ->
+                val previewData = PreviewData.inflate(context, parser)
+                val complicationData =
+                    previewData[ComplicationType.RANGED_VALUE] as RangedValueComplicationData
+                assertThat(
+                        complicationData.title!!.getTextAt(
+                            context.resources,
+                            Instant.ofEpochMilli(0),
+                        )
+                    )
+                    .isEqualTo("٨٬٤١٨")
+            }
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun longIntegerResourceComplicationGermany() {
+        runTestForLocale(Locale.GERMANY) { context ->
+            context.resources.getXml(R.xml.static_preview_data_long_number).use { parser ->
+                val previewData = PreviewData.inflate(context, parser)
+                val complicationData =
+                    previewData[ComplicationType.RANGED_VALUE] as RangedValueComplicationData
+                assertThat(
+                        complicationData.title!!.getTextAt(
+                            context.resources,
+                            Instant.ofEpochMilli(0),
+                        )
+                    )
+                    .isEqualTo("8.418")
+            }
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun dateAndTimeFormattingComplication() {
         runTestForLocale(Locale.US) { context ->
             context.resources.getXml(R.xml.static_preview_data_2).use { parser ->

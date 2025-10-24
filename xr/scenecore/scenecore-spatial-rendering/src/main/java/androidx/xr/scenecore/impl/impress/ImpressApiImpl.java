@@ -22,6 +22,9 @@ import android.view.Surface;
 
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.xr.runtime.math.BoundingBox;
+import androidx.xr.runtime.math.FloatSize3d;
+import androidx.xr.runtime.math.Vector3;
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec;
 import androidx.xr.scenecore.runtime.TextureSampler;
 
@@ -136,20 +139,26 @@ public final class ImpressApiImpl implements ImpressApi {
     }
 
     @Override
-    public void setup(@NonNull View view) {
+    public void setup(@Nullable View view) {
         mView = view;
-        nSetup(getViewNativeHandle(view));
+        if (mView != null) {
+            nSetup(getViewNativeHandle(view));
+        }
         mResourceManager = new BindingsResourceManager(new Handler(Looper.getMainLooper()));
     }
 
     @Override
     public void onResume() {
-        mView.onResume();
+        if (mView != null) {
+            mView.onResume();
+        }
     }
 
     @Override
     public void onPause() {
-        mView.onPause();
+        if (mView != null) {
+            mView.onPause();
+        }
     }
 
     @Override
@@ -168,7 +177,7 @@ public final class ImpressApiImpl implements ImpressApi {
 
     @Override
     @NonNull
-    public ListenableFuture<Long> loadImageBasedLightingAsset(@NonNull String path) {
+    public ListenableFuture<ExrImage> loadImageBasedLightingAsset(@NonNull String path) {
         return CallbackToFutureAdapter.getFuture(
                 completer -> {
                     // TODO: b/374216912 - Add a cancellationListener to the completer here when the
@@ -181,7 +190,12 @@ public final class ImpressApiImpl implements ImpressApi {
 
                                 @Override
                                 public void onSuccess(long value) {
-                                    completer.set(value);
+                                    ExrImage exrImage =
+                                            new ExrImage.Builder()
+                                                    .setImpressApi(ImpressApiImpl.this)
+                                                    .setNativeExrImage(value)
+                                                    .build();
+                                    completer.set(exrImage);
                                 }
 
                                 @Override
@@ -212,7 +226,7 @@ public final class ImpressApiImpl implements ImpressApi {
 
     @Override
     @NonNull
-    public ListenableFuture<Long> loadImageBasedLightingAsset(
+    public ListenableFuture<ExrImage> loadImageBasedLightingAsset(
             byte @NonNull [] data, @NonNull String key) {
         return CallbackToFutureAdapter.getFuture(
                 completer -> {
@@ -226,7 +240,12 @@ public final class ImpressApiImpl implements ImpressApi {
 
                                 @Override
                                 public void onSuccess(long value) {
-                                    completer.set(value);
+                                    ExrImage exrImage =
+                                            new ExrImage.Builder()
+                                                    .setImpressApi(ImpressApiImpl.this)
+                                                    .setNativeExrImage(value)
+                                                    .build();
+                                    completer.set(exrImage);
                                 }
 
                                 @Override
@@ -258,7 +277,7 @@ public final class ImpressApiImpl implements ImpressApi {
 
     @Override
     @NonNull
-    public ListenableFuture<Long> loadGltfAsset(@NonNull String path) {
+    public ListenableFuture<GltfModel> loadGltfAsset(@NonNull String path) {
         return CallbackToFutureAdapter.getFuture(
                 completer -> {
                     // TODO: b/374216912 - Add a cancellationListener to the completer here when the
@@ -267,13 +286,16 @@ public final class ImpressApiImpl implements ImpressApi {
                             getViewNativeHandle(mView),
                             // The underlying C++ code will hold a reference to this (anoynomous)
                             // AssetLoader until the load is complete.
-                            // TODO(b/394349866): Revisit the way C++ --> Java code is called back
-                            // for the AssetLoader (proguard)
                             new AssetLoader() {
 
                                 @Override
                                 public void onSuccess(long value) {
-                                    completer.set(value);
+                                    GltfModel model =
+                                            new GltfModel.Builder()
+                                                    .setImpressApi(ImpressApiImpl.this)
+                                                    .setNativeGltfModel(value)
+                                                    .build();
+                                    completer.set(model);
                                 }
 
                                 @Override
@@ -304,7 +326,7 @@ public final class ImpressApiImpl implements ImpressApi {
 
     @Override
     @NonNull
-    public ListenableFuture<Long> loadGltfAsset(byte @NonNull [] data, @NonNull String key) {
+    public ListenableFuture<GltfModel> loadGltfAsset(byte @NonNull [] data, @NonNull String key) {
         return CallbackToFutureAdapter.getFuture(
                 completer -> {
                     // TODO: b/374216912 - Add a cancellationListener to the completer here when the
@@ -317,7 +339,12 @@ public final class ImpressApiImpl implements ImpressApi {
 
                                 @Override
                                 public void onSuccess(long value) {
-                                    completer.set(value);
+                                    GltfModel model =
+                                            new GltfModel.Builder()
+                                                    .setImpressApi(ImpressApiImpl.this)
+                                                    .setNativeGltfModel(value)
+                                                    .build();
+                                    completer.set(model);
                                 }
 
                                 @Override
@@ -460,6 +487,21 @@ public final class ImpressApiImpl implements ImpressApi {
     }
 
     @Override
+    @NonNull
+    public BoundingBox getGltfModelBoundingBox(@NonNull ImpressNode impressNode) {
+        float[] center = new float[3];
+        float[] halfExtents = new float[3];
+        nGetGltfModelLocalBounds(
+                getViewNativeHandle(mView), impressNode.getHandle(), center, halfExtents);
+
+        return BoundingBox.fromCenterAndHalfExtents(
+                // center
+                new Vector3(center[0], center[1], center[2]),
+                // halfExtents
+                new FloatSize3d(halfExtents[0], halfExtents[1], halfExtents[2]));
+    }
+
+    @Override
     public void destroyImpressNode(@NonNull ImpressNode impressNode) {
         nDestroyImpressNode(getViewNativeHandle(mView), impressNode.getHandle());
     }
@@ -581,6 +623,13 @@ public final class ImpressApiImpl implements ImpressApi {
     public Surface getSurfaceFromStereoSurface(@NonNull ImpressNode panelImpressNode) {
         return nGetSurfaceFromStereoSurfaceEntity(
                 getViewNativeHandle(mView), panelImpressNode.getHandle());
+    }
+
+    @Override
+    public void setStereoSurfaceEntitySurfaceSize(
+            @NonNull ImpressNode impressNode, int width, int height) {
+        nSetStereoSurfaceEntitySurfaceSize(
+                getViewNativeHandle(mView), impressNode.getHandle(), width, height);
     }
 
     @Override
@@ -1386,6 +1435,9 @@ public final class ImpressApiImpl implements ImpressApi {
 
     private static native void nStopGltfModelAnimation(long view, int impressNode);
 
+    private static native void nGetGltfModelLocalBounds(
+            long view, int impressNode, float[] outCenter, float[] outHalfExtent);
+
     private static native int nCreateImpressNode(long view);
 
     private static native void nDestroyImpressNode(long view, int impressNode);
@@ -1395,6 +1447,9 @@ public final class ImpressApiImpl implements ImpressApi {
 
     private static native int nCreateStereoSurfaceEntity(
             long view, int stereoMode, int contentSecurityLevel, boolean useSuperSampling);
+
+    private static native void nSetStereoSurfaceEntitySurfaceSize(
+            long view, int impressNode, int width, int height);
 
     private static native void nSetStereoSurfaceEntityCanvasShapeQuad(
             long view, int impressNode, float width, float height);

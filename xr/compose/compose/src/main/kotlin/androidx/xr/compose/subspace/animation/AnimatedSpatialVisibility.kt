@@ -17,6 +17,7 @@
 package androidx.xr.compose.subspace.animation
 
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.rememberTransition
@@ -142,10 +143,12 @@ public fun <T> Transition<T>.AnimatedSpatialVisibility(
  *
  * @see AnimatedVisibilityScope
  */
-public sealed interface AnimatedSpatialVisibilityScope : AnimatedVisibilityScope {
+public class AnimatedSpatialVisibilityScope
+internal constructor(override val transition: Transition<EnterExitState>) :
+    AnimatedVisibilityScope {
     @Composable
     public fun SubspaceModifier.animateEnterExit(
         enter: SpatialEnterTransition = SpatialTransitionDefaults.DefaultEnter,
         exit: SpatialExitTransition = SpatialTransitionDefaults.DefaultExit,
-    ): SubspaceModifier = transition.createModifier(enter, exit)
+    ): SubspaceModifier = this.then(transition.createModifier(enter, exit))
 }

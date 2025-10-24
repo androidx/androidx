@@ -29,20 +29,20 @@ import androidx.xr.scenecore.runtime.SpatializerConstants as RtSpatializerConsta
  *
  * @property order The [SpatializerConstants.AmbisonicsOrder] of the sound to be played.
  */
-public class SoundFieldAttributes(@SpatializerConstants.AmbisonicsOrder public val order: Int) {
+public class SoundFieldAttributes(public val order: SpatializerConstants.AmbisonicsOrder) {
 
     internal val rtSoundFieldAttributes: RtSoundFieldAttributes
 
     init {
         val rtOrder =
             when (order) {
-                SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER ->
+                SpatializerConstants.AmbisonicsOrder.FIRST_ORDER ->
                     RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
-                SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER ->
+                SpatializerConstants.AmbisonicsOrder.SECOND_ORDER ->
                     RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
-                SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER ->
+                SpatializerConstants.AmbisonicsOrder.THIRD_ORDER ->
                     RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
-                else -> order
+                else -> RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
             }
 
         rtSoundFieldAttributes = RtSoundFieldAttributes(rtOrder)

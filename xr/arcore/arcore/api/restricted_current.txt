@@ -226,7 +226,7 @@ package androidx.xr.arcore {
     property public androidx.xr.arcore.Earth.Surface TERRAIN;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Eye {
+  public final class Eye {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> getState();
     method public static androidx.xr.arcore.Eye? left(androidx.xr.runtime.Session session);
     method public static androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
@@ -240,35 +240,21 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class Eye.State {
-    ctor public Eye.State(androidx.xr.arcore.runtime.EyeStatus? coarseEyeStatus, androidx.xr.runtime.math.Pose? coarseEyePose, androidx.xr.arcore.runtime.EyeStatus? fineEyeStatus, androidx.xr.runtime.math.Pose? fineEyePose);
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCoarseEyePose();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.EyeStatus? getCoarseEyeStatus();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getFineEyePose();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.EyeStatus? getFineEyeStatus();
-    property public androidx.xr.runtime.math.Pose? coarseEyePose;
-    property public androidx.xr.arcore.runtime.EyeStatus? coarseEyeStatus;
-    property public androidx.xr.runtime.math.Pose? fineEyePose;
-    property public androidx.xr.arcore.runtime.EyeStatus? fineEyeStatus;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EyeStatus {
-    ctor public EyeStatus(int value);
-    field public static final androidx.xr.arcore.EyeStatus.Companion Companion;
-    field public static final androidx.xr.arcore.EyeStatus GAZING;
-    field public static final androidx.xr.arcore.EyeStatus INVALID;
-    field public static final androidx.xr.arcore.EyeStatus SHUT;
-  }
-
-  public static final class EyeStatus.Companion {
-    property public androidx.xr.arcore.EyeStatus GAZING;
-    property public androidx.xr.arcore.EyeStatus INVALID;
-    property public androidx.xr.arcore.EyeStatus SHUT;
+  public static final class Eye.State {
+    ctor public Eye.State(boolean isOpen, androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.TrackingState trackingState);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    property public boolean isOpen;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
   }
 
   public final class Face {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> getState();
     method public static androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Face>> subscribe(androidx.xr.runtime.Session session);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> state;
     field public static final androidx.xr.arcore.Face.Companion Companion;
@@ -276,6 +262,7 @@ package androidx.xr.arcore {
 
   public static final class Face.Companion {
     method public androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Face>> subscribe(androidx.xr.runtime.Session session);
   }
 
   public static final class Face.State {
@@ -440,6 +427,19 @@ package androidx.xr.arcore {
     property public androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_LEFT_UPPER;
     property public androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_LOWER;
     property public androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_RIGHT_UPPER;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FaceMeshRegion {
+    field public static final androidx.xr.arcore.FaceMeshRegion.Companion Companion;
+    field public static final androidx.xr.arcore.FaceMeshRegion FOREHEAD_LEFT;
+    field public static final androidx.xr.arcore.FaceMeshRegion FOREHEAD_RIGHT;
+    field public static final androidx.xr.arcore.FaceMeshRegion NOSE_TIP;
+  }
+
+  public static final class FaceMeshRegion.Companion {
+    property public androidx.xr.arcore.FaceMeshRegion FOREHEAD_LEFT;
+    property public androidx.xr.arcore.FaceMeshRegion FOREHEAD_RIGHT;
+    property public androidx.xr.arcore.FaceMeshRegion NOSE_TIP;
   }
 
   public final class Hand {

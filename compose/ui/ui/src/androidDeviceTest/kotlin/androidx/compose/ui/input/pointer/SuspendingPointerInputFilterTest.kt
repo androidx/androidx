@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -70,7 +71,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class SuspendingPointerInputFilterTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @After
     fun after() {
@@ -717,12 +718,13 @@ class SuspendingPointerInputFilterTest {
                 "before resetPointerInputHandler(), handler should" +
                     "be suspended waiting for a second event (that never comes).",
             )
-
-            // Cancels the pointer input handler in SuspendPointerInputModifierNode (and thus the
-            // Coroutine Job associated with it).
-            suspendingPointerInputModifierNode.resetPointerInputHandler()
-            counter.expect(6, "after resetPointerInputHandler(), end of test.")
         }
+
+        // Cancels the pointer input handler in SuspendPointerInputModifierNode (and thus the
+        // Coroutine Job associated with it).
+        suspendingPointerInputModifierNode.resetPointerInputHandler()
+        rule.waitForIdle()
+        counter.expect(6, "after resetPointerInputHandler(), end of test.")
     }
 
     @Test

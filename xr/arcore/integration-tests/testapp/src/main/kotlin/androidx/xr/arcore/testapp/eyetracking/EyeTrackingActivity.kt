@@ -110,9 +110,10 @@ class EyeTrackingActivity : ComponentActivity() {
             when (currentMode) {
                 // cycle through the 3 different eye tracking config modes
                 Config.EyeTrackingMode.COARSE_TRACKING -> Config.EyeTrackingMode.FINE_TRACKING
-                Config.EyeTrackingMode.FINE_TRACKING ->
-                    Config.EyeTrackingMode.COARSE_AND_FINE_TRACKING
-                else -> Config.EyeTrackingMode.COARSE_TRACKING
+                Config.EyeTrackingMode.FINE_TRACKING -> Config.EyeTrackingMode.COARSE_TRACKING
+                else -> {
+                    throw IllegalStateException("Invalid Eye Tracking mode")
+                }
             }
         // reconfigure the session
         config =
@@ -157,8 +158,8 @@ class EyeTrackingActivity : ComponentActivity() {
                 if (perceptionState == null) {
                     Row { Text("Perception State is null", fontSize = 20.sp) }
                 } else {
-                    val leftEye = getEyeGazePose(config, perceptionState.leftEye)
-                    val rightEye = getEyeGazePose(config, perceptionState.rightEye)
+                    val leftEye = getEyePose(config, perceptionState.leftEye)
+                    val rightEye = getEyePose(config, perceptionState.rightEye)
                     Row {
                         Button(onClick = { toggleEyeTrackingConfigMode() }) {
                             // button displays current eyetracking mode. click it to change.
@@ -197,7 +198,6 @@ class EyeTrackingActivity : ComponentActivity() {
         return when (this) {
             Config.EyeTrackingMode.COARSE_TRACKING -> "Coarse Tracking"
             Config.EyeTrackingMode.FINE_TRACKING -> "Fine Tracking"
-            Config.EyeTrackingMode.COARSE_AND_FINE_TRACKING -> "Coarse and Fine Tracking"
             Config.EyeTrackingMode.DISABLED -> "Disabled"
             else -> "Unknown"
         }

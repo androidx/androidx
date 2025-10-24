@@ -20,7 +20,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -46,20 +44,19 @@ internal class GlimmerListAutoFocusScrollTest(private val testCase: FocusStrateg
     BaseListTestWithOrientation(Orientation.Vertical) {
 
     @Test
-    fun verifyFocusIsSetCorrectlyAtEachScrollStep() =
-        runTest(testDispatcher) {
-            val state = ListState()
-            val density = Density(1f)
-            rule.setContentForTestCase {
-                CompositionLocalProvider(LocalDensity provides density) {
-                    FocusableTestList(state, testCase)
-                }
+    fun verifyFocusIsSetCorrectlyAtEachScrollStep() {
+        val state = ListState()
+        val density = Density(1f)
+        rule.setContentForTestCase {
+            CompositionLocalProvider(LocalDensity provides density) {
+                FocusableTestList(state, testCase)
             }
-
-            runTestCase(state, density, testCase)
         }
 
-    private suspend fun runTestCase(
+        runTestCase(state, density, testCase)
+    }
+
+    private fun runTestCase(
         state: ListState,
         density: Density,
         testCase: FocusStrategyScrollTestCase,
@@ -96,7 +93,6 @@ internal class GlimmerListAutoFocusScrollTest(private val testCase: FocusStrateg
         lateinit var focusManager: FocusManager
         setContent {
             focusManager = LocalFocusManager.current
-            scope = rememberCoroutineScope()
             content()
         }
         // Move focus to the list.

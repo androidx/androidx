@@ -202,6 +202,20 @@ public class RecordingModifier {
     }
 
     /**
+     * Add a background modifier (flat color background)
+     *
+     * @param r the red value, possibly a remote float
+     * @param g the green value, possibly a remote float
+     * @param b the blue value, possibly a remote float
+     * @param a the alpha value, possibly a remote float
+     * @return
+     */
+    public @NonNull RecordingModifier background(float r, float g, float b, float a) {
+        mList.add(new SolidBackgroundModifier(r, g, b, a));
+        return this;
+    }
+
+    /**
      * Add a collapsible priority. Only valid within a Collapsible layout.
      *
      * @param orientation HORIZONTAL or VERTICAL

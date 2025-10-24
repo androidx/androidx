@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
@@ -134,7 +135,19 @@ internal class FocusTargetNode(
                         this === requireOwner().focusOwner.activeFocusTargetNode &&
                         !field.canFocus(this)
                 ) {
-                    clearFocus(forced = true, refreshFocusEvents = true)
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (isOptimizedFocusEventDispatchEnabled) {
+                        if (clearFocus(forced = true, refreshFocusEvents = true)) {
+                            val previousActive = requireOwner().focusOwner.activeFocusTargetNode
+                            requireOwner().focusOwner.activeFocusTargetNode = null
+                            previousActive?.dispatchFocusCallbacks(
+                                previousState = Active,
+                                newState = Inactive,
+                            )
+                        }
+                    } else {
+                        clearFocus(forced = true, refreshFocusEvents = true)
+                    }
                 }
             }
         }

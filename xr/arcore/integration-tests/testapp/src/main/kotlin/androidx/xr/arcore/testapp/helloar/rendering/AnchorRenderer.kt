@@ -24,6 +24,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
+import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.hitTest
 import androidx.xr.runtime.Session
@@ -31,7 +32,6 @@ import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
-import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.InputEvent
@@ -49,6 +49,7 @@ internal class AnchorRenderer(
     val session: Session,
     val coroutineScope: CoroutineScope,
 ) : DefaultLifecycleObserver {
+    private val arDevice = ArDevice.getInstance(session)
 
     private lateinit var gltfAnchorModel: GltfModel
 
@@ -67,7 +68,7 @@ internal class AnchorRenderer(
     }
 
     override fun onPause(owner: LifecycleOwner) {
-        updateJob.complete()
+        updateJob.cancel()
         clearRenderedAnchors()
     }
 
@@ -83,9 +84,12 @@ internal class AnchorRenderer(
             if (planeModel.entity.getComponents().isEmpty()) {
                 planeModel.entity.addComponent(
                     InteractableComponent.create(session, activity.mainExecutor) { event ->
-                        if (event.action.equals(InputEvent.Action.ACTION_DOWN)) {
-                            val up =
-                                session.scene.spatialUser.head?.activitySpacePose?.up ?: Vector3.Up
+                        if (event.action.equals(InputEvent.Action.DOWN)) {
+                            val headScenePose =
+                                session.scene.perceptionSpace.getScenePoseFromPerceptionPose(
+                                    arDevice.state.value.devicePose
+                                )
+                            val up = headScenePose.activitySpacePose.up
                             val perceptionRayPose =
                                 session.scene.activitySpace.transformPoseTo(
                                     Pose(

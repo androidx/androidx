@@ -22,7 +22,6 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.featuregroup.GroupableFeature.Companion.FPS_60
@@ -43,7 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalSessionConfig::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class FeatureGroupQueryBenchmark(
@@ -102,7 +100,7 @@ class FeatureGroupQueryBenchmark(
             )
 
         benchmarkRule.measureRepeated {
-            cameraProvider.getCameraInfo(cameraSelector).isFeatureGroupSupported(sessionConfig)
+            cameraProvider.getCameraInfo(cameraSelector).isSessionConfigSupported(sessionConfig)
         }
     }
 

@@ -39,7 +39,7 @@ import androidx.xr.compose.testapp.common.composables.FixedSizeFullSpaceLayout
 import androidx.xr.compose.testapp.common.composables.TestResult
 import androidx.xr.compose.testapp.common.composables.TestResultsDisplay
 import androidx.xr.compose.testapp.common.composables.addTestResult
-import androidx.xr.scenecore.SpatialCapabilities
+import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import kotlinx.coroutines.delay
 
@@ -70,11 +70,7 @@ class SpaceModeActivity : ComponentActivity() {
         var testStatus by remember { mutableStateOf("Running..") }
 
         session.scene.addSpatialCapabilitiesChangedListener { _ ->
-            if (
-                session.scene.spatialCapabilities.hasCapability(
-                    SpatialCapabilities.Companion.SPATIAL_CAPABILITY_UI
-                )
-            ) {
+            if (session.scene.spatialCapabilities.contains(SpatialCapability.SPATIAL_UI)) {
                 Log.d(tag, "fullSpaceCallback Received")
                 fullSpaceCallbackReceived = true
             } else {
@@ -116,6 +112,7 @@ class SpaceModeActivity : ComponentActivity() {
         Subspace {
             FixedSizeFullSpaceLayout(getString(R.string.space_mode_change_test)) {
                 TestResultsDisplay(testResults)
+                @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                 Text(
                     testStatus,
                     fontSize = 30.sp,

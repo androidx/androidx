@@ -37,4 +37,5 @@ parcelable ProjectedUpdateResult {
   androidx.xr.arcore.projected.ProjectedTrackingState deviceTrackingState;
   androidx.xr.arcore.projected.ProjectedTrackingState earthTrackingState;
   long currentTimeNanos;
+  androidx.xr.arcore.projected.ProjectedPose devicePose;
 }

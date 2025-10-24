@@ -117,7 +117,7 @@ public class FakeActivitySpace() : FakeSystemSpaceEntity(), ActivitySpace {
 
     override val recommendedContentBoxInFullSpace: BoundingBox
         get() =
-            BoundingBox(
+            BoundingBox.fromMinMax(
                 min = Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
                 max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
             )

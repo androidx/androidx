@@ -17,7 +17,7 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Color
-import androidx.compose.remote.core.Profiles
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.RFloat
 import androidx.compose.remote.creation.RemoteComposeContext
@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.computeMeasure
 import androidx.compose.remote.creation.computePosition
 import androidx.compose.remote.creation.cos
 import androidx.compose.remote.creation.min
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.sin
 import androidx.compose.remote.creation.toRad
 
@@ -37,8 +37,8 @@ fun LayoutModifierDemo1(): RemoteComposeContext {
         600,
         "Demo",
         7,
-        Profiles.PROFILE_ANDROIDX or Profiles.PROFILE_EXPERIMENTAL,
-        AndroidxPlatformServices(),
+        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+        AndroidxRcPlatformServices(),
     ) {
         root {
             box(Modifier.fillMaxSize().background(Color.YELLOW)) {
@@ -67,8 +67,8 @@ fun LayoutModifierDemo2(): RemoteComposeContext {
         600,
         "Demo",
         7,
-        Profiles.PROFILE_ANDROIDX or Profiles.PROFILE_EXPERIMENTAL,
-        AndroidxPlatformServices(),
+        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+        AndroidxRcPlatformServices(),
     ) {
         root {
             box(

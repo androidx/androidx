@@ -16,17 +16,28 @@
 package androidx.room3.paging.rxjava3
 
 import androidx.room3.RoomDatabase
-import androidx.room3.RoomSQLiteQuery
+import androidx.room3.RoomRawQuery
 import androidx.sqlite.SQLiteStatement
+import io.reactivex.rxjava3.core.Single
 
 abstract class LimitOffsetRxPagingSource<T : Any>(
-    private val sourceQuery: RoomSQLiteQuery,
-    private val db: RoomDatabase,
-    vararg tables: String
-) : androidx.paging.rxjava3.RxPagingSource<Int, T>(
-    sourceQuery,
-    db,
-    *tables
-) {
-    protected override abstract fun convertRows(statement: SQLiteStatement): List<T>
+    protected val sourceQuery: RoomRawQuery,
+    protected val db: RoomDatabase,
+    protected vararg val tables: String
+) : androidx.paging.rxjava3.RxPagingSource<Int, T>() {
+
+    override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, T>> {
+        TODO()
+    }
+    protected abstract suspend fun convertRows(
+        limitOffsetQuery: RoomRawQuery,
+        itemCount: Int
+    ): List<T>
+
+    override fun getRefreshKey(state: androidx.paging.PagingState<Int, T>): Int? {
+        TODO()
+    }
+
+    override val jumpingSupported: Boolean
+        get() = true
 }

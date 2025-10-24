@@ -521,12 +521,14 @@ package androidx.wear.compose.material3 {
   }
 
   public final class ConfirmationDialogDefaults {
-    method @KotlinOnly @androidx.compose.runtime.Composable public void FailureIcon(optional androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public void FailureIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void ConnectionFailureIcon(optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public void ConnectionFailureIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public void FailureIcon(optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public void FailureIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void GenericFailureIcon(optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public void GenericFailureIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public void SuccessIcon(optional androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public void SuccessIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public void VariantFailureIcon(optional androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public void VariantFailureIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationDialogColors colors();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationDialogColors colors(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationDialogColors colors(optional androidx.compose.ui.graphics.Color iconColor, optional androidx.compose.ui.graphics.Color iconContainerColor, optional androidx.compose.ui.graphics.Color textColor);
@@ -2161,7 +2163,7 @@ package androidx.wear.compose.material3 {
 
   public final class TimeTextKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeText(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.CurvedModifier curvedModifier, optional float maxSweepAngle, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.wear.compose.material3.TimeSource timeSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function2<androidx.wear.compose.foundation.CurvedScope,java.lang.String,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeText-hYmLsZ8(androidx.compose.ui.Modifier?, androidx.wear.compose.foundation.CurvedModifier?, float, long, androidx.wear.compose.material3.TimeSource?, androidx.compose.foundation.layout.PaddingValues?, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.CurvedScope!,? super java.lang.String!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void TimeText-hYmLsZ8(androidx.compose.ui.Modifier?, androidx.wear.compose.foundation.CurvedModifier?, float, long, androidx.wear.compose.material3.TimeSource?, androidx.compose.foundation.layout.PaddingValues?, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.CurvedScope!,? super java.lang.String!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method public static void timeTextCurvedText(androidx.wear.compose.foundation.CurvedScope, String time, optional androidx.wear.compose.foundation.CurvedTextStyle? style);
     method @BytecodeOnly public static void timeTextCurvedText$default(androidx.wear.compose.foundation.CurvedScope!, String!, androidx.wear.compose.foundation.CurvedTextStyle!, int, Object!);
     method public static void timeTextSeparator(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedTextStyle? curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);

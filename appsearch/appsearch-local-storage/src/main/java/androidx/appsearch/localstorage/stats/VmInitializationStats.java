@@ -86,6 +86,21 @@ public class VmInitializationStats {
         return mVmStartAttemptsStats;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("VmInitializationStats {\n")
+                .append(String.format("  vmInitType=%d,\n", mVmInitType))
+                .append("  vmStartAttemptsStats=[\n");
+        for (int i = 0; i < mVmStartAttemptsStats.size(); i++) {
+            sb.append("    ").append(
+                    String.valueOf(mVmStartAttemptsStats.get(i)).replace("\n", "\n    ")).append(
+                    ",\n");
+        }
+        sb.append("  ]\n").append("}");
+        return sb.toString();
+    }
+
     /** Builder for {@link VmInitializationStats}. */
     public static class Builder {
         @VmInitType final int mVmInitType;

@@ -61,6 +61,36 @@ class FakeEntityTest {
     }
 
     @Test
+    fun setPose_confirmPoseBetweenEntities() {
+        assertThat(underTest.parent).isNull()
+        assertThat(underTest.children.count()).isEqualTo(0)
+
+        val child = FakeEntity()
+        assertThat(child.parent).isNull()
+        underTest.addChild(child)
+        assertThat(underTest.children).containsExactly(child)
+        assertThat(child.parent).isEqualTo(underTest)
+
+        val poseActivity = Pose(Vector3.Left, Quaternion.Identity)
+        underTest.setPose(poseActivity, Space.ACTIVITY)
+        assertPose(poseActivity, underTest.getPose(Space.ACTIVITY))
+
+        val poseWorld = Pose(Vector3.Right, Quaternion.Identity)
+        underTest.setPose(poseWorld, Space.REAL_WORLD)
+        assertPose(poseWorld, underTest.getPose(Space.REAL_WORLD))
+
+        var poseChild = child.getPose(Space.ACTIVITY)
+        assertPose(poseChild, underTest.getPose(Space.ACTIVITY))
+
+        poseChild = child.getPose(Space.REAL_WORLD)
+        assertPose(poseChild, underTest.getPose(Space.REAL_WORLD))
+
+        child.parent = null
+        assertThat(underTest.children).isEmpty()
+        assertThat(child.parent).isNull()
+    }
+
+    @Test
     fun setHidden_checkWithAndWithoutIncludeParents() {
         val child = FakeEntity()
         underTest.addChild(child)
@@ -95,9 +125,9 @@ class FakeEntityTest {
 
     @Test
     fun setPose_withDifferentSpaces() {
-        assertThat(underTest.getPose(Space.PARENT)).isEqualTo(Pose.Identity)
-        assertThat(underTest.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
-        assertThat(underTest.getPose(Space.REAL_WORLD)).isEqualTo(Pose.Identity)
+        check(underTest.getPose(Space.PARENT) == Pose.Identity)
+        check(underTest.getPose(Space.ACTIVITY) == Pose.Identity)
+        check(underTest.getPose(Space.REAL_WORLD) == Pose.Identity)
 
         val poseParent = Pose(Vector3.One, Quaternion.Identity)
         underTest.setPose(poseParent, Space.PARENT)
@@ -110,6 +140,13 @@ class FakeEntityTest {
         val poseWorld = Pose(Vector3.Right, Quaternion.Identity)
         underTest.setPose(poseWorld, Space.REAL_WORLD)
         assertPose(poseWorld, underTest.getPose(Space.REAL_WORLD))
+    }
+
+    @Test
+    fun getGravityAlignedPose_getsPoseCorrectly() {
+        val pose = Pose(Vector3.One, Quaternion.Identity)
+
+        assertThat(underTest.getGravityAlignedPose(pose)).isEqualTo(pose)
     }
 
     @Test

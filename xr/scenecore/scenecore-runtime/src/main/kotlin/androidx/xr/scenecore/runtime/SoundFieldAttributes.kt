@@ -21,5 +21,5 @@ import androidx.annotation.RestrictTo
 /** Represents a XR Runtime SoundFieldAttributes */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SoundFieldAttributes(
-    @SpatializerConstants.AmbisonicsOrder public val ambisonicsOrder: Int
+    @get:SpatializerConstants.AmbisonicsOrder public val ambisonicsOrder: Int
 ) {}

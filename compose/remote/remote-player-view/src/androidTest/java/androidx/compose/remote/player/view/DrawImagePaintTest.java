@@ -35,15 +35,15 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.util.Log;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.creation.Rc;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -59,7 +59,7 @@ import java.io.ByteArrayInputStream;
 public class DrawImagePaintTest {
     private final boolean mSaveImages = false;
 
-    private final Platform mPlatform = new AndroidxPlatformServices();
+    private final RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
 
     // ########################### TEST UTILS ######################################
 
@@ -67,7 +67,7 @@ public class DrawImagePaintTest {
         void run(RemoteComposeContextAndroid foo);
     }
 
-    private RemoteComposeDocument createDocument(RemoteContext context, final Callback cb) {
+    private RemoteDocument createDocument(RemoteContext context, final Callback cb) {
 
         RemoteComposeContext doc =
                 new RemoteComposeContextAndroid(
@@ -86,8 +86,8 @@ public class DrawImagePaintTest {
         byte[] buffer = doc.buffer();
         int bufferSize = doc.bufferSize();
         System.out.println("size of doc " + bufferSize / 1024 + "KB");
-        RemoteComposeDocument recreatedDocument =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         System.out.println(
                 "recreated doc 1 "
                         + recreatedDocument.getDocument().getBuffer().getBuffer().getSize());
@@ -105,7 +105,7 @@ public class DrawImagePaintTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -117,7 +117,7 @@ public class DrawImagePaintTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return doc.toString();
@@ -147,7 +147,7 @@ public class DrawImagePaintTest {
                     rdoc.drawPath(v);
                 };
         Callback use = cb == null ? basic : cb;
-        RemoteComposeDocument doc = createDocument(debugContext, use);
+        RemoteDocument doc = createDocument(debugContext, use);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         String result = debugContext.getTestResults();
@@ -245,7 +245,7 @@ public class DrawImagePaintTest {
         }
         // assertEquals("not eaquals",expected,result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -312,7 +312,7 @@ public class DrawImagePaintTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
         System.out.println(
                 "(DrawImagePaintTest.java:296). "
                         + doc.getDocument().getBuffer().getBuffer().getSize());
@@ -325,7 +325,7 @@ public class DrawImagePaintTest {
         if (mSaveImages) {
             String fileName = "PaintFilterBitmap2.rcd";
             TestUtils.saveDoc(fileName, doc, appContext);
-            RemoteComposeDocument fileDoc = TestUtils.getDoc(fileName, appContext);
+            RemoteDocument fileDoc = TestUtils.getDoc(fileName, appContext);
             Bitmap fromFileBitmap = TestUtils.docToBitmap(tw, th, appContext, fileDoc);
             float diff = TestUtils.compareImages(remoteBitmap, fromFileBitmap);
             System.out.println(" diff from saved file = " + diff);
@@ -391,7 +391,7 @@ public class DrawImagePaintTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -403,7 +403,7 @@ public class DrawImagePaintTest {
         if (mSaveImages) {
             String fileName = "PaintFilterBitmap3.rcd";
             TestUtils.saveDoc(fileName, doc, appContext);
-            RemoteComposeDocument fileDoc = TestUtils.getDoc(fileName, appContext);
+            RemoteDocument fileDoc = TestUtils.getDoc(fileName, appContext);
             Bitmap fromFileBitmap = TestUtils.docToBitmap(tw, th, appContext, fileDoc);
             float diff = TestUtils.compareImages(remoteBitmap, fromFileBitmap);
             System.out.println(" diff from saved file = " + diff);
@@ -472,7 +472,7 @@ public class DrawImagePaintTest {
         }
         assertEquals("not eaquals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 

@@ -38,7 +38,6 @@ import androidx.compose.remote.wear.material3.icons.RemoteImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
@@ -59,7 +58,7 @@ public fun RemoteIcon(
     imageVector: RemoteImageVector,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier.size(DefaultIconDimension),
-    tint: RemoteColor = RemoteColor(DefaultTint.toArgb()),
+    tint: RemoteColor = RemoteColor(DefaultTint),
 ) {
     RemoteBox(modifier.semantics { this.contentDescription = contentDescription }) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { drawImageVector(imageVector, tint) }

@@ -18,9 +18,11 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import androidx.window.core.layout.WindowSizeClass
 
 /**
@@ -35,7 +37,11 @@ import androidx.window.core.layout.WindowSizeClass
  */
 @Composable
 fun currentWindowAdaptiveInfo(supportLargeAndXLargeWidth: Boolean = false): WindowAdaptiveInfo {
-    val windowSize = LocalWindowInfo.current.containerDpSize
+    // Workaround (b/358626778): Directly using WindowInfo.containerDpSize breaks tests based on
+    //   DeviceConfigurationOverride.ForcedSize. Those clients need to migrate to
+    //   DeviceConfigurationOverride.WindowSize when its available.
+    val windowSize =
+        with(LocalDensity.current) { LocalWindowInfo.current.containerSize.toSize().toDpSize() }
     return WindowAdaptiveInfo(
         windowSizeClass =
             if (supportLargeAndXLargeWidth) {

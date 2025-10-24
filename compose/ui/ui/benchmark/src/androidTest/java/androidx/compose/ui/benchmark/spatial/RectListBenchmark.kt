@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE") // b/407931696
+@file:Suppress(
+    "INVISIBLE_MEMBER",
+    "INVISIBLE_REFERENCE",
+    "INFERRED_INVISIBLE_RETURN_TYPE_WARNING",
+) // b/407931696
 
 package androidx.compose.ui.benchmark.spatial
 

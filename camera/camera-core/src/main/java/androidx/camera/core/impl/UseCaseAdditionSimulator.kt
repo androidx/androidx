@@ -17,7 +17,6 @@
 package androidx.camera.core.impl
 
 import androidx.camera.core.CameraUseCaseAdapterProvider
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup.Companion.resolveFeatureGroup
@@ -71,7 +70,6 @@ public object UseCaseAdditionSimulator {
      * @throws CameraUseCaseAdapter.CameraException If the underlying camera capabilities don't
      *   support adding use cases with the provided [sessionConfig].
      */
-    @OptIn(ExperimentalSessionConfig::class)
     @Throws(IllegalStateException::class, CameraUseCaseAdapter.CameraException::class)
     @JvmOverloads
     @JvmStatic

@@ -86,8 +86,9 @@ fun createAndStoreGradientImages(
                 }
             trace("Store Bitmap for $pokemonName") {
                 val outFile = File(directory, "$pokemonName.png")
-                val outputStream = outFile.outputStream()
-                image.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outFile.outputStream().use { outputStream ->
+                    image.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                }
             }
         }
     }

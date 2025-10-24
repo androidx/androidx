@@ -59,7 +59,7 @@ import android.text.TextUtils;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.PaintContext;
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ClipPath;
 import androidx.compose.remote.core.operations.ShaderData;
@@ -441,7 +441,7 @@ public class AndroidPaintContext extends PaintContext {
     }
 
     @Override
-    public Platform.@Nullable ComputedTextLayout layoutComplexText(
+    public RcPlatformServices.@Nullable ComputedTextLayout layoutComplexText(
             int textId,
             int start,
             int end,
@@ -522,7 +522,8 @@ public class AndroidPaintContext extends PaintContext {
     }
 
     @Override
-    public void drawComplexText(Platform.@Nullable ComputedTextLayout computedTextLayout) {
+    public void drawComplexText(
+            RcPlatformServices.@Nullable ComputedTextLayout computedTextLayout) {
         if (computedTextLayout == null) {
             return;
         }
@@ -943,7 +944,14 @@ public class AndroidPaintContext extends PaintContext {
                     for (int i = 0; i < names.length; i++) {
                         String name = names[i];
                         float[] val = data.getUniformFloats(name);
-                        shader.setFloatUniform(name, val);
+                        if (val.length == 1 && Float.isNaN(val[0])) {
+                            // check if dynamic array
+                            float[] values = mContext.getCollectionsAccess().getDynamicFloats(
+                                    Utils.idFromNan(val[0]));
+                            shader.setFloatUniform(name, values);
+                        } else {
+                            shader.setFloatUniform(name, val);
+                        }
                     }
                     names = data.getUniformIntegerNames();
                     for (int i = 0; i < names.length; i++) {

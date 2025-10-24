@@ -23,13 +23,12 @@
  */
 
 import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.library")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {

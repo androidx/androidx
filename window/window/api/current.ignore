@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.window.core:
+    Removed package androidx.window.core from compatibility checked API surface
+
+
 RemovedFromKotlin: androidx.window.RequiresWindowSdkExtension#version():
     Source breaking change: method androidx.window.RequiresWindowSdkExtension.version() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.window.WindowSdkExtensions#getExtensionVersion():

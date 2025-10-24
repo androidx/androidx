@@ -55,7 +55,6 @@ androidXMultiplatform {
         commonTest {
             dependencies {
                 implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesCore)
             }
         }

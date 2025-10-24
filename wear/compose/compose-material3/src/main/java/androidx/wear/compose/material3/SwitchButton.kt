@@ -74,7 +74,6 @@ import androidx.wear.compose.material3.tokens.SplitSwitchButtonTokens
 import androidx.wear.compose.material3.tokens.SwitchButtonTokens
 import androidx.wear.compose.materialcore.SelectionStage
 import androidx.wear.compose.materialcore.animateSelectionColor
-import androidx.wear.compose.materialcore.animateTick
 import androidx.wear.compose.materialcore.isLayoutDirectionRtl
 
 /**

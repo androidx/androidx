@@ -21,6 +21,7 @@ import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.XTestInvocation
 import androidx.room3.compiler.processing.util.runKspTest
 import loadTestSource
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -206,6 +207,8 @@ class DatabaseKotlinCodeGenTest {
         )
     }
 
+    // disabled after KGP 2.2.20 update due to https://youtrack.jetbrains.com/issue/KTLC-271
+    @Ignore
     @Test
     fun database_packagePrivateVisibility_java() {
         val dbSrc =

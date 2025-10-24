@@ -20,14 +20,17 @@ import androidx.compose.runtime.NoLiveLiterals
 
 private var nextHash = 1
 
+// @OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 private external interface WeakMap {
     fun set(key: JsAny, value: Int)
 
     fun get(key: JsAny): Int?
 }
 
+// @OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 private val weakMap: WeakMap = js("new WeakMap()")
 
+// @OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 @NoLiveLiterals
 private fun memoizeIdentityHashCode(instance: JsAny): Int {
     val value = nextHash++
@@ -37,6 +40,7 @@ private fun memoizeIdentityHashCode(instance: JsAny): Int {
     return value
 }
 
+// @OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 internal actual fun identityHashCode(instance: Any?): Int {
     if (instance == null) {
         return 0

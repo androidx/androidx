@@ -147,6 +147,29 @@ public final class SearchIntentStats extends BaseStats {
         return mClicksStats;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("SearchIntentStats {\n")
+                .append(String.format("  packageName=%s,\n", mPackageName))
+                .append(String.format("  database=%s,\n", mDatabase))
+                .append(String.format("  prevQuery=%s,\n", mPrevQuery))
+                .append(String.format("  currQuery=%s,\n", mCurrQuery))
+                .append(String.format("  timestampMillis=%d,\n", mTimestampMillis))
+                .append(String.format("  numResultsFetched=%d,\n", mNumResultsFetched))
+                .append(String.format("  queryCorrectionType=%d,\n", mQueryCorrectionType))
+                .append("  clicksStats=[\n");
+        for (int i = 0; i < mClicksStats.size(); i++) {
+            sb.append("    ").append(
+                    String.valueOf(mClicksStats.get(i)).replace("\n", "\n    ")).append(",\n");
+        }
+        sb.append("  ],\n")
+                // Include BaseStats fields
+                .append(super.toString())
+                .append("}");
+        return sb.toString();
+    }
+
     /** Builder for {@link SearchIntentStats} */
     public static final class Builder extends BaseStats.Builder<SearchIntentStats.Builder> {
         private final @NonNull String mPackageName;

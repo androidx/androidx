@@ -21,7 +21,6 @@ import android.util.Range
 import androidx.camera.core.CameraUseCaseAdapterProvider
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -59,7 +58,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@OptIn(ExperimentalSessionConfig::class)
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 class DefaultFeatureGroupResolverTest {

@@ -102,27 +102,36 @@ package androidx.xr.arcore.openxr {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrEye implements androidx.xr.arcore.runtime.Eye {
     ctor public OpenXrEye();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCoarsePose();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.EyeStatus? getCoarseStatus();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getFinePose();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.EyeStatus? getFineStatus();
-    property public androidx.xr.runtime.math.Pose? coarsePose;
-    property public androidx.xr.arcore.runtime.EyeStatus? coarseStatus;
-    property public androidx.xr.runtime.math.Pose? finePose;
-    property public androidx.xr.arcore.runtime.EyeStatus? fineStatus;
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    property public boolean isOpen;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrFace implements androidx.xr.arcore.runtime.Face {
     ctor public OpenXrFace();
+    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public float[] getBlendShapeValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCenterPose();
     method @InaccessibleFromKotlin public float[] getConfidenceValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getForeheadLeftPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getForeheadRightPose();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Mesh? getMesh();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getNoseTipPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method @InaccessibleFromKotlin public boolean isValid();
     method @InaccessibleFromKotlin public void setValid(boolean);
     method public void update(long xrTime);
     property public float[] blendShapeValues;
+    property public androidx.xr.runtime.math.Pose? centerPose;
     property public float[] confidenceValues;
+    property public androidx.xr.runtime.math.Pose? foreheadLeftPose;
+    property public androidx.xr.runtime.math.Pose? foreheadRightPose;
     property public boolean isValid;
+    property public androidx.xr.arcore.runtime.Mesh? mesh;
+    property public androidx.xr.runtime.math.Pose? noseTipPose;
     property public androidx.xr.runtime.TrackingState trackingState;
   }
 

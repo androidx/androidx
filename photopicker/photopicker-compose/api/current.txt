@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.photopicker.compose {
+package @SuppressCompatibility androidx.photopicker.compose {
 
   @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public abstract class AbstractEmbeddedPhotoPickerState implements androidx.photopicker.compose.EmbeddedPhotoPickerState {
     ctor public AbstractEmbeddedPhotoPickerState();
@@ -32,7 +32,7 @@ package androidx.photopicker.compose {
     method @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public android.widget.photopicker.EmbeddedPhotoPickerClient createEmbeddedPhotoPickerClient(kotlin.jvm.functions.Function1<? super android.widget.photopicker.EmbeddedPhotoPickerSession,kotlin.Unit> onSessionOpened, kotlin.jvm.functions.Function1<? super java.lang.Throwable,kotlin.Unit> onSessionError, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri>,kotlin.Unit> onUriPermissionGranted, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri>,kotlin.Unit> onUriPermissionRevoked, kotlin.jvm.functions.Function0<kotlin.Unit> onSelectionComplete);
   }
 
-  public final class EmbeddedPhotoPickerKt {
+  @SuppressCompatibility public final class EmbeddedPhotoPickerKt {
     method @KotlinOnly @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.compose.runtime.Composable @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static void EmbeddedPhotoPicker(androidx.photopicker.compose.EmbeddedPhotoPickerState state, optional androidx.compose.ui.Modifier modifier, optional android.widget.photopicker.EmbeddedPhotoPickerProvider? provider, optional android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo embeddedPhotoPickerFeatureInfo);
     method @BytecodeOnly @SuppressCompatibility @RequiresExtension(extension=34, version=15) @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static void EmbeddedPhotoPicker(androidx.photopicker.compose.EmbeddedPhotoPickerState, androidx.compose.ui.Modifier?, android.widget.photopicker.EmbeddedPhotoPickerProvider?, android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo?, androidx.compose.runtime.Composer?, int, int);
   }
@@ -65,7 +65,7 @@ package androidx.photopicker.compose {
     property public abstract android.os.IBinder? surfaceHostToken;
   }
 
-  public final class EmbeddedPhotoPickerStateKt {
+  @SuppressCompatibility public final class EmbeddedPhotoPickerStateKt {
     method @KotlinOnly @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.compose.runtime.Composable @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static androidx.photopicker.compose.EmbeddedPhotoPickerState rememberEmbeddedPhotoPickerState(java.lang.Object?... inputs, optional boolean initialExpandedValue, optional java.util.Set<android.net.Uri> initialMediaSelection, optional kotlin.jvm.functions.Function1<java.lang.Throwable,kotlin.Unit> onSessionError, optional kotlin.jvm.functions.Function1<java.util.List<android.net.Uri>,kotlin.Unit> onUriPermissionGranted, optional kotlin.jvm.functions.Function1<java.util.List<android.net.Uri>,kotlin.Unit> onUriPermissionRevoked, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelectionComplete);
     method @BytecodeOnly @SuppressCompatibility @RequiresExtension(extension=34, version=15) @androidx.compose.runtime.Composable @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static androidx.photopicker.compose.EmbeddedPhotoPickerState rememberEmbeddedPhotoPickerState(Object![], boolean, java.util.Set<? extends android.net.Uri!>?, kotlin.jvm.functions.Function1<? super java.lang.Throwable!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri!>!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri!>!,kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
   }

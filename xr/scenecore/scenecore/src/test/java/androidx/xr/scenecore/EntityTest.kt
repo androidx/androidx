@@ -51,6 +51,7 @@ import androidx.xr.scenecore.runtime.ScenePose as RtScenePose
 import androidx.xr.scenecore.runtime.ScenePose.HitTestFilterValue as RtHitTestFilterValue
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.Space as RtSpace
+import androidx.xr.scenecore.runtime.SpaceValue
 import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilities
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 import com.google.common.truth.Truth.assertThat
@@ -128,6 +129,10 @@ class EntityTest {
 
         override fun getPose(@SpaceValue relativeTo: Int): Pose {
             return Pose()
+        }
+
+        override fun getGravityAlignedPose(pose: Pose): Pose {
+            return pose
         }
 
         override val activitySpacePose: Pose = Pose()
@@ -236,7 +241,7 @@ class EntityTest {
         }
 
         override val recommendedContentBoxInFullSpace: BoundingBox =
-            BoundingBox(
+            BoundingBox.fromMinMax(
                 min = Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
                 max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
             )
@@ -328,7 +333,7 @@ class EntityTest {
                 session,
                 Pose.Identity,
                 SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
-                SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE,
+                SurfaceEntity.StereoMode.SIDE_BY_SIDE,
             )
     }
 
@@ -481,6 +486,25 @@ class EntityTest {
         verify(mockGltfModelEntityImpl).activitySpacePose
         verify(mockAnchorEntityImpl).activitySpacePose
         verify(mockActivityPanelEntity).activitySpacePose
+    }
+
+    @Test
+    fun allEntityGetGravityAlignedPose_callsRuntimeEntityImplGetGravityAlignedPose() {
+        val pose = Pose.Identity
+        whenever(mockPanelEntityImpl.getGravityAlignedPose(pose)).thenReturn(Pose())
+        whenever(mockGltfModelEntityImpl.getGravityAlignedPose(pose)).thenReturn(Pose())
+        whenever(mockAnchorEntityImpl.getGravityAlignedPose(pose)).thenReturn(Pose())
+        whenever(mockActivityPanelEntity.getGravityAlignedPose(pose)).thenReturn(Pose())
+
+        assertThat(panelEntity.getGravityAlignedPose()).isEqualTo(pose)
+        assertThat(gltfModelEntity.getGravityAlignedPose()).isEqualTo(pose)
+        assertThat(anchorEntity.getGravityAlignedPose()).isEqualTo(pose)
+        assertThat(activityPanelEntity.getGravityAlignedPose()).isEqualTo(pose)
+
+        verify(mockPanelEntityImpl).getGravityAlignedPose(any())
+        verify(mockGltfModelEntityImpl).getGravityAlignedPose(any())
+        verify(mockAnchorEntityImpl).getGravityAlignedPose(any())
+        verify(mockActivityPanelEntity).getGravityAlignedPose(any())
     }
 
     @Test
@@ -829,6 +853,17 @@ class EntityTest {
     }
 
     @Test
+    fun groupEntity_canGetGravityAlignedPose() {
+        val pose = Pose.Identity
+        whenever(mockGroupEntity.getGravityAlignedPose(pose)).thenReturn(Pose())
+
+        val entity = GroupEntity.create(session, "test")
+
+        assertThat(entity.getGravityAlignedPose()).isEqualTo(pose)
+        verify(mockGroupEntity).getGravityAlignedPose(any())
+    }
+
+    @Test
     fun allEntity_addComponentInvokesOnAttach() {
         val component = mock<Component>()
         whenever(component.onAttach(any())).thenReturn(true)
@@ -1133,8 +1168,8 @@ class EntityTest {
 
     @Test
     fun surfaceEntity_redirectsCallsToRtEntity() {
-        surfaceEntity.stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM
-        verify(mockSurfaceEntity).stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM
+        surfaceEntity.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM
+        verify(mockSurfaceEntity).stereoMode = RtSurfaceEntity.StereoMode.TOP_BOTTOM
 
         @Suppress("UNUSED_VARIABLE") val unusedMode = surfaceEntity.stereoMode
         verify(mockSurfaceEntity).stereoMode
@@ -1252,6 +1287,8 @@ class EntityTest {
         assertFailsWith<IllegalStateException> { panelEntity.size }
         assertFailsWith<IllegalStateException> { groupEntity.getScale() }
         assertFailsWith<IllegalStateException> { activityPanelEntity.getPerceivedResolution() }
+
+        assertFailsWith<IllegalStateException> { gltfModelEntity.getGltfModelBoundingBox() }
         assertFailsWith<IllegalStateException> { gltfModelEntity.stopAnimation() }
         assertFailsWith<IllegalStateException> { activitySpace.bounds }
 

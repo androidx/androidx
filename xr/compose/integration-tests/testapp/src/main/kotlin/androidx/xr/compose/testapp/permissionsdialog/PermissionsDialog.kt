@@ -80,6 +80,7 @@ class PermissionsDialog : ComponentActivity() {
                 onClickBackArrow = { this@PermissionsDialog.finish() },
                 onClickRecreate = { this@PermissionsDialog.recreate() },
             ) { padding ->
+                @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                 Column(
                     modifier = Modifier.background(color = Purple80).fillMaxSize().padding(padding),
                     verticalArrangement = Arrangement.Center,

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.window.java.area:
+    Removed package androidx.window.java.area from compatibility checked API surface

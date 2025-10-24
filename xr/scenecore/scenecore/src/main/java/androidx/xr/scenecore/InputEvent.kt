@@ -16,8 +16,6 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Vector3
 
@@ -42,12 +40,12 @@ import androidx.xr.runtime.math.Vector3
  *   if the pointer stops hitting the entity during the action.
  */
 public class InputEvent(
-    @SourceValue public val source: Int,
-    @PointerType public val pointerType: Int,
+    public val source: Source,
+    public val pointerType: Pointer,
     public val timestamp: Long,
     public val origin: Vector3,
     public val direction: Vector3,
-    @ActionValue public val action: Int,
+    public val action: Action,
     public val hitInfoList: List<HitInfo> = emptyList(),
 ) {
 
@@ -85,155 +83,148 @@ public class InputEvent(
      */
     // TODO: b/343468347 - Implement version check for xr extensions when loading runtime impl
 
-    /** The type of the source (e.g. hands, controller, head) that generated this event. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        Source.SOURCE_UNKNOWN,
-        Source.SOURCE_HEAD,
-        Source.SOURCE_CONTROLLER,
-        Source.SOURCE_HANDS,
-        Source.SOURCE_MOUSE,
-        Source.SOURCE_GAZE_AND_GESTURE,
-    )
-    public annotation class SourceValue
-
     /** Specifies the source (e.g. hands, controller, head) of the input event. */
-    public object Source {
-        /** Unknown source. */
-        public const val SOURCE_UNKNOWN: Int = 0
-        /**
-         * Event is based on the user's head. Ray origin is at average between eyes, pushed out to
-         * the near clipping plane for both eyes and points in direction head is facing. Action
-         * state is based on volume up button being depressed.
-         *
-         * Events from this source are considered sensitive and hover events are never sent.
-         */
-        public const val SOURCE_HEAD: Int = 1
-        /**
-         * Event is based on (one of) the user's controller(s). Ray origin and direction are for a
-         * controller aim pose. Action state is based on the primary button on the controller,
-         * usually the bottom-most face button.
-         */
-        public const val SOURCE_CONTROLLER: Int = 2
-        /**
-         * Event is based on one of the user's hands. Ray is a hand aim pose, with origin between
-         * thumb and forefinger and points in direction based on hand orientation. Action state is
-         * based on a pinch gesture.
-         */
-        public const val SOURCE_HANDS: Int = 3
-        /**
-         * Event is based on a 2D mouse pointing device. Ray origin behaves the same as for
-         * [Source.SOURCE_HEAD] and points in direction based on mouse movement. During a drag, the
-         * ray origin moves approximating hand motion. The scroll wheel moves the ray away from /
-         * towards the user. Action state is based on the primary mouse button.
-         */
-        public const val SOURCE_MOUSE: Int = 4
-        /**
-         * Event is based on a mix of the head, eyes, and hands. Ray origin is at average between
-         * eyes and points in direction based on a mix of eye gaze direction and hand motion. During
-         * a two-handed zoom/rotate gesture, left/right pointer events will be issued; otherwise,
-         * default events are issued based on the gaze ray. Action state is based on if the user has
-         * done a pinch gesture or not.
-         *
-         * Events from this source are considered sensitive and hover events are never sent.
-         */
-        public const val SOURCE_GAZE_AND_GESTURE: Int = 5
-    }
+    public class Source private constructor(private val name: String) {
 
-    /** The type of the individual pointer (e.g. left, right or default). */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(Pointer.POINTER_TYPE_DEFAULT, Pointer.POINTER_TYPE_LEFT, Pointer.POINTER_TYPE_RIGHT)
-    public annotation class PointerType
+        public companion object {
+            /** Unknown source. */
+            @JvmField public val UNKNOWN: Source = Source("UNKNOWN")
+
+            /**
+             * Event is based on the user's head. Ray origin is at average between eyes, pushed out
+             * to the near clipping plane for both eyes and points in direction head is facing.
+             * Action state is based on volume up button being depressed.
+             *
+             * Events from this source are considered sensitive and hover events are never sent.
+             */
+            @JvmField public val HEAD: Source = Source("HEAD")
+
+            /**
+             * Event is based on (one of) the user's controller(s). Ray origin and direction are for
+             * a controller aim pose. Action state is based on the primary button on the controller,
+             * usually the bottom-most face button.
+             */
+            @JvmField public val CONTROLLER: Source = Source("CONTROLLER")
+
+            /**
+             * Event is based on one of the user's hands. Ray is a hand aim pose, with origin
+             * between thumb and forefinger and points in direction based on hand orientation.
+             * Action state is based on a pinch gesture.
+             */
+            @JvmField public val HANDS: Source = Source("HANDS")
+
+            /**
+             * Event is based on a 2D mouse pointing device. Ray origin behaves the same as for
+             * [Source.HEAD] and points in direction based on mouse movement. During a drag, the ray
+             * origin moves approximating hand motion. The scroll wheel moves the ray away from /
+             * towards the user. Action state is based on the primary mouse button.
+             */
+            @JvmField public val MOUSE: Source = Source("MOUSE")
+
+            /**
+             * Event is based on a mix of the head, eyes, and hands. Ray origin is at average
+             * between eyes and points in direction based on a mix of eye gaze direction and hand
+             * motion. During a two-handed zoom/rotate gesture, left/right pointer events will be
+             * issued; otherwise, default events are issued based on the gaze ray. Action state is
+             * based on if the user has done a pinch gesture or not.
+             *
+             * Events from this source are considered sensitive and hover events are never sent.
+             */
+            @JvmField public val GAZE_AND_GESTURE: Source = Source("GAZE_AND_GESTURE")
+        }
+
+        public override fun toString(): String = name
+    }
 
     /** Specifies the pointer type (e.g. left, right or default) of the input event. */
-    public object Pointer {
-        /**
-         * Default pointer type for the source (no handedness). Occurs for [Source.SOURCE_UNKNOWN],
-         * [Source.SOURCE_HEAD], [Source.SOURCE_MOUSE], and [Source.SOURCE_GAZE_AND_GESTURE].
-         */
-        public const val POINTER_TYPE_DEFAULT: Int = 0
-        /**
-         * Left hand / controller pointer. Occurs for [Source.SOURCE_CONTROLLER],
-         * [Source.SOURCE_HANDS], and [Source.SOURCE_GAZE_AND_GESTURE].
-         */
-        public const val POINTER_TYPE_LEFT: Int = 1
-        /**
-         * Right hand / controller pointer. Occurs for [Source.SOURCE_CONTROLLER],
-         * [Source.SOURCE_HANDS], and [Source.SOURCE_GAZE_AND_GESTURE].
-         */
-        public const val POINTER_TYPE_RIGHT: Int = 2
+    public class Pointer private constructor(private val name: String) {
+        public companion object {
+            /**
+             * Default pointer type for the source (no handedness). Occurs for [Source.UNKNOWN],
+             * [Source.HEAD], [Source.MOUSE], and [Source.GAZE_AND_GESTURE].
+             */
+            @JvmField public val DEFAULT: Pointer = Pointer("DEFAULT")
+            /**
+             * Left hand / controller pointer. Occurs for [Source.CONTROLLER], [Source.HANDS], and
+             * [Source.GAZE_AND_GESTURE].
+             */
+            @JvmField public val LEFT: Pointer = Pointer("LEFT")
+            /**
+             * Right hand / controller pointer. Occurs for [Source.CONTROLLER], [Source.HANDS], and
+             * [Source.GAZE_AND_GESTURE].
+             */
+            @JvmField public val RIGHT: Pointer = Pointer("RIGHT")
+        }
+
+        override fun toString(): String = name
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        Action.ACTION_DOWN,
-        Action.ACTION_UP,
-        Action.ACTION_MOVE,
-        Action.ACTION_CANCEL,
-        Action.ACTION_HOVER_MOVE,
-        Action.ACTION_HOVER_ENTER,
-        Action.ACTION_HOVER_EXIT,
-    )
-    public annotation class ActionValue
-
     /** Specifies the action (e.g. down, up, move, etc.) of the input event. */
-    public object Action {
-        /** The primary action button or gesture was just pressed / started. */
-        public const val ACTION_DOWN: Int = 0
-        /**
-         * The primary action button or gesture was just released / stopped. The hit info represents
-         * the node that was originally hit (ie, as provided in the [Action.ACTION_DOWN] event).
-         */
-        public const val ACTION_UP: Int = 1
-        /**
-         * The primary action button or gesture was pressed/active in the previous event, and is
-         * still pressed/active. The hit info represents the node that was originally hit (ie, as
-         * provided in the [Action.ACTION_DOWN] event). The hit position may be null if the pointer
-         * is no longer hitting that node.
-         */
-        public const val ACTION_MOVE: Int = 2
-        /**
-         * While the primary action button or gesture was held, the pointer was disabled. This
-         * happens if you are using controllers and the battery runs out, or if you are using a
-         * source that transitions to a new pointer type, eg [Source.SOURCE_GAZE_AND_GESTURE].
-         */
-        public const val ACTION_CANCEL: Int = 3
-        /**
-         * The primary action button or gesture is not pressed, and the pointer ray continued to hit
-         * the same node. The hit info represents the node that was hit (may be null if pointer
-         * capture is enabled).
-         *
-         * Hover input events are never provided for sensitive source types.
-         */
-        public const val ACTION_HOVER_MOVE: Int = 4
-        /**
-         * The primary action button or gesture is not pressed, and the pointer ray started to hit a
-         * new node. The hit info represents the node that is being hit (may be null if pointer
-         * capture is enabled).
-         *
-         * Hover input events are never provided for sensitive source types.
-         */
-        public const val ACTION_HOVER_ENTER: Int = 5
-        /**
-         * The primary action button or gesture is not pressed, and the pointer ray stopped hitting
-         * the node that it was previously hitting. The hit info represents the node that was being
-         * hit (may be null if pointer capture is enabled).
-         *
-         * Hover input events are never provided for sensitive source types.
-         */
-        public const val ACTION_HOVER_EXIT: Int = 6
+    public class Action private constructor(private val name: String) {
+        public companion object {
+            /** The primary action button or gesture was just pressed / started. */
+            @JvmField public val DOWN: Action = Action("DOWN")
+
+            /**
+             * The primary action button or gesture was just released / stopped. The hit info
+             * represents the node that was originally hit (ie, as provided in the [Action.DOWN]
+             * event).
+             */
+            @JvmField public val UP: Action = Action("UP")
+
+            /**
+             * The primary action button or gesture was pressed/active in the previous event, and is
+             * still pressed/active. The hit info represents the node that was originally hit (ie,
+             * as provided in the [Action.DOWN] event). The hit position may be null if the pointer
+             * is no longer hitting that node.
+             */
+            @JvmField public val MOVE: Action = Action("MOVE")
+
+            /**
+             * While the primary action button or gesture was held, the pointer was disabled. This
+             * happens if you are using controllers and the battery runs out, or if you are using a
+             * source that transitions to a new pointer type, eg [Source.GAZE_AND_GESTURE].
+             */
+            @JvmField public val CANCEL: Action = Action("CANCEL")
+
+            /**
+             * The primary action button or gesture is not pressed, and the pointer ray continued to
+             * hit the same node. The hit info represents the node that was hit (may be null if
+             * pointer capture is enabled).
+             *
+             * Hover input events are never provided for sensitive source types.
+             */
+            @JvmField public val HOVER_MOVE: Action = Action("HOVER_MOVE")
+
+            /**
+             * The primary action button or gesture is not pressed, and the pointer ray started to
+             * hit a new node. The hit info represents the node that is being hit (may be null if
+             * pointer capture is enabled).
+             *
+             * Hover input events are never provided for sensitive source types.
+             */
+            @JvmField public val HOVER_ENTER: Action = Action("HOVER_ENTER")
+
+            /**
+             * The primary action button or gesture is not pressed, and the pointer ray stopped
+             * hitting the node that it was previously hitting. The hit info represents the node
+             * that was being hit (may be null if pointer capture is enabled).
+             *
+             * Hover input events are never provided for sensitive source types.
+             */
+            @JvmField public val HOVER_EXIT: Action = Action("HOVER_EXIT")
+        }
+
+        override fun toString(): String = name
     }
 
     /**
      * Information about the hit result of the input ray, originating from one of the
      * [InputEvent.Source], and intersecting with some [Entity] on the scene.
      *
-     * @param inputEntity The [Entity] that was hit by the input ray. [Action.ACTION_MOVE],
-     *   [Action.ACTION_UP] and [Action.ACTION_CANCEL] events will report the same node as was hit
-     *   during the initial [Action.ACTION_DOWN].
+     * @param inputEntity The [Entity] that was hit by the input ray. [Action.MOVE], [Action.UP] and
+     *   [Action.CANCEL] events will report the same node as was hit during the initial
+     *   [Action.DOWN].
      * @param hitPosition The position of the hit in the receiver's activity space. All events may
      *   report the current ray's hit position. This can be null if there no longer is a collision
      *   between the ray and the input node (e.g. during a drag event).

@@ -30,8 +30,6 @@ import androidx.room3.solver.CodeGenScope
  */
 abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
 
-    open val usesCompatQueryWriter: Boolean = false
-
     /**
      * Receives the SQL and a function to bind args into a statement, it must then generate the code
      * that steps on the query, reads its columns and returns the result.

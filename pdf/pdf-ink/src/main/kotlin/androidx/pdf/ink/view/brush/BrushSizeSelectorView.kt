@@ -69,8 +69,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                             ),
                         )
                     )
-                cornerRadius =
-                    context.resources.getDimension(R.dimen.brush_selector_container_corner_radius)
+                cornerRadius = context.resources.getDimension(R.dimen.corner_radius_20dp)
             }
 
         val defaultPadding = context.resources.getDimensionPixelSize(R.dimen.padding_8dp)

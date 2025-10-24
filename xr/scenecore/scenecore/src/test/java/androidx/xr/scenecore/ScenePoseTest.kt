@@ -156,6 +156,34 @@ class ScenePoseTest {
     }
 
     @Test
+    fun hitTest_convertsNullResult() {
+        val origin = Vector3(1f, 2f, 3f)
+        val direction = Vector3(4f, 5f, 6f)
+        val hitTestFilter = HitTestFilter.SELF_SCENE
+        // a null hitPosition in RtHitTestResult should result in a null (public API) HitTestResult
+        val hitPosition = null
+        val surfaceNormal = null
+        val distance = 0f
+        val surfaceType = RtHitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE
+
+        // Set the hit test results.
+        val rtHitTestResult = RtHitTestResult(hitPosition, surfaceNormal, surfaceType, distance)
+        (fakeRuntime.headActivityPose as? FakeHeadScenePose)?.hitTestResult = rtHitTestResult
+        (fakeRuntime.getCameraViewActivityPose(
+                RtCameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE
+            ) as? FakeCameraViewScenePose)
+            ?.hitTestResult = rtHitTestResult
+        (fakeRuntime.perceptionSpaceActivityPose as FakePerceptionSpaceScenePose).hitTestResult =
+            rtHitTestResult
+
+        runBlocking {
+            assertThat(head!!.hitTest(origin, direction, hitTestFilter)).isNull()
+            assertThat(camera!!.hitTest(origin, direction, hitTestFilter)).isNull()
+            assertThat(perceptionSpace.hitTest(origin, direction, hitTestFilter)).isNull()
+        }
+    }
+
+    @Test
     fun cameraView_getFov_returnsFov() {
         val rtFov = RtCameraViewScenePose.Fov(1f, 2f, 3f, 4f)
 

@@ -54,7 +54,6 @@ androidXMultiplatform {
                 it.pickFirsts.add("mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider")
             }
         }
-        lint.disable += "ComposeTestRuleDispatcher"
     }
     jvmStubs()
     linuxX64Stubs()
@@ -245,6 +244,7 @@ androidx {
     samples(project(":compose:ui:ui:ui-samples"))
     addGoldenImageAssets()
     enableRobolectric()
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
 }
 
 if (!ProjectLayoutType.isPlayground(project)) {

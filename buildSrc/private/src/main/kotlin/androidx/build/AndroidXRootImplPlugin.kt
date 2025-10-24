@@ -45,6 +45,7 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.bundling.ZipEntryCompression
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 
@@ -93,6 +94,14 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 )
             } else null
 
+        val attestationManifest =
+            if (!buildFeatures.isIsolatedProjectsEnabled()) {
+                tasks.register(ATTESTATION_TASK_NAME, AttestationManifestTask::class.java) { task ->
+                    task.manifestFile.set(
+                        getDistributionDirectory().file("attestation_manifest.json")
+                    )
+                }
+            } else null
         tasks.register(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java) { task ->
             task.cacheEvenIfNoOutputs()
             task.aggregateBuildInfoFile.set(
@@ -100,6 +109,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             )
             verifyPlayground?.let { task.dependsOn(it) }
             aggregateBuildInfo?.let { task.dependsOn(it) }
+            attestationManifest?.let { task.dependsOn(it) }
         }
 
         extra.set("projects", ConcurrentHashMap<String, String>())
@@ -196,6 +206,10 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 it.cacheStorage.set(layout.buildDirectory.dir("wasmYarnCache"))
                 it.yarnrcFile.set(layout.buildDirectory.file("wasm/.yarnrc"))
             }
+
+        configureNode()
+        configureRootProjectForYarn()
+
         tasks.withType<KotlinNpmInstallTask>().configureEach {
             when (it.name) {
                 "kotlinNpmInstall" -> it.dependsOn(createYarnRcFileTask)

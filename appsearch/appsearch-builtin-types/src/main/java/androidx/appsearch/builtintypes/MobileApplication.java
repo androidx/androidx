@@ -188,12 +188,12 @@ public class MobileApplication extends Thing {
 
     @SuppressWarnings("unchecked")
     static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        private final String mPackageName;
-        private String mDisplayName;
-        private Uri mIconUri;
-        private final byte[] mSha256Certificate;
-        private long mUpdatedTimestampMillis;
-        private String mClassName;
+        protected final String mPackageName;
+        protected String mDisplayName;
+        protected Uri mIconUri;
+        protected final byte[] mSha256Certificate;
+        protected long mUpdatedTimestampMillis;
+        protected String mClassName;
         private boolean mBuilt = false;
 
         BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String packageName,

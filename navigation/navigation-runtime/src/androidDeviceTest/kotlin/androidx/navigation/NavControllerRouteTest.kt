@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.os.Parcel
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -34,6 +33,7 @@ import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.test.R
+import androidx.savedstate.savedState
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -67,7 +67,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
 
-@Suppress("DEPRECATION") // bundleOf()
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class NavControllerRouteTest {
@@ -5542,7 +5541,7 @@ class NavControllerRouteTest {
             navController
                 .createDeepLink()
                 .setDestination("second_test/{arg2}")
-                .setArguments(bundleOf("arg2" to "value"))
+                .setArguments(savedState { putString("arg2", "value") })
                 .createTaskStackBuilder()
         assertThat(taskStackBuilder).isNotNull()
         assertThat(taskStackBuilder.intentCount).isEqualTo(1)
@@ -5554,7 +5553,10 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
 
-        val args = bundleOf("test" to "test", "arg2" to "value")
+        val args = savedState {
+            putString("test", "test")
+            putString("arg2", "value")
+        }
         val taskStackBuilder =
             navController
                 .createDeepLink()
@@ -5581,7 +5583,7 @@ class NavControllerRouteTest {
             navController
                 .createDeepLink()
                 .setDestination("second_test/{arg2}")
-                .setArguments(bundleOf("arg2" to "value"))
+                .setArguments(savedState { putString("arg2", "value") })
                 .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
@@ -5748,7 +5750,7 @@ class NavControllerRouteTest {
             navController
                 .createDeepLink()
                 .setDestination("second_test/{arg2}")
-                .setArguments(bundleOf("arg2" to "value"))
+                .setArguments(savedState { putString("arg2", "value") })
                 .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)

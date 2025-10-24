@@ -168,7 +168,7 @@ class ConfirmationScreenshotTest {
     }
 
     @Test
-    fun failureConfirmation_variant_icon_text(@TestParameter screenSize: ScreenSize) {
+    fun failureConfirmation_generic_icon_text(@TestParameter screenSize: ScreenSize) {
         rule.verifyConfirmationScreenshot(
             testName = testName,
             screenshotRule = screenshotRule,
@@ -180,13 +180,13 @@ class ConfirmationScreenshotTest {
                 modifier = modifier,
                 onDismissRequest = {},
                 curvedText = { confirmationDialogCurvedText("Failure", style) },
-                content = { ConfirmationDialogDefaults.VariantFailureIcon() },
+                content = { ConfirmationDialogDefaults.GenericFailureIcon() },
             )
         }
     }
 
     @Test
-    fun failureConfirmation_variant_icon_noText(@TestParameter screenSize: ScreenSize) {
+    fun failureConfirmation_generic_icon_noText(@TestParameter screenSize: ScreenSize) {
         rule.verifyConfirmationScreenshot(
             testName = testName,
             screenshotRule = screenshotRule,
@@ -197,7 +197,7 @@ class ConfirmationScreenshotTest {
                 modifier = modifier,
                 onDismissRequest = {},
                 curvedText = null,
-                content = { ConfirmationDialogDefaults.VariantFailureIcon() },
+                content = { ConfirmationDialogDefaults.GenericFailureIcon() },
             )
         }
     }

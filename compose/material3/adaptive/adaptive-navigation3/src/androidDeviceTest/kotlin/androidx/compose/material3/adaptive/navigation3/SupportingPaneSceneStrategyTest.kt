@@ -24,7 +24,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.AdaptStrategy
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldDefaults
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.runtime.Composable
@@ -180,6 +183,23 @@ class SupportingPaneSceneStrategyTest {
     }
 
     @Test
+    fun dualVerticalPane_noReflowAdaptStrategy_backstackWithMainAndSupporting_showsSupporting() {
+        val backStack = mutableStateListOf(HomeKey, MainKey, SupportingKey)
+        composeRule.setContent {
+            NavScreen(
+                backStack = backStack,
+                directive = MockDualVerticalPaneScaffoldDirective,
+                adaptStrategies =
+                    SupportingPaneScaffoldDefaults.adaptStrategies(
+                        supportingPaneAdaptStrategy = AdaptStrategy.Hide
+                    ),
+            )
+        }
+        composeRule.onNodeWithTag(MainScreenTestTag).assertIsNotDisplayed()
+        composeRule.onNodeWithTag(SupportingScreenTestTag).assertIsDisplayed()
+    }
+
+    @Test
     fun dualPane_backstackWithMainPane_showsMainPane() {
         val backStack = mutableStateListOf(HomeKey, MainKey)
         composeRule.setContent {
@@ -217,11 +237,14 @@ class SupportingPaneSceneStrategyTest {
             BackNavigationBehavior.PopUntilScaffoldValueChange,
         directive: PaneScaffoldDirective =
             calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+        adaptStrategies: ThreePaneScaffoldAdaptStrategies =
+            SupportingPaneScaffoldDefaults.adaptStrategies(),
     ) {
         val supportingSceneStrategy =
             rememberSupportingPaneSceneStrategy<TestKey>(
                 backNavigationBehavior = backNavigationBehavior,
                 directive = directive,
+                adaptStrategies = adaptStrategies,
             )
         NavDisplay(
             backStack = backStack,

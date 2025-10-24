@@ -116,7 +116,7 @@ fun FailureConfirmationDialogSample() {
 
 @Sampled
 @Composable
-fun FailureConfirmationDialogWithVariantIconSample() {
+fun FailureConfirmationDialogWithGenericFailureIconSample() {
     var showConfirmation by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
@@ -133,7 +133,7 @@ fun FailureConfirmationDialogWithVariantIconSample() {
         visible = showConfirmation,
         onDismissRequest = { showConfirmation = false },
         curvedText = { confirmationDialogCurvedText(text, style) },
-        content = { ConfirmationDialogDefaults.VariantFailureIcon() },
+        content = { ConfirmationDialogDefaults.GenericFailureIcon() },
     )
 }
 

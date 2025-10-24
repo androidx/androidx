@@ -18,7 +18,7 @@ package androidx.activity
 import androidx.annotation.MainThread
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventHandler
-import androidx.navigationevent.NavigationEventInfo.None
+import androidx.navigationevent.NavigationEventInfo
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -124,17 +124,20 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
         closeables -= closeable
     }
 
-    internal fun createNavigationEventHandler(): NavigationEventHandler<*> {
-        val newHandler = OnBackPressedEventHandler(onBackPressedCallback = this)
+    internal fun createNavigationEventHandler(
+        info: NavigationEventInfo
+    ): NavigationEventHandler<*> {
+        val newHandler = OnBackPressedEventHandler(onBackPressedCallback = this, info)
         eventHandlers += newHandler
         return newHandler
     }
 
     private class OnBackPressedEventHandler(
-        private val onBackPressedCallback: OnBackPressedCallback
+        private val onBackPressedCallback: OnBackPressedCallback,
+        info: NavigationEventInfo,
     ) :
-        NavigationEventHandler<None>(
-            initialInfo = None,
+        NavigationEventHandler<NavigationEventInfo>(
+            initialInfo = info,
             isBackEnabled = onBackPressedCallback.isEnabled,
         ) {
 

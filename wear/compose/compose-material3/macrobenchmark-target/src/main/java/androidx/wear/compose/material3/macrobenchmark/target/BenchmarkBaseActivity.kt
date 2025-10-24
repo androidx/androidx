@@ -20,7 +20,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.MaterialTheme
@@ -34,7 +37,11 @@ abstract class BenchmarkBaseActivity(val macrobenchmarkScreen: MacrobenchmarkScr
 
         setContent {
             MaterialTheme {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars),
+                    contentAlignment = Alignment.Center,
+                ) {
                     macrobenchmarkScreen.content.invoke(this)
                 }
             }

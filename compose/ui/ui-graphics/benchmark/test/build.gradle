@@ -18,7 +18,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -36,7 +36,4 @@ dependencies {
 android {
     compileSdk = 35
     namespace = "androidx.compose.ui.graphics.benchmark.test"
-    lint {
-        disable += "ComposeTestRuleDispatcher"
-    }
 }

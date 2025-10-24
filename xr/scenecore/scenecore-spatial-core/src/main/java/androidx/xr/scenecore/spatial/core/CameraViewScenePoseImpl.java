@@ -37,8 +37,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A ScenePose representing a user's camera. This can be used to determine the location and field
- * of view of the camera.
+ * A ScenePose representing a user's camera. This can be used to determine the location and field of
+ * view of the camera.
  */
 final class CameraViewScenePoseImpl extends BaseScenePose implements CameraViewScenePose {
     private final PerceptionLibrary mPerceptionLibrary;

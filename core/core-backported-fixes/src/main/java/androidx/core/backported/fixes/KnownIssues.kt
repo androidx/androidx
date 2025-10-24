@@ -49,7 +49,16 @@ public sealed class KnownIssues {
          */
         @JvmField
         public val KI_372917199: KnownIssue =
-            KnownIssue(372917199L, 2) { (Build.BRAND.equals("robolectric")) }
+            KnownIssue(
+                372917199L,
+                2,
+                manuallyTestedFingerprints =
+                    setOf(
+                        "foo/bar/manually_tested" // The known issue is fixed for this fingerprint.
+                    ),
+            ) {
+                (Build.BRAND.equals("robolectric"))
+            }
 
         /**
          * **TEST ONLY** known issue that is never fixed on a device.
@@ -69,9 +78,23 @@ public sealed class KnownIssues {
          */
         @JvmField
         public val KI_398591036: KnownIssue =
-            KnownIssue(398591036L, 5) {
+            KnownIssue(
+                398591036L,
+                5,
+                manuallyTestedFingerprints =
+                    setOf(
+                        // Sept Release
+                        "google/blazer/blazer:16/BD3A.250721.001.B7/13955164:user/release-keys",
+                        "google/caiman/caiman:16/BP3A.250905.014/13873947:user/release-keys",
+                        "google/comet/comet:16/BP3A.250905.014/13873947:user/release-keys",
+                        "google/frankel/frankel:16/BD3A.250721.001.B7/13955164:user/release-keys",
+                        "google/komodo/komodo:16/BP3A.250905.014/13873947:user/release-keys",
+                        "google/mustang/mustang:16/BD3A.250721.001.B7/13955164:user/release-keys",
+                        "google/tokay/tokay:16/BP3A.250905.014/13873947:user/release-keys",
+                    ),
+            ) {
                 // This known issue only applies to Pixel devices.
-                (Build.BRAND.equals("google"))
+                Build.BRAND.equals("google")
             }
     }
 }

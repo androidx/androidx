@@ -16,6 +16,7 @@
 
 package androidx.aab.cli
 
+import androidx.aab.analysis.PackagePrefixKey
 import androidx.aab.analysis.PackageStats
 import java.io.File
 import java.nio.file.Files
@@ -32,7 +33,7 @@ class OutputContext(
      * an indicator of overall program optimizations
      */
     val dumpMappingDebug: Boolean,
-    /** Lists of patterns that will detect presence of .so file names in bundles/apks. */
+    /** List of patterns that will detect presence of .so file names in bundles/apks. */
     val soMatchPatterns: List<String>,
 ) {
     /**
@@ -50,10 +51,14 @@ class OutputContext(
         ) : this(
             outputDir = outputDir,
             obfuscatedClasses =
-                if (dumpMappingDebug) outputDir?.run { File(this, "obf.txt") } else null,
+                if (dumpMappingDebug) outputDir?.run { File(this, "obf.csv") } else null,
             unobfuscatedClasses =
-                if (dumpMappingDebug) outputDir?.run { File(this, "unobf.txt") } else null,
-        )
+                if (dumpMappingDebug) outputDir?.run { File(this, "unobf.csv") } else null,
+        ) {
+            val header = "size, fullName, originalName, mappingFileLine,\n"
+            obfuscatedClasses?.appendText(header)
+            unobfuscatedClasses?.appendText(header)
+        }
 
         init {
             if (outputDir != null) {
@@ -64,6 +69,8 @@ class OutputContext(
                 }
             }
         }
+
+        fun flush() {}
     }
 
     val outputDir =
@@ -98,25 +105,32 @@ class OutputContext(
         }
     }
 
-    val packageStats = mutableListOf<Map<String, PackageStats>>()
+    private val packageStats = mutableListOf<Map<PackagePrefixKey, PackageStats>>()
 
-    fun registerPackagePrefixInfo(stats: Map<String, PackageStats>) {
+    fun registerPackagePrefixInfo(stats: Map<PackagePrefixKey, PackageStats>) {
         synchronized(packageStats) { packageStats.add(stats) }
     }
 
     fun dumpPackagePrefixInfoToFile(
         directory: File?,
-        packagePrefixInfo: Map<String, PackageStats>,
+        packagePrefixInfo: Map<PackagePrefixKey, PackageStats>,
+        minAppCount: Int = 1,
     ) {
         if (directory == null) return
         File(directory, "packages.csv").apply {
-            writeText("packagePrefix, obfuscationRatio, obfClassesSeen, classesSeen\n")
+            writeText(
+                "identifierCount, packagePrefix, lowObfAppCount, appCount, obfRatioClass, obfClassesSeen, classesSeen, obfRatioClassSize, obfClassSize, classSize\n"
+            )
             packagePrefixInfo.values
-                .filter { it.classesSeen > 100 } // note this filtration is just for dumping
+                .filter {
+                    it.classesSeen > 50 && it.appCount >= minAppCount
+                } // note this filtration is just for dumping
                 .sortedByDescending { it.classesSeen }
                 .forEach {
                     appendText(
-                        "${it.packagePrefix}, ${it.obfClassesSeen * 1.0 / it.classesSeen}, ${it.obfClassesSeen}, ${it.classesSeen}\n"
+                        "${it.identifierCount}, ${it.packagePrefix}, ${it.lowObfAppCount}, ${it.appCount}," +
+                            " ${it.obfClassesSeen * 1.0 / it.classesSeen}, ${it.obfClassesSeen}, ${it.classesSeen}," +
+                            " ${it.obfBytesSeen * 1.0 / it.bytesSeen}, ${it.obfBytesSeen}, ${it.bytesSeen},\n"
                     )
                 }
         }
@@ -125,21 +139,40 @@ class OutputContext(
     fun dumpPackagePrefixInfo() {
         if (outputDir == null) return
 
-        val result = mutableMapOf<String, PackageStats>()
+        val result = mutableMapOf<PackagePrefixKey, PackageStats>()
         synchronized(packageStats) {
             println("Dumping package stats for ${packageStats.size} apps")
             packageStats.forEach { appPackagePrefixInfo ->
                 appPackagePrefixInfo.forEach { (prefix, packageStats) ->
                     result
-                        .computeIfAbsent(prefix) { PackageStats(prefix, 0, 0) }
+                        .computeIfAbsent(prefix) {
+                            PackageStats(
+                                packagePrefix = prefix.packagePrefix,
+                                identifierCount = prefix.identifierCount,
+                                appCount = 0,
+                                lowObfAppCount = 0,
+                                classesSeen = 0,
+                                obfClassesSeen = 0,
+                                bytesSeen = 0,
+                                obfBytesSeen = 0,
+                            )
+                        }
                         .apply {
+                            appCount += packageStats.appCount
+                            lowObfAppCount += packageStats.lowObfAppCount
                             classesSeen += packageStats.classesSeen
                             obfClassesSeen += packageStats.obfClassesSeen
+                            bytesSeen += packageStats.bytesSeen
+                            obfBytesSeen += packageStats.obfBytesSeen
                         }
                 }
             }
         }
 
-        dumpPackagePrefixInfoToFile(outputDir, result)
+        dumpPackagePrefixInfoToFile(outputDir, result, minAppCount = 4 /* arbitrary! */)
+    }
+
+    companion object {
+        val PackagePrefixDepths = listOf(2, 3, 4, 5, 6)
     }
 }

@@ -22,6 +22,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable internal data class ListStringData(val value: List<String>)
 
+@Serializable internal data class ListBooleanData(val value: List<Boolean>)
+
 @Serializable
 internal data class BooleanArrayData(val value: BooleanArray) {
     override fun equals(other: Any?) = value.contentEquals((other as? BooleanArrayData)?.value)

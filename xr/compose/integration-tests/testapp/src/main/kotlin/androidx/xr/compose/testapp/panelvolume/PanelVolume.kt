@@ -53,10 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.ExperimentalSubspaceVolumeApi
 import androidx.xr.compose.subspace.MovePolicy
+import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialPanel
-import androidx.xr.compose.subspace.Volume
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
@@ -126,7 +125,6 @@ class PanelVolume : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalSubspaceVolumeApi::class)
     @Composable
     private fun SpatialContent() {
         val session =
@@ -164,13 +162,12 @@ class PanelVolume : ComponentActivity() {
                     Text(text = "Panel", textAlign = TextAlign.Center, fontSize = 20.sp)
                     if (gltfEntity != null) {
                         Subspace {
-                            Volume(
+                            SceneCoreEntity(
+                                factory = { gltfEntity },
                                 modifier =
                                     SubspaceModifier.scale(.3f)
-                                        .offset(x = 1.meters.toDp(), z = -0.5.meters.toDp())
-                            ) {
-                                gltfEntity.parent = it
-                            }
+                                        .offset(x = 1.meters.toDp(), z = -0.5.meters.toDp()),
+                            )
                         }
                     }
                 }

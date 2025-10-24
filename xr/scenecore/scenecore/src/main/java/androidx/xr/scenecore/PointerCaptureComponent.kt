@@ -16,8 +16,6 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.InputEventListener as RtInputEventListener
 import androidx.xr.scenecore.runtime.PointerCaptureComponent as RtPointerCaptureComponent
@@ -39,48 +37,32 @@ private constructor(
     private val sceneRuntime: SceneRuntime,
     private val entityManager: EntityManager,
     private val executor: Executor,
-    private val stateListener: Consumer<@PointerCaptureStateValue Int>,
+    private val stateListener: Consumer<PointerCaptureState>,
     private val inputEventListener: Consumer<InputEvent>,
 ) : Component {
 
-    @Target(
-        AnnotationTarget.FUNCTION,
-        AnnotationTarget.PROPERTY_GETTER,
-        AnnotationTarget.PROPERTY_SETTER,
-        AnnotationTarget.VALUE_PARAMETER,
-        AnnotationTarget.FIELD,
-        AnnotationTarget.LOCAL_VARIABLE,
-        AnnotationTarget.TYPE,
-    )
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        value =
-            [
-                PointerCaptureState.POINTER_CAPTURE_PAUSED,
-                PointerCaptureState.POINTER_CAPTURE_ACTIVE,
-                PointerCaptureState.POINTER_CAPTURE_STOPPED,
-            ]
-    )
-    public annotation class PointerCaptureStateValue
-
     /** Defines the possible states of a [PointerCaptureComponent]. */
-    public object PointerCaptureState {
-        /**
-         * Pointer Capture is temporarily disabled for this component. The component can resume
-         * capture from this state.
-         */
-        public const val POINTER_CAPTURE_PAUSED: Int = 0
+    public class PointerCaptureState private constructor(private val name: String) {
 
-        /** Pointer Capture is enabled for this component. */
-        public const val POINTER_CAPTURE_ACTIVE: Int = 1
+        public companion object {
+            /**
+             * Pointer Capture is temporarily disabled for this component. The component can resume
+             * capture from this state.
+             */
+            @JvmField public val PAUSED: PointerCaptureState = PointerCaptureState("PAUSED")
 
-        /**
-         * Pointer Capture has been stopped for this component and no more callbacks will get
-         * triggered. The component will not recover from this state. This can occur if the
-         * underlying system replaces this pointer capture request by another one.
-         */
-        public const val POINTER_CAPTURE_STOPPED: Int = 2
+            /** Pointer Capture is enabled for this component. */
+            @JvmField public val ACTIVE: PointerCaptureState = PointerCaptureState("STOPPED")
+
+            /**
+             * Pointer Capture has been stopped for this component and no more callbacks will get
+             * triggered. The component will not recover from this state. This can occur if the
+             * underlying system replaces this pointer capture request by another one.
+             */
+            @JvmField public val STOPPED: PointerCaptureState = PointerCaptureState("STOPPED")
+        }
+
+        override fun toString(): String = name
     }
 
     private var attachedEntity: Entity? = null
@@ -93,13 +75,13 @@ private constructor(
         RtPointerCaptureComponent.StateListener { pcState: Int ->
             when (pcState) {
                 RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED ->
-                    stateListener.accept(PointerCaptureState.POINTER_CAPTURE_PAUSED)
+                    stateListener.accept(PointerCaptureState.PAUSED)
                 RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE ->
-                    stateListener.accept(PointerCaptureState.POINTER_CAPTURE_ACTIVE)
+                    stateListener.accept(PointerCaptureState.ACTIVE)
                 RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED ->
-                    stateListener.accept(PointerCaptureState.POINTER_CAPTURE_STOPPED)
+                    stateListener.accept(PointerCaptureState.STOPPED)
                 else -> {
-                    stateListener.accept(pcState)
+                    // Unreachable
                 }
             }
         }
@@ -141,7 +123,7 @@ private constructor(
         public fun create(
             session: Session,
             executor: Executor,
-            stateListener: Consumer<@PointerCaptureStateValue Int>,
+            stateListener: Consumer<PointerCaptureState>,
             inputListener: Consumer<InputEvent>,
         ): PointerCaptureComponent =
             PointerCaptureComponent(

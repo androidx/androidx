@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -54,8 +53,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.glimmer.Text
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 
@@ -66,8 +65,6 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
 
     val vertical: Boolean
         get() = orientation == Orientation.Vertical
-
-    lateinit var scope: CoroutineScope
 
     @Composable
     internal fun TestList(
@@ -151,19 +148,17 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
             afterContentCrossAxis = crossAxis,
         )
 
-    /** The proper scroll of the list in tests. */
-    protected suspend fun ListState.scrollByAndWaitForIdle(delta: Dp) {
+    /** Scrolls blocking on the main thread and wait for idle. */
+    protected fun ListState.scrollByAndWaitForIdle(delta: Dp) {
         val deltaPx = with(rule.density) { delta.toPx() }
         scrollByAndWaitForIdle(deltaPx)
     }
 
-    /** The proper scroll of the list in tests. */
-    protected suspend fun ListState.scrollByAndWaitForIdle(delta: Float): Float {
-        var consumed = -Float.NaN
-        val job = rule.runOnIdle { scope.launch { consumed = scrollBy(delta) } }
-        job.join()
+    /** Scrolls blocking on the main thread and wait for idle. */
+    protected fun ListState.scrollByAndWaitForIdle(delta: Float): Float {
+        val scrolled = runBlocking(Dispatchers.Main) { scrollBy(delta) }
         rule.waitForIdle()
-        return consumed
+        return scrolled
     }
 
     private fun PaddingValues(
@@ -188,23 +183,13 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
             )
         }
 
-    protected fun ComposeContentTestRule.setContentAndSaveScope(content: @Composable () -> Unit) {
-        setContent {
-            scope = rememberCoroutineScope()
-            content()
-        }
-    }
-
     /** This helper method requests initial focus to the list so that the auto focus can work. */
     protected fun ComposeContentTestRule.setContentWithInitialFocus(
         modifier: Modifier = Modifier,
         content: @Composable ColumnScope.() -> Unit,
     ) {
         val focusRequester = FocusRequester()
-        setContent {
-            scope = rememberCoroutineScope()
-            Column(modifier.focusRequester(focusRequester)) { content() }
-        }
+        setContent { Column(modifier.focusRequester(focusRequester)) { content() } }
         // Request initial focus.
         rule.runOnIdle { focusRequester.requestFocus() }
         rule.waitForIdle()

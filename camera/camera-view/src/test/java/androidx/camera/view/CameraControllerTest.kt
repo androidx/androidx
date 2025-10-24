@@ -136,24 +136,28 @@ class CameraControllerTest {
     fun setEffects_unbindInvoked() {
         // Arrange.
         completeCameraInitialization()
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isFalse()
+        val originalUseCases = processCameraProviderWrapper.getBoundUseCases()
+        processCameraProviderWrapper.resetUnbindInvokedUseCases()
         // Act.
         controller.setEffects(
             setOf(FakeSurfaceEffect(directExecutor(), FakeSurfaceProcessor(directExecutor())))
         )
         // Assert.
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isTrue()
+        assertThat(processCameraProviderWrapper.getUnbindInvokedUseCases())
+            .containsAtLeastElementsIn(originalUseCases)
     }
 
     @Test
     fun clearEffects_unbindInvoked() {
         // Arrange.
         completeCameraInitialization()
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isFalse()
+        val originalUseCases = processCameraProviderWrapper.getBoundUseCases()
+        processCameraProviderWrapper.resetUnbindInvokedUseCases()
         // Act.
         controller.clearEffects()
         // Assert.
-        assertThat(processCameraProviderWrapper.unbindInvoked()).isTrue()
+        assertThat(processCameraProviderWrapper.getUnbindInvokedUseCases())
+            .containsAtLeastElementsIn(originalUseCases)
     }
 
     @Test
@@ -1040,7 +1044,12 @@ class CameraControllerTest {
 
         // State is still the previous STARTED state
         shadowOf(getMainLooper()).idle()
-        assertThat(controller.tapToFocusInfoState.value?.focusState).isEqualTo(TAP_TO_FOCUS_STARTED)
+        // The tap-to-focus operation might be executed but the result is TAP_TO_FOCUS_NOT_FOCUSED.
+        // If the value is posted to the mTapToFocusInfoState before
+        // shadowOf(getMainLooper()).idle() is called, the focusState will be
+        // TAP_TO_FOCUS_NOT_FOCUSED.
+        assertThat(controller.tapToFocusInfoState.value?.focusState)
+            .isAnyOf(TAP_TO_FOCUS_STARTED, TAP_TO_FOCUS_NOT_FOCUSED)
     }
 
     @Test

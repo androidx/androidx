@@ -336,7 +336,6 @@ class CapturePipelineTest {
         fakeUseCaseCameraState =
             UseCaseCameraState(
                 fakeUseCaseGraphConfig,
-                fakeUseCaseThreads,
                 templateParamsOverride = NoOpTemplateParamsOverride,
             )
 
@@ -1021,7 +1020,7 @@ class CapturePipelineTest {
         fakeCameraGraphSession.requestHandler = { requests ->
             submittedRequestList.addAll(requests)
         }
-        fakeUseCaseCameraState.update(streams = setOf(StreamId(0)))
+        fakeUseCaseCameraState.updateAsync(streams = setOf(StreamId(0)))
 
         // Act.
         capturePipeline.submitStillCaptures(
@@ -1067,7 +1066,7 @@ class CapturePipelineTest {
         fakeCameraGraphSession.requestHandler = { requests ->
             submittedRequestList.addAll(requests)
         }
-        fakeUseCaseCameraState.update(streams = setOf(StreamId(0)))
+        fakeUseCaseCameraState.updateAsync(streams = setOf(StreamId(0)))
 
         // Act.
         capturePipeline.submitStillCaptures(

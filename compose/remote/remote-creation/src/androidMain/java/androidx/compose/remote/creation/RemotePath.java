@@ -70,8 +70,6 @@ public class RemotePath {
 
     /**
      * reserve space TODO: Do we need this function?
-     *
-     * @param extraPtCount
      */
     public void incReserve(int extraPtCount) {
         mSize = 0;
@@ -156,9 +154,9 @@ public class RemotePath {
      * there is no previous contour, this is treated the same as moveTo().
      *
      * @param dx The amount to add to the x-coordinate of the end of the previous contour, to
-     *     specify the start of a new contour
+     *           specify the start of a new contour
      * @param dy The amount to add to the y-coordinate of the end of the previous contour, to
-     *     specify the start of a new contour
+     *           specify the start of a new contour
      */
     public void rMoveTo(float dx, float dy) {
         add(MOVE, mCx = dx + mCx, mCy = dy + mCy);
@@ -185,13 +183,13 @@ public class RemotePath {
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
      * @param dx1 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     control point of a quadratic curve
+     *            control point of a quadratic curve
      * @param dy1 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     control point of a quadratic curve
+     *            control point of a quadratic curve
      * @param dx2 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     end point of a quadratic curve
+     *            end point of a quadratic curve
      * @param dy2 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     end point of a quadratic curve
+     *            end point of a quadratic curve
      */
     public void rQuadTo(float dx1, float dy1, float dx2, float dy2) {
         add(QUADRATIC, dx1 + mCx, dy1 + mCx, dx2 + mCx, dy2 + mCx);
@@ -208,13 +206,14 @@ public class RemotePath {
      * weight of 0 is equivalent to calling {@link #lineTo(float, float)} to <code>(x1, y1)</code>
      * followed by {@link #lineTo(float, float)} to <code>(x2, y2)</code>.
      *
-     * @param x1 The x-coordinate of the control point on a conic curve
-     * @param y1 The y-coordinate of the control point on a conic curve
-     * @param x2 The x-coordinate of the end point on a conic curve
-     * @param y2 The y-coordinate of the end point on a conic curve
+     * @param x1     The x-coordinate of the control point on a conic curve
+     * @param y1     The y-coordinate of the control point on a conic curve
+     * @param x2     The x-coordinate of the end point on a conic curve
+     * @param y2     The y-coordinate of the end point on a conic curve
      * @param weight The weight of the conic applied to the curve. A value of 1 is equivalent to a
-     *     quadratic with the given control and anchor points and a value of 0 is equivalent to a
-     *     line to the first and another line to the second point.
+     *               quadratic with the given control and anchor points and a value of 0 is
+     *               equivalent to a
+     *               line to the first and another line to the second point.
      */
     public void conicTo(float x1, float y1, float x2, float y2, float weight) {
         add(CONIC, x1, y1, x2, y2, weight);
@@ -226,17 +225,22 @@ public class RemotePath {
      * Same as conicTo, but the coordinates are considered relative to the last point on this
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
-     * @param dx1 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     control point of a conic curve
-     * @param dy1 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     control point of a conic curve
-     * @param dx2 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     end point of a conic curve
-     * @param dy2 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     end point of a conic curve
+     * @param dx1    The amount to add to the x-coordinate of the last point on this contour, for
+     *              the
+     *               control point of a conic curve
+     * @param dy1    The amount to add to the y-coordinate of the last point on this contour, for
+     *              the
+     *               control point of a conic curve
+     * @param dx2    The amount to add to the x-coordinate of the last point on this contour, for
+     *              the
+     *               end point of a conic curve
+     * @param dy2    The amount to add to the y-coordinate of the last point on this contour, for
+     *              the
+     *               end point of a conic curve
      * @param weight The weight of the conic applied to the curve. A value of 1 is equivalent to a
-     *     quadratic with the given control and anchor points and a value of 0 is equivalent to a
-     *     line to the first and another line to the second point.
+     *               quadratic with the given control and anchor points and a value of 0 is
+     *               equivalent to a
+     *               line to the first and another line to the second point.
      */
     public void rConicTo(float dx1, float dy1, float dx2, float dy2, float weight) {
         add(CONIC, dx1 + mCx, dy1 + mCy, dx2 + mCx, dy2 + mCy, weight);
@@ -262,9 +266,9 @@ public class RemotePath {
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
      * @param dx The amount to add to the x-coordinate of the previous point on this contour, to
-     *     specify a line
+     *           specify a line
      * @param dy The amount to add to the y-coordinate of the previous point on this contour, to
-     *     specify a line
+     *           specify a line
      */
     public void rLineTo(float dx, float dy) {
         add(LINE, mCx = dx + mCx, mCy = dy + mCy);
@@ -291,13 +295,6 @@ public class RemotePath {
     /**
      * Same as cubicTo, but the coordinates are considered relative to the current point on this
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
-     *
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     * @param x3
-     * @param y3
      */
     public void rCubicTo(float x1, float y1, float x2, float y2, float x3, float y3) {
 
@@ -336,13 +333,6 @@ public class RemotePath {
      * from the path's current last point, then an automatic lineTo() is added to connect the
      * current contour to the start of the arc. However, if the path is empty, then we call moveTo()
      * with the first point of the arc.
-     *
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
-     * @param startAngle
-     * @param sweepAngle
      */
     public void addArc(
             float left, float top, float right, float bottom, float startAngle, float sweepAngle) {
@@ -355,7 +345,7 @@ public class RemotePath {
      * current contour to the start of the arc. However, if the path is empty, then we call moveTo()
      * with the first point of the arc.
      *
-     * @param oval The bounds of oval defining shape and size of the arc
+     * @param oval       The bounds of oval defining shape and size of the arc
      * @param startAngle Starting angle (in degrees) where the arc begins
      * @param sweepAngle Sweep angle (in degrees) measured clockwise, treated mod 360.
      */
@@ -368,10 +358,6 @@ public class RemotePath {
      * from the path's current last point, then an automatic lineTo() is added to connect the
      * current contour to the start of the arc. However, if the path is empty, then we call moveTo()
      * with the first point of the arc.
-     *
-     * @param oval
-     * @param startAngle
-     * @param sweepAngle
      */
     public void arcTo(@NonNull RectF oval, float startAngle, float sweepAngle) {
         addArc(oval.left, oval.top, oval.right, oval.bottom, startAngle, sweepAngle, false);
@@ -383,9 +369,6 @@ public class RemotePath {
      * current contour to the start of the arc. However, if the path is empty, then we call moveTo()
      * with the first point of the arc.
      *
-     * @param oval
-     * @param startAngle
-     * @param sweepAngle
      * @param forceMoveTo If true, always begin a new contour with the arc
      */
     public void arcTo(
@@ -396,12 +379,12 @@ public class RemotePath {
     /**
      * Add the specified arc to the path as a new contour.
      *
-     * @param left left most bounds of the oval
-     * @param top top most bounds of the oval
-     * @param right right most bounds of the oval
-     * @param bottom lowest bound of the oval
-     * @param startAngle Starting angle (in degrees) where the arc begins
-     * @param sweepAngle Sweep angle (in degrees) measured clockwise
+     * @param left        left most bounds of the oval
+     * @param top         top most bounds of the oval
+     * @param right       right most bounds of the oval
+     * @param bottom      lowest bound of the oval
+     * @param startAngle  Starting angle (in degrees) where the arc begins
+     * @param sweepAngle  Sweep angle (in degrees) measured clockwise
      * @param forceMoveTo If true, always begin a new contour with the arc
      */
     public void arcTo(
@@ -418,13 +401,12 @@ public class RemotePath {
     /**
      * Add the specified arc to the path as a new contour.
      *
-     * @param left left most bounds of the oval
-     * @param top top most bounds of the oval
-     * @param right right most bounds of the oval
-     * @param bottom lowest bound of the oval
+     * @param left       left most bounds of the oval
+     * @param top        top most bounds of the oval
+     * @param right      right most bounds of the oval
+     * @param bottom     lowest bound of the oval
      * @param startAngle Starting angle (in degrees) where the arc begins
      * @param sweepAngle Sweep angle (in degrees) measured clockwise
-     * @param forceMoveTo
      */
     public void addArc(
             float left,
@@ -794,6 +776,7 @@ public class RemotePath {
         public void addRoundRect(float left, float top, float right, float bottom,
          float rx, float ry, Path.Direction dir) {
     */
+
     /** This is useful to create an approximate circle using remote float */
     @SuppressWarnings("FloatingPointLiteralPrecision")
     public static @NonNull RemotePath createCirclePath(

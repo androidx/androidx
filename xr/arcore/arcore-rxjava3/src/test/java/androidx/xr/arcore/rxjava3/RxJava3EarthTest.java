@@ -73,7 +73,7 @@ public class RxJava3EarthTest {
                         mSession =
                                 ((SessionCreateSuccess) Session.create(activity, mTestDispatcher))
                                         .getSession();
-                        mXrResourcesManager.setLifecycleManager$arcore_release(
+                        mXrResourcesManager.setLifecycleManager$arcore(
                                 SessionExtKt.getPerceptionRuntime(mSession).getLifecycleManager());
 
                         try {

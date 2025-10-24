@@ -19,7 +19,7 @@ package androidx.compose.remote.creation;
 import android.graphics.Bitmap;
 
 import androidx.annotation.RestrictTo;
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.creation.profile.Profile;
@@ -33,21 +33,22 @@ public class RemoteComposeWriterAndroid extends RemoteComposeWriter {
 
     public RemoteComposeWriterAndroid(int width, int height,
             @NonNull String contentDescription,
-            @NonNull Platform platform) {
+            @NonNull RcPlatformServices platform) {
         super(width, height, contentDescription, platform);
     }
 
     public RemoteComposeWriterAndroid(int width, int height, @NonNull String contentDescription,
-            int apilLevel, int profiles, @NonNull Platform platform) {
-        super(width, height, contentDescription, apilLevel, profiles, platform);
+            int apiLevel, int profiles, @NonNull RcPlatformServices platform) {
+        super(width, height, contentDescription, apiLevel, profiles, platform);
     }
 
-    public RemoteComposeWriterAndroid(@NonNull Platform platform, int apiLevel,
+    public RemoteComposeWriterAndroid(@NonNull RcPlatformServices platform, int apiLevel,
             HTag @NonNull ... tags) {
         super(platform, apiLevel, tags);
     }
 
-    public RemoteComposeWriterAndroid(@NonNull Platform platform, HTag @NonNull ... tags) {
+    public RemoteComposeWriterAndroid(@NonNull RcPlatformServices platform,
+            HTag @NonNull ... tags) {
         super(platform, tags);
     }
 

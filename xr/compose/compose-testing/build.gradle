@@ -28,7 +28,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
@@ -49,7 +49,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-unit:1.7.5")
     implementation("androidx.compose.ui:ui-util:1.7.5")
     implementation("androidx.compose.ui:ui-test-junit4:1.7.5")
-    implementation("com.google.ar:impress:0.0.7")
+    implementation("com.google.ar:impress:0.0.8")
 
     compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
     compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))

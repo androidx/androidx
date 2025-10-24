@@ -319,9 +319,7 @@ class BinaryCompatibilityValidation(
 
             val target = currentTarget.toKlibTarget()
 
-            val isEnabled =
-                currentTarget is KotlinNativeTarget &&
-                    HostManager().isEnabled(currentTarget.konanTarget)
+            val isEnabled = HostManager().isEnabled(currentTarget.konanTarget)
             if (isEnabled) {
                 val buildTargetAbi =
                     configureKlibCompilation(

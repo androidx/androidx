@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.ink.storage.AndroidBrushFamilyExtensions:
+    Removed class androidx.ink.storage.AndroidBrushFamilyExtensions from compatibility checked API surface
+BecameUnchecked: androidx.ink.storage.BrushFamilyExtensions:
+    Removed class androidx.ink.storage.BrushFamilyExtensions from compatibility checked API surface

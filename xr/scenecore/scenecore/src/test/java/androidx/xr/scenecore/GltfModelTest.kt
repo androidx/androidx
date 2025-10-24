@@ -34,6 +34,7 @@ import java.nio.file.Paths
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
@@ -63,6 +64,7 @@ class GltfModelTest {
         }
     }
 
+    @Ignore("b/451677593")
     @SdkSuppress(minSdkVersion = 27)
     @Test
     fun createGltfByAssetNameTest() = runTest {

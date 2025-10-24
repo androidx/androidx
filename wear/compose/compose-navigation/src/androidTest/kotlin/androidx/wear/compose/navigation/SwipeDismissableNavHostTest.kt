@@ -73,12 +73,13 @@ import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
 class SwipeDismissableNavHostTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private lateinit var backPressedDispatcher: OnBackPressedDispatcher
 

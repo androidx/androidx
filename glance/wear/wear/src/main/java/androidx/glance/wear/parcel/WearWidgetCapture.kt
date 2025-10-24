@@ -20,14 +20,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Platform
-import androidx.compose.remote.core.Profiles
+import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.PendingIntentAwareWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCapture
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 import androidx.glance.wear.WearWidgetRawContent
@@ -113,8 +113,8 @@ internal class WidgetPendingIntents {
 internal class WearWidgetProfile(widgetPendingIntents: WidgetPendingIntents) :
     Profile(
         CoreDocument.DOCUMENT_API_LEVEL,
-        Profiles.PROFILE_WEAR_WIDGETS,
-        AndroidxPlatformServices(),
+        RcProfiles.PROFILE_WEAR_WIDGETS,
+        AndroidxRcPlatformServices(),
         { width, height, contentDescription, profile ->
             WearWidgetRemoteComposeWriter(
                 widgetPendingIntents,
@@ -140,7 +140,7 @@ internal class WearWidgetRemoteComposeWriter(
     contentDescription: String,
     apiLevel: Int,
     profiles: Int,
-    platform: Platform,
+    platform: RcPlatformServices,
 ) :
     RemoteComposeWriter(width, height, contentDescription, apiLevel, profiles, platform),
     PendingIntentAwareWriter {

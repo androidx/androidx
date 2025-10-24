@@ -28,7 +28,41 @@ import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 @RequiresApi(Build.VERSION_CODES.S)
 class `$AggregatedAppFunctionInventory_Impl` : AggregatedAppFunctionInventory() {
     override val inventories: List<AppFunctionInventory>
-        get() = listOf(AppFunctionUriGrantTestInventory())
+        get() = listOf(AppFunctionUriGrantTestInventory(), AppFunctionTextResourceTestInventory())
+}
+
+internal class AppFunctionTextResourceTestInventory : AppFunctionInventory {
+    override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
+        get() = mapOf()
+
+    override val componentsMetadata: AppFunctionComponentsMetadata
+        get() = TEXT_RESOURCE_COMPONENTS_METADATA
+
+    internal companion object {
+        val TEXT_RESOURCE_OBJECT_TYPE_METADATA =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "mimeType" to
+                            AppFunctionStringTypeMetadata(isNullable = false, description = ""),
+                        "content" to
+                            AppFunctionStringTypeMetadata(isNullable = false, description = ""),
+                    ),
+                required = listOf("mimeType", "content"),
+                qualifiedName = "androidx.appfunctions.AppFunctionTextResource",
+                isNullable = false,
+                description = "Represents a text resource in an app function schema.",
+            )
+
+        val TEXT_RESOURCE_COMPONENTS_METADATA =
+            AppFunctionComponentsMetadata(
+                dataTypes =
+                    mapOf(
+                        "androidx.appfunctions.AppFunctionTextResource" to
+                            TEXT_RESOURCE_OBJECT_TYPE_METADATA
+                    )
+            )
+    }
 }
 
 internal class AppFunctionUriGrantTestInventory : AppFunctionInventory {

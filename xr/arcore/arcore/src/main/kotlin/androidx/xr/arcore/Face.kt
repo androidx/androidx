@@ -18,16 +18,28 @@ package androidx.xr.arcore
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
+import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Face as RuntimeFace
+import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.runtime.Config.FaceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transform
 
 /** Contains the tracking information of a detected human face. */
-public class Face internal constructor(internal val runtimeFace: RuntimeFace) : Updatable {
+public class Face
+internal constructor(
+    internal val runtimeFace: RuntimeFace,
+    internal val xrResourceManager: XrResourcesManager,
+) : Updatable {
+
     public companion object {
         /**
          * Returns the Face object that corresponds to the user.
@@ -38,15 +50,37 @@ public class Face internal constructor(internal val runtimeFace: RuntimeFace) : 
          */
         @JvmStatic
         public fun getUserFace(session: Session): Face? {
+            val config = session.config
+            check(config.faceTracking == FaceTrackingMode.USER) {
+                "Config.FaceTrackingMode must be set to USER to read the user's face."
+            }
+
             val perceptionStateExtender: PerceptionStateExtender? =
                 session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
             check(perceptionStateExtender != null) { "PerceptionStateExtender is not available." }
-
-            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
-            check(config.faceTracking != FaceTrackingMode.DISABLED) {
-                "Config.FaceTrackingMode is set to Disabled."
-            }
             return perceptionStateExtender.xrResourcesManager.userFace
+        }
+
+        /** Emits the faces that are currently being tracked in the [Session]. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @JvmStatic
+        public fun subscribe(session: Session): StateFlow<Collection<Face>> {
+            check(session.config.faceTracking == FaceTrackingMode.MESHES) {
+                "Config.FaceTrackingMode must be set to MESHES to track face meshes."
+            }
+
+            return session.state
+                .transform { state ->
+                    state.perceptionState?.let { perceptionState ->
+                        emit(perceptionState.trackables.filterIsInstance<Face>())
+                    }
+                }
+                .stateIn(
+                    session.coroutineScope,
+                    SharingStarted.Eagerly,
+                    session.state.value.perceptionState?.trackables?.filterIsInstance<Face>()
+                        ?: emptyList(),
+                )
         }
 
         internal val blendShapeMapKeys: List<FaceBlendShapeType> =
@@ -137,17 +171,24 @@ public class Face internal constructor(internal val runtimeFace: RuntimeFace) : 
     public class State
     internal constructor(
         public val trackingState: TrackingState,
-        internal val blendShapeValues: FloatArray,
-        internal val confidenceValues: FloatArray,
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val centerPose: Pose? = null,
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val mesh: Mesh? = null,
+        internal val blendShapeValues: FloatArray? = null,
+        internal val confidenceValues: FloatArray? = null,
+        internal val noseTipPose: Pose? = null,
+        internal val foreheadLeftPose: Pose? = null,
+        internal val foreheadRightPose: Pose? = null,
     ) {
+
         /**
          * Represents the blend shapes of the face.
          *
          * @return a map of [FaceBlendShapeType] to the corresponding blend shape value in the range
-         *   `[0.0, 1.0]`.
+         *   `[0.0, 1.0]`. If the face does not provide blend shape values, this will be an empty
+         *   map.
          */
         public val blendShapes: Map<FaceBlendShapeType, Float> =
-            blendShapeMapKeys.zip(blendShapeValues.toList()).toMap()
+            blendShapeMapKeys.zip(blendShapeValues?.toList() ?: emptyList()).toMap()
 
         /**
          * Gets the confidence value of the face tracker for the given region.
@@ -156,28 +197,52 @@ public class Face internal constructor(internal val runtimeFace: RuntimeFace) : 
          * @return the confidence value in the range `[0.0, 1.0]` of the face tracker for the given
          *   region.
          * @throws IllegalArgumentException if the region does not exist.
+         * @throws IllegalStateException if the Face does not provide confidence values.
          */
         @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
-        public fun getConfidence(region: FaceConfidenceRegion): Float =
-            when (region) {
+        public fun getConfidence(region: FaceConfidenceRegion): Float {
+            check(confidenceValues != null) { "The Face does not contain confidenceValues." }
+            return when (region) {
                 FaceConfidenceRegion.FACE_CONFIDENCE_REGION_LOWER -> confidenceValues[0]
                 FaceConfidenceRegion.FACE_CONFIDENCE_REGION_LEFT_UPPER -> confidenceValues[1]
                 FaceConfidenceRegion.FACE_CONFIDENCE_REGION_RIGHT_UPPER -> confidenceValues[2]
                 else -> throw IllegalArgumentException("Unknown confidence for region ${region}.")
             }
+        }
+
+        /** Map of [Pose] values on the Face for each [FaceMeshRegion] */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val regionPoses: Map<FaceMeshRegion, Pose>? =
+            if (noseTipPose == null || foreheadLeftPose == null || foreheadRightPose == null) null
+            else
+                mapOf(
+                    FaceMeshRegion.NOSE_TIP to noseTipPose,
+                    FaceMeshRegion.FOREHEAD_LEFT to foreheadLeftPose,
+                    FaceMeshRegion.FOREHEAD_RIGHT to foreheadRightPose,
+                )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is State) return false
             return trackingState == other.trackingState &&
                 blendShapeValues contentEquals other.blendShapeValues &&
-                confidenceValues contentEquals other.confidenceValues
+                confidenceValues contentEquals other.confidenceValues &&
+                centerPose == other.centerPose &&
+                mesh == other.mesh &&
+                noseTipPose == other.noseTipPose &&
+                foreheadLeftPose == other.foreheadLeftPose &&
+                foreheadRightPose == other.foreheadRightPose
         }
 
         override fun hashCode(): Int {
             var result = trackingState.hashCode()
             result = 31 * result + blendShapeValues.contentHashCode()
             result = 31 * result + confidenceValues.contentHashCode()
+            result = 31 * result + centerPose.hashCode()
+            result = 31 * result + mesh.hashCode()
+            result = 31 * result + noseTipPose.hashCode()
+            result = 31 * result + foreheadLeftPose.hashCode()
+            result = 31 * result + foreheadRightPose.hashCode()
             return result
         }
 
@@ -192,8 +257,8 @@ public class Face internal constructor(internal val runtimeFace: RuntimeFace) : 
         MutableStateFlow<State>(
             State(
                 TrackingState.PAUSED,
-                FloatArray(blendShapeMapKeys.size),
-                FloatArray(confidenceRegions.size),
+                blendShapeValues = FloatArray(blendShapeMapKeys.size),
+                confidenceValues = FloatArray(confidenceRegions.size),
             )
         )
 
@@ -201,15 +266,33 @@ public class Face internal constructor(internal val runtimeFace: RuntimeFace) : 
     public val state: StateFlow<State> = _state.asStateFlow()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public override suspend fun update() {
-        if (!runtimeFace.isValid) {
-            return
+    public fun createAnchor(pose: Pose): AnchorCreateResult {
+        val runtimeAnchor: RuntimeAnchor
+        try {
+            runtimeAnchor = runtimeFace.createAnchor(pose)
+        } catch (e: AnchorResourcesExhaustedException) {
+            return AnchorCreateResourcesExhausted()
+        } catch (e: IllegalStateException) {
+            throw UnsupportedOperationException("The Face does not support anchors.", e)
         }
+        val anchor = Anchor(runtimeAnchor, xrResourceManager)
+        xrResourceManager.addUpdatable(anchor)
+        return AnchorCreateSuccess(anchor)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public override suspend fun update() {
+        if (!runtimeFace.isValid) return
         _state.emit(
             State(
                 runtimeFace.trackingState,
+                runtimeFace.centerPose,
+                runtimeFace.mesh,
                 runtimeFace.blendShapeValues,
                 runtimeFace.confidenceValues,
+                runtimeFace.noseTipPose,
+                runtimeFace.foreheadLeftPose,
+                runtimeFace.foreheadRightPose,
             )
         )
     }

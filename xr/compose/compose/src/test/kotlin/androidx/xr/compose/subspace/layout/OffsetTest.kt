@@ -37,7 +37,6 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertPositionIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +49,7 @@ class OffsetTest {
 
     @Test
     fun offset_positiveValuesArePositionedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").offset(20.dp, 20.dp, 20.dp)) {
                     Text(text = "Panel")
@@ -65,7 +64,7 @@ class OffsetTest {
 
     @Test
     fun offset_negativeValuesArePositionedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").offset(-20.dp, -20.dp, -20.dp)) {
                     Text(text = "Panel")
@@ -80,7 +79,7 @@ class OffsetTest {
 
     @Test
     fun offset_combinedWithOtherModifiersArePositionedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -100,7 +99,7 @@ class OffsetTest {
 
     @Test
     fun offset_nestedLayoutsArePositionedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.width(1000.dp)) {
                     SpatialColumn(SubspaceModifier.weight(1f)) {
@@ -134,7 +133,7 @@ class OffsetTest {
 
     @Test
     fun offset_updatesDynamically() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var offsetX by remember { mutableStateOf(0.dp) }
                 SpatialPanel(SubspaceModifier.testTag("panel").offset(x = offsetX)) {

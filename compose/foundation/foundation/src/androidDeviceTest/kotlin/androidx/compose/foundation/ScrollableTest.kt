@@ -228,7 +228,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_indirectTouchEvent() {
+    fun scrollable_indirectPointerEvent() {
         var total = 0f
         val controller =
             ScrollableState(
@@ -243,7 +243,7 @@ class ScrollableTest {
         rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward(rule)
         rule.runOnIdle {
             assertThat(total).isNonZero()
-            // Swipe forward has a negative sign because indirect touch events are inverted in
+            // Swipe forward has a negative sign because indirect pointer events are inverted in
             // Scrollable.
             assertThat(total.sign).isEqualTo(-1f)
         }
@@ -515,7 +515,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_indirectTouch_reverse() {
+    fun scrollable_indirectPointer_reverse() {
         var total = 0f
         val controller =
             ScrollableState(
@@ -1287,7 +1287,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_nestedDrag_indirectTouchEvent() {
+    fun scrollable_nestedDrag_indirectPointerEvent() {
         var innerDrag = 0f
         var outerDrag = 0f
         val outerState =
@@ -1339,7 +1339,7 @@ class ScrollableTest {
             rule.runOnIdle {
                 assertThat(innerDrag).isNonZero()
                 assertThat(outerDrag).isNonZero()
-                // Swipe forward has a negative sign because indirect touch events are inverted in
+                // Swipe forward has a negative sign because indirect pointer events are inverted in
                 // Scrollable.
                 assertThat(innerDrag.sign).isEqualTo(-1f)
                 assertThat(outerDrag.sign).isEqualTo(-1f)
@@ -1591,7 +1591,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_nestedScroll_childPartialConsumptionForIndirectTouchEvents() {
+    fun scrollable_nestedScroll_childPartialConsumptionForIndirectPointerEvents() {
         var innerDrag = 0f
         var outerDrag = 0f
         val outerState =
@@ -1644,7 +1644,7 @@ class ScrollableTest {
             assertThat(innerDrag).isNonZero()
             assertThat(outerDrag).isNonZero()
             assertThat(innerDrag).isEqualTo(outerDrag)
-            // Swipe forward has a negative sign because indirect touch events are inverted in
+            // Swipe forward has a negative sign because indirect pointer events are inverted in
             // Scrollable.
             assertThat(innerDrag.sign).isEqualTo(-1f)
         }
@@ -1744,7 +1744,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_nestedFling_indirectTouchEvents() {
+    fun scrollable_nestedFling_indirectPointerEvents() {
         var innerDrag = 0f
         var outerDrag = 0f
         val outerState =
@@ -1797,7 +1797,7 @@ class ScrollableTest {
         assertThat(outerDrag).isNonZero()
         // we consumed half delta in child, so exactly half should go to the parent
         assertThat(outerDrag).isEqualTo(innerDrag)
-        // Swipe forward has a negative sign because indirect touch events are inverted in
+        // Swipe forward has a negative sign because indirect pointer events are inverted in
         // Scrollable.
         assertThat(innerDrag.sign).isEqualTo(-1f)
         val lastEqualDrag = innerDrag
@@ -1870,7 +1870,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_nestedScrollAbove_respectsPreConsumption_indirectTouchEvents() {
+    fun scrollable_nestedScrollAbove_respectsPreConsumption_indirectPointerEvents() {
         var value = 0f
         var lastReceivedPreScrollAvailable = 0f
         val preConsumeFraction = 0.7f
@@ -2764,7 +2764,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_flingBehaviourCalled_indirectTouch() {
+    fun scrollable_flingBehaviourCalled_indirectPointer() {
         var total = 0f
         val controller =
             ScrollableState(
@@ -2794,7 +2794,7 @@ class ScrollableTest {
         rule.waitForIdle()
         assertThat(flingCalled).isEqualTo(1)
         assertThat(flingVelocity).isNonZero()
-        // Swipe forward has a negative sign because indirect touch events are inverted in
+        // Swipe forward has a negative sign because indirect pointer events are inverted in
         // Scrollable.
         assertThat(flingVelocity.sign).isEqualTo(-1f)
 
@@ -2805,7 +2805,7 @@ class ScrollableTest {
         rule.waitForIdle()
         assertThat(flingCalled).isEqualTo(1)
         assertThat(flingVelocity).isNonZero()
-        // Swipe backwards has a positive sign because indirect touch events are inverted in
+        // Swipe backwards has a positive sign because indirect pointer events are inverted in
         // Scrollable.
         assertThat(flingVelocity.sign).isEqualTo(1f)
     }
@@ -3360,7 +3360,7 @@ class ScrollableTest {
     }
 
     @Test
-    fun dispatchScroll_shouldReturnConsumedDeltaInNestedScrollChain_indirectTouch() {
+    fun dispatchScroll_shouldReturnConsumedDeltaInNestedScrollChain_indirectPointer() {
         var consumedInner = 0f
         var consumedOuter = 0f
 

@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.annotation.RestrictTo
+import androidx.xr.projected.platform.IProjectedService
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 

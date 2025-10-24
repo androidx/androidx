@@ -22,6 +22,7 @@ import android.view.Surface
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
@@ -74,6 +75,20 @@ public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
 
     private var _surface: Surface =
         ImageReader.newInstance(1, 1, ImageFormat.YUV_420_888, 1).surface
+
+    /** For test purposes only. Caches the input of [setSurfacePixelDimensions]. */
+    private var _surfacePixelDimensions: IntSize2d = IntSize2d(0, 0)
+
+    /**
+     * Sets the dimensions of the Surface in pixels.
+     *
+     * @param width The width of the Surface in pixels.
+     * @param height The height of the Surface in pixels.
+     * @throws IllegalArgumentException if the dimensions are invalid.
+     */
+    override fun setSurfacePixelDimensions(width: Int, height: Int) {
+        _surfacePixelDimensions = IntSize2d(width, height)
+    }
 
     /**
      * Retrieves the surface that the Entity will display. The app can write into this surface

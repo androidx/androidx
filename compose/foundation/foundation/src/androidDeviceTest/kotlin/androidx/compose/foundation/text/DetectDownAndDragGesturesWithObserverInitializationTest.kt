@@ -20,6 +20,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.Alignment
@@ -98,7 +99,8 @@ class DetectDownAndDragGesturesWithObserverInitializationTest {
 
         override fun onUp() = add("up")
 
-        override fun onStart(startPoint: Offset) = add("start")
+        override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) =
+            add("start")
 
         override fun onDrag(delta: Offset) = add("drag")
 

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.InputMode
@@ -155,12 +156,14 @@ class FocusListenerTest {
         rule.onNodeWithTag("item2").requestFocus()
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(listener)
-                .isEqualTo(
-                    TestFocusListener(mutableListOf(Pair(item1Id, null), Pair(null, item2Id)))
-                )
-        }
+        val expectedResults: MutableList<Pair<Int?, Int?>> =
+            @OptIn(ExperimentalComposeUiApi::class)
+            if (isOptimizedFocusEventDispatchEnabled) {
+                mutableListOf(Pair(item1Id, item2Id))
+            } else {
+                mutableListOf(Pair(item1Id, null), Pair(null, item2Id))
+            }
+        rule.runOnIdle { assertThat(listener).isEqualTo(TestFocusListener(expectedResults)) }
     }
 
     @Test

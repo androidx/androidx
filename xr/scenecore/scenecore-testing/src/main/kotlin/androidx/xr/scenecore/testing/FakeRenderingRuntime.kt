@@ -70,6 +70,8 @@ public class FakeRenderingRuntime(
         assetKey: String,
     ): ListenableFuture<GltfModelResource> = immediateFuture(FakeGltfModelResource(0))
 
+    override fun destroyGltfModel(gltfModel: GltfModelResource) {}
+
     @Suppress("AsyncSuffixFuture")
     override fun loadExrImageByAssetName(assetName: String): ListenableFuture<ExrImageResource> =
         immediateFuture(FakeExrImageResource(0))
@@ -79,6 +81,8 @@ public class FakeRenderingRuntime(
         assetData: ByteArray,
         assetKey: String,
     ): ListenableFuture<ExrImageResource> = immediateFuture(FakeExrImageResource(1))
+
+    override fun destroyExrImage(exrImage: ExrImageResource) {}
 
     @Suppress("AsyncSuffixFuture")
     override fun loadTexture(assetName: String): ListenableFuture<TextureResource> =

@@ -23,6 +23,7 @@ import androidx.savedstate.benchmark.utils.CharArrayData
 import androidx.savedstate.benchmark.utils.DoubleArrayData
 import androidx.savedstate.benchmark.utils.FloatArrayData
 import androidx.savedstate.benchmark.utils.IntArrayData
+import androidx.savedstate.benchmark.utils.ListBooleanData
 import androidx.savedstate.benchmark.utils.ListIntData
 import androidx.savedstate.benchmark.utils.ListStringData
 import androidx.savedstate.benchmark.utils.LongArrayData
@@ -55,6 +56,15 @@ class SavedStateSerializableCollectionsDecodeBenchmark {
         val encodedData = encodeToSavedState(data, savedStateConfiguration)
         benchmarkRule.measureRepeated {
             decodeFromSavedState<ListStringData>(encodedData, savedStateConfiguration)
+        }
+    }
+
+    @Test
+    fun testDecodeListBooleanData() {
+        val data = ListBooleanData(List(sampleSize) { it % 2 == 0 })
+        val encodedData = encodeToSavedState(data, savedStateConfiguration)
+        benchmarkRule.measureRepeated {
+            decodeFromSavedState<ListBooleanData>(encodedData, savedStateConfiguration)
         }
     }
 

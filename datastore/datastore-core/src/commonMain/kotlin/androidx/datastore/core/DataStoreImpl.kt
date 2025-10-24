@@ -73,6 +73,7 @@ internal class DataStoreImpl<T>(
             is ReadException<T> -> throw startState.readException
             // TODO(b/273990827): decide the contract of accessing when state is Final
             is Final -> return@flow
+            is NoValueDataState -> error(BUG_MESSAGE)
         }
 
         /**
@@ -107,7 +108,8 @@ internal class DataStoreImpl<T>(
                         is ReadException<T> -> throw it.readException
                         is Data<T> -> it.value
                         is Final<T>,
-                        is UnInitialized -> error(BUG_MESSAGE)
+                        is UnInitialized,
+                        is NoValueDataState -> error(BUG_MESSAGE)
                     }
                 }
                 .onCompletion { decrementCollector() }
@@ -122,6 +124,7 @@ internal class DataStoreImpl<T>(
             is ReadException<T> -> throw startState.readException
             // TODO(b/273990827): decide the contract of accessing when state is Final
             is Final -> throw startState.finalException
+            is NoValueDataState -> error(BUG_MESSAGE)
         }
     }
 
@@ -169,8 +172,15 @@ internal class DataStoreImpl<T>(
         return withContext(childContextElement) {
             val ack = CompletableDeferred<T>()
             val currentDownStreamFlowState = inMemoryCache.currentState
-            val updateMsg =
-                Message.Update(transform, ack, currentDownStreamFlowState, coroutineContext)
+            // Skip passing the actual cached value if it's Data since Message.Update doesn't
+            // rely on the cached value. This enables potentially earlier GC.
+            val enqueueState: State<T> =
+                if (currentDownStreamFlowState is Data) {
+                    NoValueDataState(currentDownStreamFlowState.version)
+                } else {
+                    currentDownStreamFlowState
+                }
+            val updateMsg = Message.Update(transform, ack, enqueueState, coroutineContext)
             writeActor.offer(updateMsg)
             ack.await()
         }
@@ -262,6 +272,7 @@ internal class DataStoreImpl<T>(
                             }
                         }
                         is Final -> throw currentState.finalException // won't happen
+                        is NoValueDataState -> error(BUG_MESSAGE) // won't happen
                     }
                     result
                 }
@@ -481,7 +492,7 @@ internal class DataStoreImpl<T>(
     }
 
     companion object {
-        private const val BUG_MESSAGE =
+        internal const val BUG_MESSAGE =
             "This is a bug in DataStore. Please file a bug at: " +
                 "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
     }

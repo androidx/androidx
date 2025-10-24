@@ -73,6 +73,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -81,7 +82,7 @@ private const val animationTime = 900L
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 class CarouselTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun carousel_autoScrolls() {

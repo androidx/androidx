@@ -15,24 +15,12 @@
  */
 package androidx.paging
 
-import androidx.paging.PagingState
-import androidx.room3.RoomDatabase
-import androidx.room3.RoomSQLiteQuery
-import androidx.sqlite.SQLiteStatement
+import com.google.common.util.concurrent.ListenableFuture
+abstract class ListenableFuturePagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
 
-@Suppress("UNUSED_PARAMETER")
-abstract class ListenableFuturePagingSource<K : Any, T : Any>(
-    private val sourceQuery: RoomSQLiteQuery,
-    private val db: RoomDatabase,
-    vararg tables: String
-) : androidx.paging.PagingSource<K, T>() {
-    override fun getRefreshKey(state: PagingState<K, T>): K? {
-        return null
+    abstract fun loadFuture(params: LoadParams<Key>): ListenableFuture<LoadResult<Key, Value>>
+
+    override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
+        TODO()
     }
-
-    override public suspend fun load(params: LoadParams<K>): LoadResult<K, T> {
-        return LoadResult.Invalid()
-    }
-
-    protected abstract fun convertRows(statement: SQLiteStatement): List<T>
 }

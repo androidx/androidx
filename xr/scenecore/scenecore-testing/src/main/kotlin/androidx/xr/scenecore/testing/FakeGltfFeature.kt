@@ -18,6 +18,9 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.NodeHolder
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.MaterialResource
 import java.util.concurrent.Executor
@@ -28,7 +31,14 @@ public class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
     FakeBaseRenderingFeature(nodeHolder), GltfFeature {
     private var mockGltfFeature: GltfFeature? = null
 
+    override val size: FloatSize3d = mockGltfFeature?.size ?: FloatSize3d(1f, 1f, 1f)
+
     override val animationState: Int = mockGltfFeature?.animationState ?: 0
+
+    override fun getGltfModelBoundingBox(): BoundingBox {
+        return mockGltfFeature?.getGltfModelBoundingBox()
+            ?: BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+    }
 
     override fun startAnimation(loop: Boolean, animationName: String?, executor: Executor) {
         mockGltfFeature?.startAnimation(loop, animationName, executor)

@@ -53,8 +53,6 @@ jobs:
         run: |
           # Replace the kotlin version reference with $KGP_VERSION.
           sed -i "s/\(kotlin = \"\).*\"/\1${KGP_VERSION}\"/" gradle/libs.versions.toml
-          # Also replace kotlin22 line for now, since the stable version doesn't exist
-          sed -i "s/\(kotlin22 = \"\).*\"/\1${KGP_VERSION}\"/" gradle/libs.versions.toml
           # Output updated version line for debugging.
           cat gradle/libs.versions.toml | grep "kotlin = "
 

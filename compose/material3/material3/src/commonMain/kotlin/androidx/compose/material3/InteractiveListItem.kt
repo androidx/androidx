@@ -33,7 +33,10 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.FloatProducer
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
@@ -72,6 +75,7 @@ import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -82,9 +86,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.unit.takeOrElse
 
 /**
- * [Material Design list item](https://m3.material.io/components/lists/overview)
+ * [Material Design standard list item](https://m3.material.io/components/lists/overview)
  *
  * Lists are continuous, vertical indexes of text or images.
  *
@@ -102,6 +107,8 @@ import androidx.compose.ui.unit.offset
  *   icon.
  * @param overlineContent the content displayed above the main content of the list item.
  * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
  * @param onLongClick called when this list item is long clicked (long-pressed).
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
  * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
@@ -128,6 +135,7 @@ internal fun ListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -144,6 +152,7 @@ internal fun ListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = false,
         applySemantics = {},
@@ -159,7 +168,7 @@ internal fun ListItem(
 }
 
 /**
- * [Material Design list item](https://m3.material.io/components/lists/overview)
+ * [Material Design standard list item](https://m3.material.io/components/lists/overview)
  *
  * Lists are continuous, vertical indexes of text or images.
  *
@@ -177,6 +186,8 @@ internal fun ListItem(
  *   icon.
  * @param overlineContent the content displayed above the main content of the list item.
  * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
  * @param onLongClick called when this list item is long clicked (long-pressed).
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
  * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
@@ -204,6 +215,7 @@ internal fun ListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -220,6 +232,7 @@ internal fun ListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = selected,
         applySemantics = { this.selected = selected },
@@ -235,7 +248,7 @@ internal fun ListItem(
 }
 
 /**
- * [Material Design list item](https://m3.material.io/components/lists/overview)
+ * [Material Design standard list item](https://m3.material.io/components/lists/overview)
  *
  * Lists are continuous, vertical indexes of text or images.
  *
@@ -254,6 +267,8 @@ internal fun ListItem(
  *   icon.
  * @param overlineContent the content displayed above the main content of the list item.
  * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
  * @param onLongClick called when this list item is long clicked (long-pressed).
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
  * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
@@ -281,6 +296,7 @@ internal fun ListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -297,6 +313,248 @@ internal fun ListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
+        enabled = enabled,
+        selected = checked,
+        applySemantics = { toggleableState = ToggleableState(checked) },
+        onClick = { onCheckedChange(!checked) },
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        interactionSource = interactionSource,
+        colors = colors,
+        shapes = shapes,
+        elevation = elevation,
+        contentPadding = contentPadding,
+    )
+}
+
+/**
+ * [Material Design segmented list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
+ * This overload of [SegmentedListItem] handles click events, calling its [onClick] lambda to
+ * trigger an action. See other overloads for handling single-selection, multi-selection, or no
+ * interaction handling.
+ *
+ * @param onClick called when this list item is clicked.
+ * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
+ *   depending on the user's interaction with the list item. The base shape depends on the index of
+ *   the item within the overall list. See [InteractiveListItemDefaults.segmentedShapes].
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param onLongClick called when this list item is long clicked (long-pressed).
+ * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
+ * @param colors the [InteractiveListItemColors] that will be used to resolve the colors used for
+ *   this list item in different states. See [InteractiveListItemDefaults.colors].
+ * @param elevation the [InteractiveListItemElevation] used to resolve the elevation for this list
+ *   item in different states. See [InteractiveListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this list item. You can use this to change the list item's
+ *   appearance or preview the list item in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the main content of this list item. Also known as the headline content.
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+internal fun SegmentedListItem(
+    onClick: () -> Unit,
+    shapes: InteractiveListItemShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    overlineContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
+    colors: InteractiveListItemColors = InteractiveListItemDefaults.segmentedColors(),
+    elevation: InteractiveListItemElevation = InteractiveListItemDefaults.elevation(),
+    contentPadding: PaddingValues = InteractiveListItemDefaults.ContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    InteractiveListItem(
+        modifier = modifier,
+        content = content,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
+        enabled = enabled,
+        selected = false,
+        applySemantics = {},
+        onClick = onClick,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        interactionSource = interactionSource,
+        colors = colors,
+        shapes = shapes,
+        elevation = elevation,
+        contentPadding = contentPadding,
+    )
+}
+
+/**
+ * [Material Design segmented list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
+ * This overload of [SegmentedListItem] represents a single-selection item, analogous to a
+ * [RadioButton]. See other overloads for handling general click actions, multi-selection, or no
+ * interaction handling.
+ *
+ * @param selected whether or not this list item is selected.
+ * @param onClick called when this list item is clicked.
+ * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
+ *   depending on the user's interaction with the list item. The base shape depends on the index of
+ *   the item within the overall list. See [InteractiveListItemDefaults.segmentedShapes].
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param onLongClick called when this list item is long clicked (long-pressed).
+ * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
+ * @param colors the [InteractiveListItemColors] that will be used to resolve the colors used for
+ *   this list item in different states. See [InteractiveListItemDefaults.colors].
+ * @param elevation the [InteractiveListItemElevation] used to resolve the elevation for this list
+ *   item in different states. See [InteractiveListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this list item. You can use this to change the list item's
+ *   appearance or preview the list item in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the main content of this list item. Also known as the headline content.
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+internal fun SegmentedListItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    shapes: InteractiveListItemShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    overlineContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
+    colors: InteractiveListItemColors = InteractiveListItemDefaults.segmentedColors(),
+    elevation: InteractiveListItemElevation = InteractiveListItemDefaults.elevation(),
+    contentPadding: PaddingValues = InteractiveListItemDefaults.ContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    InteractiveListItem(
+        modifier = modifier,
+        content = content,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
+        enabled = enabled,
+        selected = selected,
+        applySemantics = { this.selected = selected },
+        onClick = onClick,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        interactionSource = interactionSource,
+        colors = colors,
+        shapes = shapes,
+        elevation = elevation,
+        contentPadding = contentPadding,
+    )
+}
+
+/**
+ * [Material Design segmented list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
+ * This overload of [SegmentedListItem] represents a multi-selection (toggleable) item, analogous to
+ * a [Checkbox]. See other overloads for handling general click actions, single-selection, or no
+ * interaction handling.
+ *
+ * @param checked whether this list item is toggled on or off.
+ * @param onCheckedChange called when this toggleable list item is clicked.
+ * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
+ *   depending on the user's interaction with the list item. The base shape depends on the index of
+ *   the item within the overall list. See [InteractiveListItemDefaults.segmentedShapes].
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param onLongClick called when this list item is long clicked (long-pressed).
+ * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
+ * @param colors the [InteractiveListItemColors] that will be used to resolve the colors used for
+ *   this list item in different states. See [InteractiveListItemDefaults.colors].
+ * @param elevation the [InteractiveListItemElevation] used to resolve the elevation for this list
+ *   item in different states. See [InteractiveListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this list item. You can use this to change the list item's
+ *   appearance or preview the list item in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the main content of this list item. Also known as the headline content.
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+internal fun SegmentedListItem(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shapes: InteractiveListItemShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    overlineContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
+    colors: InteractiveListItemColors = InteractiveListItemDefaults.segmentedColors(),
+    elevation: InteractiveListItemElevation = InteractiveListItemDefaults.elevation(),
+    contentPadding: PaddingValues = InteractiveListItemDefaults.ContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    InteractiveListItem(
+        modifier = modifier,
+        content = content,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = checked,
         applySemantics = { toggleableState = ToggleableState(checked) },
@@ -909,10 +1167,163 @@ internal object InteractiveListItemDefaults {
         }
 
     /**
+     * Creates an [InteractiveListItemColors] that represents the default colors for an interactive
+     * [SegmentedListItem] in different states.
+     */
+    @Composable
+    fun segmentedColors(): InteractiveListItemColors =
+        MaterialTheme.colorScheme.defaultSegmentedInteractiveListItemColors
+
+    /**
+     * Creates an [InteractiveListItemColors] that represents the default colors for an interactive
+     * [SegmentedListItem] in different states.
+     *
+     * @param containerColor the container color of the list item.
+     * @param contentColor the content color of the list item.
+     * @param leadingContentColor the leading content color of the list item.
+     * @param trailingContentColor the trailing content color of the list item.
+     * @param overlineContentColor the overline content color of the list item.
+     * @param supportingContentColor the supporting content color of the list item.
+     * @param disabledContainerColor the container color of the list item when disabled.
+     * @param disabledContentColor the content color of the list item when disabled.
+     * @param disabledLeadingContentColor the leading content color of the list item when disabled.
+     * @param disabledTrailingContentColor the trailing content color of the list item when
+     *   disabled.
+     * @param disabledOverlineContentColor the overline content color of the list item when
+     *   disabled.
+     * @param disabledSupportingContentColor the supporting content color of the list item when
+     *   disabled.
+     * @param selectedContainerColor the container color of the list item when selected.
+     * @param selectedContentColor the content color of the list item when selected.
+     * @param selectedLeadingContentColor the leading content color of the list item when selected.
+     * @param selectedTrailingContentColor the trailing content color of the list item when
+     *   selected.
+     * @param selectedOverlineContentColor the overline content color of the list item when
+     *   selected.
+     * @param selectedSupportingContentColor the supporting content color of the list item when
+     *   selected.
+     * @param draggedContainerColor the container color of the list item when dragged.
+     * @param draggedContentColor the content color of the list item when dragged.
+     * @param draggedLeadingContentColor the leading content color of the list item when dragged.
+     * @param draggedTrailingContentColor the trailing content color of the list item when dragged.
+     * @param draggedOverlineContentColor the overline content color of the list item when dragged.
+     * @param draggedSupportingContentColor the supporting content color of the list item when
+     *   dragged.
+     */
+    @Composable
+    fun segmentedColors(
+        // default
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        leadingContentColor: Color = Color.Unspecified,
+        trailingContentColor: Color = Color.Unspecified,
+        overlineContentColor: Color = Color.Unspecified,
+        supportingContentColor: Color = Color.Unspecified,
+        // disabled
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
+        disabledLeadingContentColor: Color = Color.Unspecified,
+        disabledTrailingContentColor: Color = Color.Unspecified,
+        disabledOverlineContentColor: Color = Color.Unspecified,
+        disabledSupportingContentColor: Color = Color.Unspecified,
+        // selected
+        selectedContainerColor: Color = Color.Unspecified,
+        selectedContentColor: Color = Color.Unspecified,
+        selectedLeadingContentColor: Color = Color.Unspecified,
+        selectedTrailingContentColor: Color = Color.Unspecified,
+        selectedOverlineContentColor: Color = Color.Unspecified,
+        selectedSupportingContentColor: Color = Color.Unspecified,
+        // dragged
+        draggedContainerColor: Color = Color.Unspecified,
+        draggedContentColor: Color = Color.Unspecified,
+        draggedLeadingContentColor: Color = Color.Unspecified,
+        draggedTrailingContentColor: Color = Color.Unspecified,
+        draggedOverlineContentColor: Color = Color.Unspecified,
+        draggedSupportingContentColor: Color = Color.Unspecified,
+    ): InteractiveListItemColors {
+        return MaterialTheme.colorScheme.defaultSegmentedInteractiveListItemColors.copy(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            leadingContentColor = leadingContentColor,
+            trailingContentColor = trailingContentColor,
+            overlineContentColor = overlineContentColor,
+            supportingContentColor = supportingContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            disabledLeadingContentColor = disabledLeadingContentColor,
+            disabledTrailingContentColor = disabledTrailingContentColor,
+            disabledOverlineContentColor = disabledOverlineContentColor,
+            disabledSupportingContentColor = disabledSupportingContentColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            selectedLeadingContentColor = selectedLeadingContentColor,
+            selectedTrailingContentColor = selectedTrailingContentColor,
+            selectedOverlineContentColor = selectedOverlineContentColor,
+            selectedSupportingContentColor = selectedSupportingContentColor,
+            draggedContainerColor = draggedContainerColor,
+            draggedContentColor = draggedContentColor,
+            draggedLeadingContentColor = draggedLeadingContentColor,
+            draggedTrailingContentColor = draggedTrailingContentColor,
+            draggedOverlineContentColor = draggedOverlineContentColor,
+            draggedSupportingContentColor = draggedSupportingContentColor,
+        )
+    }
+
+    // TODO: load tokens from component file
+    internal val ColorScheme.defaultSegmentedInteractiveListItemColors: InteractiveListItemColors
+        get() {
+            return defaultSegmentedInteractiveListItemColorsCached
+                ?: InteractiveListItemColors(
+                        // default
+                        containerColor = fromToken(ColorSchemeKeyTokens.Surface),
+                        contentColor = fromToken(ColorSchemeKeyTokens.OnSurface),
+                        leadingContentColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                        trailingContentColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                        overlineContentColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                        supportingContentColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                        // selected
+                        selectedContainerColor = fromToken(ColorSchemeKeyTokens.SecondaryContainer),
+                        selectedContentColor = fromToken(ColorSchemeKeyTokens.OnSecondaryContainer),
+                        selectedLeadingContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSecondaryContainer),
+                        selectedTrailingContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSecondaryContainer),
+                        selectedOverlineContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSecondaryContainer),
+                        selectedSupportingContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSecondaryContainer),
+                        // disabled
+                        disabledContainerColor = fromToken(ColorSchemeKeyTokens.Surface),
+                        disabledContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSurface)
+                                .copy(alpha = InteractiveListDisabledOpacity),
+                        disabledLeadingContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSurface)
+                                .copy(alpha = InteractiveListDisabledOpacity),
+                        disabledTrailingContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSurface)
+                                .copy(alpha = InteractiveListDisabledOpacity),
+                        disabledOverlineContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSurface)
+                                .copy(alpha = InteractiveListDisabledOpacity),
+                        disabledSupportingContentColor =
+                            fromToken(ColorSchemeKeyTokens.OnSurface)
+                                .copy(alpha = InteractiveListDisabledOpacity),
+                        // dragged
+                        draggedContainerColor = fromToken(ColorSchemeKeyTokens.TertiaryContainer),
+                        draggedContentColor = fromToken(ColorSchemeKeyTokens.Tertiary),
+                        draggedLeadingContentColor = fromToken(ColorSchemeKeyTokens.Tertiary),
+                        draggedTrailingContentColor = fromToken(ColorSchemeKeyTokens.Tertiary),
+                        draggedOverlineContentColor = fromToken(ColorSchemeKeyTokens.Tertiary),
+                        draggedSupportingContentColor = fromToken(ColorSchemeKeyTokens.Tertiary),
+                    )
+                    .also { defaultSegmentedInteractiveListItemColorsCached = it }
+        }
+
+    /**
      * Creates an [InteractiveListItemShapes] that represents the default shapes for an interactive
      * [ListItem] in different states.
      */
-    // TODO: account for first/last item in list shape changing
     @Composable
     fun shapes(): InteractiveListItemShapes = MaterialTheme.shapes.defaultInteractiveListItemShapes
 
@@ -927,7 +1338,6 @@ internal object InteractiveListItemDefaults {
      * @param hoveredShape the shape of the list item when hovered.
      * @param draggedShape the shape of the list item when dragged.
      */
-    // TODO: account for first/last item in list shape changing
     @Composable
     fun shapes(
         shape: Shape? = null,
@@ -945,6 +1355,52 @@ internal object InteractiveListItemDefaults {
             hoveredShape = hoveredShape,
             draggedShape = draggedShape,
         )
+
+    /**
+     * Constructor for [InteractiveListItemShapes] to be used by a [SegmentedListItem] which has an
+     * [index] in a list that has a total of [count] items.
+     *
+     * @param index the index for this list item in the overall list.
+     * @param count the total count of list items in the overall list.
+     * @param defaultShapes the default [InteractiveListItemShapes] that should be used for
+     *   standalone items or items in the middle of the list.
+     */
+    @Composable
+    fun segmentedShapes(
+        index: Int,
+        count: Int,
+        defaultShapes: InteractiveListItemShapes = shapes(),
+    ): InteractiveListItemShapes {
+        return remember(index, count, defaultShapes) {
+            when {
+                count == 1 -> defaultShapes
+
+                index == 0 -> {
+                    val defaultBaseShape = defaultShapes.shape
+                    if (defaultBaseShape is CornerBasedShape) {
+                        defaultShapes.copy(
+                            shape = defaultBaseShape.bottom(topSize = ShapeDefaults.CornerLarge)
+                        )
+                    } else {
+                        defaultShapes
+                    }
+                }
+
+                index == count - 1 -> {
+                    val defaultBaseShape = defaultShapes.shape
+                    if (defaultBaseShape is CornerBasedShape) {
+                        defaultShapes.copy(
+                            shape = defaultBaseShape.top(bottomSize = ShapeDefaults.CornerLarge)
+                        )
+                    } else {
+                        defaultShapes
+                    }
+                }
+
+                else -> defaultShapes
+            }
+        }
+    }
 
     // TODO: load tokens from component file
     internal val Shapes.defaultInteractiveListItemShapes: InteractiveListItemShapes
@@ -974,20 +1430,54 @@ internal object InteractiveListItemDefaults {
         draggedElevation: Dp = ElevationTokens.Level4,
     ): InteractiveListItemElevation =
         InteractiveListItemElevation(elevation = elevation, draggedElevation = draggedElevation)
+
+    // TODO: replace with token
+    /** The vertical space between different [SegmentedListItem]s. */
+    val SegmentedGap: Dp = 2.dp
+
+    /**
+     * Returns the default vertical alignment of children content within a [ListItem]. This is
+     * equivalent to [Alignment.CenterVertically] for shorter items and [Alignment.Top] for taller
+     * items.
+     */
+    @Composable
+    fun verticalAlignment(): Alignment.Vertical {
+        val density = LocalDensity.current
+        return remember(density) {
+            Alignment.Vertical { size, space ->
+                val breakpoint =
+                    with(density) { InteractiveListVerticalAlignmentBreakpoint.roundToPx() }
+                val baseAlignment =
+                    if (space < breakpoint) {
+                        Alignment.CenterVertically
+                    } else {
+                        Alignment.Top
+                    }
+                baseAlignment.align(size, space)
+            }
+        }
+    }
 }
 
 @Composable
 private fun LeadingDecorator(
+    startPadding: Dp,
     color: Color,
     textStyle: TypographyKeyTokens,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
         Box(Modifier.padding(end = InteractiveListInternalSpacing)) {
-            // TODO: perhaps also turn off MICS enforcement
+            val horizontalPadding = startPadding + InteractiveListInternalSpacing
+            // Padding contributes to content's touch target, so we can reduce enforcement value
+            val mics =
+                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                        horizontalPadding)
+                    .coerceAtLeast(0.dp)
             ProvideContentColorTextStyle(
                 contentColor = color,
                 textStyle = textStyle.value,
+                LocalMinimumInteractiveComponentSize provides mics,
                 content = content,
             )
         }
@@ -996,16 +1486,23 @@ private fun LeadingDecorator(
 
 @Composable
 private fun TrailingDecorator(
+    endPadding: Dp,
     color: Color,
     textStyle: TypographyKeyTokens,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
         Box(Modifier.padding(start = InteractiveListInternalSpacing)) {
-            // TODO: perhaps also turn off MICS enforcement
+            val horizontalPadding = endPadding + InteractiveListInternalSpacing
+            // Padding contributes to content's touch target, so we can reduce enforcement value
+            val mics =
+                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                        horizontalPadding)
+                    .coerceAtLeast(0.dp)
             ProvideContentColorTextStyle(
                 contentColor = color,
                 textStyle = textStyle.value,
+                LocalMinimumInteractiveComponentSize provides mics,
                 content = content,
             )
         }
@@ -1129,6 +1626,7 @@ private fun InteractiveListItem(
     trailingContent: @Composable (() -> Unit)?,
     overlineContent: @Composable (() -> Unit)?,
     supportingContent: @Composable (() -> Unit)?,
+    verticalAlignment: Alignment.Vertical,
     enabled: Boolean,
     selected: Boolean,
     applySemantics: SemanticsPropertyReceiver.() -> Unit,
@@ -1233,9 +1731,10 @@ private fun InteractiveListItem(
     val targetElevation = if (dragged.value) elevation.draggedElevation else elevation.elevation
     val shadowElevation = animateDpAsState(targetElevation, elevationAnimationSpec)
     val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
-        Box(
+        InteractiveListItemLayout(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true, properties = applySemantics)
@@ -1256,59 +1755,53 @@ private fun InteractiveListItem(
                         onLongClickLabel = onLongClickLabel,
                         onClick = onClick,
                     )
-        ) {
-            val alignmentBreakpoint =
-                (InteractiveListVerticalAlignmentBreakpoint -
-                        contentPadding.calculateTopPadding() -
-                        contentPadding.calculateBottomPadding())
-                    .coerceAtLeast(0.dp)
-            InteractiveListItemLayout(
-                modifier = Modifier.padding(contentPadding),
-                alignmentBreakpoint = alignmentBreakpoint,
-                leading = {
-                    LeadingDecorator(
-                        color = leadingColor,
-                        textStyle = leadingTextStyle,
-                        content = leadingContent,
-                    )
-                },
-                trailing = {
-                    TrailingDecorator(
-                        color = trailingColor,
-                        textStyle = trailingTextStyle,
-                        content = trailingContent,
-                    )
-                },
-                overline = {
-                    OverlineDecorator(
-                        color = overlineColor,
-                        textStyle = overlineTextStyle,
-                        content = overlineContent,
-                    )
-                },
-                supporting = {
-                    SupportingDecorator(
-                        color = supportingColor,
-                        textStyle = supportingTextStyle,
-                        content = supportingContent,
-                    )
-                },
-                content = {
-                    ContentDecorator(
-                        color = contentColor,
-                        textStyle = contentTextStyle,
-                        content = content,
-                    )
-                },
-            )
-        }
+                    .padding(contentPadding),
+            verticalAlignment = verticalAlignment,
+            leading = {
+                LeadingDecorator(
+                    startPadding = contentPadding.calculateStartPadding(layoutDirection),
+                    color = leadingColor,
+                    textStyle = leadingTextStyle,
+                    content = leadingContent,
+                )
+            },
+            trailing = {
+                TrailingDecorator(
+                    endPadding = contentPadding.calculateEndPadding(layoutDirection),
+                    color = trailingColor,
+                    textStyle = trailingTextStyle,
+                    content = trailingContent,
+                )
+            },
+            overline = {
+                OverlineDecorator(
+                    color = overlineColor,
+                    textStyle = overlineTextStyle,
+                    content = overlineContent,
+                )
+            },
+            supporting = {
+                SupportingDecorator(
+                    color = supportingColor,
+                    textStyle = supportingTextStyle,
+                    content = supportingContent,
+                )
+            },
+            content = {
+                ContentDecorator(
+                    color = contentColor,
+                    textStyle = contentTextStyle,
+                    content = content,
+                )
+            },
+        )
     }
 }
 
 @Composable
 private fun InteractiveListItemLayout(
     modifier: Modifier,
-    alignmentBreakpoint: Dp,
+    verticalAlignment: Alignment.Vertical,
     leading: @Composable () -> Unit,
     trailing: @Composable () -> Unit,
     overline: @Composable () -> Unit,
@@ -1316,7 +1809,9 @@ private fun InteractiveListItemLayout(
     content: @Composable () -> Unit,
 ) {
     val measurePolicy =
-        remember(alignmentBreakpoint) { InteractiveListItemMeasurePolicy(alignmentBreakpoint) }
+        remember(verticalAlignment) {
+            InteractiveListItemMeasurePolicy(verticalAlignment = verticalAlignment)
+        }
     Layout(
         modifier = modifier,
         contents = listOf(leading, trailing, overline, supporting, content),
@@ -1324,7 +1819,7 @@ private fun InteractiveListItemLayout(
     )
 }
 
-private class InteractiveListItemMeasurePolicy(val alignmentBreakpoint: Dp) :
+private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.Vertical) :
     MultiContentMeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
@@ -1509,13 +2004,6 @@ private class InteractiveListItemMeasurePolicy(val alignmentBreakpoint: Dp) :
         supportingPlaceable: Placeable?,
     ): MeasureResult {
         return layout(width, height) {
-            val verticalAlignment =
-                if (height > alignmentBreakpoint.roundToPx()) {
-                    Alignment.Top
-                } else {
-                    Alignment.CenterVertically
-                }
-
             leadingPlaceable?.placeRelative(
                 x = 0,
                 y = verticalAlignment.align(leadingPlaceable.height, height),
@@ -1591,4 +2079,5 @@ internal val InteractiveListDisabledOpacity = 0.38f
  * How tall a list item needs to be before internal content is top-aligned instead of
  * center-aligned.
  */
-internal val InteractiveListVerticalAlignmentBreakpoint = 80.dp
+internal val InteractiveListVerticalAlignmentBreakpoint =
+    80.dp - InteractiveListTopPadding - InteractiveListBottomPadding

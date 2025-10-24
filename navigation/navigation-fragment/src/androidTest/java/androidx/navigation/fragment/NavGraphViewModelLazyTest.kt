@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -41,6 +40,7 @@ import androidx.navigation.fragment.test.R
 import androidx.navigation.navGraphViewModels
 import androidx.navigation.navigation
 import androidx.navigation.plusAssign
+import androidx.savedstate.savedState
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -264,9 +264,7 @@ class TestRouteVMFragment : Fragment() {
     override val defaultViewModelCreationExtras: CreationExtras
         get() {
             val extras = MutableCreationExtras(super.defaultViewModelCreationExtras)
-            extras[DEFAULT_ARGS_KEY] =
-                @Suppress("DEPRECATION") // bundleOf is deprecated
-                bundleOf("test" to "value")
+            extras[DEFAULT_ARGS_KEY] = savedState { putString("test", "value") }
             return extras
         }
 }

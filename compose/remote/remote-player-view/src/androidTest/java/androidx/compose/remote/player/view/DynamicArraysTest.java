@@ -32,8 +32,8 @@ import android.util.Log;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
-import androidx.compose.remote.creation.profile.PlatformProfile;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.creation.profile.RcPlatformProfiles;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -57,7 +57,7 @@ public class DynamicArraysTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, run);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -87,7 +87,7 @@ public class DynamicArraysTest {
                     rdoc.drawPath(v);
                 };
         TestUtils.Callback use = cb == null ? basic : cb;
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, use);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, use);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         String result = debugContext.getTestResults();
@@ -155,7 +155,7 @@ public class DynamicArraysTest {
                     rdoc.drawCircle(x, y, z);
                 };
 
-        byte[] rawDoc = TestSerializeUtils.createDoc(PlatformProfile.ANDROIDX, cb);
+        byte[] rawDoc = TestSerializeUtils.createDoc(RcPlatformProfiles.ANDROIDX, cb);
         String result = TestSerializeUtils.toYamlFlatString(rawDoc);
 
         Log.v("TEST", result);
@@ -185,8 +185,8 @@ public class DynamicArraysTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc =
-                new RemoteComposeDocument(new ByteArrayInputStream(rawDoc, 0, rawDoc.length));
+        RemoteDocument doc =
+                new RemoteDocument(new ByteArrayInputStream(rawDoc, 0, rawDoc.length));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.mWidth = 1000;

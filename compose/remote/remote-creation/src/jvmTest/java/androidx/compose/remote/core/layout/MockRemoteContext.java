@@ -17,7 +17,7 @@
 package androidx.compose.remote.core.layout;
 
 import androidx.compose.remote.core.PaintContext;
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.operations.FloatExpression;
@@ -167,8 +167,8 @@ public class MockRemoteContext extends RemoteContext {
             }
 
             @Override
-            public Platform.ComputedTextLayout layoutComplexText(int textId, int start, int end,
-                    int alignment, int overflow, int maxLines, float maxWidth, int flags) {
+            public RcPlatformServices.ComputedTextLayout layoutComplexText(int textId, int start,
+                    int end, int alignment, int overflow, int maxLines, float maxWidth, int flags) {
                 stringBuilder.append("layoutComplexText(").append(textId).append(", ").append(
                         start).append(", ").append(end).append(")\n");
                 return null;
@@ -184,7 +184,7 @@ public class MockRemoteContext extends RemoteContext {
             }
 
             @Override
-            public void drawComplexText(Platform.ComputedTextLayout computedTextLayout) {
+            public void drawComplexText(RcPlatformServices.ComputedTextLayout computedTextLayout) {
                 throw new UnsupportedOperationException("Not yet implemented");
             }
 

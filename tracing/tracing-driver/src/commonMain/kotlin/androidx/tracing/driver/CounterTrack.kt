@@ -16,7 +16,11 @@
 
 package androidx.tracing.driver
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
+
 /** [Track] representing a numerical value that can change over the duration of the trace. */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public open class CounterTrack(
     /** The name of the counter track */
     public val name: String,
@@ -27,7 +31,8 @@ public open class CounterTrack(
 
     init {
         synchronized(packetLock) {
-            conditionalEmitTraceEvent(immediateDispatch = true) { event ->
+            val event = obtainTraceEvent()
+            if (event != null) {
                 event.setPreamble(
                     TrackDescriptor(
                         name = name,
@@ -38,7 +43,7 @@ public open class CounterTrack(
                         tid = DEFAULT_INT,
                     )
                 )
-                true
+                dispatchTraceEvent(event, immediateDispatch = true)
             }
         }
     }
@@ -46,10 +51,9 @@ public open class CounterTrack(
     public fun setCounter(value: Long) {
         if (context.isEnabled) {
             synchronized(packetLock) {
-                conditionalEmitTraceEvent { packet ->
-                    packet.setCounterLong(uuid, value)
-                    true
-                }
+                val event = obtainTraceEvent()
+                event?.setCounterLong(trackUuid = uuid, value = value)
+                dispatchTraceEvent(event)
             }
         }
     }
@@ -57,10 +61,9 @@ public open class CounterTrack(
     public fun setCounter(value: Double) {
         if (context.isEnabled) {
             synchronized(packetLock) {
-                conditionalEmitTraceEvent { packet ->
-                    packet.setCounterDouble(uuid, value)
-                    true
-                }
+                val event = obtainTraceEvent()
+                event?.setCounterDouble(trackUuid = uuid, value = value)
+                dispatchTraceEvent(event)
             }
         }
     }

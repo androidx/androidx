@@ -324,9 +324,10 @@ public interface Profile {
     void setOriginMatchedHeader(@NonNull String headerName,
             @NonNull String headerValue, @NonNull Set<String> originRules);
 
-
     /**
      * Returns true if the profile has a value set for the given header name.
+     *
+     * <p>This method is case sensitive.
      *
      * @param headerName A
      *                   <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP header name string</a>
@@ -345,6 +346,8 @@ public interface Profile {
      * <p>
      * It is safe to call this method even if {@code headerName} has not previously been set via
      * {@link #setOriginMatchedHeader(String, String, Set)}
+     *
+     * <p>This method is case sensitive.
      *
      * @param headerName Header to remove.
      * @see #setOriginMatchedHeader(String, String, Set)
@@ -376,13 +379,20 @@ public interface Profile {
      * getRequestHeaders provided in shouldInterceptRequest.
      * <p>
      * If this method is called multiple times with headers that have the same name and value,
-     * then the sets of will be merged into a single set.
+     * then the sets of origin rules will be merged into a single set.
      * <p>
      * If multiple headers with the same name but different values match a request,
      * then all the values will be sent in a comma-separated list of values
      * following the guidance for <a
      * href="https://www.rfc-editor.org/rfc/rfc7230#section-3.2.2">repeated
      * header fields</a>. This does not take into account whether such merging is safe.
+     *
+     * <p>Headers are considered the same if their {@code name} matches case-insensitive and
+     * their {@code value} matches case-sensitive.
+     * This follows
+     * <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-field-names">RFC 9110</a>,
+     * which states that "field names are case insensitive".
+     * This API will use the casing of the first custom header encountered.
      *
      * @param header The header to add.
      */
@@ -395,6 +405,8 @@ public interface Profile {
 
     /**
      * Returns true if the profile has a value set for the given header name.
+     *
+     * <p>This method is case insensitive.
      *
      * @param headerName A
      *                   <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP header name string</a>
@@ -428,6 +440,8 @@ public interface Profile {
      * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)} or
      * {@link #setOriginMatchedHeader(String, String, Set)} which have the specified {@code name}.
      *
+     * <p>This method is case insensitive.
+     *
      * @param name Name of headers to get. Case sensitive.
      */
     @RequiresFeature(name = WebViewFeature.CUSTOM_REQUEST_HEADERS,
@@ -444,6 +458,8 @@ public interface Profile {
      * Returns all custom headers set with {@link #addCustomHeader(CustomHeader)} or
      * {@link #setOriginMatchedHeader(String, String, Set)} which have the specified {@code name}
      * and {@code value}.
+     *
+     * <p>This method is case insensitive for {@code name} but case-sensitive for {@code value}.
      *
      * @param name  Name of headers to get. Case sensitive.
      * @param value Value of headers to get. Case sensitive.
@@ -466,6 +482,8 @@ public interface Profile {
      * {@link #addCustomHeader(CustomHeader)} or
      * {@link #setOriginMatchedHeader(String, String, Set)}.
      *
+     * <p>This method is case insensitive.
+     *
      * @param headerName Header to remove.
      * @see #addCustomHeader(CustomHeader)
      */
@@ -483,6 +501,8 @@ public interface Profile {
      * previously been set via
      * {@link #addCustomHeader(CustomHeader)} or
      * {@link #setOriginMatchedHeader(String, String, Set)}.
+     *
+     * <p>This method is case insensitive for {@code name} but case-sensitive for {@code value}.
      *
      * @param headerName  Header name to remove.
      * @param headerValue Header value to remove.
@@ -530,8 +550,8 @@ public interface Profile {
      * loaded.
      * <p>
      * Note: Preconnect operates on origins, but for convenience full URLs can be provided. A call
-     * with a full URL (such as `https://www.example.com/index.html`) will be treated as a call to
-     * the origin (`https://www.example.com`).
+     * with a full URL (such as {@code https://www.example.com/index.html}) will be treated as a call
+     * to the origin ({@code https://www.example.com}).
      * <p>
      * Multiple origins can be connected to by calling this API multiple times.
      * <p>
@@ -550,5 +570,46 @@ public interface Profile {
         // method. However, throw a runtime exception if this method is actually called, as
         // that's better than silently no-oping.
         throw new UnsupportedOperationException("Profile#preconnect is not implemented.");
+    }
+
+    /**
+     * Denotes that the Profile#addQuicHints API surface is experimental.
+     * It may change without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    @interface ExperimentalAddQuicHints {
+    }
+
+    /**
+     * Advises that the given origins support the QUIC protocol and that WebView should use that to
+     * connect to them.
+     * <p>
+     * By default, when connecting to a new server, WebView attempts both a HTTP3 (QUIC) and HTTP2
+     * connection, choosing the one that responds faster. This can leads to cases where HTTP2
+     * responds faster, even though HTTP3 is supported and would result in a faster overall load.
+     * Calling this API tells WebView to prefer HTTP3 connections for these origins.
+     * <p>
+     * Note: addQuicHints operates on origins, but for convenience full URLs can be provided. A full
+     * URL (such as {@code https://www.example.com/index.html}) will be treated as its origin
+     * ({@code https://www.example.com}).
+     * <p>
+     * This method can be called multiple times and the result is additive - QUIC hints are applied
+     * to all of the origins provided to all calls. Providing the same origin multiple times has no
+     * further effect.
+     *
+     * @param urls A set of urls representing origins that support the QUIC protocol.
+     */
+    @RequiresFeature(name = WebViewFeature.ADD_QUIC_HINTS_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @ExperimentalAddQuicHints
+    default void addQuicHints(@NonNull Set<@NonNull String> urls) {
+        // We provide a default implementation of this method so that embedders extending the
+        // Profile (eg, for testing) don't have their build broken by the addition of this
+        // method. However, throw a runtime exception if this method is actually called, as
+        // that's better than silently no-oping.
+        throw new UnsupportedOperationException("Profile#addQuicHints is not implemented.");
     }
 }

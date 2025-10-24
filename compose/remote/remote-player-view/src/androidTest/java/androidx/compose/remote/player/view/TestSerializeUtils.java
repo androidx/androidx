@@ -21,7 +21,7 @@ import android.content.Context;
 
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.profile.Profile;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.serialization.yaml.YAMLSerializer;
 
 import java.io.BufferedReader;
@@ -38,7 +38,7 @@ public class TestSerializeUtils {
      */
     public static byte[] createDoc(TestUtils.Callback run) {
         DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         return doc.getDocument().getBuffer().getBuffer().cloneBytes();
     }
 
@@ -50,7 +50,7 @@ public class TestSerializeUtils {
      */
     public static byte[] createDoc(Profile profile, TestUtils.Callback run) {
         DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteComposeDocument doc = createDocument(debugContext, profile, run);
+        RemoteDocument doc = createDocument(debugContext, profile, run);
         return doc.getDocument().getBuffer().getBuffer().cloneBytes();
     }
 
@@ -73,7 +73,7 @@ public class TestSerializeUtils {
      * @return
      */
     public static String toYamlString(byte[] rawDoc, String sub) {
-        RemoteComposeDocument doc = new RemoteComposeDocument(rawDoc);
+        RemoteDocument doc = new RemoteDocument(rawDoc);
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         doc.paint(debugContext, Theme.UNSPECIFIED);
@@ -93,7 +93,7 @@ public class TestSerializeUtils {
      * @return
      */
     public static String toYamlFlatString(byte[] rawDoc) {
-        RemoteComposeDocument doc = new RemoteComposeDocument(rawDoc);
+        RemoteDocument doc = new RemoteDocument(rawDoc);
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         doc.paint(debugContext, Theme.UNSPECIFIED);

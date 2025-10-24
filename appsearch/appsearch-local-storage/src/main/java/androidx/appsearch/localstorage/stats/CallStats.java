@@ -60,6 +60,12 @@ public class CallStats extends BaseStats {
     private final int mNumOperationsSucceeded;
     private final int mNumOperationsFailed;
     private final long mCallReceivedTimestampMillis;
+    private final int mGetUserInstanceLatencyMillis;
+    private final int mPvmBinderLatencyMillis;
+    // The request payload object size in byte.
+    private final long mRequestPayloadSize;
+    // The response payload object size in byte.
+    private final long mResponsePayloadSize;
     @CallType
     int mLastCallTypeHoldExecutor;
     int mExecutorAcquisitionLatencyMillis;
@@ -79,6 +85,10 @@ public class CallStats extends BaseStats {
         mLastCallTypeHoldExecutor = builder.mLastCallTypeHoldExecutor;
         mExecutorAcquisitionLatencyMillis = builder.mExecutorAcquisitionLatencyMillis;
         mOnExecutorLatencyMillis = builder.mOnExecutorLatencyMillis;
+        mGetUserInstanceLatencyMillis = builder.mGetUserInstanceLatencyMillis;
+        mPvmBinderLatencyMillis = builder.mPvmBinderLatencyMillis;
+        mRequestPayloadSize = builder.mRequestPayloadSize;
+        mResponsePayloadSize = builder.mResponsePayloadSize;
     }
 
     /** Returns calling package name. */
@@ -168,6 +178,68 @@ public class CallStats extends BaseStats {
         return mOnExecutorLatencyMillis;
     }
 
+    /** Gets the latency that AppSearch service get the user instance. */
+    public int getGetUserInstanceLatencyMillis() {
+        return mGetUserInstanceLatencyMillis;
+    }
+
+    /** Gets the latency that AppSearch pass request to Pvm via binder. */
+    public int getPvmBinderLatencyMillis() {
+        return mPvmBinderLatencyMillis;
+    }
+
+    /** Gets the payload size of the given request object. */
+    public long getRequestPayloadSize() {
+        return mRequestPayloadSize;
+    }
+
+    /** Gets the payload size of the returned response object. */
+    public long getResponsePayloadSize() {
+        return mResponsePayloadSize;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "CallStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  callType=%d,\n"
+                        + "  estimatedBinderLatencyMillis=%d,\n"
+                        + "  numOperationsSucceeded=%d,\n"
+                        + "  numOperationsFailed=%d,\n"
+                        + "  callReceivedTimestampMillis=%d,\n"
+                        + "  lastCallTypeHoldExecutor=%d,\n"
+                        + "  executorAcquisitionLatencyMillis=%d,\n"
+                        + "  onExecutorLatencyMillis=%d,\n"
+                        + "  getUserInstanceLatencyMillis=%d,\n"
+                        + "  pvmBinderLatencyMillis=%d,\n"
+                        + "  requestPayloadSize=%d,\n"
+                        + "  responsePayloadSize=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mCallType,
+                mEstimatedBinderLatencyMillis,
+                mNumOperationsSucceeded,
+                mNumOperationsFailed,
+                mCallReceivedTimestampMillis,
+                mLastCallTypeHoldExecutor,
+                mExecutorAcquisitionLatencyMillis,
+                mOnExecutorLatencyMillis,
+                mGetUserInstanceLatencyMillis,
+                mPvmBinderLatencyMillis,
+                mRequestPayloadSize,
+                mResponsePayloadSize);
+    }
+
     /** Builder for {@link CallStats}. */
     public static class Builder extends BaseStats.Builder<CallStats.Builder> {
         @Nullable String mPackageName;
@@ -185,6 +257,10 @@ public class CallStats extends BaseStats {
         int mLastCallTypeHoldExecutor;
         int mExecutorAcquisitionLatencyMillis;
         int mOnExecutorLatencyMillis;
+        int mGetUserInstanceLatencyMillis;
+        int mPvmBinderLatencyMillis;
+        long mRequestPayloadSize;
+        long mResponsePayloadSize;
 
         /** Sets the PackageName used by the session. */
         @CanIgnoreReturnValue
@@ -293,6 +369,34 @@ public class CallStats extends BaseStats {
         @CanIgnoreReturnValue
         public @NonNull Builder setOnExecutorLatencyMillis(int onExecutorLatencyMillis) {
             mOnExecutorLatencyMillis = onExecutorLatencyMillis;
+            return this;
+        }
+
+        /** Sets the latency that AppSearch service get the user instance. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setGetUserInstanceLatency(int getUserInstanceLatencyMillis) {
+            mGetUserInstanceLatencyMillis = getUserInstanceLatencyMillis;
+            return this;
+        }
+
+        /** Sets the latency that AppSearch pass request to Pvm via binder. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setPvmBinderLatency(int pvmBinderLatencyMillis) {
+            mPvmBinderLatencyMillis = pvmBinderLatencyMillis;
+            return this;
+        }
+
+        /** Sets the payload size of the given request object. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setRequestPayloadSize(int requestPayloadSize) {
+            mRequestPayloadSize = requestPayloadSize;
+            return this;
+        }
+
+        /** Sets the payload size of the returned response object. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setResponsePayloadSize(int responsePayloadSize) {
+            mResponsePayloadSize = responsePayloadSize;
             return this;
         }
 

@@ -333,7 +333,7 @@ class SplitEngine : ComponentActivity() {
         val dragonEntity = remember { mutableStateOf<GltfModelEntity?>(null) }
         var isChecked by remember { mutableStateOf(false) } // State for the switch
         val dragonAnimationState = remember {
-            androidx.compose.runtime.mutableIntStateOf(GltfModelEntity.AnimationState.STOPPED)
+            androidx.compose.runtime.mutableStateOf(GltfModelEntity.AnimationState.STOPPED)
         }
         val scope = rememberCoroutineScope()
 
@@ -402,13 +402,15 @@ class SplitEngine : ComponentActivity() {
                         }
                         ApiButton("Loop Animate Dragon Entity", modifier) {
                             dragonEntity.value!!.startAnimation(true, "Fast_Flying")
-                            dragonAnimationState.intValue = dragonEntity.value?.animationState ?: 1
+                            dragonAnimationState.value =
+                                dragonEntity.value?.animationState ?: AnimationState.STOPPED
                         }
                         ApiButton("Stop Animate Dragon Entity", modifier) {
                             if (dragonEntity.value!!.animationState == AnimationState.PLAYING) {
                                 dragonEntity.value!!.stopAnimation()
                             }
-                            dragonAnimationState.intValue = dragonEntity.value?.animationState ?: 1
+                            dragonAnimationState.value =
+                                dragonEntity.value?.animationState ?: AnimationState.STOPPED
                         }
                     }
                 }
@@ -433,7 +435,7 @@ class SplitEngine : ComponentActivity() {
 
                         val interactableComponent =
                             InteractableComponent.create(session, mainExecutor) {
-                                if (it.action == InputEvent.Action.ACTION_DOWN) {
+                                if (it.action == InputEvent.Action.DOWN) {
                                     dragonEntity.value!!.setScale(
                                         dragonEntity.value!!.getScale() * 1.1f
                                     )
@@ -463,8 +465,7 @@ class SplitEngine : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        val stateValue =
-                            if (dragonAnimationState.intValue == 1) "STOPPED" else "STARTED"
+                        val stateValue = dragonAnimationState.value.toString()
                         Text(
                             text = "Animation State: $stateValue",
                             modifier = Modifier.weight(1f),

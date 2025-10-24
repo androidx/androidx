@@ -18,7 +18,7 @@ package androidx.xr.scenecore.testapp.common
 
 import android.annotation.SuppressLint
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.SpatialCapabilities
+import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -49,20 +49,20 @@ enum class EventType(val text: String) {
 fun logCapabilities(session: Session): String {
     val capsStr: StringBuilder = StringBuilder()
     val caps = session.scene.spatialCapabilities
-    capsStr.append(capToStr("UI", caps, SpatialCapabilities.SPATIAL_CAPABILITY_UI))
-    capsStr.append(capToStr("3D", caps, SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT))
-    capsStr.append(capToStr("PT", caps, SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-    capsStr.append(capToStr("Env", caps, SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-    capsStr.append(capToStr("Audio", caps, SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-    capsStr.append(
-        capToStr("Embed Activity", caps, SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY)
-    )
+    with(SpatialCapability) {
+        capsStr.append(capToStr("UI", caps.contains(SPATIAL_UI)))
+        capsStr.append(capToStr("3D", caps.contains(SPATIAL_3D_CONTENT)))
+        capsStr.append(capToStr("PT", caps.contains(PASSTHROUGH_CONTROL)))
+        capsStr.append(capToStr("Env", caps.contains(APP_ENVIRONMENT)))
+        capsStr.append(capToStr("Audio", caps.contains(SPATIAL_AUDIO)))
+        capsStr.append(capToStr("Embed Activity", caps.contains(EMBED_ACTIVITY)))
+    }
     return capsStr.toString()
 }
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
-fun capToStr(name: String, spatialCapabilities: SpatialCapabilities, capability: Int): String {
-    val status: String = if (spatialCapabilities.hasCapability(capability)) "Y" else "N"
+fun capToStr(name: String, hasCapability: Boolean): String {
+    val status: String = if (hasCapability) "Y" else "N"
     return "${name}: $status \t"
 }
 

@@ -18,6 +18,9 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicInt32;
@@ -59,7 +62,8 @@ import java.util.Objects;
  * A utility class for providing content-based equality for dynamic proto messages. This is needed
  * because the default proto equals method is slow.
  */
-final class DynamicProtoHashEquals {
+@RestrictTo(Scope.LIBRARY_GROUP)
+public final class DynamicProtoHashEquals {
     private static final String TAG = "DynamicProtoHashEquals";
 
     private DynamicProtoHashEquals() {}
@@ -70,74 +74,89 @@ final class DynamicProtoHashEquals {
             return 0;
         }
 
-        if (proto instanceof DynamicInt32) {
-            return hashCodeInternal((DynamicInt32) proto);
+        if (proto instanceof DynamicBuilders.DynamicInt32) {
+            return hashCodeInternal((DynamicBuilders.DynamicInt32) proto);
         }
-        if (proto instanceof DynamicString) {
-            return hashCodeInternal((DynamicString) proto);
+        if (proto instanceof DynamicBuilders.DynamicString) {
+            return hashCodeInternal((DynamicBuilders.DynamicString) proto);
         }
-        if (proto instanceof DynamicFloat) {
-            return hashCodeInternal((DynamicFloat) proto);
+        if (proto instanceof DynamicBuilders.DynamicFloat) {
+            return hashCodeInternal((DynamicBuilders.DynamicFloat) proto);
         }
-        if (proto instanceof DynamicColor) {
-            return hashCodeInternal((DynamicColor) proto);
+        if (proto instanceof DynamicBuilders.DynamicColor) {
+            return hashCodeInternal((DynamicBuilders.DynamicColor) proto);
         }
-        if (proto instanceof DynamicDuration) {
-            return hashCodeInternal((DynamicDuration) proto);
+        if (proto instanceof DynamicBuilders.DynamicDuration) {
+            return hashCodeInternal((DynamicBuilders.DynamicDuration) proto);
         }
-        if (proto instanceof DynamicInstant) {
-            return hashCodeInternal((DynamicInstant) proto);
+        if (proto instanceof DynamicBuilders.DynamicInstant) {
+            return hashCodeInternal((DynamicBuilders.DynamicInstant) proto);
         }
-        if (proto instanceof DynamicZonedDateTime) {
-            return hashCodeInternal((DynamicZonedDateTime) proto);
+        if (proto instanceof DynamicBuilders.DynamicZonedDateTime) {
+            return hashCodeInternal((DynamicBuilders.DynamicZonedDateTime) proto);
         }
-        if (proto instanceof DynamicBool) {
-            return hashCodeInternal((DynamicBool) proto);
+        if (proto instanceof DynamicBuilders.DynamicBool) {
+            return hashCodeInternal((DynamicBuilders.DynamicBool) proto);
         }
         return proto.hashCode();
     }
 
     /** Checks whether two proto messages are equal based on their contents. */
-    public static boolean equals(@Nullable Object proto1, @Nullable Object proto2) {
-        if (proto1 == proto2) {
+    public static boolean equals(@Nullable Object dynExpr1, @Nullable Object dynExpr2) {
+        if (dynExpr1 == dynExpr2) {
             return true;
         }
 
-        if (proto1 == null || proto2 == null) {
+        if (dynExpr1 == null || dynExpr2 == null) {
             return false;
         }
 
-        if (proto1.getClass() != proto2.getClass()) {
+        if (dynExpr1.getClass() != dynExpr2.getClass()) {
             return false;
         }
 
-        if (proto1 instanceof DynamicInt32) {
-            return equalsInternal((DynamicInt32) proto1, (DynamicInt32) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicInt32) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicInt32) dynExpr1,
+                    (DynamicBuilders.DynamicInt32) dynExpr2);
         }
-        if (proto1 instanceof DynamicString) {
-            return equalsInternal((DynamicString) proto1, (DynamicString) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicString) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicString) dynExpr1,
+                    (DynamicBuilders.DynamicString) dynExpr2);
         }
-        if (proto1 instanceof DynamicFloat) {
-            return equalsInternal((DynamicFloat) proto1, (DynamicFloat) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicFloat) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicFloat) dynExpr1,
+                    (DynamicBuilders.DynamicFloat) dynExpr2);
         }
-        if (proto1 instanceof DynamicColor) {
-            return equalsInternal((DynamicColor) proto1, (DynamicColor) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicColor) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicColor) dynExpr1,
+                    (DynamicBuilders.DynamicColor) dynExpr2);
         }
-        if (proto1 instanceof DynamicDuration) {
-            return equalsInternal((DynamicDuration) proto1, (DynamicDuration) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicDuration) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicDuration) dynExpr1,
+                    (DynamicBuilders.DynamicDuration) dynExpr2);
         }
-        if (proto1 instanceof DynamicInstant) {
-            return equalsInternal((DynamicInstant) proto1, (DynamicInstant) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicInstant) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicInstant) dynExpr1,
+                    (DynamicBuilders.DynamicInstant) dynExpr2);
         }
-        if (proto1 instanceof DynamicZonedDateTime) {
-            return equalsInternal((DynamicZonedDateTime) proto1, (DynamicZonedDateTime) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicZonedDateTime) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicZonedDateTime) dynExpr1,
+                    (DynamicBuilders.DynamicZonedDateTime) dynExpr2);
         }
-        if (proto1 instanceof DynamicBool) {
-            return equalsInternal((DynamicBool) proto1, (DynamicBool) proto2);
+        if (dynExpr1 instanceof DynamicBuilders.DynamicBool) {
+            return equalsInternal(
+                    (DynamicBuilders.DynamicBool) dynExpr1, (DynamicBuilders.DynamicBool) dynExpr2);
         }
 
         Log.w(TAG, "Unknown proto message. Falling back to proto equals. This will be slower.");
-        return Objects.equals(proto1, proto2);
+        return Objects.equals(dynExpr1, dynExpr2);
     }
 
     private static int hashCodeInternal(GetZonedDateTimePartOp proto) {
@@ -415,7 +434,8 @@ final class DynamicProtoHashEquals {
                 && equals(proto1.getInputRhs(), proto2.getInputRhs());
     }
 
-    private static int hashCodeInternal(DynamicFloat proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicFloat expr) {
+        DynamicFloat proto = expr.toDynamicFloatProto();
         switch (proto.getInnerCase()) {
             case FIXED:
                 return proto.getFixed().hashCode();
@@ -437,7 +457,10 @@ final class DynamicProtoHashEquals {
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicFloat proto1, DynamicFloat proto2) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicFloat expr1, DynamicBuilders.DynamicFloat expr2) {
+        DynamicFloat proto1 = expr1.toDynamicFloatProto();
+        DynamicFloat proto2 = expr2.toDynamicFloatProto();
         if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }
@@ -464,7 +487,8 @@ final class DynamicProtoHashEquals {
         return false;
     }
 
-    private static int hashCodeInternal(DynamicColor proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicColor expr) {
+        DynamicColor proto = expr.toDynamicColorProto();
         switch (proto.getInnerCase()) {
             case FIXED:
                 return proto.getFixed().hashCode();
@@ -482,7 +506,10 @@ final class DynamicProtoHashEquals {
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicColor proto1, DynamicColor proto2) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicColor expr1, DynamicBuilders.DynamicColor expr2) {
+        DynamicColor proto1 = expr1.toDynamicColorProto();
+        DynamicColor proto2 = expr2.toDynamicColorProto();
         if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }
@@ -503,7 +530,8 @@ final class DynamicProtoHashEquals {
         return false;
     }
 
-    private static int hashCodeInternal(DynamicDuration proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicDuration expr) {
+        DynamicDuration proto = expr.toDynamicDurationProto();
         switch (proto.getInnerCase()) {
             case BETWEEN:
                 return hashCodeInternal(proto.getBetween());
@@ -519,7 +547,10 @@ final class DynamicProtoHashEquals {
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicDuration proto1, DynamicDuration proto2) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicDuration expr1, DynamicBuilders.DynamicDuration expr2) {
+        DynamicDuration proto1 = expr1.toDynamicDurationProto();
+        DynamicDuration proto2 = expr2.toDynamicDurationProto();
         if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }
@@ -538,7 +569,8 @@ final class DynamicProtoHashEquals {
         return false;
     }
 
-    private static int hashCodeInternal(DynamicInstant proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicInstant expr) {
+        DynamicInstant proto = expr.toDynamicInstantProto();
         switch (proto.getInnerCase()) {
             case FIXED:
                 return proto.getFixed().hashCode();
@@ -554,7 +586,10 @@ final class DynamicProtoHashEquals {
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicInstant proto1, DynamicInstant proto2) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicInstant expr1, DynamicBuilders.DynamicInstant expr2) {
+        DynamicInstant proto1 = expr1.toDynamicInstantProto();
+        DynamicInstant proto2 = expr2.toDynamicInstantProto();
         if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }
@@ -573,24 +608,31 @@ final class DynamicProtoHashEquals {
         return false;
     }
 
-    private static int hashCodeInternal(DynamicZonedDateTime proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicZonedDateTime expr) {
+        DynamicZonedDateTime proto = expr.toDynamicZonedDateTimeProto();
         if (proto.getInnerCase() == DynamicZonedDateTime.InnerCase.INSTANT_TO_ZONED_DATE_TIME) {
             return hashCodeInternal(proto.getInstantToZonedDateTime());
         }
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicZonedDateTime p1, DynamicZonedDateTime p2) {
-        if (p1.getInnerCase() != p2.getInnerCase()) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicZonedDateTime expr1,
+            DynamicBuilders.DynamicZonedDateTime expr2) {
+        DynamicZonedDateTime proto1 = expr1.toDynamicZonedDateTimeProto();
+        DynamicZonedDateTime proto2 = expr2.toDynamicZonedDateTimeProto();
+        if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }
-        if (p1.getInnerCase() == DynamicZonedDateTime.InnerCase.INSTANT_TO_ZONED_DATE_TIME) {
-            return equalsInternal(p1.getInstantToZonedDateTime(), p2.getInstantToZonedDateTime());
+        if (proto1.getInnerCase() == DynamicZonedDateTime.InnerCase.INSTANT_TO_ZONED_DATE_TIME) {
+            return equalsInternal(
+                    proto1.getInstantToZonedDateTime(), proto2.getInstantToZonedDateTime());
         }
         return true;
     }
 
-    private static int hashCodeInternal(DynamicBool proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicBool expr) {
+        DynamicBool proto = expr.toDynamicBoolProto();
         switch (proto.getInnerCase()) {
             case FIXED:
                 return proto.getFixed().hashCode();
@@ -610,7 +652,10 @@ final class DynamicProtoHashEquals {
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicBool proto1, DynamicBool proto2) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicBool expr1, DynamicBuilders.DynamicBool expr2) {
+        DynamicBool proto1 = expr1.toDynamicBoolProto();
+        DynamicBool proto2 = expr2.toDynamicBoolProto();
         if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }
@@ -633,7 +678,8 @@ final class DynamicProtoHashEquals {
         return false;
     }
 
-    private static int hashCodeInternal(DynamicString proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicString expr) {
+        DynamicString proto = expr.toDynamicStringProto();
         switch (proto.getInnerCase()) {
             case FIXED:
                 return proto.getFixed().hashCode();
@@ -653,7 +699,10 @@ final class DynamicProtoHashEquals {
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicString proto1, DynamicString proto2) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicString expr1, DynamicBuilders.DynamicString expr2) {
+        DynamicString proto1 = expr1.toDynamicStringProto();
+        DynamicString proto2 = expr2.toDynamicStringProto();
         if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }
@@ -676,7 +725,8 @@ final class DynamicProtoHashEquals {
         return false;
     }
 
-    private static int hashCodeInternal(DynamicInt32 proto) {
+    private static int hashCodeInternal(DynamicBuilders.DynamicInt32 expr) {
+        DynamicInt32 proto = expr.toDynamicInt32Proto();
         switch (proto.getInnerCase()) {
             case FIXED:
                 return proto.getFixed().hashCode();
@@ -704,7 +754,10 @@ final class DynamicProtoHashEquals {
         return 0;
     }
 
-    private static boolean equalsInternal(DynamicInt32 proto1, DynamicInt32 proto2) {
+    private static boolean equalsInternal(
+            DynamicBuilders.DynamicInt32 expr1, DynamicBuilders.DynamicInt32 expr2) {
+        DynamicInt32 proto1 = expr1.toDynamicInt32Proto();
+        DynamicInt32 proto2 = expr2.toDynamicInt32Proto();
         if (proto1.getInnerCase() != proto2.getInnerCase()) {
             return false;
         }

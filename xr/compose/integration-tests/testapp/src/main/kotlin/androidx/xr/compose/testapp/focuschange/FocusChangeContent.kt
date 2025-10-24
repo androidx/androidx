@@ -133,6 +133,7 @@ fun FocusChangeContent(
     Subspace {
         FixedSizeFullSpaceLayout(title) {
             TestResultsDisplay(testResults)
+            @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
             Text(testStatus, fontSize = 30.sp, modifier = Modifier.Companion.padding(top = 30.dp))
         }
     }

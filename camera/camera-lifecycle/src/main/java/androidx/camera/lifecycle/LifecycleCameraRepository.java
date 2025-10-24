@@ -17,9 +17,7 @@
 package androidx.camera.lifecycle;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.OptIn;
 import androidx.camera.core.CameraIdentifier;
-import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
@@ -74,7 +72,6 @@ import java.util.Set;
  * When it is released, all UseCases bound to the LifecycleCamera will be unbound and the
  * LifecycleCamera will be released.
  */
-@OptIn(markerClass = ExperimentalSessionConfig.class)
 final class LifecycleCameraRepository {
     private static final String TAG = "LifecycleCameraRepository";
 

@@ -30,6 +30,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    // Remove when b/442128557 is fixed
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
@@ -38,6 +39,7 @@ dependencies {
     implementation(project(":room3:room3-paging"))
     implementation(project(":room3:room3-guava"))
     api("androidx.paging:paging-guava:3.1.1")
+    implementation(libs.kotlinCoroutinesGuava)
 
     androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.testExtJunitKtx)

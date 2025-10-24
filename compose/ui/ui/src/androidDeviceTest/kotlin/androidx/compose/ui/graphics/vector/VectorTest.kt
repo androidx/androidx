@@ -1273,6 +1273,7 @@ class VectorTest {
                 }
 
                 @Deprecated("This callback is superseded by onTrimMemory")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun onLowMemory() {
                     // NO-OP
                 }

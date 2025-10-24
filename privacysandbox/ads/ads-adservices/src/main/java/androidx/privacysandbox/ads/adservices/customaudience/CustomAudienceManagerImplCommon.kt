@@ -211,12 +211,16 @@ public open class CustomAudienceManagerImplCommon(
                         object :
                             android.adservices.common.AdServicesOutcomeReceiver<Any, Exception>,
                             AtomicBoolean(false) {
+                            @Deprecated("Overriding deprecated method")
+                            @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                             override fun onResult(result: Any) {
                                 if (compareAndSet(false, true)) {
                                     continuation.resume(result)
                                 }
                             }
 
+                            @Deprecated("Overriding deprecated method")
+                            @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                             override fun onError(error: Exception) {
                                 if (compareAndSet(false, true)) {
                                     continuation.resumeWithException(error)

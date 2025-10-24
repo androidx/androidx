@@ -436,23 +436,18 @@ class PreviewData internal constructor(private val data: Map<ComplicationType, C
             val attributeValue = parser.getAttributeValue(null, ATTR_VALUE) ?: return null
             val valueType = parser.getAttributeValue(null, ATTR_VALUE_TYPE)
 
-            val stringResolvedValue =
-                if (attributeValue.startsWith("@")) {
-                    resolveTextResource(providerContext, attributeValue)
-                } else {
-                    attributeValue
-                }
-
+            if (attributeValue.startsWith("@")) {
+                return resolveTextResource(providerContext, attributeValue)
+            }
             val numberFormat = NumberFormat.getInstance(Locale.getDefault())
             val text =
                 when (valueType) {
-                    PLAIN_TEXT_TYPE_INT ->
-                        numberFormat.format(stringResolvedValue?.toLongOrNull() ?: 0L)
-                    PLAIN_TEXT_TYPE_LONG ->
-                        numberFormat.format(stringResolvedValue?.toLongOrNull() ?: 0L)
+                    PLAIN_TEXT_TYPE_INT -> numberFormat.format(attributeValue.toLongOrNull() ?: 0L)
+                    PLAIN_TEXT_TYPE_LONG -> numberFormat.format(attributeValue.toLongOrNull() ?: 0L)
                     PLAIN_TEXT_TYPE_FLOAT ->
-                        numberFormat.format(stringResolvedValue?.toDoubleOrNull() ?: 0.0)
-                    else -> stringResolvedValue
+                        numberFormat.format(attributeValue.toDoubleOrNull() ?: 0.0)
+
+                    else -> attributeValue
                 }
             return text
         }

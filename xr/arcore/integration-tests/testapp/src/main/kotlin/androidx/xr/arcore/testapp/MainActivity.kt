@@ -190,6 +190,7 @@ class MainActivity : ComponentActivity() {
                     startTest<HelloArObjectActivity>(it)
                 }
                 TestCaseColumnRowItem(R.string.eye_tracking) { startTest<EyeTrackingActivity>(it) }
+                TestCaseColumnRowItem(R.string.blend_mode) { startTest<HelloArPlaneActivity>(it) }
             }
         }
     }

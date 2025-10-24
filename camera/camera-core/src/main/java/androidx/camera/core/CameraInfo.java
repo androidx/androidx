@@ -28,7 +28,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.featuregroup.GroupableFeature;
 import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.internal.compat.MediaActionSoundCompat;
@@ -390,7 +389,6 @@ public interface CameraInfo {
      * config.
      * @see SessionConfig.Builder#setFrameRateRange(Range)
      */
-    @ExperimentalSessionConfig
     default @NonNull Set<Range<Integer>> getSupportedFrameRateRanges(
             @NonNull SessionConfig sessionConfig) {
         return Collections.emptySet();
@@ -585,8 +583,14 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns if the {@link GroupableFeature} groups set to the provided {@link SessionConfig} is
-     * supported.
+     * Returns if the provided {@link SessionConfig} is supported by the camera.
+     *
+     * <p>This method checks if the camera can support the configuration contained within the given
+     * {@link SessionConfig}. This includes surfaces, features, and other parameters. It can also be
+     * used with subtypes of {@link SessionConfig}, such as
+     * {@link androidx.camera.video.HighSpeedVideoSessionConfig} or
+     * {@link androidx.camera.extensions.ExtensionSessionConfig}, to verify if those specific
+     * configurations are supported.
      *
      * <p> This API can be used before calling `bindToLifecycle` API to know if binding a
      * {@link SessionConfig} with some given combination of feature groups will work or not.
@@ -607,21 +611,19 @@ public interface CameraInfo {
      *                 .addRequiredFeatureGroup(combinedFeatures.toArray(new Feature[0]))
      *                 .build();
      *
-     *         if (!cameraInfo.isFeatureGroupSupported(sessionConfig)) {
+     *         if (!cameraInfo.isSessionConfigSupported(sessionConfig)) {
      *             disableFeatureOptionInUi(featureOption); // e.g. app logic to disable a menu item
      *         }
      *     }
      * }}</pre>
      *
-     * @param sessionConfig The {@link SessionConfig} containing some required or preferred
-     *   feature groups.
-     * @return Whether the feature group is supported or not.
+     * @param sessionConfig The {@link SessionConfig} to be checked.
+     * @return Whether the provided {@link SessionConfig} is supported or not.
      * @throws IllegalArgumentException If some features conflict with each other by having
      *   different values for the same feature type and can thus never be supported together.
      * @see androidx.camera.core.featuregroup.GroupableFeature
      */
-    @ExperimentalSessionConfig
-    default boolean isFeatureGroupSupported(@NonNull SessionConfig sessionConfig) {
+    default boolean isSessionConfigSupported(@NonNull SessionConfig sessionConfig) {
         return false;
     }
 

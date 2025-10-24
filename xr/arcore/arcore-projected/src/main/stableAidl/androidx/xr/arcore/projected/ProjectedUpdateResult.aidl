@@ -17,6 +17,7 @@
 package androidx.xr.arcore.projected;
 
 import androidx.xr.arcore.projected.ProjectedTrackingState;
+import androidx.xr.arcore.projected.ProjectedPose;
 
 /** Result of an update call. */
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
@@ -24,4 +25,5 @@ parcelable ProjectedUpdateResult {
     ProjectedTrackingState deviceTrackingState;
     ProjectedTrackingState earthTrackingState;
     long currentTimeNanos;
+    ProjectedPose devicePose;
 }

@@ -83,15 +83,13 @@ public final class CameraViewScenePoseImplTest {
     @Test
     public void getCameraType_returnsCameraType() {
         CameraViewScenePoseImpl cameraScenePoseLeft =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
         assertThat(cameraScenePoseLeft.getCameraType())
                 .isEqualTo(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
         CameraViewScenePoseImpl cameraScenePoseRight =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
 
         assertThat(cameraScenePoseRight.getCameraType())
                 .isEqualTo(CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
@@ -115,34 +113,27 @@ public final class CameraViewScenePoseImplTest {
                 .thenReturn(new ViewProjections(viewProjectionLeft, viewProjectionRight));
 
         CameraViewScenePoseImpl cameraViewScenePose =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
-        assertThat(cameraViewScenePose.getFov().getAngleLeft())
-                .isEqualTo(fovLeft.getAngleLeft());
-        assertThat(cameraViewScenePose.getFov().getAngleRight())
-                .isEqualTo(fovLeft.getAngleRight());
+        assertThat(cameraViewScenePose.getFov().getAngleLeft()).isEqualTo(fovLeft.getAngleLeft());
+        assertThat(cameraViewScenePose.getFov().getAngleRight()).isEqualTo(fovLeft.getAngleRight());
         assertThat(cameraViewScenePose.getFov().getAngleUp()).isEqualTo(fovLeft.getAngleUp());
-        assertThat(cameraViewScenePose.getFov().getAngleDown())
-                .isEqualTo(fovLeft.getAngleDown());
+        assertThat(cameraViewScenePose.getFov().getAngleDown()).isEqualTo(fovLeft.getAngleDown());
 
         CameraViewScenePoseImpl cameraScenePoseRight =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
 
-        assertThat(cameraScenePoseRight.getFov().getAngleLeft())
-                .isEqualTo(fovRight.getAngleLeft());
+        assertThat(cameraScenePoseRight.getFov().getAngleLeft()).isEqualTo(fovRight.getAngleLeft());
         assertThat(cameraScenePoseRight.getFov().getAngleRight())
                 .isEqualTo(fovRight.getAngleRight());
         assertThat(cameraScenePoseRight.getFov().getAngleUp()).isEqualTo(fovRight.getAngleUp());
-        assertThat(cameraScenePoseRight.getFov().getAngleDown())
-                .isEqualTo(fovRight.getAngleDown());
+        assertThat(cameraScenePoseRight.getFov().getAngleDown()).isEqualTo(fovRight.getAngleDown());
     }
 
     @Test
     public void transformPoseTo_returnsCorrectPose() {
         // Set the activity space to the root of the underlying OpenXR reference space.
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
         Pose poseLeft = new Pose(new Vector3(1, 2, 3), new Quaternion(1, 0, 0, 0));
         Pose poseRight = new Pose(new Vector3(4, 5, 6), new Quaternion(0, 1, 0, 0));
         Fov fov = new Fov(0, 0, 0, 0);
@@ -160,14 +151,12 @@ public final class CameraViewScenePoseImplTest {
                 .thenReturn(new ViewProjections(viewProjectionLeft, viewProjectionRight));
 
         CameraViewScenePoseImpl cameraScenePoseLeft =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
         assertPose(cameraScenePoseLeft.transformPoseTo(new Pose(), mActivitySpace), poseLeft);
 
         CameraViewScenePoseImpl cameraScenePoseRight =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
 
         assertPose(cameraScenePoseRight.transformPoseTo(new Pose(), mActivitySpace), poseRight);
     }
@@ -175,18 +164,16 @@ public final class CameraViewScenePoseImplTest {
     @Test
     public void getActivitySpaceScale_returnsInverseOfActivitySpaceWorldScale() throws Exception {
         float activitySpaceScale = 5f;
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.fromScale(activitySpaceScale));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(activitySpaceScale));
         CameraViewScenePoseImpl cameraScenePoseLeft =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
         assertVector3(
                 cameraScenePoseLeft.getActivitySpaceScale(),
                 new Vector3(1f, 1f, 1f).div(activitySpaceScale));
 
         CameraViewScenePoseImpl cameraScenePoseRight =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE);
 
         assertVector3(
                 cameraScenePoseRight.getActivitySpaceScale(),
@@ -196,8 +183,7 @@ public final class CameraViewScenePoseImplTest {
     @Test
     public void getDisplayResolutionInPixels_returnsCorrectResolution() {
         CameraViewScenePoseImpl cameraScenePose =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
         Activity mockActivity = Mockito.mock(Activity.class);
         when(mPerceptionLibrary.getActivity()).thenReturn(mockActivity);
@@ -230,8 +216,7 @@ public final class CameraViewScenePoseImplTest {
     @Test
     public void getDisplayResolutionInPixels_nullWindowManager_returnsZeroDimensions() {
         CameraViewScenePoseImpl cameraScenePose =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
         Activity mockActivity = Mockito.mock(Activity.class);
         when(mPerceptionLibrary.getActivity()).thenReturn(mockActivity);
@@ -246,8 +231,7 @@ public final class CameraViewScenePoseImplTest {
     @Test
     public void getDisplayResolutionInPixels_nullDisplay_returnsZeroDimensions() {
         CameraViewScenePoseImpl cameraScenePose =
-                createCameraViewScenePose(
-                        CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
+                createCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE);
 
         Activity mockActivity = Mockito.mock(Activity.class);
         when(mPerceptionLibrary.getActivity()).thenReturn(mockActivity);

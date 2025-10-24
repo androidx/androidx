@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.xr.arcore.ArDevice
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Config.HeadTrackingMode
 import androidx.xr.runtime.Session
@@ -46,6 +47,7 @@ import kotlinx.coroutines.launch
 class HitTestActivity : AppCompatActivity() {
 
     private var session: Session? = null
+    private lateinit var device: ArDevice
     private var transformWidgetModel: GltfModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +57,7 @@ class HitTestActivity : AppCompatActivity() {
         session = createSession(this)
         if (session == null) this.finish()
         session!!.configure(Config(headTracking = HeadTrackingMode.LAST_KNOWN))
+        device = ArDevice.getInstance(session!!)
 
         // toolbar
         findViewById<Toolbar>(R.id.top_app_bar).also {
@@ -92,11 +95,12 @@ class HitTestActivity : AppCompatActivity() {
         val buttonHitTest: Button = panelContentView.findViewById(R.id.buttonHitTest)
         buttonHitTest.text = "Hit Test"
         buttonHitTest.setOnClickListener {
-            if (session!!.scene.spatialUser.head != null) {
+            device.state.value.devicePose.let { headPose ->
                 lifecycleScope.launch {
-                    val hitTest =
-                        session!!.scene.spatialUser.head!!.hitTest(Vector3(), Vector3(0f, 0f, -1f))
-                    if (hitTest.hitPosition != null && hitTest.surfaceNormal != null) {
+                    val headScenePose =
+                        session!!.scene.perceptionSpace.getScenePoseFromPerceptionPose(headPose)
+                    val hitTest = headScenePose.hitTest(Vector3(), Vector3(0f, 0f, -1f))
+                    if (hitTest != null && hitTest.surfaceNormal != null) {
                         val updatedRotation =
                             Quaternion.fromLookTowards(
                                 hitTest.surfaceNormal!!,

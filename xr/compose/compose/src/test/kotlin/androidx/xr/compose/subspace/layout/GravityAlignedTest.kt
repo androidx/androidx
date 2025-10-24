@@ -34,7 +34,6 @@ import androidx.xr.compose.testing.assertRotationIsEqualTo
 import androidx.xr.compose.testing.createFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.scenecore.GroupEntity
@@ -52,7 +51,7 @@ class GravityAlignedTest {
 
     @Test
     fun gravityAligned_parentIsLevel_appliesNoRotation() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox {
                     SpatialPanel(SubspaceModifier.testTag("child").gravityAligned()) {
@@ -74,7 +73,7 @@ class GravityAlignedTest {
     fun gravityAligned_parentHasPitchAndRoll_appliesCounterRotation() {
         val parentRotation = Quaternion.fromEulerAngles(pitch = 30f, yaw = 0f, roll = 45f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     SpatialPanel(SubspaceModifier.testTag("child").gravityAligned()) {
@@ -101,7 +100,7 @@ class GravityAlignedTest {
     @Test
     fun gravityAligned_parentHasYaw_preservesYaw() {
         val parentRotation = Quaternion.fromEulerAngles(pitch = 20f, yaw = 60f, roll = -25f)
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     SpatialPanel(SubspaceModifier.testTag("child").gravityAligned()) {
@@ -132,7 +131,7 @@ class GravityAlignedTest {
         var parentRotation by
             mutableStateOf(Quaternion.fromEulerAngles(pitch = 10f, yaw = 0f, roll = 15f))
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     SpatialPanel(SubspaceModifier.testTag("child").gravityAligned()) {
@@ -174,7 +173,7 @@ class GravityAlignedTest {
     fun gravityAligned_parentHasNegativeRotation_appliesCounterRotation() {
         val parentRotation = Quaternion.fromEulerAngles(pitch = -15f, yaw = 0f, roll = -50f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     SpatialPanel(SubspaceModifier.testTag("child").gravityAligned()) {
@@ -203,7 +202,7 @@ class GravityAlignedTest {
         val parentRotation = Quaternion.fromEulerAngles(pitch = -30f, yaw = 11f, roll = 22f)
         val localRotation = Quaternion.fromEulerAngles(pitch = 17f, yaw = 29f, roll = 39f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     SpatialPanel(
@@ -237,7 +236,7 @@ class GravityAlignedTest {
         val innerLocalRotation = Quaternion.fromEulerAngles(pitch = 10f, yaw = 10f, roll = 0f)
         val outerLocalRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 30f, roll = 0f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     SpatialPanel(
@@ -272,7 +271,7 @@ class GravityAlignedTest {
         val childInnerRotation = Quaternion.fromEulerAngles(pitch = 10f, yaw = 10f, roll = 0f)
         val childOuterRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 30f, roll = 0f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     SpatialPanel(
@@ -304,7 +303,7 @@ class GravityAlignedTest {
         var isGravityAligned by mutableStateOf(true)
         val parentRotation = Quaternion.fromEulerAngles(pitch = 30f, yaw = 0f, roll = 45f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(parentRotation)) {
                     val modifier =
@@ -352,7 +351,7 @@ class GravityAlignedTest {
             pose = Pose(rotation = tiltedRootRotation),
         )
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             CompositionLocalProvider(LocalSubspaceRootNode provides tiltedRootNode) {
                 ApplicationSubspace(modifier = SubspaceModifier.gravityAligned()) {
                     SpatialPanel(modifier = SubspaceModifier.testTag("panel")) {
@@ -386,7 +385,7 @@ class GravityAlignedTest {
         // This parent rotation points straight down.
         val verticalParentRotation = Quaternion.fromEulerAngles(pitch = 90f, yaw = 45f, roll = 0f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialBox(SubspaceModifier.rotate(verticalParentRotation)) {
                     // The child has no additional rotation.

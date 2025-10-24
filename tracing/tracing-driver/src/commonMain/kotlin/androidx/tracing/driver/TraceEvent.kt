@@ -110,6 +110,11 @@ internal constructor(
     @JvmField
     public var trackDescriptor: TrackDescriptor?,
 
+    /** The primary category that this trace event belongs to. */
+    @field:Suppress("MutableBareField") // public / mutable to minimize overhead
+    @JvmField
+    public var primaryCategory: String,
+
     /** The list of debug annotations associated with a slice */
     @field:Suppress("MutableBareField") // public / mutable to minimize overhead
     @JvmField
@@ -147,6 +152,7 @@ internal constructor(
             counterLongValue = null,
             flowIds = emptyList(),
             trackDescriptor = null,
+            primaryCategory = DEFAULT_STRING,
             metadataEntries = MutableList(METADATA_ENTRIES_EXPECTED_SIZE) { MetadataEntry() },
             lastMetadataEntryIndex = LAST_INDEX_WHEN_EMPTY,
             categories = MutableList(size = CATEGORIES_EXPECTED_SIZE) { DEFAULT_STRING },
@@ -224,6 +230,7 @@ internal constructor(
         counterLongValue = null
         flowIds = emptyList()
         trackDescriptor = null
+        primaryCategory = DEFAULT_STRING
         if (lastMetadataEntryIndex >= 0) {
             // Reset metadata entries and resize
             forEachMetadataEntry { it.reset() }

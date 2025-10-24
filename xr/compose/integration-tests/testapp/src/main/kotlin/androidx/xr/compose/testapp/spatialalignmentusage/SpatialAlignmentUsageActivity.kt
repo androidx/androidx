@@ -92,6 +92,7 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
                 onClickBackArrow = { this@SpatialAlignmentUsageActivity.finish() },
                 onClickRecreate = { this@SpatialAlignmentUsageActivity.recreate() },
             ) { padding ->
+                @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                 Column(
                     modifier =
                         Modifier.background(color = Purple80)

@@ -17,8 +17,10 @@
 package androidx.camera.camera2.pipe.media
 
 import android.graphics.Rect
+import android.hardware.HardwareBuffer
 import android.media.Image
 import android.os.Build
+import android.os.Build.VERSION_CODES
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api28Compat
 import java.nio.ByteBuffer
@@ -66,6 +68,14 @@ public class AndroidImage(private val image: Image) : ImageWrapper {
         set(newRectValue: Rect) {
             image.cropRect = newRectValue
         }
+
+    override val hardwareBuffer: HardwareBuffer?
+        get() =
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
+                Api28Compat.getHardwareBuffer(image)
+            } else {
+                null
+            }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? =

@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.animation.parseAnimatedVisibility
 import androidx.compose.ui.tooling.animation.states.AnimatedVisibilityState
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -170,6 +171,7 @@ class AnimatedVisibilityClockTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452716095
     @Test
     fun clockKeepsSetTime() {
         val clock = setupClock()

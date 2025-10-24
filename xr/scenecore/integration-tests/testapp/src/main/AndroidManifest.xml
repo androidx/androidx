@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.HEAD_TRACKING" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.android.extensions.xr.INHERIT_FSM_ENV" />
@@ -31,6 +32,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.IntegrationTestsApp">
+        <activity
+            android:name=".gravityaligned.GravityAlignedPoseTest"
+            android:exported="false" />
         <activity
             android:name=".sceneviewer.SceneViewerActivity"
             android:exported="false" />
@@ -76,6 +80,9 @@
             android:exported="true" />
         <activity
             android:name=".model.GltfModelActivity"
+            android:exported="true" />
+        <activity
+            android:name=".surfaceimage.SurfaceEntityImageActivity"
             android:exported="true" />
         <activity
             android:name=".surfaceinteraction.SurfaceEntityInteractionActivity"

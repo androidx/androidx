@@ -18,9 +18,9 @@ package androidx.camera.video.internal.config
 
 import android.util.Range
 import android.util.Rational
-import androidx.camera.video.AudioSpec.CHANNEL_COUNT_MONO
-import androidx.camera.video.AudioSpec.SAMPLE_RATE_RANGE_AUTO
-import androidx.camera.video.AudioSpec.SOURCE_FORMAT_PCM_16BIT
+import androidx.camera.video.AudioSpec.Companion.CHANNEL_COUNT_MONO
+import androidx.camera.video.AudioSpec.Companion.SAMPLE_RATE_RANGE_AUTO
+import androidx.camera.video.AudioSpec.Companion.SOURCE_FORMAT_PCM_16BIT
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

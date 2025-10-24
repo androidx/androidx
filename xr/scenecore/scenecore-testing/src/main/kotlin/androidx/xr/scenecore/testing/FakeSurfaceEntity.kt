@@ -21,6 +21,7 @@ import android.media.ImageReader
 import android.view.Surface
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.SurfaceEntity
@@ -103,6 +104,24 @@ public class FakeSurfaceEntity(private val feature: SurfaceFeature? = null) :
                 return feature.surface
             }
         }
+
+    /** For test purposes only. Caches the input of [setSurfacePixelDimensions]. */
+    private var _surfacePixelDimensions: IntSize2d = IntSize2d(0, 0)
+
+    /**
+     * Sets the dimensions of the Surface in pixels.
+     *
+     * @param width The width of the Surface in pixels.
+     * @param height The height of the Surface in pixels.
+     * @throws IllegalArgumentException if the dimensions are invalid.
+     */
+    override fun setSurfacePixelDimensions(width: Int, height: Int) {
+        if (feature == null) {
+            _surfacePixelDimensions = IntSize2d(width, height)
+        } else {
+            feature.setSurfacePixelDimensions(width, height)
+        }
+    }
 
     /**
      * For test purposes only. Sets or replaces the underlying [Surface] for this fake entity.

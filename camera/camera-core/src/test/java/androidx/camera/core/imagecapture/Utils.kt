@@ -65,6 +65,7 @@ object Utils {
         ImageCapture.OutputFileOptions.Builder(TEMP_FILE).build()
     internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult().also { it.timestamp = TIMESTAMP }
 
+    @Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
     internal fun createProcessingRequest(
         takePictureCallback: TakePictureCallback = FakeTakePictureCallback(),
         captureBundle: CaptureBundle = CaptureBundles.singleDefaultCaptureBundle(),

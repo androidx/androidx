@@ -24,7 +24,6 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ExperimentalLensFacing
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.SessionConfig
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -52,7 +51,6 @@ object CameraXSetup {
         }
 
     @androidx.annotation.OptIn(ExperimentalCameraProviderConfiguration::class)
-    @OptIn(ExperimentalSessionConfig::class)
     suspend fun initCameraX(
         cameraXConfig: CameraXConfig,
         cameraSelector: CameraSelector,

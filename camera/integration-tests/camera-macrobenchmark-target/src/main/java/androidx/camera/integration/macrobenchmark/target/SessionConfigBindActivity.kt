@@ -21,7 +21,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -56,7 +55,6 @@ class SessionConfigBindActivity : ComponentActivity() {
         setContent { CameraScreen(intent.toCameraXConfig(), intent.toCameraSelector()) }
     }
 
-    @OptIn(ExperimentalSessionConfig::class)
     @Composable
     fun CameraScreen(cameraXConfig: CameraXConfig, cameraSelector: CameraSelector) {
         val context = LocalContext.current

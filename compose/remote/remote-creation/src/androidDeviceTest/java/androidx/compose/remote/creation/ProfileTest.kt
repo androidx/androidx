@@ -17,10 +17,10 @@ package androidx.compose.remote.creation
 
 import android.graphics.Color
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Profiles
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
-import androidx.compose.remote.creation.profile.PlatformProfile
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.creation.profile.WidgetsProfileWriterV6
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -31,33 +31,33 @@ import org.junit.Test
 class ProfileTest {
     @Test
     fun testAndroidx() {
-        val androidx = PlatformProfile.ANDROIDX
+        val androidx = RcPlatformProfiles.ANDROIDX
 
         assertEquals(CoreDocument.DOCUMENT_API_LEVEL, androidx.apiLevel)
-        assertEquals(Profiles.PROFILE_ANDROIDX, androidx.operationsProfiles)
+        assertEquals(RcProfiles.PROFILE_ANDROIDX, androidx.operationsProfiles)
 
         val writer = androidx.create(100, 100, "test")
         assertIs<RemoteComposeWriter>(writer)
 
-        assertIs<AndroidxPlatformServices>(writer.mPlatform)
+        assertIs<AndroidxRcPlatformServices>(writer.mPlatform)
     }
 
     @Test
     fun testWidgetsv6() {
-        val widgets = PlatformProfile.WIDGETS_V6
+        val widgets = RcPlatformProfiles.WIDGETS_V6
 
         assertEquals(6, widgets.apiLevel)
-        assertEquals(Profiles.PROFILE_BASELINE, widgets.operationsProfiles)
+        assertEquals(RcProfiles.PROFILE_BASELINE, widgets.operationsProfiles)
 
         val writer = widgets.create(100, 100, "test")
         assertIs<WidgetsProfileWriterV6>(writer)
 
-        assertIs<AndroidxPlatformServices>(writer.mPlatform)
+        assertIs<AndroidxRcPlatformServices>(writer.mPlatform)
     }
 
     @Test
     fun testWidgetsv6Text() {
-        val widgets = PlatformProfile.WIDGETS_V6
+        val widgets = RcPlatformProfiles.WIDGETS_V6
 
         val writer = widgets.create(100, 100, "test")
 
@@ -98,7 +98,7 @@ class ProfileTest {
 
     @Test
     fun testAndroidXText() {
-        val androidx = PlatformProfile.ANDROIDX
+        val androidx = RcPlatformProfiles.ANDROIDX
 
         val writer = androidx.create(100, 100, "test")
 

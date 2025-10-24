@@ -21,13 +21,14 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.InputEvent
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
 
 class SphericalVideoInputHandler(val parent: GroupEntity, val radius: Float, player: ExoPlayer) :
     ClickVideoInputHandler(player) {
-    private var draggingPointer: Int = -1
+    private var draggingPointer: InputEvent.Pointer? = null
     private var dragStartHitRot = Quaternion.Identity
     private var dragStartParentRot = Quaternion.Identity
 
@@ -35,8 +36,12 @@ class SphericalVideoInputHandler(val parent: GroupEntity, val radius: Float, pla
         return true
     }
 
-    override fun onDragStart(pointerType: Int, downOrigin: Vector3, downDirection: Vector3) {
-        if (draggingPointer != -1) return
+    override fun onDragStart(
+        pointerType: InputEvent.Pointer,
+        downOrigin: Vector3,
+        downDirection: Vector3,
+    ) {
+        if (draggingPointer != null) return
         val hitRot = hitRot(downOrigin, downDirection)
         if (hitRot == null) return
         dragStartHitRot = hitRot
@@ -44,7 +49,7 @@ class SphericalVideoInputHandler(val parent: GroupEntity, val radius: Float, pla
         draggingPointer = pointerType
     }
 
-    override fun onDragMove(pointerType: Int, origin: Vector3, direction: Vector3) {
+    override fun onDragMove(pointerType: InputEvent.Pointer, origin: Vector3, direction: Vector3) {
         if (draggingPointer != pointerType) return
         val hitRot = hitRot(origin, direction)
         if (hitRot == null) return
@@ -57,14 +62,14 @@ class SphericalVideoInputHandler(val parent: GroupEntity, val radius: Float, pla
         )
     }
 
-    override fun onDragEnd(pointerType: Int, origin: Vector3, direction: Vector3) {
+    override fun onDragEnd(pointerType: InputEvent.Pointer, origin: Vector3, direction: Vector3) {
         if (draggingPointer != pointerType) return
-        draggingPointer = -1
+        draggingPointer = null
     }
 
-    override fun onDragCanceled(pointerType: Int) {
+    override fun onDragCanceled(pointerType: InputEvent.Pointer) {
         if (draggingPointer != pointerType) return
-        draggingPointer = -1
+        draggingPointer = null
     }
 
     private fun hitRot(originWorld: Vector3, directionWorld: Vector3): Quaternion? {

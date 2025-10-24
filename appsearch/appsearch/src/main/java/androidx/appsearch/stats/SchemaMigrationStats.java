@@ -239,6 +239,44 @@ public final class SchemaMigrationStats extends AbstractSafeParcelable {
         SchemaMigrationStatsCreator.writeToParcel(this, dest, flags);
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "SchemaMigrationStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  executorAcquisitionLatencyMillis=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  getSchemaLatencyMillis=%d,\n"
+                        + "  queryAndTransformLatencyMillis=%d,\n"
+                        + "  firstSetSchemaLatencyMillis=%d,\n"
+                        + "  isFirstSetSchemaSuccess=%b,\n"
+                        + "  secondSetSchemaLatencyMillis=%d,\n"
+                        + "  saveDocumentLatencyMillis=%d,\n"
+                        + "  totalNeedMigratedDocumentCount=%d,\n"
+                        + "  migrationFailureCount=%d,\n"
+                        + "  totalSuccessMigratedDocumentCount=%d,\n"
+                        + "  enabledFeatures=%s\n"
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mExecutorAcquisitionLatencyMillis,
+                mTotalLatencyMillis,
+                mGetSchemaLatencyMillis,
+                mQueryAndTransformLatencyMillis,
+                mFirstSetSchemaLatencyMillis,
+                mIsFirstSetSchemaSuccess,
+                mSecondSetSchemaLatencyMillis,
+                mSaveDocumentLatencyMillis,
+                mTotalNeedMigratedDocumentCount,
+                mMigrationFailureCount,
+                mTotalSuccessMigratedDocumentCount,
+                Long.toBinaryString(mEnabledFeatures));
+    }
+
     /** Builder for {@link SchemaMigrationStats}. */
     public static class Builder {
 

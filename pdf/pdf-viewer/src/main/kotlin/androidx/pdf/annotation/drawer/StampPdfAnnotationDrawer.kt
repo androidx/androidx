@@ -28,6 +28,7 @@ internal class StampPdfAnnotationDrawer(
     override fun draw(pdfAnnotation: StampAnnotation, canvas: Canvas, transform: Matrix) {
         pdfAnnotation.pdfObjects.forEach { pdfObject ->
             val drawer = pdfObjectDrawerFactory.create(pdfObject)
+            @Suppress("UNCHECKED_CAST")
             (drawer as PdfObjectDrawer<PdfObject>).draw(pdfObject, canvas, transform)
         }
     }

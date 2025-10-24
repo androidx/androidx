@@ -15,11 +15,11 @@
  */
 package androidx.compose.remote.core;
 
-import static androidx.compose.remote.core.Profiles.PROFILE_ANDROIDX;
-import static androidx.compose.remote.core.Profiles.PROFILE_ANDROID_NATIVE;
-import static androidx.compose.remote.core.Profiles.PROFILE_DEPRECATED;
-import static androidx.compose.remote.core.Profiles.PROFILE_EXPERIMENTAL;
-import static androidx.compose.remote.core.Profiles.PROFILE_WIDGETS;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROID_NATIVE;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_DEPRECATED;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_EXPERIMENTAL;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.BitmapData;
@@ -221,6 +221,7 @@ public class Operations {
     public static final int DRAW_ROUND_RECT = 51;
     public static final int DRAW_SECTOR = 52;
     public static final int DRAW_TEXT_ON_PATH = 53;
+    public static final int DRAW_TEXT_ON_CIRCLE = 57;
     public static final int DRAW_OVAL = 56;
     public static final int DATA_PATH = 123;
     public static final int DRAW_PATH = 124;

@@ -29,7 +29,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  * ActivityPanelEntity creates a spatial panel for embedding an [Activity] in Android XR. Users can
  * either use an [Intent] to launch an Activity in the given panel or provide an instance of
  * Activity to move into this panel. In order to launch and embed an activity,
- * [SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY] capability is required. Calling
+ * [SpatialCapability.SPATIAL_CAPABILITY_EMBED_ACTIVITY] capability is required. Calling
  * [Entity.dispose] on this Entity will destroy the underlying Activity.
  */
 public class ActivityPanelEntity
@@ -43,7 +43,7 @@ private constructor(
      * Starts an [Activity] in the given panel. Subsequent calls to this method will replace the
      * already existing Activity in the panel with the new one. The panel will not be visible until
      * an Activity is successfully launched. This will fail if the [Scene] does not have the
-     * [SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY] capability. This method will not
+     * [SpatialCapability.SPATIAL_CAPABILITY_EMBED_ACTIVITY] capability. This method will not
      * provide any information about when the Activity successfully launches.
      *
      * @param intent Intent to launch the activity.
@@ -54,7 +54,7 @@ private constructor(
 
     /**
      * Transfers the given [Activity] into this panel. This will fail if the application does not
-     * have the [SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY] capability.
+     * have the [SpatialCapability.SPATIAL_CAPABILITY_EMBED_ACTIVITY] capability.
      *
      * @param activity Activity to move into this panel.
      */

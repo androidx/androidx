@@ -279,8 +279,7 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
                 return new Pose();
             }
 
-            return mOpenXrScenePoseHelper.getPoseInActivitySpace(
-                    getPoseInOpenXrReferenceSpace());
+            return mOpenXrScenePoseHelper.getPoseInActivitySpace(getPoseInOpenXrReferenceSpace());
         }
     }
 

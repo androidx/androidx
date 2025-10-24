@@ -145,15 +145,9 @@ public class ImpressionAction extends TakenAction {
         return mResultRankGlobal;
     }
 
-    // TODO(b/372929164): redesign builder for inheritance to fix the base setter return type issue.
     /** Builder for {@link ImpressionAction}. */
     @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
-        private String mQuery;
-        private String mReferencedQualifiedId;
-        private int mResultRankInBlock;
-        private int mResultRankGlobal;
-
         /**
          * Constructor for {@link ImpressionAction.Builder}.
          *
@@ -163,7 +157,7 @@ public class ImpressionAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_IMPRESSION);
+            super(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_IMPRESSION);
         }
 
         /**
@@ -173,13 +167,9 @@ public class ImpressionAction extends TakenAction {
          * @param impressionAction an existing {@link ImpressionAction} object.
          */
         public Builder(@NonNull ImpressionAction impressionAction) {
-            super(Preconditions.checkNotNull(impressionAction));
-
-            mQuery = impressionAction.getQuery();
-            mReferencedQualifiedId = impressionAction.getReferencedQualifiedId();
-            mResultRankInBlock = impressionAction.getResultRankInBlock();
-            mResultRankGlobal = impressionAction.getResultRankGlobal();
+            super(impressionAction);
         }
+
 
         /**
          * Constructor for {@link ImpressionAction.Builder}.
@@ -196,6 +186,31 @@ public class ImpressionAction extends TakenAction {
         Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis,
                 @TakenAction.ActionType int actionType) {
             super(namespace, id, actionTimestampMillis, actionType);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends
+            TakenAction.BuilderImpl<T> {
+        protected String mQuery;
+        protected String mReferencedQualifiedId;
+        protected int mResultRankInBlock;
+        protected int mResultRankGlobal;
+
+        /**
+         * Constructs {@link BuilderImpl} with given {@code namespace}, {@code id},
+         * {@code actionTimestampMillis} and {@code actionType}.
+         *
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
+         * @param actionType            Action type enum for the Document. See
+         *                              {@link TakenAction.ActionType}.
+         */
+        BuilderImpl(@NonNull String namespace, @NonNull String id,
+                long actionTimestampMillis, @TakenAction.ActionType int actionType) {
+            super(namespace, id, actionTimestampMillis, actionType);
 
             // Default for unset result rank fields. Since negative number is invalid for ranking,
             // -1 is used as an unset value and AppSearch will ignore it.
@@ -204,13 +219,28 @@ public class ImpressionAction extends TakenAction {
         }
 
         /**
+         * Constructs {@link BuilderImpl} by copying existing values from the given
+         * {@link ImpressionAction}.
+         *
+         * @param impressionAction an existing {@link ImpressionAction} object.
+         */
+        BuilderImpl(@NonNull ImpressionAction impressionAction) {
+            super(Preconditions.checkNotNull(impressionAction));
+
+            mQuery = impressionAction.getQuery();
+            mReferencedQualifiedId = impressionAction.getReferencedQualifiedId();
+            mResultRankInBlock = impressionAction.getResultRankInBlock();
+            mResultRankGlobal = impressionAction.getResultRankGlobal();
+        }
+
+        /**
          * Sets the user-entered search input (without any operators or rewriting) that yielded
          * the {@link androidx.appsearch.app.SearchResult} which impressed the user.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setQuery(@Nullable String query) {
+        public @NonNull T setQuery(@Nullable String query) {
             mQuery = query;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -222,9 +252,9 @@ public class ImpressionAction extends TakenAction {
          * String,String,String,String)} for more details.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setReferencedQualifiedId(@Nullable String referencedQualifiedId) {
+        public @NonNull T setReferencedQualifiedId(@Nullable String referencedQualifiedId) {
             mReferencedQualifiedId = referencedQualifiedId;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -234,9 +264,9 @@ public class ImpressionAction extends TakenAction {
          * @see ImpressionAction#getResultRankInBlock
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setResultRankInBlock(int resultRankInBlock) {
+        public @NonNull T setResultRankInBlock(int resultRankInBlock) {
             mResultRankInBlock = resultRankInBlock;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -245,9 +275,9 @@ public class ImpressionAction extends TakenAction {
          * @see ImpressionAction#getResultRankGlobal
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setResultRankGlobal(int resultRankGlobal) {
+        public @NonNull T setResultRankGlobal(int resultRankGlobal) {
             mResultRankGlobal = resultRankGlobal;
-            return this;
+            return (T) this;
         }
 
         /** Builds an {@link ImpressionAction}. */

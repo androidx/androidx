@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.examples;
 
-import static androidx.compose.remote.core.Profiles.PROFILE_ANDROIDX;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.ADD;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MOD;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL;
@@ -26,12 +26,12 @@ import static androidx.compose.remote.creation.Rc.FloatExpression.SUB;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.creation.Rc;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
 
 import org.jspecify.annotations.NonNull;
 
@@ -50,7 +50,7 @@ import org.jspecify.annotations.NonNull;
 @SuppressLint("RestrictedApiAndroidX")
 public class DemoAnchorText {
     @SuppressLint("RestrictedApiAndroidX")
-    static Platform sPlatform = new AndroidxPlatformServices();
+    static RcPlatformServices sPlatform = new AndroidxRcPlatformServices();
 
     private DemoAnchorText() {
     }

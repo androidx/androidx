@@ -27,7 +27,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
@@ -51,17 +51,14 @@ dependencies {
     androidTestImplementation(project(":appcompat:appcompat"))
     androidTestImplementation(project(":privacysandbox:ui:ui-provider"))
     androidTestImplementation(project(":privacysandbox:ui:integration-tests:testingutils"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.8.0")
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation("androidx.compose.foundation:foundation-layout:1.8.0")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.0")
+    debugImplementation(project(":compose:ui:ui-test-manifest"))
 }
 
 android {
     namespace = "androidx.privacysandbox.ui.client.compose"
     compileSdk = 35
-    lint {
-        disable += "ComposeTestRuleDispatcher"
-    }
 }
 
 androidx {

@@ -19,8 +19,8 @@ package androidx.compose.remote.creation.compose.capture
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.profile.PlatformProfile
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -42,7 +42,7 @@ import kotlin.coroutines.suspendCoroutine
 public suspend fun captureRemoteDocument(
     context: Context,
     creationDisplayInfo: CreationDisplayInfo = CreationDisplayInfo(),
-    profile: Profile = PlatformProfile.ANDROIDX,
+    profile: Profile = RcPlatformProfiles.ANDROIDX,
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray = suspendCoroutine { continuation ->
     var completed = false

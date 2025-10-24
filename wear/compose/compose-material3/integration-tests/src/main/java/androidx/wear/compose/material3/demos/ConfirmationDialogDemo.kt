@@ -38,7 +38,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.confirmationDialogCurvedText
 import androidx.wear.compose.material3.samples.ConfirmationDialogSample
 import androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
-import androidx.wear.compose.material3.samples.FailureConfirmationDialogWithVariantIconSample
+import androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGenericFailureIconSample
 import androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
 import androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
 
@@ -49,7 +49,7 @@ val ComfirmationDialogDemos =
         ComposableDemo("Success confirmation") { SuccessConfirmationDialogSample() },
         ComposableDemo("Failure confirmation") { FailureConfirmationDialogSample() },
         ComposableDemo("Failure confirmation with variant icon") {
-            FailureConfirmationDialogWithVariantIconSample()
+            FailureConfirmationDialogWithGenericFailureIconSample()
         },
         ComposableDemo("Confirmation without text") { ConfirmationWithoutText() },
         ComposableDemo("Confirmation with custom colors") { ConfirmationWithCustomColors() },

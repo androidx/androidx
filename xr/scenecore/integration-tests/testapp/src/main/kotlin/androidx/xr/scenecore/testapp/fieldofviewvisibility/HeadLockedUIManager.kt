@@ -19,6 +19,7 @@ package androidx.xr.scenecore.testapp.fieldofviewvisibility
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.xr.arcore.ArDevice
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -38,6 +39,7 @@ class HeadLockedUIManager(
 ) {
     private val mSession = session
     private val mScene = session.scene
+    private val device: ArDevice = ArDevice.getInstance(session)
 
     private val mHeadLockedPanelView: View = headLockedPanelView
     private lateinit var mHeadLockedPanel: PanelEntity
@@ -120,13 +122,16 @@ class HeadLockedUIManager(
     }
 
     private fun updateHeadLockedPose() {
-        if (mScene.spatialUser.head != null && this.mEnableHeadlock) {
+        if (this.mEnableHeadlock) {
             // Since the panel is parented by the activitySpace, we need to inverse its scale
             // so that the panel stays at a fixed size in the view even when ActivitySpace scales.
-            this.mHeadLockedPanel.setScale(0.5f / mScene.activitySpace.getScale(Space.REAL_WORLD))
-            mScene.spatialUser.head?.transformPoseTo(mUserForward, mScene.activitySpace)?.let {
-                this.mHeadLockedPanel.setPose(it)
-            }
+            this.mHeadLockedPanel.setScale(
+                0.5f / mSession.scene.activitySpace.getScale(Space.REAL_WORLD)
+            )
+            mScene.perceptionSpace
+                .getScenePoseFromPerceptionPose(device.state.value.devicePose)
+                .transformPoseTo(mUserForward, mSession.scene.activitySpace)
+                .let { this.mHeadLockedPanel.setPose(it) }
         }
         mHeadLockedPanelView.postOnAnimation(this::updateHeadLockedPose)
     }

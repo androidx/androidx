@@ -31,15 +31,15 @@ import com.google.common.util.concurrent.ListenableFuture
  * @param session The session the [ScenePose] is in.
  * @param origin The translation of the origin of the hit test relative to this ScenePose.
  * @param direction The direction for the hit test ray from the origin.
- * @return a ListenableFuture<HitResult>. The HitResult describes if it hit something and where
- *   relative to this [ScenePose]. Listeners will be called on the main thread if Runnable::run is
- *   supplied.
+ * @return a Future containing the [HitTestResult] relative to the ScenePose, or null if the hit
+ *   test did not find an intersection. Listeners will be called on the main thread if Runnable::run
+ *   is supplied.
  */
 public fun ScenePose.hitTestAsync(
     session: Session,
     origin: Vector3,
     direction: Vector3,
-): ListenableFuture<HitTestResult> =
+): ListenableFuture<HitTestResult?> =
     this.hitTestAsync(session, origin, direction, ScenePose.HitTestFilter.SELF_SCENE)
 
 /**
@@ -50,16 +50,16 @@ public fun ScenePose.hitTestAsync(
  * @param direction The direction for the hit test ray from the origin
  * @param hitTestFilter Filter for which scenes to hit test. Hitting other scenes is only allowed
  *   for apps with the `com.android.extensions.xr.ACCESS_XR_OVERLAY_SPACE` permission.
- * @return a ListenableFuture<HitResult>. The HitResult describes if it hit something and where
- *   relative to this [ScenePose]. Listeners will be called on the main thread if Runnable::run is
- *   supplied.
+ * @return a Future containing the [HitTestResult] relative to the ScenePose, or null if the hit
+ *   test did not find an intersection. Listeners will be called on the main thread if Runnable::run
+ *   is supplied.
  */
 public fun ScenePose.hitTestAsync(
     session: Session,
     origin: Vector3,
     direction: Vector3,
     @ScenePose.HitTestFilterValue hitTestFilter: Int,
-): ListenableFuture<HitTestResult> =
+): ListenableFuture<HitTestResult?> =
     SuspendToFutureAdapter.launchFuture(
         context = session.coroutineScope.coroutineContext,
         launchUndispatched = true,

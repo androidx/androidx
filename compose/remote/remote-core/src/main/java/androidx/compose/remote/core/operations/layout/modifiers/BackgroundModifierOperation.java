@@ -22,8 +22,10 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
@@ -36,7 +38,8 @@ import java.util.List;
 
 /** Component size-aware background draw */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BackgroundModifierOperation extends DecoratorModifierOperation {
+public class BackgroundModifierOperation extends DecoratorModifierOperation implements
+        VariableSupport {
     private static final int OP_CODE = Operations.MODIFIER_BACKGROUND;
     private static final String CLASS_NAME = "BackgroundModifierOperation";
     float mX;
@@ -44,12 +47,17 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation {
     float mWidth;
     float mHeight;
     float mR;
+    float mRId;
     float mG;
+    float mGId;
     float mB;
+    float mBId;
     float mA;
+    float mAId;
     int mShapeType = ShapeType.RECTANGLE;
 
-    @NonNull public PaintBundle mPaint = new PaintBundle();
+    @NonNull
+    public PaintBundle mPaint = new PaintBundle();
 
     public BackgroundModifierOperation(
             float x,
@@ -65,16 +73,20 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation {
         this.mY = y;
         this.mWidth = width;
         this.mHeight = height;
-        this.mR = r;
-        this.mG = g;
-        this.mB = b;
-        this.mA = a;
+        this.mRId = r;
+        this.mR = mRId;
+        this.mGId = g;
+        this.mG = mGId;
+        this.mBId = b;
+        this.mB = mBId;
+        this.mAId = a;
+        this.mA = mAId;
         this.mShapeType = shapeType;
     }
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mX, mY, mWidth, mHeight, mR, mG, mB, mA, mShapeType);
+        apply(buffer, mX, mY, mWidth, mHeight, mRId, mGId, mBId, mAId, mShapeType);
     }
 
     @Override
@@ -90,13 +102,13 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation {
                         + ", "
                         + mHeight
                         + "] color ["
-                        + mR
+                        + mRId
                         + ", "
-                        + mG
+                        + mGId
                         + ", "
-                        + mB
+                        + mBId
                         + ", "
-                        + mA
+                        + mAId
                         + "] shape ["
                         + mShapeType
                         + "]");
@@ -140,15 +152,15 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer the WireBuffer
-     * @param x x coordinate of the background rect
-     * @param y y coordinate of the background rect
-     * @param width width of the background rect
-     * @param height height of the background rect
-     * @param r red component of the background color
-     * @param g green component of the background color
-     * @param b blue component of the background color
-     * @param a alpha component of the background color
+     * @param buffer    the WireBuffer
+     * @param x         x coordinate of the background rect
+     * @param y         y coordinate of the background rect
+     * @param width     width of the background rect
+     * @param height    height of the background rect
+     * @param r         red component of the background color
+     * @param g         green component of the background color
+     * @param b         blue component of the background color
+     * @param a         alpha component of the background color
      * @param shapeType the shape of the background (RECTANGLE=0, CIRCLE=1)
      */
     public static void apply(
@@ -178,7 +190,7 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -208,6 +220,46 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation {
             context.drawCircle(mWidth / 2f, mHeight / 2f, Math.min(mWidth, mHeight) / 2f);
         }
         context.restorePaint();
+    }
+
+    private static boolean isAtLeastVersion7(@NonNull RemoteContext context) {
+        return context.supportsVersion(1, 1, 0);
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {
+        if (isAtLeastVersion7(context)) {
+            if (Float.isNaN(mRId)) {
+                mR = context.getFloat(Utils.idFromNan(mRId));
+            }
+            if (Float.isNaN(mGId)) {
+                mG = context.getFloat(Utils.idFromNan(mGId));
+            }
+            if (Float.isNaN(mBId)) {
+                mB = context.getFloat(Utils.idFromNan(mBId));
+            }
+            if (Float.isNaN(mAId)) {
+                mA = context.getFloat(Utils.idFromNan(mAId));
+            }
+        }
+    }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        if (isAtLeastVersion7(context)) {
+            if (Float.isNaN(mRId)) {
+                context.listensTo(Utils.idFromNan(mRId), this);
+            }
+            if (Float.isNaN(mGId)) {
+                context.listensTo(Utils.idFromNan(mGId), this);
+            }
+            if (Float.isNaN(mBId)) {
+                context.listensTo(Utils.idFromNan(mBId), this);
+            }
+            if (Float.isNaN(mAId)) {
+                context.listensTo(Utils.idFromNan(mAId), this);
+            }
+        }
     }
 
     /**

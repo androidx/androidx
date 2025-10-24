@@ -31,7 +31,6 @@ import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -91,7 +90,6 @@ import org.junit.runners.Parameterized
 
 @SmallTest
 @RunWith(Parameterized::class)
-@kotlin.OptIn(ExperimentalSessionConfig::class)
 class ProcessCameraProviderTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,

@@ -337,7 +337,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
     }
 
     fun getCanvasAspectRatio(
-        stereoMode: Int,
+        stereoMode: SurfaceEntity.StereoMode,
         videoWidth: Int,
         videoHeight: Int,
         pixelAspectRatio: Float,
@@ -347,32 +347,15 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
         val effectiveDisplayWidth = videoWidth.toFloat() * pixelAspectRatio
 
         return when (stereoMode) {
-            SurfaceEntity.StereoMode.STEREO_MODE_MONO,
-            SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
-            SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_RIGHT_PRIMARY ->
+            SurfaceEntity.StereoMode.MONO,
+            SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
+            SurfaceEntity.StereoMode.MULTIVIEW_RIGHT_PRIMARY ->
                 FloatSize3d(1.0f, videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM ->
+            SurfaceEntity.StereoMode.TOP_BOTTOM ->
                 FloatSize3d(1.0f, 0.5f * videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE ->
+            SurfaceEntity.StereoMode.SIDE_BY_SIDE ->
                 FloatSize3d(1.0f, 2.0f * videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
             else -> throw IllegalArgumentException("Unsupported stereo mode: $stereoMode")
-        }
-    }
-
-    @Suppress("UnsafeOptInUsageError")
-    fun parseMaxCLLFromHdrStaticInfo(hdrStaticInfoByteArray: ByteArray?): Int {
-        // HdrStaticInfo follows CTA-861.3 standard, in which maxCLL, if available, is encoded
-        // as a 16 bit unsigned integer starting from byte 23.
-        if (hdrStaticInfoByteArray == null || hdrStaticInfoByteArray.size < 25) {
-            return 0
-        }
-        return try {
-            val buffer = ByteBuffer.wrap(hdrStaticInfoByteArray).order(ByteOrder.LITTLE_ENDIAN)
-            buffer.position(23)
-            buffer.getShort().toInt() and 0xFFFF
-        } catch (e: Exception) {
-            Log.e(TAG, "Error parsing MaxCLL from HDR static info", e)
-            0
         }
     }
 
@@ -465,25 +448,16 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                 }
             } // end row
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(
-                    onClick = {
-                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MONO
-                    }
-                ) {
+                Button(onClick = { surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.MONO }) {
                     Text(text = "Mono", fontSize = 10.sp)
                 }
                 Button(
-                    onClick = {
-                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM
-                    }
+                    onClick = { surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM }
                 ) {
                     Text(text = "Top-Bottom", fontSize = 10.sp)
                 }
                 Button(
-                    onClick = {
-                        surfaceEntity!!.stereoMode =
-                            SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE
-                    }
+                    onClick = { surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE }
                 ) {
                     Text(text = "Side-by-Side", fontSize = 10.sp)
                 }
@@ -547,7 +521,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
         session: Session,
         activity: Activity,
         videoUri: String,
-        stereoMode: Int,
+        stereoMode: SurfaceEntity.StereoMode,
         pose: Pose,
         shape: SurfaceEntity.Shape,
         buttonText: String,
@@ -586,9 +560,9 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
 
                     val surfaceContentLevel =
                         if (protected) {
-                            SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_PROTECTED
+                            SurfaceEntity.SurfaceProtection.PROTECTED
                         } else {
-                            SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_NONE
+                            SurfaceEntity.SurfaceProtection.NONE
                         }
 
                     val superSamplingMode =
@@ -596,9 +570,9 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                             this@SurfaceEntityPlaybackActivity.superSamplingMode ==
                                 SuperSamplingMode.DEFAULT
                         ) {
-                            SurfaceEntity.SuperSampling.SUPER_SAMPLING_PENTAGON
+                            SurfaceEntity.SuperSampling.PENTAGON
                         } else {
-                            SurfaceEntity.SuperSampling.SUPER_SAMPLING_NONE
+                            SurfaceEntity.SuperSampling.NONE
                         }
 
                     movieParent!!.parent = session.scene.activitySpace
@@ -698,28 +672,8 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                                         ) {
                                             val colorInfo: ColorInfo? = videoFormat.colorInfo
                                             if (colorInfo != null && surfaceEntity != null) {
-                                                val colorSpace = colorInfo.colorSpace
-                                                Log.d(TAG, "colorSpace: $colorSpace")
-                                                val colorTransfer = colorInfo.colorTransfer
-                                                Log.d(TAG, "colorTransfer: $colorTransfer")
-                                                val colorRange = colorInfo.colorRange
-                                                Log.d(TAG, "colorRange: $colorRange")
-                                                val maxContentLightLevel =
-                                                    parseMaxCLLFromHdrStaticInfo(
-                                                        colorInfo.hdrStaticInfo
-                                                    )
-                                                Log.d(
-                                                    TAG,
-                                                    "maxContentLightLevel: $maxContentLightLevel",
-                                                )
-
                                                 val contentColorMetadata =
-                                                    SurfaceEntity.ContentColorMetadata(
-                                                        colorSpace = colorSpace,
-                                                        colorTransfer = colorTransfer,
-                                                        colorRange = colorRange,
-                                                        maxContentLightLevel = maxContentLightLevel,
-                                                    )
+                                                    colorInfoToContentColorMetadata(colorInfo)
                                                 surfaceEntity?.contentColorMetadata =
                                                     contentColorMetadata
                                                 Log.d(
@@ -804,7 +758,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/vid_bigbuckbunny.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM,
+            stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[Stereo] Play Big Buck Bunny",
@@ -829,7 +783,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/mvhevc_flat_left_primary_1080.mov",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+            stereoMode = SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[Multiview] Play MVHEVC Left Primary",
@@ -855,7 +809,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/mvhevc_flat_right_primary_1080.mov",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_RIGHT_PRIMARY,
+            stereoMode = SurfaceEntity.StereoMode.MULTIVIEW_RIGHT_PRIMARY,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[Multiview] Play MVHEVC Right Primary",
@@ -874,7 +828,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             // For Testers: Note that this translates to "/sdcard/Download/Naver180.mp4".
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() + "/Download/Naver180.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE,
+            stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE,
             pose = Pose.Identity, // will be head pose
             shape = SurfaceEntity.Shape.Hemisphere(1.0f),
             buttonText = "[VR] Play Naver 180 (Side-by-Side)",
@@ -893,7 +847,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/Galaxy11_VR_3D360.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM,
+            stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
             pose = Pose.Identity, // will be head pose
             shape = SurfaceEntity.Shape.Sphere(1.0f),
             buttonText = "[VR] Play Galaxy 360 (Top-Bottom)",
@@ -912,7 +866,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/Naver180_MV-HEVC.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+            stereoMode = SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
             pose = Pose.Identity, // will be head pose
             shape = SurfaceEntity.Shape.Hemisphere(1.0f),
             buttonText = "[VR] Play Naver 180 (MV-HEVC)",
@@ -932,7 +886,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/Galaxy11_VR_3D360_MV-HEVC.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+            stereoMode = SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
             pose = Pose.Identity, // will be head pose
             shape = SurfaceEntity.Shape.Sphere(1.0f),
             buttonText = "[VR] Play Galaxy 360 (MV-HEVC)",
@@ -957,7 +911,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/sdr_singleview_protected.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE,
+            stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[DRM] Play Side-by-Side",
@@ -983,7 +937,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/mvhevc_flat_left_primary_1080_protected.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+            stereoMode = SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[DRM] Play MVHEVC Left Primary",
@@ -1009,7 +963,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/hdr_pq_1000nits_1080p.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MONO,
+            stereoMode = SurfaceEntity.StereoMode.MONO,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[HDR] Play HDR PQ Video",
@@ -1035,7 +989,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/single_view_rotated_270_half_width.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MONO,
+            stereoMode = SurfaceEntity.StereoMode.MONO,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[Transform] Play Single View (Rot 270, PAR 0.5)",
@@ -1061,7 +1015,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             videoUri =
                 Environment.getExternalStorageDirectory().getPath() +
                     "/Download/mvhevc_left_primary_rotated_180.mp4",
-            stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
+            stereoMode = SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
             pose = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[Transform] Play MVHEVC Left Primary (Rot 180)",
@@ -1168,6 +1122,72 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    public companion object {
+        @Suppress("UnsafeOptInUsageError")
+        fun parseMaxCLLFromHdrStaticInfo(hdrStaticInfoByteArray: ByteArray?): Int {
+            // HdrStaticInfo follows CTA-861.3 standard, in which maxCLL, if available, is encoded
+            // as a 16 bit unsigned integer starting from byte 23.
+            if (hdrStaticInfoByteArray == null || hdrStaticInfoByteArray.size < 25) {
+                return 0
+            }
+            return try {
+                val buffer = ByteBuffer.wrap(hdrStaticInfoByteArray).order(ByteOrder.LITTLE_ENDIAN)
+                buffer.position(23)
+                buffer.getShort().toInt() and 0xFFFF
+            } catch (e: Exception) {
+                Log.e(TAG, "Error parsing MaxCLL from HDR static info", e)
+                0
+            }
+        }
+
+        @Suppress("UnsafeOptInUsageError")
+        fun colorInfoToContentColorMetadata(
+            colorInfo: ColorInfo
+        ): SurfaceEntity.ContentColorMetadata {
+            val colorSpace: SurfaceEntity.ContentColorMetadata.ColorSpace =
+                when (colorInfo.colorSpace) {
+                    C.COLOR_SPACE_BT601 -> SurfaceEntity.ContentColorMetadata.ColorSpace.BT601_PAL
+                    C.COLOR_SPACE_BT709 -> SurfaceEntity.ContentColorMetadata.ColorSpace.BT709
+                    C.COLOR_SPACE_BT2020 -> SurfaceEntity.ContentColorMetadata.ColorSpace.BT2020
+                    else -> error("Unknown color space: " + colorInfo.colorSpace)
+                }
+            Log.d(TAG, "colorSpace : $colorSpace")
+
+            val colorTransfer: SurfaceEntity.ContentColorMetadata.ColorTransfer =
+                when (colorInfo.colorTransfer) {
+                    C.COLOR_TRANSFER_GAMMA_2_2 ->
+                        SurfaceEntity.ContentColorMetadata.ColorTransfer.GAMMA_2_2
+                    C.COLOR_TRANSFER_HLG -> SurfaceEntity.ContentColorMetadata.ColorTransfer.HLG
+                    C.COLOR_TRANSFER_LINEAR ->
+                        SurfaceEntity.ContentColorMetadata.ColorTransfer.LINEAR
+                    C.COLOR_TRANSFER_SDR -> SurfaceEntity.ContentColorMetadata.ColorTransfer.SDR
+                    C.COLOR_TRANSFER_SRGB -> SurfaceEntity.ContentColorMetadata.ColorTransfer.SRGB
+                    C.COLOR_TRANSFER_ST2084 ->
+                        SurfaceEntity.ContentColorMetadata.ColorTransfer.ST2084
+                    else -> error("Unknown color transfer: " + colorInfo.colorTransfer)
+                }
+            Log.d(TAG, "colorTransfer: $colorTransfer")
+
+            val colorRange: SurfaceEntity.ContentColorMetadata.ColorRange =
+                when (colorInfo.colorRange) {
+                    C.COLOR_RANGE_FULL -> SurfaceEntity.ContentColorMetadata.ColorRange.FULL
+                    C.COLOR_RANGE_LIMITED -> SurfaceEntity.ContentColorMetadata.ColorRange.LIMITED
+                    else -> error("Unknown color range: " + colorInfo.colorRange)
+                }
+            Log.d(TAG, "colorRange: $colorRange")
+
+            val maxContentLightLevel = parseMaxCLLFromHdrStaticInfo(colorInfo.hdrStaticInfo)
+            Log.d(TAG, "maxContentLightLevel: $maxContentLightLevel")
+
+            return SurfaceEntity.ContentColorMetadata(
+                colorSpace = colorSpace,
+                colorTransfer = colorTransfer,
+                colorRange = colorRange,
+                maxContentLightLevel = maxContentLightLevel,
+            )
         }
     }
 }

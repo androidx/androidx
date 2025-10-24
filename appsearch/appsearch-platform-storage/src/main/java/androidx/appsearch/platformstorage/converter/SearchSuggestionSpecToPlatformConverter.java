@@ -21,9 +21,11 @@ import android.os.Build;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -38,7 +40,8 @@ import java.util.Map;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+        version = AppSearchVersionUtil.TExtensionVersions.U_BASE)
 public final class SearchSuggestionSpecToPlatformConverter {
     private SearchSuggestionSpecToPlatformConverter() {
     }
@@ -47,7 +50,7 @@ public final class SearchSuggestionSpecToPlatformConverter {
     // Most jetpackSearchSuggestionSpec.get calls cause WrongConstant lint errors because the
     // methods are not defined as returning the same constants as the corresponding setter
     // expects, but they do
-    @SuppressLint("WrongConstant")
+    @SuppressLint({"WrongConstant", "ObsoleteSdkInt"})
     public static android.app.appsearch.@NonNull SearchSuggestionSpec
             toPlatformSearchSuggestionSpec(
                     @NonNull SearchSuggestionSpec jetpackSearchSuggestionSpec) {
@@ -88,6 +91,7 @@ public final class SearchSuggestionSpecToPlatformConverter {
         return platformBuilder.build();
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}

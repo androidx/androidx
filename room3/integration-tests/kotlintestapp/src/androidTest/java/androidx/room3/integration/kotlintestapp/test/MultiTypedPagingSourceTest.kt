@@ -22,13 +22,14 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.room3.InvalidationTracker
 import androidx.room3.Room
-import androidx.room3.RoomDatabase
 import androidx.room3.integration.kotlintestapp.testutil.ItemStore
+import androidx.room3.integration.kotlintestapp.testutil.MainThreadCheckSQLiteDriver
 import androidx.room3.integration.kotlintestapp.testutil.PagingDb
 import androidx.room3.integration.kotlintestapp.testutil.PagingEntity
 import androidx.room3.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.room3.paging.LimitOffsetPagingSource
 import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
@@ -81,7 +82,7 @@ class MultiTypedPagingSourceTest(
     fun init() {
         coroutineScope = CoroutineScope(Dispatchers.Main)
         itemStore = ItemStore(coroutineScope)
-        db = buildAndReturnDb(queryContext, mainThreadQueries)
+        db = buildAndReturnDb(queryContext)
     }
 
     @After
@@ -514,7 +515,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
     fun init() {
         coroutineScope = CoroutineScope(Dispatchers.Main)
         itemStore = ItemStore(coroutineScope)
-        db = buildAndReturnDb(queryContext, mainThreadQueries)
+        db = buildAndReturnDb(queryContext)
     }
 
     @After
@@ -687,27 +688,9 @@ class MultiTypedPagingSourceTestWithRawQuery(
     }
 }
 
-private fun buildAndReturnDb(
-    queryContext: FilteringCoroutineContext,
-    mainThreadQueries: MutableList<Pair<String, String>>,
-): PagingDb {
-    val mainThread: Thread = runBlocking(Dispatchers.Main) { Thread.currentThread() }
-    return Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            PagingDb::class.java,
-        )
-        .setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    if (Thread.currentThread() === mainThread) {
-                        mainThreadQueries.add(sqlQuery to Throwable().stackTraceToString())
-                    }
-                }
-            }
-        ) {
-            // instantly execute the log callback so that we can check the thread.
-            it.run()
-        }
+private fun buildAndReturnDb(queryContext: FilteringCoroutineContext): PagingDb {
+    return Room.inMemoryDatabaseBuilder<PagingDb>(ApplicationProvider.getApplicationContext())
+        .setDriver(MainThreadCheckSQLiteDriver(AndroidSQLiteDriver()))
         .setQueryCoroutineContext(queryContext)
         .build()
 }

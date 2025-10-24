@@ -37,6 +37,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
+import androidx.wear.protolayout.expression.pipeline.DynamicProtoHashEquals;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
@@ -494,7 +495,7 @@ public final class ResourceBuilders {
             return Objects.hash(
                     getResourceId(),
                     getAnimatedImageFormat(),
-                    progress != null ? Arrays.hashCode(progress.toDynamicFloatByteArray()) : null);
+                    progress != null ? DynamicProtoHashEquals.hashCode(progress) : null);
         }
 
         @Override
@@ -507,16 +508,9 @@ public final class ResourceBuilders {
             }
             AndroidSeekableAnimatedImageResourceByResId that =
                     (AndroidSeekableAnimatedImageResourceByResId) obj;
-            DynamicFloat thatProgress = that.getProgress();
-            DynamicFloat progress = getProgress();
             return that.getResourceId() == getResourceId()
                     && that.getAnimatedImageFormat() == getAnimatedImageFormat()
-                    && (thatProgress == progress
-                            || (thatProgress != null
-                                    && progress != null
-                                    && Arrays.equals(
-                                            thatProgress.toDynamicFloatByteArray(),
-                                            progress.toDynamicFloatByteArray())));
+                    && DynamicProtoHashEquals.equals(that.getProgress(), getProgress());
         }
 
         /** Creates a new wrapper instance from the proto. */
@@ -649,7 +643,7 @@ public final class ResourceBuilders {
             return Objects.hash(
                     getRawResourceId(),
                     Trigger.hash(getStartTrigger()),
-                    progress != null ? Arrays.hashCode(progress.toDynamicFloatByteArray()) : null);
+                    progress != null ? DynamicProtoHashEquals.hashCode(progress) : null);
         }
 
         @Override
@@ -661,16 +655,9 @@ public final class ResourceBuilders {
                 return false;
             }
             AndroidLottieResourceByResId that = (AndroidLottieResourceByResId) obj;
-            DynamicFloat thatProgress = that.getProgress();
-            DynamicFloat progress = getProgress();
             return that.getRawResourceId() == getRawResourceId()
                     && Trigger.equal(that.getStartTrigger(), getStartTrigger())
-                    && (thatProgress == progress
-                            || (thatProgress != null
-                                    && progress != null
-                                    && Arrays.equals(
-                                            thatProgress.toDynamicFloatByteArray(),
-                                            progress.toDynamicFloatByteArray())));
+                    && DynamicProtoHashEquals.equals(that.getProgress(), getProgress());
         }
 
         /**

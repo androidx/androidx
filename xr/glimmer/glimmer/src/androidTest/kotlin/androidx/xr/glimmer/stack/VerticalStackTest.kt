@@ -20,6 +20,8 @@ import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,15 +49,18 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.size
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.performIndirectSwipe
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,21 +97,22 @@ class VerticalStackTest {
     }
 
     @Test
-    fun multipleItems_displaysFirstItem() {
+    fun multipleItems_displaysFirstTwoItems() {
         val state = StackState()
         rule.setContent {
             VerticalStack(state = state) { items(5) { index -> StackItem("Item $index") } }
         }
 
         rule.onNodeWithText("Item 0").assertIsDisplayed()
-        rule.onNodeWithText("Item 1").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
         rule.onNodeWithText("Item 5").assertDoesNotExist()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
     }
 
     @Test
-    fun multipleItems_customInitialTopItem_displaysRequestedItem() {
+    fun multipleItems_customInitialTopItem_displaysRequestedAndNextItems() {
         val state = StackState(initialTopItem = 1)
         rule.setContent {
             VerticalStack(state = state) { items(5) { index -> StackItem("Item $index") } }
@@ -114,7 +120,8 @@ class VerticalStackTest {
 
         rule.onNodeWithText("Item 0").assertIsNotDisplayed()
         rule.onNodeWithText("Item 1").assertIsDisplayed()
-        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
         assertThat(state.topItem).isEqualTo(1)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
     }
@@ -159,7 +166,7 @@ class VerticalStackTest {
     }
 
     @Test
-    fun swipeUp_pointerInput_displaysOnlyNextItem() {
+    fun swipeUp_pointerInput_displaysOnlyNextTwoItems() {
         var itemHeight = 0
         val state = StackState()
         rule.setContent {
@@ -168,7 +175,8 @@ class VerticalStackTest {
             }
         }
         rule.onNodeWithText("Item 0").assertIsDisplayed()
-        rule.onNodeWithText("Item 1").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
 
         rule.onNodeWithText("Item 0").performTouchInput {
             swipe(
@@ -179,11 +187,13 @@ class VerticalStackTest {
 
         rule.onNodeWithText("Item 0").assertIsNotDisplayed()
         rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
         assertThat(state.topItem).isEqualTo(1)
     }
 
     @Test
-    fun swipeForward_displaysOnlyNextItem() {
+    fun swipeForward_displaysOnlyNextTwoItems() {
         var itemHeight = 0
         val state = StackState()
         rule.setContentWithInitialFocus {
@@ -192,13 +202,61 @@ class VerticalStackTest {
             }
         }
         rule.onNodeWithText("Item 0").assertIsDisplayed()
-        rule.onNodeWithText("Item 1").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
 
         requestFocusAndPerformIndirectSwipe(itemHeight)
 
         rule.onNodeWithText("Item 0").assertIsNotDisplayed()
         rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
         assertThat(state.topItem).isEqualTo(1)
+    }
+
+    @Test
+    fun swipeForward_almostItemHeight_snapsToNextItem() {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContentWithInitialFocus {
+            VerticalStack(state = state) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        rule.onNodeWithText("Item 0").assertIsDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
+
+        requestFocusAndPerformIndirectSwipe((itemHeight * 0.9f).toInt())
+
+        rule.onNodeWithText("Item 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
+        assertThat(state.topItem).isEqualTo(1)
+    }
+
+    @Test
+    fun swipeBackward_almostItemHeight_snapsToPreviousItem() {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContentWithInitialFocus {
+            VerticalStack(state = state) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        requestFocusAndPerformIndirectSwipe(itemHeight)
+        rule.onNodeWithText("Item 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
+
+        requestFocusAndPerformIndirectSwipe(-(itemHeight * 0.9f).toInt())
+
+        rule.onNodeWithText("Item 0").assertIsDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
+        assertThat(state.topItem).isEqualTo(0)
     }
 
     @Test
@@ -246,14 +304,16 @@ class VerticalStackTest {
         }
         rule.onNodeWithText("First").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(0)
-        rule.onNodeWithText("Middle 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Middle 0").assertIsDisplayed()
+        rule.onNodeWithText("Middle 1").assertIsNotDisplayed()
 
         repeat(6) { index ->
             requestFocusAndPerformIndirectSwipe(itemHeight)
 
             rule.onNodeWithText("Middle $index").assertIsDisplayed()
+            rule.onNodeWithText("Middle ${(index + 1).coerceAtMost(5)}").assertIsDisplayed()
             assertThat(state.topItem).isEqualTo(index + 1)
-            rule.onNodeWithText("Middle ${index + 1}").assertIsNotDisplayed()
+            rule.onNodeWithText("Middle ${index + 2}").assertIsNotDisplayed()
         }
 
         requestFocusAndPerformIndirectSwipe(itemHeight)
@@ -433,7 +493,7 @@ class VerticalStackTest {
         rule.onNodeWithText("Item 1").assertExists() // Next item
         rule.onNodeWithText("Item 2").assertExists() // Next next item
 
-        state.scrollToItem(2)
+        runOnUiThread { state.scrollToItem(2) }
 
         rule.onNodeWithText("Item 1").assertExists() // Previous item
         rule.onNodeWithText("Item 2").assertExists() // Top item
@@ -441,9 +501,162 @@ class VerticalStackTest {
         rule.onNodeWithText("Item 4").assertExists() // Next next item
     }
 
+    @Test
+    fun positioningAndScale_topItem_occupiesViewportExceptForRevealArea() {
+        val state = StackState()
+        rule.setContent {
+            VerticalStack(state = state, modifier = Modifier.testTag("stack")) {
+                items(5) { index -> StackItem("Item $index") }
+            }
+        }
+
+        val stackBounds = rule.onNodeWithTag("stack").getBoundsInRoot()
+        val topItemBounds = rule.onNodeWithTag("Item 0").getBoundsInRoot()
+
+        assertThat(topItemBounds.left).isEqualTo(stackBounds.left)
+        assertThat(topItemBounds.top).isEqualTo(stackBounds.top)
+        assertThat(topItemBounds.right).isEqualTo(stackBounds.right)
+        assertThat(topItemBounds.bottom).isLessThan(stackBounds.bottom)
+    }
+
+    @Test
+    fun positioningAndScale_nextItem_smallerAndBelowTopItem() {
+        val state = StackState()
+        rule.setContent {
+            VerticalStack(state = state) { items(5) { index -> StackItem("Item $index") } }
+        }
+
+        val topItemBounds = rule.onNodeWithTag("Item 0").getBoundsInRoot()
+        val nextItemBounds = rule.onNodeWithTag("Item 1").getBoundsInRoot()
+
+        assertThat(nextItemBounds.left).isGreaterThan(topItemBounds.left)
+        assertThat(nextItemBounds.top).isGreaterThan(topItemBounds.top)
+        assertThat(nextItemBounds.right).isLessThan(topItemBounds.right)
+        assertThat(nextItemBounds.bottom).isGreaterThan(topItemBounds.bottom)
+    }
+
+    @Test
+    fun positioningAndScale_nextNextItem_smallerAndBelowNextItem() {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContent {
+            VerticalStack(state = state) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        // Scroll almost fully to the next item to reveal the next-next item.
+        rule.runOnIdle { state.dispatchRawDelta(itemHeight * 0.99f) }
+
+        val nextItemBounds = rule.onNodeWithTag("Item 1").getBoundsInRoot()
+        val nextNextItemBounds = rule.onNodeWithTag("Item 2").getBoundsInRoot()
+
+        assertThat(nextNextItemBounds.left).isGreaterThan(nextItemBounds.left)
+        assertThat(nextNextItemBounds.top).isGreaterThan(nextItemBounds.top)
+        assertThat(nextNextItemBounds.right).isLessThan(nextItemBounds.right)
+        assertThat(nextNextItemBounds.bottom).isGreaterThan(nextItemBounds.bottom)
+    }
+
+    @Test
+    fun positioningAndScale_scrollBackwardSlightly_threeItemsVisible() = runTest {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContent {
+            VerticalStack(state = state, modifier = Modifier.testTag("stack")) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        runOnUiThread { state.scrollToItem(1) }
+
+        // Scroll backward slightly reveal the previous item.
+        rule.runOnIdle { state.dispatchRawDelta(-itemHeight * 0.01f) }
+
+        val stackBounds = rule.onNodeWithTag("stack").getBoundsInRoot()
+        val topItemBounds = rule.onNodeWithTag("Item 0").getBoundsInRoot()
+        val nextItemBounds = rule.onNodeWithTag("Item 1").getBoundsInRoot()
+        val nextNextItemBounds = rule.onNodeWithTag("Item 2").getBoundsInRoot()
+
+        assertThat(topItemBounds.left).isEqualTo(stackBounds.left)
+        assertThat(topItemBounds.top).isEqualTo(stackBounds.top)
+        assertThat(topItemBounds.right).isEqualTo(stackBounds.right)
+        assertThat(topItemBounds.bottom).isGreaterThan(stackBounds.top)
+
+        assertThat(nextItemBounds.left).isGreaterThan(topItemBounds.left)
+        assertThat(nextItemBounds.top).isGreaterThan(topItemBounds.top)
+        assertThat(nextItemBounds.top).isLessThan(topItemBounds.bottom)
+        assertThat(nextItemBounds.right).isLessThan(topItemBounds.right)
+        assertThat(nextItemBounds.bottom).isGreaterThan(topItemBounds.bottom)
+
+        assertThat(nextNextItemBounds.left).isGreaterThan(nextItemBounds.left)
+        assertThat(nextNextItemBounds.top).isGreaterThan(nextItemBounds.top)
+        assertThat(nextNextItemBounds.top).isLessThan(nextItemBounds.bottom)
+        assertThat(nextNextItemBounds.right).isLessThan(nextItemBounds.right)
+        assertThat(nextNextItemBounds.bottom).isGreaterThan(nextItemBounds.bottom)
+    }
+
+    @Test
+    fun positioningAndScale_largerNextItem_nextItemBoundsLargerThanTopItem() {
+        val state = StackState()
+        rule.setContent {
+            VerticalStack(state = state, modifier = Modifier.size(100.dp)) {
+                item { StackItem("Item 0", Modifier.fillMaxWidth().height(10.dp)) }
+                item { StackItem("Item 1", Modifier.fillMaxWidth().height(50.dp)) }
+            }
+        }
+
+        val topItemBounds = rule.onNodeWithTag("Item 0").getBoundsInRoot()
+        val nextItemBounds = rule.onNodeWithTag("Item 1").getBoundsInRoot()
+
+        assertThat(nextItemBounds.left).isGreaterThan(topItemBounds.left)
+        assertThat(nextItemBounds.top).isLessThan(topItemBounds.top)
+        assertThat(nextItemBounds.right).isLessThan(topItemBounds.right)
+        assertThat(nextItemBounds.bottom).isGreaterThan(topItemBounds.bottom)
+    }
+
+    @Test
+    fun positioningAndScale_smallItems_centeredInViewport() {
+        val stackSize = 100.dp
+        val itemHeight = 10.dp
+        val state = StackState()
+        rule.setContent {
+            VerticalStack(state = state, modifier = Modifier.size(stackSize).testTag("stack")) {
+                items(5) { index ->
+                    StackItem("Item $index", Modifier.fillMaxWidth().height(itemHeight))
+                }
+            }
+        }
+
+        val stackBounds = rule.onNodeWithTag("stack").getBoundsInRoot()
+        val topItemBounds = rule.onNodeWithTag("Item 0").getBoundsInRoot()
+        val nextItemBounds = rule.onNodeWithTag("Item 1").getBoundsInRoot()
+
+        // Calculate the expected position based on the centering logic.
+        val expectedTopOffset = (stackBounds.height - topItemBounds.height) / 2
+        assertThat(topItemBounds.left).isEqualTo(stackBounds.left)
+        assertThat(topItemBounds.top.value).isWithin(1f).of(expectedTopOffset.value)
+        assertThat(topItemBounds.right).isEqualTo(stackBounds.right)
+        assertThat(topItemBounds.bottom.value)
+            .isWithin(1f)
+            .of(stackBounds.bottom.value - expectedTopOffset.value)
+
+        assertThat(nextItemBounds.left).isGreaterThan(topItemBounds.left)
+        assertThat(nextItemBounds.top).isGreaterThan(topItemBounds.top)
+        assertThat(nextItemBounds.right).isLessThan(topItemBounds.right)
+        assertThat(nextItemBounds.bottom).isGreaterThan(topItemBounds.bottom)
+    }
+
     @Composable
-    private fun StackItem(text: String, onHeightChanged: (Int) -> Unit = {}) {
-        Box(Modifier.onSizeChanged { onHeightChanged(it.height) }.fillMaxSize().focusTarget()) {
+    private fun StackItem(
+        text: String,
+        modifier: Modifier = Modifier,
+        onHeightChanged: (Int) -> Unit = {},
+    ) {
+        Box(
+            modifier
+                .onSizeChanged { onHeightChanged(it.height) }
+                .fillMaxSize()
+                .focusTarget()
+                .testTag(text)
+        ) {
             Text(text)
         }
     }
@@ -463,5 +676,10 @@ class VerticalStackTest {
     private fun requestFocus() {
         rule.runOnIdle { focusRequester.requestFocus() }
         rule.waitForIdle()
+    }
+
+    suspend fun runOnUiThread(action: suspend () -> Unit) {
+        rule.waitForIdle()
+        withContext(Dispatchers.Main) { action() }
     }
 }

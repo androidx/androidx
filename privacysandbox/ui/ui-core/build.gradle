@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -54,4 +54,12 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "contains core definitions for the privacysandbox ui library."
+}
+
+configurations.configureEach { configuration ->
+    if (configuration.name == "releaseRuntimeElements" || configuration.name == "releaseApiElements") {
+        configuration.attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+        }
+    }
 }

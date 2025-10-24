@@ -53,7 +53,19 @@ package androidx.camera.video {
     method public androidx.camera.video.FileOutputOptions.Builder setLocation(android.location.Location?);
   }
 
-  @SuppressCompatibility public final class HighSpeedVideoSessionConfig extends androidx.camera.core.SessionConfig {
+  public final class GroupableFeatures {
+    property public androidx.camera.core.featuregroup.GroupableFeature FHD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature HD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature SD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature UHD_RECORDING;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature FHD_RECORDING;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature HD_RECORDING;
+    field public static final androidx.camera.video.GroupableFeatures INSTANCE;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature SD_RECORDING;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature UHD_RECORDING;
+  }
+
+  public final class HighSpeedVideoSessionConfig extends androidx.camera.core.SessionConfig {
     ctor @BytecodeOnly public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture!, androidx.camera.core.Preview!, android.util.Range!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview);
@@ -67,7 +79,7 @@ package androidx.camera.video {
     property public androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture;
   }
 
-  @SuppressCompatibility public static final class HighSpeedVideoSessionConfig.Builder {
+  public static final class HighSpeedVideoSessionConfig.Builder {
     ctor public HighSpeedVideoSessionConfig.Builder(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
     method public androidx.camera.video.HighSpeedVideoSessionConfig build();
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setFrameRateRange(android.util.Range<java.lang.Integer> frameRateRange);
@@ -134,7 +146,7 @@ package androidx.camera.video {
   public final class Recorder implements androidx.camera.video.VideoOutput {
     method public int getAspectRatio();
     method public java.util.concurrent.Executor? getExecutor();
-    method @SuppressCompatibility public static androidx.camera.video.VideoCapabilities? getHighSpeedVideoCapabilities(androidx.camera.core.CameraInfo);
+    method public static androidx.camera.video.VideoCapabilities? getHighSpeedVideoCapabilities(androidx.camera.core.CameraInfo);
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method public int getTargetVideoEncodingBitRate();
     method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo);

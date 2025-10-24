@@ -755,7 +755,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     SurfaceEntity.create(
                         session = session,
                         pose = Pose(Vector3(0f, -0.45f, 0f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
-                        stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM,
+                        stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
                     )
                 // Make the video player movable (to make it easier to look at it from different
                 // angles and distances)
@@ -922,25 +922,16 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(
-                    onClick = {
-                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_MONO
-                    }
-                ) {
+                Button(onClick = { surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.MONO }) {
                     Text(text = "Mono", fontSize = 10.sp)
                 }
                 Button(
-                    onClick = {
-                        surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM
-                    }
+                    onClick = { surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM }
                 ) {
                     Text(text = "Top-Bottom", fontSize = 10.sp)
                 }
                 Button(
-                    onClick = {
-                        surfaceEntity!!.stereoMode =
-                            SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE
-                    }
+                    onClick = { surfaceEntity!!.stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE }
                 ) {
                     Text(text = "Side-by-Side", fontSize = 10.sp)
                 }
@@ -959,13 +950,17 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
         surfaceEntity = null
     }
 
-    fun getCanvasAspectRatio(stereoMode: Int, videoWidth: Int, videoHeight: Int): Dimensions {
+    fun getCanvasAspectRatio(
+        stereoMode: SurfaceEntity.StereoMode,
+        videoWidth: Int,
+        videoHeight: Int,
+    ): Dimensions {
         when (stereoMode) {
-            SurfaceEntity.StereoMode.STEREO_MODE_MONO ->
+            SurfaceEntity.StereoMode.MONO ->
                 return Dimensions(1.0f, videoHeight.toFloat() / videoWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM ->
+            SurfaceEntity.StereoMode.TOP_BOTTOM ->
                 return Dimensions(1.0f, 0.5f * videoHeight.toFloat() / videoWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE ->
+            SurfaceEntity.StereoMode.SIDE_BY_SIDE ->
                 return Dimensions(1.0f, 2.0f * videoHeight.toFloat() / videoWidth, 0.0f)
             else -> throw IllegalArgumentException("Unsupported stereo mode: $stereoMode")
         }

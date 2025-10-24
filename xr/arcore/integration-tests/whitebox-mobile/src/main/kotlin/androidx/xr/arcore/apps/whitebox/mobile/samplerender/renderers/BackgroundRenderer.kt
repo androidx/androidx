@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers
 
-import android.media.Image
 import android.opengl.GLES30
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Mesh
@@ -112,6 +111,7 @@ public class BackgroundRenderer(render: SampleRender) {
             this.useDepthVisualization = useDepthVisualization
         }
         if (useDepthVisualization) {
+
             depthColorPaletteTexture =
                 Texture.createFromAsset(
                     render,
@@ -184,23 +184,23 @@ public class BackgroundRenderer(render: SampleRender) {
         cameraTexCoordsVertexBuffer.set(transformFunc(NDC_QUAD_COORDS_BUFFER))
     }
 
-    /** Update depth texture with Image contents. */
-    public fun updateCameraDepthTexture(image: Image) {
+    /** Update depth texture with Float Buffer contents. */
+    public fun updateCameraDepthTexture(width: Int, height: Int, floatBuffer: FloatBuffer) {
         // SampleRender abstraction leaks here
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, cameraDepthTexture.textureId)
         GLES30.glTexImage2D(
             GLES30.GL_TEXTURE_2D,
             0,
-            GLES30.GL_RG8,
-            image.width,
-            image.height,
+            GLES30.GL_R32F,
+            width,
+            height,
             0,
-            GLES30.GL_RG,
-            GLES30.GL_UNSIGNED_BYTE,
-            image.planes[0].buffer,
+            GLES30.GL_RED,
+            GLES30.GL_FLOAT,
+            floatBuffer,
         )
         if (useOcclusion) {
-            val aspectRatio: Float = 1.0f * image.width / image.height
+            val aspectRatio: Float = 1.0f * width / height
             occlusionShader!!.setFloat("u_DepthAspectRatio", aspectRatio)
         }
     }

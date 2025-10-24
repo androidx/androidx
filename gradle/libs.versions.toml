@@ -6,9 +6,13 @@ androidGradlePlugin = "8.7.2"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
 androidLint = "31.8.2"
+androidGradlePlugin = "9.0.0-alpha10"
+# NOTE: When updating the lint version we also need to update the `api` version
+# supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
+androidLint = "32.0.0-alpha10"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2025.2.1.3"
+androidStudio = "2025.2.1.5"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "31.1.1"
@@ -33,7 +37,7 @@ builder = "8.6.0"
 byteBuddy = "1.14.9"
 asm = "9.7"
 cmake = "3.22.1"
-composeCompilerPlugin = "2.2.0-custom-branch-20"
+composeCompilerPlugin = "2.2.20"
 dagger = "2.57.1"
 dependencyAnalysisGradlePlugin = "2.11.0"
 dexmaker = "2.28.6"
@@ -51,8 +55,8 @@ kotlin19 = "1.9.24"
 # Use the most up-to-date patch
 kotlin20 = "2.0.21"
 kotlin21 = "2.1.20"
-kotlin22 = "2.2.10"
-kotlin = "2.2.10"
+kotlin22 = "2.2.20"
+kotlin = "2.2.20"
 kotlinBenchmark = "0.4.14"
 kotlinGradlePluginAnnotations = "1.9.24"
 kotlinGradlePluginApi = "1.9.24"
@@ -62,6 +66,7 @@ kotlinNativeUtils = "1.9.24"
 kotlinSerialization = "1.7.3"
 kotlinToolingCore = "1.9.24"
 ksp = "2.2.0-1.0.25"
+ksp = "2.2.20-2.0.4"
 ktfmt = "0.54"
 # Version format is: 1.KOTLIN_MAJOR_VERSION.0.KTFMT_VERSION
 # When updated, the id and checksum in StudioTask needs to be updated too
@@ -85,10 +90,12 @@ yarn = "1.22.17"
 [libraries]
 agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8" }
 androidAccessibilityFramework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = { strictly = "2.1" } }
+androidExperimentalBuiltInKotlinPlugin = { module = "com.android.experimental.built-in-kotlin:com.android.experimental.built-in-kotlin.gradle.plugin", version.ref = "androidGradlePlugin" }
 androidGradlePluginApi = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
 androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 androidGradleSettingsPlugin = { module = "com.android.tools.build:gradle-settings", version.ref = "androidGradlePlugin" }
 androidLayoutlibApi = { module = "com.android.tools.layoutlib:layoutlib-api", version.ref = "androidLint" }
+androidLegacyKaptPlugin = { module = "com.android.legacy-kapt:com.android.legacy-kapt.gradle.plugin", version.ref = "androidGradlePlugin"}
 androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLint" }
 androidLintMin = { module = "com.android.tools.lint:lint", version.ref = "androidLintMin" }
 androidLintStableAnalysis = { module = "com.android.tools.lint:lint", version.ref = "androidLintStableAnalysis" }
@@ -214,10 +221,7 @@ kotlinSerializationJsonOkio = { module = "org.jetbrains.kotlinx:kotlinx-serializ
 kotlinSerializationProtobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinSerialization" }
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
-kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test" }
-kotlinTestAnnotationsCommon = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common" }
-kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common" }
+kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test"}
 kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }
 kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "2.1.0" }

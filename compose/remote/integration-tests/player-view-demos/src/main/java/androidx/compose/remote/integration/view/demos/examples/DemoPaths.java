@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.examples;
 
-import static androidx.compose.remote.core.Profiles.PROFILE_ANDROIDX;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.ADD;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_DEREF;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_LEN;
@@ -46,7 +46,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.Shader;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.Utils;
@@ -62,7 +62,7 @@ import androidx.compose.remote.creation.RemotePath;
 import androidx.compose.remote.creation.actions.ValueFloatExpressionChange;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.modifiers.ScrollModifier;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
 
 import org.jspecify.annotations.NonNull;
 
@@ -83,7 +83,7 @@ import java.util.Random;
 @SuppressLint("RestrictedApiAndroidX")
 public class DemoPaths {
     @SuppressLint("RestrictedApiAndroidX")
-    static Platform sPlatform = new AndroidxPlatformServices();
+    static RcPlatformServices sPlatform = new AndroidxRcPlatformServices();
 
     private DemoPaths() {
     }

@@ -270,7 +270,7 @@ constructor(
         optionPriority: Config.OptionPriority,
     ): Deferred<Unit> =
         runIfNotClosed {
-            threads.confineDeferred {
+            threads.confineDeferredSuspend {
                 Camera2Logger.debug {
                     "UseCaseCameraRequestControlImpl#setParametersAsync: [$type] values = $values" +
                         ", optionPriority = $optionPriority"
@@ -288,7 +288,7 @@ constructor(
         keys: List<CaptureRequest.Key<*>>,
     ): Deferred<Unit> =
         runIfNotClosed {
-            threads.confineDeferred {
+            threads.confineDeferredSuspend {
                 Camera2Logger.debug {
                     "UseCaseCameraRequestControlImpl#removeParametersAsync: [$type] keys = $keys"
                 }
@@ -310,7 +310,7 @@ constructor(
         sessionConfig: SessionConfig?,
     ): Deferred<Unit> =
         runIfNotClosed {
-            threads.confineDeferred {
+            threads.confineDeferredSuspend {
                 Camera2Logger.debug {
                     "UseCaseCameraRequestControlImpl#setConfigAsync:" +
                         " [$type] config params = ${config?.toParameters()}"
@@ -514,7 +514,7 @@ constructor(
             tags.forEach { (tagKey, tagValue) -> tagBundle.putTag(tagKey, tagValue) }
         }
 
-    private fun InfoBundle.updateCameraStateAsync(
+    private suspend fun InfoBundle.updateCameraStateAsync(
         streams: Set<StreamId>? = null,
         sessionConfig: SessionConfig? = null,
     ): Deferred<Unit> =

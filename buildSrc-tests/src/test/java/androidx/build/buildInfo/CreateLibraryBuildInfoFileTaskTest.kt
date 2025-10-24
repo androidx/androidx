@@ -62,11 +62,10 @@ class CreateLibraryBuildInfoFileTaskTest {
 
     @Test
     fun suffix() {
-        computeTaskSuffix(projectName = "cubane", artifactId = "cubane").check { it == "" }
-        computeTaskSuffix(projectName = "cubane", artifactId = "cubane-jvm").check { it == "Jvm" }
-        computeTaskSuffix(projectName = "cubane", artifactId = "cubane-jvm-linux-x64").check {
-            it == "JvmLinuxX64"
-        }
+        computeTaskSuffix(variantName = "cubane", isKmp = false).check { it == "" }
+        computeTaskSuffix(variantName = "kotlinMultiplatform", isKmp = true).check { it == "" }
+        computeTaskSuffix(variantName = "jvm", isKmp = true).check { it == "Jvm" }
+        computeTaskSuffix(variantName = "jvm-linux-x64", isKmp = true).check { it == "JvmLinuxX64" }
     }
 
     @Test
@@ -183,17 +182,22 @@ class CreateLibraryBuildInfoFileTaskTest {
                         }
                     }
                     publications.withType(MavenPublication) {
+                        // This test is set up such that putting `it.artifactId` in a provider
+                        // directly means that the `MavenPublication` object no longer exists when
+                        // the provider is evaluated.
+                        def artifactId = it.artifactId
                         CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
                             project,
                             it,
                             null,
-                            it.artifactId,
+                            project.provider { artifactId },
                             project.provider { "fakeSha" },
                             false,
                             false,
                             "androidx",
                             ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
                             project.provider { ["test.xml"] },
+                            it.name,
                         )
                     }
                 }
@@ -245,17 +249,22 @@ class CreateLibraryBuildInfoFileTaskTest {
                         }
                     }
                     publications.withType(MavenPublication) {
+                        // This test is set up such that putting `it.artifactId` in a provider
+                        // directly means that the `MavenPublication` object no longer exists when
+                        // the provider is evaluated.
+                        def artifactId = it.artifactId
                         CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
                             project,
                             it,
                             null,
-                            it.artifactId,
+                            project.provider { artifactId },
                             project.provider { "fakeSha" },
-                            false,
-                            false,
+                            false, // shouldPublishDocs
+                            true, // isKmp
                             "androidx",
                             ["android", "jvm"].toSet(),
                             project.provider { ["test.xml"] },
+                            it.name,
                         )
                     }
                 }

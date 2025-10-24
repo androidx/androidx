@@ -153,6 +153,19 @@ package androidx.xr.arcore.testing {
     property public int width;
   }
 
+  public final class FakeRuntimeEye {
+    ctor public FakeRuntimeEye();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    method @InaccessibleFromKotlin public void setOpen(boolean);
+    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
+    property public boolean isOpen;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
   public final class FakeRuntimeFace {
     ctor public FakeRuntimeFace();
     ctor public FakeRuntimeFace(optional androidx.xr.runtime.TrackingState trackingState, optional boolean isValid, optional float[] blendShapeValues, optional float[] confidenceValues);

@@ -38,7 +38,6 @@ import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.GroupEntity
@@ -57,7 +56,7 @@ class SceneCoreEntityTest {
 
     @Test
     fun sceneCoreEntity_childrenAreComposed() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 SceneCoreEntity(factory = { GroupEntity.create(session, "TestEntity") }) {
@@ -77,7 +76,7 @@ class SceneCoreEntityTest {
 
     @Test
     fun sceneCoreEntity_childrenAreCentered() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 SceneCoreEntity(factory = { GroupEntity.create(session, "TestEntity") }) {
@@ -109,7 +108,7 @@ class SceneCoreEntityTest {
         var testEntity by mutableStateOf<PanelEntity?>(null)
         var targetSize by mutableStateOf(500.dp)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 testEntity = remember {
@@ -169,7 +168,7 @@ class SceneCoreEntityTest {
         var testEntity by mutableStateOf<PanelEntity?>(null)
         var targetSize by mutableStateOf(500.dp)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(2.0f)) {
                 Subspace {
                     val session = checkNotNull(LocalSession.current)
@@ -227,7 +226,7 @@ class SceneCoreEntityTest {
 
     @Test
     fun sceneCoreEntity_size_usesInitialSizeIfNoModifierOrChildren() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 SceneCoreEntity(
@@ -260,7 +259,7 @@ class SceneCoreEntityTest {
 
     @Test
     fun sceneCoreEntity_size_isZeroIfNoModifierOrChildrenOrIntrinsicSize() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 SceneCoreEntity(
@@ -290,7 +289,7 @@ class SceneCoreEntityTest {
 
     @Test
     fun sceneCoreEntity_size_usesInitialSizeIfChildrenAreSmaller() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 SceneCoreEntity(
@@ -325,7 +324,7 @@ class SceneCoreEntityTest {
 
     @Test
     fun sceneCoreEntity_size_doesNotThrowExceptionIfSetterAndGetter() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 SceneCoreEntity(
@@ -354,7 +353,7 @@ class SceneCoreEntityTest {
 
     @Test
     fun sceneCoreEntity_size_matchesSizeOfChildrenIfLarger() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
                 SceneCoreEntity(
@@ -394,7 +393,7 @@ class SceneCoreEntityTest {
         var updateCalled = 0
         val cornerRadius = mutableStateOf(0.5f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             val session = LocalSession.current ?: error("No session")
             Subspace {
                 SceneCoreEntity(
@@ -438,7 +437,7 @@ class SceneCoreEntityTest {
     fun sceneCoreEntity_update_getsMutableStateChanges() {
         val cornerRadius = mutableStateOf(0.5f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             val session = LocalSession.current ?: error("No session")
             Subspace {
                 SceneCoreEntity(

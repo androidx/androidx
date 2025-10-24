@@ -36,7 +36,7 @@ import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.ResizeEvent
-import androidx.xr.scenecore.SpatialCapabilities
+import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.createSession
@@ -82,12 +82,7 @@ class ActivityPanelActivity : AppCompatActivity() {
         val button: Button = findViewById(R.id.spawn_activity_panel_button)
         button.setOnClickListener {
             // Check spatial capabilities of the session
-            if (
-                session!!
-                    .scene
-                    .spatialCapabilities
-                    .hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY)
-            ) {
+            if (session!!.scene.spatialCapabilities.contains(SpatialCapability.EMBED_ACTIVITY)) {
 
                 if (!secondaryPanelLaunched) {
                     // Set the pose for the activity panel

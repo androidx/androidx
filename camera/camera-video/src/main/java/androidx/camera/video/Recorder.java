@@ -3118,7 +3118,6 @@ public final class Recorder implements VideoOutput {
      * high-speed video is not supported.
      * @see HighSpeedVideoSessionConfig
      */
-    @ExperimentalHighSpeedVideo
     public static @Nullable VideoCapabilities getHighSpeedVideoCapabilities(
             @NonNull CameraInfo cameraInfo) {
         return getHighSpeedVideoCapabilities(cameraInfo,
@@ -3144,7 +3143,6 @@ public final class Recorder implements VideoOutput {
      * @see HighSpeedVideoSessionConfig
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY) // Don't expose this API for the initial version.
-    @ExperimentalHighSpeedVideo
     public static @Nullable VideoCapabilities getHighSpeedVideoCapabilities(
             @NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {

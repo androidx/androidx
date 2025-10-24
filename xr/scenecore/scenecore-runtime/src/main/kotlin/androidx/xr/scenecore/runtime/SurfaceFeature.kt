@@ -58,6 +58,15 @@ public interface SurfaceFeature : RenderingFeature {
     public val surface: Surface
 
     /**
+     * Sets the dimensions of the Surface in pixels.
+     *
+     * @param width The width of the Surface in pixels.
+     * @param height The height of the Surface in pixels.
+     * @throws IllegalArgumentException if the dimensions are invalid.
+     */
+    public fun setSurfacePixelDimensions(width: Int, height: Int)
+
+    /**
      * Sets whether the collider is enabled.
      *
      * @param enableCollider Whether the collider is enabled.

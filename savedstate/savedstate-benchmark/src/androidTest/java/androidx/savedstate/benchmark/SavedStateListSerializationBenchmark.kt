@@ -43,4 +43,18 @@ class SavedStateListSerializationBenchmark() {
 
         assertThat(decoded).isEqualTo(original)
     }
+
+    @Test
+    fun encodeDecodeListBoolean() {
+        val original = List(sampleSize) { it % 2 == 0 }
+        lateinit var decoded: List<Boolean>
+
+        benchmarkRule.measureRepeated {
+            val encoded = encodeToSavedState(original)
+            val platformSavedState = platformEncodeDecode(encoded)
+            decoded = decodeFromSavedState<List<Boolean>>(platformSavedState)
+        }
+
+        assertThat(decoded).isEqualTo(original)
+    }
 }

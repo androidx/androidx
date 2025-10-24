@@ -23,7 +23,6 @@ import android.media.MediaFormat
 import android.media.MediaFormat.KEY_CAPTURE_RATE
 import android.media.MediaFormat.KEY_OPERATING_RATE
 import android.media.MediaFormat.KEY_PRIORITY
-import android.os.Build
 import android.os.SystemClock
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
@@ -36,10 +35,10 @@ import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.video.Quality
 import androidx.camera.video.Recorder
@@ -59,6 +58,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
@@ -93,6 +93,8 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
             CameraUtil.PreTestCameraIdList(cameraConfig)
         )
 
+    @get:Rule val skipRule: TestRule = IgnoreVideoRecordingProblematicDeviceRule()
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -121,28 +123,12 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
     @Before
     fun setUp() {
         val cameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
-        // Skip for b/168175357, b/233661493
-        assumeFalse(
-            "Skip tests for Cuttlefish MediaCodec issues",
-            Build.MODEL.contains("Cuttlefish") &&
-                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33),
-        )
+
         // Skip for b/241876294
         assumeFalse(
             "Skip test for devices with ExtraSupportedResolutionQuirk, since the extra" +
                 " resolutions cannot be used when the provided surface is an encoder surface.",
             DeviceQuirks.get(ExtraSupportedResolutionQuirk::class.java) != null,
-        )
-        // Skip for b/331618729
-        assumeFalse(
-            "Emulator API 28 crashes running this test.",
-            Build.VERSION.SDK_INT == 28 && isEmulator(),
-        )
-
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
 
         CameraXUtil.initialize(context, cameraConfig).get()

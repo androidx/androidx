@@ -17,20 +17,32 @@
 package androidx.xr.arcore.runtime
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.math.Pose
 
 /** Describes a face. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface Face {
-    /** The current [androidx.xr.runtime.TrackingState] of the face. */
-    public val trackingState: TrackingState
-
-    /** Flag indicating if the [blendShapeValues] array is valid */
+public interface Face : Trackable {
+    /** Flag indicating if the [Face] is valid */
     public val isValid: Boolean
 
     /** The values measuring the blend shapes of the face. Range: `[0.0f, 1.0f]` */
-    public val blendShapeValues: FloatArray
+    public val blendShapeValues: FloatArray?
 
     /** The confidence values of the face tracker at different regions. Range: `[0.0f, 1.0f]` */
-    public val confidenceValues: FloatArray
+    public val confidenceValues: FloatArray?
+
+    /** The [Pose] at the geometric center of the [mesh]. */
+    public val centerPose: Pose?
+
+    /** The [Mesh] data. */
+    public val mesh: Mesh?
+
+    /** The [Pose] located at the tip of the nose. */
+    public val noseTipPose: Pose?
+
+    /** The [Pose] located at the left side of the detected face's forehead. */
+    public val foreheadLeftPose: Pose?
+
+    /** The [Pose] located at the right side of the detected face's forehead. */
+    public val foreheadRightPose: Pose?
 }

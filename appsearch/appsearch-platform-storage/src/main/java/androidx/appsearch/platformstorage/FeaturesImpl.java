@@ -52,7 +52,9 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM:
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
 
-            // Android T Features
+            // Android T Features.
+            // There is no need to check SDK Extensions because T was the earliest version that
+            // AppSearch was enabled in mainline for.
             case Features.ADD_PERMISSIONS_AND_GET_VISIBILITY:
                 // fall through
             case Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA:
@@ -71,20 +73,24 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.NUMERIC_SEARCH:
                 // fall through
-            case Features.VERBATIM_SEARCH:
-                // fall through
             case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
                 // fall through
             case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
-                return BuildCompat.T_EXTENSION_INT
-                        >= AppSearchVersionUtil.TExtensionVersions.U_BASE;
-
-            // Android U Features
+                // fall through
             case Features.SEARCH_SUGGESTION:
                 // fall through
             case Features.TOKENIZER_TYPE_RFC822:
                 // fall through
+            case Features.VERBATIM_SEARCH:
+                return BuildCompat.T_EXTENSION_INT
+                        >= AppSearchVersionUtil.TExtensionVersions.U_BASE;
+
+            // Android U Features
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                // This feature is restricted to Android U+ devices only due to rollback
+                // compatibility issues. It is not allowed in Android T devices.
+                // TODO(b/369703879) Remove this special handling once circular references is
+                // backported to Android T devices.
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
             // SDK extension M-2023-11 features

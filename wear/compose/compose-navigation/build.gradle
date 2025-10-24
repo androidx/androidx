@@ -28,7 +28,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -60,9 +60,6 @@ android {
     defaultConfig {
         minSdk = 25
         consumerProguardFiles("proguard-rules.pro")
-    }
-    lint {
-        disable += "ComposeTestRuleDispatcher"
     }
     namespace = "androidx.wear.compose.navigation"
 }

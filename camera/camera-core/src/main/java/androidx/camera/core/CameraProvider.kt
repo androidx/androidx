@@ -94,6 +94,32 @@ public interface CameraProvider {
     }
 
     /**
+     * Returns the [CameraInfo] instance of the camera resulted from the specified [CameraSelector]
+     * and [SessionConfig].
+     *
+     * The returned [CameraInfo] corresponds to the camera that will be bound when calling
+     * `bindToLifecycle` with the specified [CameraSelector] and [SessionConfig].
+     *
+     * This method is used for the case when the input [SessionConfig] can affect the camera
+     * selection or the information provided by the obtained CameraInfo object. For example, the
+     * `androidx.camera.extensions.ExtensionSessionConfig`.
+     *
+     * @param cameraSelector the [CameraSelector] to use for selecting the camera to receive
+     *   information about.
+     * @param sessionConfig the [SessionConfig] to use for selecting the camera to receive
+     *   information about.
+     * @return the corresponding [CameraInfo].
+     * @throws IllegalArgumentException if the given [CameraSelector] and [SessionConfig] can't
+     *   result in a valid camera to provide the [CameraInfo].
+     */
+    public fun getCameraInfo(
+        cameraSelector: CameraSelector,
+        sessionConfig: SessionConfig,
+    ): CameraInfo {
+        throw UnsupportedOperationException("The camera provider is not implemented properly.")
+    }
+
+    /**
      * Adds a listener for changes in camera presence.
      *
      * The listener will be notified when cameras are added to or removed from the set of devices

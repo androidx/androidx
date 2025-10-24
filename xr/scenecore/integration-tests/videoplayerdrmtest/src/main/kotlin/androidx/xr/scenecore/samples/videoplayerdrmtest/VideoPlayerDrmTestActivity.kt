@@ -228,15 +228,19 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
         }
     }
 
-    fun getCanvasAspectRatio(stereoMode: Int, videoWidth: Int, videoHeight: Int): FloatSize3d {
+    fun getCanvasAspectRatio(
+        stereoMode: SurfaceEntity.StereoMode,
+        videoWidth: Int,
+        videoHeight: Int,
+    ): FloatSize3d {
         when (stereoMode) {
-            SurfaceEntity.StereoMode.STEREO_MODE_MONO,
-            SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_LEFT_PRIMARY,
-            SurfaceEntity.StereoMode.STEREO_MODE_MULTIVIEW_RIGHT_PRIMARY ->
+            SurfaceEntity.StereoMode.MONO,
+            SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
+            SurfaceEntity.StereoMode.MULTIVIEW_RIGHT_PRIMARY ->
                 return FloatSize3d(1.0f, videoHeight.toFloat() / videoWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM ->
+            SurfaceEntity.StereoMode.TOP_BOTTOM ->
                 return FloatSize3d(1.0f, 0.5f * videoHeight.toFloat() / videoWidth, 0.0f)
-            SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE ->
+            SurfaceEntity.StereoMode.SIDE_BY_SIDE ->
                 return FloatSize3d(1.0f, 2.0f * videoHeight.toFloat() / videoWidth, 0.0f)
             else -> throw IllegalArgumentException("Unsupported stereo mode: $stereoMode")
         }
@@ -245,7 +249,7 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
     fun playVideo(
         session: Session,
         videoUri: String,
-        stereoMode: Int,
+        stereoMode: SurfaceEntity.StereoMode,
         pose: Pose,
         shape: SurfaceEntity.Shape,
         loop: Boolean = true,
@@ -255,9 +259,9 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
         if (surfaceEntity == null) {
             val surfaceContentLevel =
                 if (protected) {
-                    SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_PROTECTED
+                    SurfaceEntity.SurfaceProtection.PROTECTED
                 } else {
-                    SurfaceEntity.SurfaceProtection.SURFACE_PROTECTION_NONE
+                    SurfaceEntity.SurfaceProtection.NONE
                 }
 
             surfaceEntity =
@@ -401,7 +405,7 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
         session: Session,
         activity: Activity,
         videoUri: String,
-        stereoMode: Int,
+        stereoMode: SurfaceEntity.StereoMode,
         pose: Pose,
         shape: SurfaceEntity.Shape,
         buttonText: String,
@@ -463,7 +467,7 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
             playVideo(
                 session = session,
                 videoUri = videoUri,
-                stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_TOP_BOTTOM,
+                stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
                 pose = Pose(Vector3(0.0f, 0.0f, -0.25f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
                 shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
                 loop = true,
@@ -510,7 +514,7 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
             playVideo(
                 session = session,
                 videoUri = videoUri,
-                stereoMode = SurfaceEntity.StereoMode.STEREO_MODE_SIDE_BY_SIDE,
+                stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE,
                 pose = Pose(Vector3(0.0f, 0.0f, -0.25f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f)),
                 shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
                 loop = true,

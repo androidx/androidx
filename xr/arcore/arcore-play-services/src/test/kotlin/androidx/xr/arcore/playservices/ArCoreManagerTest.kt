@@ -18,6 +18,7 @@ package androidx.xr.arcore.playservices
 
 import android.app.Activity
 import android.util.Range
+import androidx.kruth.assertThrows
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.Config
@@ -139,6 +140,47 @@ class ArCoreManagerTest {
     }
 
     @Test
+    fun configure_faceTracking_setsAugmentedFaceMode_toValue_Disabled() {
+        val mockArConfig = mock<ArConfig>()
+        underTest._session = mockSession
+        whenever(mockSession.config).thenReturn(mockArConfig)
+
+        val config = Config(faceTracking = Config.FaceTrackingMode.DISABLED)
+        underTest.configure(config)
+
+        val argumentCaptor = argumentCaptor<ArConfig.AugmentedFaceMode>()
+        verify(mockArConfig).augmentedFaceMode = argumentCaptor.capture()
+        assert(argumentCaptor.firstValue == ArConfig.AugmentedFaceMode.DISABLED)
+        assertThat(underTest.config.faceTracking).isEqualTo(Config.FaceTrackingMode.DISABLED)
+    }
+
+    @Test
+    fun configure_faceTracking_setsAugmentedFaceMode_toValue_Mesh3D() {
+        val mockArConfig = mock<ArConfig>()
+        underTest._session = mockSession
+        whenever(mockSession.config).thenReturn(mockArConfig)
+
+        val config = Config(faceTracking = Config.FaceTrackingMode.MESHES)
+        underTest.configure(config)
+
+        val argumentCaptor = argumentCaptor<ArConfig.AugmentedFaceMode>()
+        verify(mockArConfig).augmentedFaceMode = argumentCaptor.capture()
+        assert(argumentCaptor.firstValue == ArConfig.AugmentedFaceMode.MESH3D)
+        assertThat(underTest.config.faceTracking).isEqualTo(Config.FaceTrackingMode.MESHES)
+    }
+
+    @Test
+    fun configure_faceTracking_setsAugmentedFaceMode_toValue_User_throwsUnsupportedOperationException() {
+        val mockArConfig = mock<ArConfig>()
+        underTest._session = mockSession
+        whenever(mockSession.config).thenReturn(mockArConfig)
+
+        val config = Config(faceTracking = Config.FaceTrackingMode.USER)
+
+        assertThrows<UnsupportedOperationException> { underTest.configure(config) }
+    }
+
+    @Test
     fun configure_planeTracking_setsPlaneFindingMode_toValue_Disabled() {
         val mockArConfig = mock<ArConfig>()
         underTest._session = mockSession
@@ -186,7 +228,9 @@ class ArCoreManagerTest {
         whenever(mockSession.config).thenReturn(mockArConfig)
 
         val config = Config(depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW)
-        assertFailsWith<UnsupportedOperationException> { underTest.configure(config) }
+        underTest.configure(config)
+
+        assertThat(underTest.config.depthEstimation).isEqualTo(DepthEstimationMode.SMOOTH_AND_RAW)
     }
 
     @Test

@@ -131,6 +131,7 @@ internal class GpuBuffer(
     companion object {
         private const val TAG: String = "GpuBuffer"
         public const val INT_SIZE: Int = 4
+        public const val SHORT_SIZE: Int = 2
         public const val FLOAT_SIZE: Int = 4
     }
 }

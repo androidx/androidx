@@ -66,8 +66,6 @@ final class ActivitySpaceImpl extends SystemSpaceEntityImpl implements ActivityS
 
     private final Supplier<SpatialState> mSpatialStateProvider;
     private final AtomicReference<Dimensions> mBounds = new AtomicReference<>();
-    // The current scene parent aka ActivitySpace origin transform.
-
     private final boolean mUnscaledGravityAlignedActivitySpace;
     // Spatial mode change handler will be invoked on every update to activity space origin we
     // receive from the node transform listener.
@@ -362,7 +360,7 @@ final class ActivitySpaceImpl extends SystemSpaceEntityImpl implements ActivityS
                                         ? null
                                         : transformPoseTo(
                                                         new Pose(result.getHitPosition()),
-                                                scenePose)
+                                                        scenePose)
                                                 .getTranslation();
                         Vector3 updatedSurfaceNormal =
                                 result.getSurfaceNormal() == null
@@ -371,7 +369,7 @@ final class ActivitySpaceImpl extends SystemSpaceEntityImpl implements ActivityS
                                                         new Pose(
                                                                 new Vector3(
                                                                         result.getSurfaceNormal())),
-                                                scenePose)
+                                                        scenePose)
                                                 .compose(
                                                         this.transformPoseTo(
                                                                         Pose.Identity, scenePose)
@@ -411,7 +409,7 @@ final class ActivitySpaceImpl extends SystemSpaceEntityImpl implements ActivityS
                     }
 
                     Box3 recommendedBox = mExtensions.getRecommendedContentBoxInFullSpace();
-                    return new BoundingBox(
+                    return BoundingBox.fromMinMax(
                             new Vector3(
                                     recommendedBox.getMin().x,
                                     recommendedBox.getMin().y,

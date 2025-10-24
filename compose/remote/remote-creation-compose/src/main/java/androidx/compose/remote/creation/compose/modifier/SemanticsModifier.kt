@@ -53,6 +53,7 @@ public data class SemanticsModifier(val mergeMode: Mode, val semantics: Accessib
                 mStateDescriptionId =
                     semantics.stateDescription?.getIdForCreationState(FallbackCreationState.state)
                         ?: 0
+                mEnabled = semantics.enabled ?: true
                 mRole = fromRole(semantics.role)
             }
         )
@@ -95,6 +96,7 @@ public data class AccessibilitySemantics(
     public var role: Role? = null,
     public var text: RemoteString? = null,
     public var stateDescription: RemoteString? = null,
+    public var enabled: Boolean? = null,
 )
 
 public fun RemoteModifier.clearAndSetSemantics(

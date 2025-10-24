@@ -16,74 +16,56 @@
 
 package androidx.xr.compose.platform
 
-import android.annotation.SuppressLint
-import android.util.CloseGuard
+import android.content.Context
+import android.view.View
 import androidx.annotation.RestrictTo
+import androidx.xr.compose.R
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
- * Manager for all [SpatialComposeScene]s that are created when the [SceneManager] is running.
+ * Manager for all [SpatialComposeScene]s that are created in a given context.
  *
  * Enables finding all semantic roots in a spatial scene graph. This is useful for testing libraries
  * as well as developer tooling to help semantically identify parts of the compose tree. It is not
- * intended to be used in individual apps.
+ * intended to be used in individual apps. Scenes are scoped to the current View hierarchy.
  */
-@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
-@Suppress("NotCloseable")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public object SceneManager : AutoCloseable {
-    private val registeredScenes: MutableList<SpatialComposeScene> = mutableListOf()
-    private var isRunning = false
-    private val guard = CloseGuard()
-
-    /**
-     * Start keeping track of the scenes that are created. Scenes created before [SceneManager] is
-     * running will not be tracked.
-     */
-    public fun start() {
-        isRunning = true
-        guard.open("stop")
-    }
-
-    /**
-     * Stop tracking the created scenes and clear the set of scenes that [SceneManager] was keeping
-     * track of.
-     */
-    public fun stop() {
-        guard.close()
-        isRunning = false
-        registeredScenes.clear()
-    }
-
-    /** Alias to [SceneManager.stop] To implement the [AutoCloseable] interface. */
-    override fun close() {
-        stop()
-    }
-
+public object SceneManager {
     internal fun onSceneCreated(scene: SpatialComposeScene) {
-        if (isRunning && scene !in registeredScenes) {
-            registeredScenes.add(scene)
-        }
+        scene.context.decorView?.registeredScenes?.takeIf { scene !in it }?.add(scene)
     }
 
     internal fun onSceneDisposed(scene: SpatialComposeScene) {
-        if (isRunning) {
-            registeredScenes.remove(scene)
-        }
+        scene.context.decorView?.registeredScenes?.remove(scene)
     }
 
     /**
-     * Returns all root subspace semantics nodes of all registered scenes.
+     * Returns all root subspace semantics nodes of all registered scenes in the given context.
      *
-     * If the SceneManager is not currently running we assume that we are in a non-XR environment
-     * and an empty list will be returned (e.g. `setContent` was called instead of
-     * `setContentWithCompatibilityForXr`).
+     * @param context The context to search for registered scenes.
      */
-    public fun getAllRootSubspaceSemanticsNodes(): List<SubspaceSemanticsInfo> {
-        return registeredScenes.map { it.rootElement.compositionOwner.root.measurableLayout }
-    }
+    public fun getAllRootSubspaceSemanticsNodes(context: Context): List<SubspaceSemanticsInfo> =
+        context.decorView?.registeredScenes?.map {
+            it.rootElement.compositionOwner.root.measurableLayout
+        } ?: emptyList()
 
-    public fun getSceneCount(): Int {
-        return registeredScenes.size
-    }
+    /**
+     * Returns the number of registered scene for the given context.
+     *
+     * @param context The context to search for registered scenes.
+     */
+    public fun getSceneCount(context: Context): Int = context.decorView?.registeredScenes?.size ?: 0
+
+    private val Context.decorView: View?
+        get() = getActivity()?.window?.decorView
+
+    private val View.registeredScenes: MutableList<SpatialComposeScene>
+        get() {
+            @Suppress("UNCHECKED_CAST")
+            return (getTag(R.id.compose_xr_registered_scenes)
+                ?: mutableListOf<SpatialComposeScene>().also {
+                    setTag(R.id.compose_xr_registered_scenes, it)
+                })
+                as MutableList<SpatialComposeScene>
+        }
 }

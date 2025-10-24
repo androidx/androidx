@@ -241,9 +241,14 @@ interface MouseInjectionScope : InjectionScope {
      * Sends a scroll event with the given [offset]. The event will be sent at the current event
      * time.
      *
-     * Positive [offset] values correspond to scrolling forward (new content appears at the bottom
-     * of a column, or at the end of a row), negative values correspond to scrolling backward (new
-     * content appears at the top of a column, or at the start of a row).
+     * This is a 2 dimensional version of [scroll] and therefore will apply to a 2d plane. It
+     * combines the delta and the scrollWheel directionality in a single offset representation. A
+     * positive X component implies moving forward on the horizontal axis. A positive Y component
+     * implies moving forward on the vertical axis. A negative component means moving backwards. A
+     * combination of positive and negative components will yield an angled movement in a given
+     * quadrant of the 2d plane. For instance, moving with offset (100, -100) will move on the
+     * equivalent of 100 pixels forward on the horizontal axis and 100 pixels backward on the
+     * vertical axis.
      *
      * Note that the correlation between scroll [offset] and pixels scrolled is platform specific.
      * For example, on Android a scroll delta of `1f` corresponds to a scroll of `64.dp`. However,

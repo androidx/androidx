@@ -50,6 +50,7 @@ import androidx.compose.remote.core.operations.DrawRoundRect;
 import androidx.compose.remote.core.operations.DrawSector;
 import androidx.compose.remote.core.operations.DrawText;
 import androidx.compose.remote.core.operations.DrawTextAnchored;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
@@ -625,6 +626,25 @@ public class RemoteComposeBuffer {
      */
     public void addDrawTextOnPath(int textId, int pathId, float hOffset, float vOffset) {
         DrawTextOnPath.apply(mBuffer, textId, pathId, hOffset, vOffset);
+    }
+
+    /**
+     * Draw the curved text, along the specified circle with origin at (x,y).
+     *
+     * @param textId the id of the text variable
+     * @param centerX the center X of the circle
+     * @param centerY the center Y of the circle
+     * @param radius the radius of the circle
+     * @param startAngle the start angle to draw from
+     * @param warpRadiusOffset the offset of the warp radius
+     * @param alignment the alignment of the text relative to start
+     * @param placement the placement inside or outside the circle
+     */
+    public void addDrawTextOnCircle(int textId, float centerX, float centerY, float radius,
+            float startAngle, float warpRadiusOffset, DrawTextOnCircle.@NonNull Alignment alignment,
+            DrawTextOnCircle.@NonNull Placement placement) {
+        DrawTextOnCircle.apply(mBuffer, textId, centerX, centerY, radius, startAngle,
+                warpRadiusOffset, alignment, placement);
     }
 
     /**
@@ -1552,6 +1572,20 @@ public class RemoteComposeBuffer {
         float g = (color >> 8 & 0xff) / 255.0f;
         float b = (color & 0xff) / 255.0f;
         float a = (color >> 24 & 0xff) / 255.0f;
+        BackgroundModifierOperation.apply(mBuffer, 0f, 0f, 0f, 0f, r, g, b, a, shape);
+    }
+
+
+    /**
+     * Add a background modifier of provided color
+     *
+     * @param r the red value, possibly a remote float
+     * @param g the green value, possibly a remote float
+     * @param b the blue value, possibly a remote float
+     * @param a the alpha value, possibly a remote float
+     * @param shape the background shape -- SHAPE_RECTANGLE, SHAPE_CIRCLE
+     */
+    public void addModifierBackground(float r, float g, float b, float a, int shape) {
         BackgroundModifierOperation.apply(mBuffer, 0f, 0f, 0f, 0f, r, g, b, a, shape);
     }
 

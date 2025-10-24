@@ -75,6 +75,7 @@ import androidx.appsearch.usagereporting.SearchAction;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.collection.ArrayMap;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -1633,6 +1634,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 // @exportToFramework:endStrip()
 
+    @SdkSuppress(minSdkVersion = 24) // b/441557822
     @Test
     public void testPutHugeDocumentInBatch() throws Exception {
         // Schema registration

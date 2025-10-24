@@ -310,6 +310,62 @@ public final class InitializeStats extends BaseStats {
         return mResetStatusCode;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "InitializeStats {\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  hasDeSync=%b,\n"
+                        + "  prepareSchemaAndNamespacesLatencyMillis=%d,\n"
+                        + "  prepareVisibilityStoreLatencyMillis=%d,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreRecoveryCause=%d,\n"
+                        + "  nativeIndexRestorationCause=%d,\n"
+                        + "  nativeSchemaStoreRecoveryCause=%d,\n"
+                        + "  nativeDocumentStoreRecoveryLatencyMillis=%d,\n"
+                        + "  nativeIndexRestorationLatencyMillis=%d,\n"
+                        + "  nativeSchemaStoreRecoveryLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreDataStatus=%d,\n"
+                        + "  nativeNumDocuments=%d,\n"
+                        + "  nativeNumSchemaTypes=%d,\n"
+                        + "  nativeNumPreviousInitFailures=%d,\n"
+                        + "  nativeIntegerIndexRestorationCause=%d,\n"
+                        + "  nativeQualifiedIdJoinIndexRestorationCause=%d,\n"
+                        + "  nativeEmbeddingIndexRestorationCause=%d,\n"
+                        + "  nativeInitializeIcuDataStatusCode=%d,\n"
+                        + "  nativeNumFailedReindexedDocuments=%d,\n"
+                        + "  hasReset=%b,\n"
+                        + "  resetStatusCode=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mStatusCode,
+                mTotalLatencyMillis,
+                mHasDeSync,
+                mPrepareSchemaAndNamespacesLatencyMillis,
+                mPrepareVisibilityStoreLatencyMillis,
+                mNativeLatencyMillis,
+                mNativeDocumentStoreRecoveryCause,
+                mNativeIndexRestorationCause,
+                mNativeSchemaStoreRecoveryCause,
+                mNativeDocumentStoreRecoveryLatencyMillis,
+                mNativeIndexRestorationLatencyMillis,
+                mNativeSchemaStoreRecoveryLatencyMillis,
+                mNativeDocumentStoreDataStatus,
+                mNativeNumDocuments,
+                mNativeNumSchemaTypes,
+                mNativeNumPreviousInitFailures,
+                mNativeIntegerIndexRestorationCause,
+                mNativeQualifiedIdJoinIndexRestorationCause,
+                mNativeEmbeddingIndexRestorationCause,
+                mNativeInitializeIcuDataStatusCode,
+                mNativeNumFailedReindexedDocuments,
+                mHasReset,
+                mResetStatusCode);
+    }
+
     InitializeStats(@NonNull Builder builder) {
         super(builder);
         mStatusCode = builder.mStatusCode;

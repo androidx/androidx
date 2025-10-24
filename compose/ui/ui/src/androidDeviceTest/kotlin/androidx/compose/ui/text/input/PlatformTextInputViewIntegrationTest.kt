@@ -55,6 +55,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +64,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PlatformTextInputViewIntegrationTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private lateinit var hostView: AndroidComposeView
     private lateinit var coroutineScope: CoroutineScope
@@ -98,8 +99,9 @@ class PlatformTextInputViewIntegrationTest {
                     throw CancellationException()
                 }
             }
-            assertThat(view1).isSameInstanceAs(view2)
         }
+
+        rule.runOnIdle { assertThat(view1).isSameInstanceAs(view2) }
     }
 
     @Test
@@ -293,10 +295,8 @@ class PlatformTextInputViewIntegrationTest {
             assertThat(ic).isNotNull()
         }
 
-        rule.runOnIdle {
-            sessionJob.cancel()
-            expect(4)
-        }
+        rule.runOnIdle { sessionJob.cancel() }
+        rule.runOnIdle { expect(4) }
     }
 
     // closeConnection is only supported on API 24+
@@ -422,10 +422,8 @@ class PlatformTextInputViewIntegrationTest {
             assertThat(ic).isNotNull()
         }
 
-        rule.runOnIdle {
-            sessionJob.cancel()
-            expect(3)
-        }
+        rule.runOnIdle { sessionJob.cancel() }
+        rule.runOnIdle { expect(3) }
     }
 
     // closeConnection is only supported on API 24+

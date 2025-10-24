@@ -16,7 +16,6 @@
 
 package androidx.camera.video.featuregroup
 
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.featuregroup.GroupableFeature
 import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal
 import androidx.camera.video.GroupableFeatures
@@ -28,7 +27,6 @@ import androidx.camera.video.Quality
  * This feature should not be instantiated directly, instead use the [GroupableFeatures] objects,
  * e.g. [GroupableFeatures.SD_RECORDING].
  */
-@OptIn(ExperimentalSessionConfig::class)
 internal class RecordingQualityFeature(val quality: Quality) : GroupableFeature() {
     override val featureTypeInternal: FeatureTypeInternal = FeatureTypeInternal.RECORDING_QUALITY
 

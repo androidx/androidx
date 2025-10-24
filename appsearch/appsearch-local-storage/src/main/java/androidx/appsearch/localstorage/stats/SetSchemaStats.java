@@ -331,6 +331,88 @@ public final class SetSchemaStats extends BaseStats {
         return mSkippedIcingInteraction;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "SetSchemaStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  newTypeCount=%d,\n"
+                        + "  deletedTypeCount=%d,\n"
+                        + "  compatibleTypeChangeCount=%d,\n"
+                        + "  indexIncompatibleTypeChangeCount=%d,\n"
+                        + "  joinIndexIncompatibleTypeChangeCount=%d,\n"
+                        + "  scorablePropertyIncompatibleTypeChangeCount=%d,\n"
+                        + "  backwardsIncompatibleTypeChangeCount=%d,\n"
+                        + "  deletedDocumentCount=%d,\n"
+                        + "  isTermIndexRestored=%b,\n"
+                        + "  isIntegerIndexRestored=%b,\n"
+                        + "  isEmbeddingIndexRestored=%b,\n"
+                        + "  isQualifiedIdJoinIndexRestored=%b,\n"
+                        + "  verifyIncomingCallLatencyMillis=%d,\n"
+                        + "  executorAcquisitionLatencyMillis=%d,\n"
+                        + "  rebuildFromBundleLatencyMillis=%d,\n"
+                        + "  rewriteSchemaLatencyMillis=%d,\n"
+                        + "  totalNativeLatencyMillis=%d,\n"
+                        + "  nativeSchemaStoreSetSchemaLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreUpdateSchemaLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreOptimizedUpdateSchemaLatencyMillis=%d,\n"
+                        + "  nativeIndexRestorationLatencyMillis=%d,\n"
+                        + "  nativeScorablePropertyCacheRegenerationLatencyMillis=%d,\n"
+                        + "  visibilitySettingLatencyMillis=%d,\n"
+                        + "  convertToResponseLatencyMillis=%d,\n"
+                        + "  dispatchChangeNotificationsLatencyMillis=%d,\n"
+                        + "  optimizeLatencyMillis=%d,\n"
+                        + "  isPackageObserved=%b,\n"
+                        + "  getOldSchemaLatencyMillis=%d,\n"
+                        + "  getObserverLatencyMillis=%d,\n"
+                        + "  preparingChangeNotificationLatencyMillis=%d,\n"
+                        + "  schemaMigrationCallType=%d,\n"
+                        + "  skippedIcingInteraction=%b,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mNewTypeCount,
+                mDeletedTypeCount,
+                mCompatibleTypeChangeCount,
+                mIndexIncompatibleTypeChangeCount,
+                mJoinIndexIncompatibleTypeChangeCount,
+                mScorablePropertyIncompatibleTypeChangeCount,
+                mBackwardsIncompatibleTypeChangeCount,
+                mDeletedDocumentCount,
+                mIsTermIndexRestored,
+                mIsIntegerIndexRestored,
+                mIsEmbeddingIndexRestored,
+                mIsQualifiedIdJoinIndexRestored,
+                mVerifyIncomingCallLatencyMillis,
+                mExecutorAcquisitionLatencyMillis,
+                mRebuildFromBundleLatencyMillis,
+                mRewriteSchemaLatencyMillis,
+                mTotalNativeLatencyMillis,
+                mNativeSchemaStoreSetSchemaLatencyMillis,
+                mNativeDocumentStoreUpdateSchemaLatencyMillis,
+                mNativeDocumentStoreOptimizedUpdateSchemaLatencyMillis,
+                mNativeIndexRestorationLatencyMillis,
+                mNativeScorablePropertyCacheRegenerationLatencyMillis,
+                mVisibilitySettingLatencyMillis,
+                mConvertToResponseLatencyMillis,
+                mDispatchChangeNotificationsLatencyMillis,
+                mOptimizeLatencyMillis,
+                mIsPackageObserved,
+                mGetOldSchemaLatencyMillis,
+                mGetObserverLatencyMillis,
+                mPreparingChangeNotificationLatencyMillis,
+                mSchemaMigrationCallType,
+                mSkippedIcingInteraction);
+    }
+
     /** Builder for {@link SetSchemaStats}. */
     public static class Builder extends BaseStats.Builder<SetSchemaStats.Builder> {
         final @NonNull String mPackageName;

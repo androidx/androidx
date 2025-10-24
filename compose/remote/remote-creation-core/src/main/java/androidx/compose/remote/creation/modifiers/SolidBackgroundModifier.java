@@ -23,18 +23,43 @@ import org.jspecify.annotations.NonNull;
 /** Background modifier, takes a color and a shape */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SolidBackgroundModifier implements RecordingModifier.Element {
-    int mColor;
-
-    public int getColor() {
-        return mColor;
-    }
+    float mRed;
+    float mGreen;
+    float mBlue;
+    float mAlpha;
 
     public SolidBackgroundModifier(int color) {
-        this.mColor = color;
+        mRed = (color >> 16 & 0xff) / 255.0f;
+        mGreen = (color >> 8 & 0xff) / 255.0f;
+        mBlue = (color & 0xff) / 255.0f;
+        mAlpha = (color >> 24 & 0xff) / 255.0f;
+    }
+
+    public SolidBackgroundModifier(float red, float green, float blue, float alpha) {
+        mRed = red;
+        mGreen = green;
+        mBlue = blue;
+        mAlpha = alpha;
+    }
+
+    public float getAlpha() {
+        return mAlpha;
+    }
+
+    public float getBlue() {
+        return mBlue;
+    }
+
+    public float getGreen() {
+        return mGreen;
+    }
+
+    public float getRed() {
+        return mRed;
     }
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.addModifierBackground(mColor, 0);
+        writer.addModifierBackground(mRed, mGreen, mBlue, mAlpha, 0);
     }
 }

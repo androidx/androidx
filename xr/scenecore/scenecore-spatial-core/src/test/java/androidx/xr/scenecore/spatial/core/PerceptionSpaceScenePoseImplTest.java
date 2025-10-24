@@ -148,7 +148,7 @@ public final class PerceptionSpaceScenePoseImplTest {
     @Test
     public void getActivitySpaceScale_returnsInverseOfActivitySpaceWorldScale() throws Exception {
         float activitySpaceScale = 5f;
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.fromScale(activitySpaceScale));
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(activitySpaceScale));
 
         assertVector3(
                 mPerceptionSpaceScenePose.getActivitySpaceScale(),

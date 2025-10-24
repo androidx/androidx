@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.wear.protolayout.modifiers.TransitionKt:
+    Removed class androidx.wear.protolayout.modifiers.TransitionKt from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.modifiers.VisibilityKt:
+    Removed class androidx.wear.protolayout.modifiers.VisibilityKt from compatibility checked API surface
+
+
 RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColor#getDynamicArgb():
     Source breaking change: method androidx.wear.protolayout.types.LayoutColor.getDynamicArgb() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.wear.protolayout.types.LayoutColor#getStaticArgb():

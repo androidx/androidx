@@ -211,6 +211,30 @@ internal fun TouchInjectionScope.longPress(offset: Offset) {
     move(delayMillis = viewConfiguration.longPressTimeoutMillis + 10)
 }
 
+internal fun TouchInjectionScope.doubleTap(offset: Offset = center, liftPointer: Boolean = true) {
+    down(offset)
+    move()
+    up()
+    advanceEventTime(viewConfiguration.doubleTapMinTimeMillis + 1)
+    down(offset)
+    move()
+    if (liftPointer) up()
+}
+
+internal fun TouchInjectionScope.tripleTap(offset: Offset = center, liftPointer: Boolean = true) {
+    down(offset)
+    move()
+    up()
+    advanceEventTime(viewConfiguration.doubleTapMinTimeMillis + 1)
+    down(offset)
+    move()
+    up()
+    advanceEventTime(viewConfiguration.doubleTapMinTimeMillis + 1)
+    down(offset)
+    move()
+    if (liftPointer) up()
+}
+
 internal infix fun Int.to(other: Int): TextRange = TextRange(this, other)
 
 internal val Int.collapsed: TextRange

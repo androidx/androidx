@@ -19,7 +19,7 @@ import androidx.build.ApkCopyHelperKt
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -86,6 +86,7 @@ dependencies {
         exclude(group:"androidx.test")
     }
     implementation(project(":camera:media3:media3-effect"))
+    implementation("androidx.camera.viewfinder:viewfinder-core:1.5.1")
     implementation(libs.media3Common)
     implementation(libs.media3Effect)
 

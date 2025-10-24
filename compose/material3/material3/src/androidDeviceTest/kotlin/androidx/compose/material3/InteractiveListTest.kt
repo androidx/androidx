@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -283,6 +284,44 @@ class InteractiveListTest {
 
         trailingNodeBounds.left.assertIsEqualTo(InteractiveListEndPadding)
         trailingNodeBounds.top.assertIsEqualTo(InteractiveListTopPadding)
+    }
+
+    @Test
+    fun clickableListItem_customVerticalAlignment_positioning() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ListItem(
+                modifier = Modifier.height(300.dp),
+                leadingContent = { Box(Modifier.testTag(LeadingTag).size(48.dp)) },
+                trailingContent = { Box(Modifier.testTag(TrailingTag).size(48.dp)) },
+                overlineContent = { Text("Overline", Modifier.testTag(OverlineTag)) },
+                supportingContent = { Text("Supporting", Modifier.testTag(SupportingTag)) },
+                content = { Text("Content", Modifier.testTag(ContentTag)) },
+                onClick = {},
+                verticalAlignment = Alignment.Bottom,
+            )
+        }
+
+        val leadingBounds =
+            rule.onNodeWithTag(LeadingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val overlineBounds =
+            rule.onNodeWithTag(OverlineTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val supportingBounds =
+            rule.onNodeWithTag(SupportingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val contentBounds =
+            rule.onNodeWithTag(ContentTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val trailingNodeBounds =
+            rule.onNodeWithTag(TrailingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        val bottomWithoutPadding = rule.rootHeight() - InteractiveListBottomPadding
+        leadingBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
+
+        supportingBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
+        contentBounds.bottom.assertIsEqualTo(bottomWithoutPadding - supportingBounds.height)
+        overlineBounds.bottom.assertIsEqualTo(
+            bottomWithoutPadding - supportingBounds.height - contentBounds.height
+        )
+
+        trailingNodeBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
     }
 
     @Test

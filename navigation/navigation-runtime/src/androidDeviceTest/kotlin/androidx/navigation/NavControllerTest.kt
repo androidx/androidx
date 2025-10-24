@@ -28,7 +28,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
 import androidx.core.net.toUri
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -38,6 +37,7 @@ import androidx.lifecycle.get
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.test.R
+import androidx.savedstate.savedState
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -72,7 +72,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
 
-@Suppress("DEPRECATION") // bundleOf()
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class NavControllerTest {
@@ -237,7 +236,7 @@ class NavControllerTest {
     @Test
     fun testStartDestinationWithArgs() {
         val navController = createNavController()
-        val args = bundleOf(TEST_ARG to TEST_ARG_VALUE)
+        val args = savedState { putString(TEST_ARG, TEST_ARG_VALUE) }
 
         navController.setGraph(R.navigation.nav_start_destination, args)
         val navigator = navController.navigatorProvider[TestNavigator::class]
@@ -252,7 +251,7 @@ class NavControllerTest {
     @Test(expected = IllegalArgumentException::class)
     fun testStartDestinationWithWrongArgs() {
         val navController = createNavController()
-        val args = bundleOf(TEST_ARG to TEST_ARG_VALUE_INT)
+        val args = savedState { putInt(TEST_ARG, TEST_ARG_VALUE_INT) }
         navController.setGraph(R.navigation.nav_start_destination, args)
     }
 
@@ -261,7 +260,7 @@ class NavControllerTest {
     @Test
     fun testStartDestinationWithArgsProgrammatic() {
         val navController = createNavController()
-        val args = bundleOf(TEST_ARG to TEST_ARG_VALUE)
+        val args = savedState { putString(TEST_ARG, TEST_ARG_VALUE) }
 
         val navGraph =
             navController.navigatorProvider.navigation(startDestination = R.id.start_test) {
@@ -1099,12 +1098,12 @@ class NavControllerTest {
                 .setComponentName(TestActivity::class.java)
                 .setGraph(R.navigation.nav_simple) // startDestination= @id/start_test
                 // Explicitly adding the start destination allows arguments to be set.
-                .addDestination(R.id.start_test, bundleOf("arg" to "Start Argument"))
+                .addDestination(R.id.start_test, savedState { putString("arg", "Start Argument") })
                 .addDestination(
                     R.id.start_test_with_default_arg,
-                    bundleOf("arg" to "Middle Argument"),
+                    savedState { putString("arg", "Middle Argument") },
                 )
-                .addDestination(R.id.second_test, bundleOf("arg" to "Leaf Argument"))
+                .addDestination(R.id.second_test, savedState { putString("arg", "Leaf Argument") })
                 .createTaskStackBuilder()
                 .intents[0]
                 .apply {
@@ -1188,7 +1187,7 @@ class NavControllerTest {
                 .setComponentName(TestActivity::class.java)
                 .setGraph(R.navigation.nav_simple) // startDestination= @id/start_test
                 // startDestination is implied here.
-                .addDestination(R.id.second_test, bundleOf("arg" to "Leaf Argument"))
+                .addDestination(R.id.second_test, savedState { putString("arg", "Leaf Argument") })
                 .createTaskStackBuilder()
                 .intents[0]
 
@@ -1242,9 +1241,12 @@ class NavControllerTest {
             navDeepLinkBuilder
                 .setComponentName(TestActivity::class.java)
                 .setGraph(R.navigation.nav_simple) // startDestination= @id/start_test
-                .addDestination(R.id.start_test, bundleOf("arg" to "Start Argument"))
-                .addDestination(R.id.second_test, bundleOf("arg" to "Middle Argument"))
-                .addDestination(R.id.start_test, bundleOf("arg" to "Leaf Argument"))
+                .addDestination(R.id.start_test, savedState { putString("arg", "Start Argument") })
+                .addDestination(
+                    R.id.second_test,
+                    savedState { putString("arg", "Middle Argument") },
+                )
+                .addDestination(R.id.start_test, savedState { putString("arg", "Leaf Argument") })
                 .createTaskStackBuilder()
                 .intents[0]
                 .apply {
@@ -1286,7 +1288,7 @@ class NavControllerTest {
             navDeepLinkBuilder
                 .setComponentName(TestActivity::class.java)
                 .setGraph(R.navigation.nav_simple)
-                .addDestination(R.id.start_test, bundleOf("arg" to "Start Argument"))
+                .addDestination(R.id.start_test, savedState { putString("arg", "Start Argument") })
                 .createTaskStackBuilder()
                 .intents[0]
 
@@ -1323,8 +1325,11 @@ class NavControllerTest {
             navDeepLinkBuilder
                 .setComponentName(TestActivity::class.java)
                 .setGraph(R.navigation.nav_simple)
-                .addDestination(R.id.start_test, bundleOf("arg" to "Start Argument"))
-                .addDestination(R.id.second_test, bundleOf("arg" to "Second Argument"))
+                .addDestination(R.id.start_test, savedState { putString("arg", "Start Argument") })
+                .addDestination(
+                    R.id.second_test,
+                    savedState { putString("arg", "Second Argument") },
+                )
                 .createTaskStackBuilder()
                 .intents[0]
                 .apply {
@@ -1354,7 +1359,10 @@ class NavControllerTest {
                 navController.handleDeepLink(
                     navController
                         .createDeepLink()
-                        .addDestination(R.id.start_test, bundleOf("arg" to "New Start Argument"))
+                        .addDestination(
+                            R.id.start_test,
+                            savedState { putString("arg", "New Start Argument") },
+                        )
                         .createTaskStackBuilder()
                         .intents[0]
                 )
@@ -1937,7 +1945,7 @@ class NavControllerTest {
         val nestedId1 = ("android-app://androidx.navigation/nested/{longArg}").hashCode()
 
         // navigate to nested graph first destination, provide non-nullable arg
-        navController.navigate(nestedId1, bundleOf("longArg" to 123L))
+        navController.navigate(nestedId1, savedState { putLong("longArg", 123L) })
         assertThat(navController.currentDestination?.route).isEqualTo("dest2/{longArg}")
         assertThat(navController.currentBackStackEntry?.arguments?.getLong("longArg"))
             .isEqualTo(123L)
@@ -3749,9 +3757,12 @@ class NavControllerTest {
             collectedDestinations.add(destination.id to arguments)
         }
 
-        val globalBundle = bundleOf("global" to "global")
-        val firstBundle = bundleOf("test" to "first")
-        val secondBundle = bundleOf("global" to "overridden", "test" to "second")
+        val globalBundle = savedState { putString("global", "global") }
+        val firstBundle = savedState { putString("test", "first") }
+        val secondBundle = savedState {
+            putString("global", "overridden")
+            putString("test", "second")
+        }
         val taskStackBuilder =
             navController
                 .createDeepLink()

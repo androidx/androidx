@@ -129,7 +129,7 @@ public class AnchorGuavaTest {
                         mSession =
                                 ((SessionCreateSuccess) Session.create(activity, mTestDispatcher))
                                         .getSession();
-                        mXrResourcesManager.setLifecycleManager$arcore_release(
+                        mXrResourcesManager.setLifecycleManager$arcore(
                                 SessionExtKt.getPerceptionRuntime(mSession).getLifecycleManager());
                         try {
                             testBody.run();

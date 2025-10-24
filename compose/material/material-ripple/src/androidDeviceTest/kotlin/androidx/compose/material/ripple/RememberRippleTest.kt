@@ -97,10 +97,12 @@ class RememberRippleTest {
     private val TestRippleTheme =
         object : RippleTheme {
             @Deprecated("Super method is deprecated")
+            @Suppress("OVERRIDE_DEPRECATION") // b/446706247
             @Composable
             override fun defaultColor() = TestRippleColor
 
             @Deprecated("Super method is deprecated")
+            @Suppress("OVERRIDE_DEPRECATION") // b/446706247
             @Composable
             override fun rippleAlpha() = TestRippleAlpha
         }
@@ -222,10 +224,12 @@ class RememberRippleTest {
                 val rippleAlpha = RippleAlpha(alpha, alpha, alpha, alpha)
 
                 @Deprecated("Super method is deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 @Composable
                 override fun defaultColor() = color
 
                 @Deprecated("Super method is deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 @Composable
                 override fun rippleAlpha() = rippleAlpha
             }
@@ -298,10 +302,12 @@ class RememberRippleTest {
         val rippleTheme =
             object : RippleTheme {
                 @Deprecated("Super method is deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 @Composable
                 override fun defaultColor() = localThemeColor.current
 
                 @Deprecated("Super method is deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 @Composable
                 override fun rippleAlpha() = rippleAlpha
             }
@@ -365,10 +371,12 @@ class RememberRippleTest {
         val rippleTheme =
             object : RippleTheme {
                 @Deprecated("Super method is deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 @Composable
                 override fun defaultColor() = localThemeColor.current
 
                 @Deprecated("Super method is deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 @Composable
                 override fun rippleAlpha() = rippleAlpha
             }

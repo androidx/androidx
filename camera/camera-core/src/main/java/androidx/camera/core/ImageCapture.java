@@ -541,7 +541,6 @@ public final class ImageCapture extends UseCase {
      *
      * @see #setFeatureGroup
      */
-    @OptIn(markerClass = ExperimentalSessionConfig.class)
     private void applyFeatureGroupToConfig(UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
         Set<@NonNull GroupableFeature> featureGroup = getFeatureGroup();
 

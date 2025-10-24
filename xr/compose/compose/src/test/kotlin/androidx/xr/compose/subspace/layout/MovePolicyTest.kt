@@ -37,7 +37,6 @@ import androidx.xr.compose.testing.TestSceneRuntime
 import androidx.xr.compose.testing.createFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.scenecore.MovableComponent
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
@@ -56,7 +55,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_noComponentByDefault() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace { SpatialPanel(SubspaceModifier.testTag("panel")) { Text(text = "Panel") } }
         }
         assertTrue(
@@ -70,7 +69,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_componentIsNotNullAndOnlyContainsSingleMovable() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel"), dragPolicy = MovePolicy()) {
                     Text(text = "Panel")
@@ -82,7 +81,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierIsDisabledAndComponentDoesNotExist() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel"), dragPolicy = MovePolicy(false)) {
                     Text(text = "Panel")
@@ -96,7 +95,7 @@ class MovePolicyTest {
     fun movable_scaleWithDistance_setTrue() {
         val runtime = TestSceneRuntime.create(composeTestRule.activity)
         composeTestRule.session = createFakeSession(composeTestRule.activity, runtime)
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel").width(200.dp),
@@ -113,7 +112,7 @@ class MovePolicyTest {
     fun movable_scaleWithDistance_setFalse() {
         val runtime = TestSceneRuntime.create(composeTestRule.activity)
         composeTestRule.session = createFakeSession(composeTestRule.activity, runtime)
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel").width(200.dp),
@@ -129,7 +128,7 @@ class MovePolicyTest {
     fun movable_scaleWithDistance_scaleFlip() {
         val runtime = TestSceneRuntime.create(composeTestRule.activity)
         composeTestRule.session = createFakeSession(composeTestRule.activity, runtime)
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var scaleWithDistance by remember { mutableStateOf(false) }
                 SpatialPanel(
@@ -159,7 +158,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierDoesNotChangeAndOnlyOneComponentExist() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var panelWidth by remember { mutableStateOf(50.dp) }
                 SpatialPanel(
@@ -183,7 +182,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierEnabledToDisabledAndComponentUpdates() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var movableEnabled by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -207,7 +206,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var onPoseReturnValue by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -232,7 +231,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierDisableWithOnPoseChangeUpdateAndComponentRemoved() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var movableEnabled by remember { mutableStateOf(true) }
                 var onPoseReturnValue by remember { mutableStateOf(true) }
@@ -261,7 +260,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierEnabledWithOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var movableEnabled by remember { mutableStateOf(false) }
                 var onPoseReturnValue by remember { mutableStateOf(true) }
@@ -290,7 +289,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierDisabledThenEnabledAndComponentUpdates() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var movableEnabled by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -317,7 +316,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierOnPoseChangeTwiceUpdateAndComponentUpdates() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var onPoseReturnValue by remember { mutableStateOf(true) }
                 SpatialPanel(
@@ -346,7 +345,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierDisabledThenEnabledWithOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var movableEnabled by remember { mutableStateOf(true) }
                 var onPoseReturnValue by remember { mutableStateOf(true) }
@@ -380,7 +379,7 @@ class MovePolicyTest {
 
     @Test
     fun movePolicy_modifierEnabledThenDisabledWithOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var movableEnabled by remember { mutableStateOf(false) }
                 var onPoseReturnValue by remember { mutableStateOf(true) }

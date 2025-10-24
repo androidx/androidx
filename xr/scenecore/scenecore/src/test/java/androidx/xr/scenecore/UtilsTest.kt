@@ -46,6 +46,7 @@ import androidx.xr.scenecore.runtime.SpatialVisibility as RuntimeSpatialVisibili
 import androidx.xr.scenecore.runtime.TextureSampler as RuntimeTextureSampler
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -191,8 +192,8 @@ class UtilsTest {
                     emptyList(),
                 )
                 .toInputEvent(entityManager)
-        assertThat(inputEvent.source).isEqualTo(InputEvent.Source.SOURCE_HANDS)
-        assertThat(inputEvent.pointerType).isEqualTo(InputEvent.Pointer.POINTER_TYPE_LEFT)
+        assertThat(inputEvent.source).isEqualTo(InputEvent.Source.HANDS)
+        assertThat(inputEvent.pointerType).isEqualTo(InputEvent.Pointer.LEFT)
         assertThat(inputEvent.timestamp).isEqualTo(123456789)
         assertThat(inputEvent.origin.x).isEqualTo(1f)
         assertThat(inputEvent.origin.y).isEqualTo(2f)
@@ -200,7 +201,7 @@ class UtilsTest {
         assertThat(inputEvent.direction.x).isEqualTo(4f)
         assertThat(inputEvent.direction.y).isEqualTo(5f)
         assertThat(inputEvent.direction.z).isEqualTo(6f)
-        assertThat(inputEvent.action).isEqualTo(InputEvent.Action.ACTION_DOWN)
+        assertThat(inputEvent.action).isEqualTo(InputEvent.Action.DOWN)
         assertThat(inputEvent.hitInfoList).isEmpty()
     }
 
@@ -267,7 +268,7 @@ class UtilsTest {
                 .toResizeEvent(entity)
 
         assertThat(resizeEvent.entity).isEqualTo(entity)
-        assertThat(resizeEvent.resizeState).isEqualTo(ResizeEvent.ResizeState.RESIZE_STATE_START)
+        assertThat(resizeEvent.resizeState).isEqualTo(ResizeEvent.ResizeState.START)
         assertThat(resizeEvent.newSize.width).isEqualTo(1f)
         assertThat(resizeEvent.newSize.height).isEqualTo(3f)
         assertThat(resizeEvent.newSize.depth).isEqualTo(5f)
@@ -276,16 +277,7 @@ class UtilsTest {
     @Test
     fun runtimeSpatialCapabilitiesToSpatialCapabilities_noCapabilities() {
         val caps = RuntimeSpatialCapabilities(0).toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        assertThat(caps.isEmpty()).isTrue()
     }
 
     @Test
@@ -293,30 +285,12 @@ class UtilsTest {
         var caps =
             RuntimeSpatialCapabilities(RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_UI)
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        assertThat(caps).isEqualTo(setOf(SpatialCapability.SPATIAL_UI))
 
         caps =
             RuntimeSpatialCapabilities(RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO)
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        assertThat(caps).isEqualTo(setOf(SpatialCapability.SPATIAL_AUDIO))
     }
 
     @Test
@@ -332,50 +306,30 @@ class UtilsTest {
                 )
                 .toSpatialCapabilities()
 
-        // Assert that individually checking the capabilities works as expected.
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isTrue()
-
-        // Assert that it is also true when we check for all capabilities together.
-        assertThat(
-                caps.hasCapability(
-                    SpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                        SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
-                        SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL or
-                        SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT or
-                        SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO or
-                        SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
-                )
+        val allCaps =
+            setOf(
+                SpatialCapability.APP_ENVIRONMENT,
+                SpatialCapability.EMBED_ACTIVITY,
+                SpatialCapability.PASSTHROUGH_CONTROL,
+                SpatialCapability.SPATIAL_3D_CONTENT,
+                SpatialCapability.SPATIAL_AUDIO,
+                SpatialCapability.SPATIAL_UI,
             )
-            .isTrue()
+
+        assertThat(caps).isEqualTo(allCaps)
     }
 
     @Test
-    fun runtimeSpatialCapabilitiesToSpatialCapabilities_mixedCapabilities_singleChecksWork() {
+    fun runtimeSpatialCapabilitiesToSpatialCapabilities_mixedCapabilities() {
         var caps =
             RuntimeSpatialCapabilities(
                     RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
                         RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO
                 )
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        var expectedCaps =
+            setOf(SpatialCapability.SPATIAL_3D_CONTENT, SpatialCapability.SPATIAL_AUDIO)
+        assertThat(caps).isEqualTo(expectedCaps)
 
         caps =
             RuntimeSpatialCapabilities(
@@ -385,68 +339,14 @@ class UtilsTest {
                         RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
                 )
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isTrue()
-    }
-
-    @Test
-    fun runtimeSpatialCapabilitiesToSpatialCapabilities_exactMixedCapabilitiesCheck_returnsTrue() {
-        val caps =
-            RuntimeSpatialCapabilities(
-                    RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT
-                )
-                .toSpatialCapabilities()
-
-        // Check for the exact set of available capabilities.
-        val allAvailable =
-            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT
-        assertThat(caps.hasCapability(allAvailable)).isTrue()
-
-        // Check for a mix of available and unavailable capabilities.
-        val mixed =
-            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
-        assertThat(caps.hasCapability(mixed)).isFalse()
-
-        // Check for a superset of available capabilities.
-        val superset =
-            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
-                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
-        assertThat(caps.hasCapability(superset)).isFalse()
-    }
-
-    @Test
-    fun runtimeSpatialCapabilitiesToSpatialCapabilities_mixedUnavailableCapabilities_returnsFalse() {
-        val caps =
-            RuntimeSpatialCapabilities(
-                    RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT
-                )
-                .toSpatialCapabilities()
-
-        // Check for a mix of available and unavailable capabilities.
-        val mixed =
-            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
-        assertThat(caps.hasCapability(mixed)).isFalse()
-
-        // Check for a superset of available capabilities.
-        val superset =
-            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
-                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
-                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
-        assertThat(caps.hasCapability(superset)).isFalse()
+        expectedCaps =
+            setOf(
+                SpatialCapability.SPATIAL_UI,
+                SpatialCapability.PASSTHROUGH_CONTROL,
+                SpatialCapability.APP_ENVIRONMENT,
+                SpatialCapability.EMBED_ACTIVITY,
+            )
+        assertThat(caps).isEqualTo(expectedCaps)
     }
 
     @Test
@@ -461,10 +361,10 @@ class UtilsTest {
                     .map { it.toSpatialVisibility() }
             )
             .containsExactly(
-                SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN,
-                SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW,
-                SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW,
-                SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.UNKNOWN,
+                SpatialVisibility.OUTSIDE_FIELD_OF_VIEW,
+                SpatialVisibility.PARTIALLY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.WITHIN_FIELD_OF_VIEW,
             )
             .inOrder()
     }
@@ -481,10 +381,10 @@ class UtilsTest {
                     .map { it.toSpatialVisibilityValue() }
             )
             .containsExactly(
-                SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN,
-                SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW,
-                SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW,
-                SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.UNKNOWN,
+                SpatialVisibility.OUTSIDE_FIELD_OF_VIEW,
+                SpatialVisibility.PARTIALLY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.WITHIN_FIELD_OF_VIEW,
             )
             .inOrder()
     }
@@ -529,10 +429,10 @@ class UtilsTest {
                     .map { it.toResizeState() }
             )
             .containsExactly(
-                ResizeEvent.ResizeState.RESIZE_STATE_UNKNOWN,
-                ResizeEvent.ResizeState.RESIZE_STATE_START,
-                ResizeEvent.ResizeState.RESIZE_STATE_ONGOING,
-                ResizeEvent.ResizeState.RESIZE_STATE_END,
+                ResizeEvent.ResizeState.UNKNOWN,
+                ResizeEvent.ResizeState.START,
+                ResizeEvent.ResizeState.ONGOING,
+                ResizeEvent.ResizeState.END,
             )
             .inOrder()
     }
@@ -556,12 +456,12 @@ class UtilsTest {
                     .map { it.toInputEventSource() }
             )
             .containsExactly(
-                InputEvent.Source.SOURCE_UNKNOWN,
-                InputEvent.Source.SOURCE_HEAD,
-                InputEvent.Source.SOURCE_CONTROLLER,
-                InputEvent.Source.SOURCE_HANDS,
-                InputEvent.Source.SOURCE_MOUSE,
-                InputEvent.Source.SOURCE_GAZE_AND_GESTURE,
+                InputEvent.Source.UNKNOWN,
+                InputEvent.Source.HEAD,
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Source.HANDS,
+                InputEvent.Source.MOUSE,
+                InputEvent.Source.GAZE_AND_GESTURE,
             )
             .inOrder()
     }
@@ -579,43 +479,19 @@ class UtilsTest {
                         RuntimeInputEvent.Pointer.LEFT,
                         RuntimeInputEvent.Pointer.RIGHT,
                     )
-                    .map { it.toInputEventPointerType() }
+                    .map { it.toInputEventPointer() }
             )
             .containsExactly(
-                InputEvent.Pointer.POINTER_TYPE_DEFAULT,
-                InputEvent.Pointer.POINTER_TYPE_LEFT,
-                InputEvent.Pointer.POINTER_TYPE_RIGHT,
+                InputEvent.Pointer.DEFAULT,
+                InputEvent.Pointer.LEFT,
+                InputEvent.Pointer.RIGHT,
             )
             .inOrder()
     }
 
     @Test
     fun intToInputEventPointerType_invalidValue_throwsError() {
-        assertFailsWith<IllegalStateException> { 100.toInputEventPointerType() }
-    }
-
-    @Test
-    fun intToSpatialCapability_convertsCorrectly() {
-        assertThat(
-                listOf(
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_UI,
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT,
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL,
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT,
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO,
-                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY,
-                    )
-                    .map { it.toSpatialCapability() }
-            )
-            .containsExactly(
-                SpatialCapabilities.SPATIAL_CAPABILITY_UI,
-                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT,
-                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL,
-                SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT,
-                SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO,
-                SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY,
-            )
-            .inOrder()
+        assertFailsWith<IllegalStateException> { 100.toInputEventPointer() }
     }
 
     @Test
@@ -633,13 +509,13 @@ class UtilsTest {
                     .map { it.toInputEventAction() }
             )
             .containsExactly(
-                InputEvent.Action.ACTION_DOWN,
-                InputEvent.Action.ACTION_UP,
-                InputEvent.Action.ACTION_MOVE,
-                InputEvent.Action.ACTION_CANCEL,
-                InputEvent.Action.ACTION_HOVER_MOVE,
-                InputEvent.Action.ACTION_HOVER_ENTER,
-                InputEvent.Action.ACTION_HOVER_EXIT,
+                InputEvent.Action.DOWN,
+                InputEvent.Action.UP,
+                InputEvent.Action.MOVE,
+                InputEvent.Action.CANCEL,
+                InputEvent.Action.HOVER_MOVE,
+                InputEvent.Action.HOVER_ENTER,
+                InputEvent.Action.HOVER_EXIT,
             )
             .inOrder()
     }
@@ -739,13 +615,13 @@ class UtilsTest {
     fun intToTextureSampler_convertsCorrectly() {
         val sampler =
             TextureSampler(
-                minificationFilter = TextureSampler.MINIFICATION_FILTER_NEAREST,
-                magnificationFilter = TextureSampler.MAGNIFICATION_FILTER_LINEAR,
-                wrapModeHorizontal = TextureSampler.WRAP_MODE_CLAMP_TO_EDGE,
-                wrapModeVertical = TextureSampler.WRAP_MODE_REPEAT,
-                wrapModeDepth = TextureSampler.WRAP_MODE_MIRRORED_REPEAT,
-                compareMode = TextureSampler.COMPARE_MODE_NONE,
-                compareFunction = TextureSampler.COMPARE_FUNCTION_LESSER_OR_EQUAL,
+                minificationFilter = TextureSampler.MinificationFilter.NEAREST,
+                magnificationFilter = TextureSampler.MagnificationFilter.LINEAR,
+                wrapModeHorizontal = TextureSampler.WrapMode.CLAMP_TO_EDGE,
+                wrapModeVertical = TextureSampler.WrapMode.REPEAT,
+                wrapModeDepth = TextureSampler.WrapMode.MIRRORED_REPEAT,
+                compareMode = TextureSampler.CompareMode.NONE,
+                compareFunction = TextureSampler.CompareFunction.LESSER_OR_EQUAL,
                 anisotropyLog2 = 2,
             )
 
@@ -770,7 +646,7 @@ class UtilsTest {
         val rtHitTestResult =
             RuntimeHitTestResult(hitPosition, surfaceNormal, surfaceType, distance)
         val hitTestResult = rtHitTestResult.toHitTestResult()
-        assertThat(hitTestResult.hitPosition).isEqualTo(hitPosition)
+        assertThat(hitTestResult!!.hitPosition).isEqualTo(hitPosition)
         assertThat(hitTestResult.surfaceNormal).isEqualTo(surfaceNormal)
         assertThat(hitTestResult.surfaceType).isEqualTo(HitTestResult.SurfaceType.PLANE)
         assertThat(hitTestResult.distance).isEqualTo(distance)
@@ -788,10 +664,7 @@ class UtilsTest {
 
         val hitTestResult = rtHitTestResult.toHitTestResult()
 
-        assertThat(hitTestResult.hitPosition).isEqualTo(hitPosition)
-        assertThat(hitTestResult.surfaceNormal).isEqualTo(surfaceNormal)
-        assertThat(hitTestResult.surfaceType).isEqualTo(HitTestResult.SurfaceType.UNKNOWN)
-        assertThat(hitTestResult.distance).isEqualTo(distance)
+        assertNull(hitTestResult)
     }
 
     @Test

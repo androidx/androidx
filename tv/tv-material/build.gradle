@@ -29,7 +29,7 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -51,8 +51,8 @@ dependencies {
 
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.compose.runtime:runtime:$composeVersion")
-    androidTestImplementation("androidx.compose.ui:ui-test:$composeVersion")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testRunner)
@@ -61,9 +61,6 @@ dependencies {
 android {
     compileSdk = 35
     namespace = "androidx.tv.material"
-    lint {
-        disable += "ComposeTestRuleDispatcher"
-    }
 }
 
 androidx {

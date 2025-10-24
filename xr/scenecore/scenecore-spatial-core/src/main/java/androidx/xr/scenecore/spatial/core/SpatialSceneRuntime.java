@@ -56,6 +56,7 @@ import androidx.xr.scenecore.runtime.PlaneType;
 import androidx.xr.scenecore.runtime.PointerCaptureComponent;
 import androidx.xr.scenecore.runtime.RenderingEntityFactory;
 import androidx.xr.scenecore.runtime.ResizableComponent;
+import androidx.xr.scenecore.runtime.ScenePose;
 import androidx.xr.scenecore.runtime.SceneRuntime;
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper;
 import androidx.xr.scenecore.runtime.Space;
@@ -198,8 +199,7 @@ public class SpatialSceneRuntime implements SceneRuntime, RenderingEntityFactory
                         unscaledGravityAlignedActivitySpace,
                         executor);
         mEntityManager.addSystemSpaceActivityPose(mActivitySpace);
-        mHeadScenePose =
-                new HeadScenePoseImpl(mActivitySpace, mActivitySpace, perceptionLibrary);
+        mHeadScenePose = new HeadScenePoseImpl(mActivitySpace, mActivitySpace, perceptionLibrary);
         mEntityManager.addSystemSpaceActivityPose(mHeadScenePose);
         mPerceptionSpaceScenePose =
                 new PerceptionSpaceScenePoseImpl(mActivitySpace, mActivitySpace);
@@ -396,6 +396,14 @@ public class SpatialSceneRuntime implements SceneRuntime, RenderingEntityFactory
     }
 
     @Override
+    public @NonNull ScenePose getScenePoseFromPerceptionPose(@NonNull Pose perceptionPose) {
+        return new OpenXrScenePose(
+                (ActivitySpaceImpl) getActivitySpace(),
+                (AndroidXrEntity) getActivitySpace(),
+                perceptionPose);
+    }
+
+    @Override
     public @NonNull PerceptionSpaceScenePose getPerceptionSpaceActivityPose() {
         return mPerceptionSpaceScenePose;
     }
@@ -407,7 +415,7 @@ public class SpatialSceneRuntime implements SceneRuntime, RenderingEntityFactory
 
     @Override
     public void setSpatialModeChangeListener(
-            @NonNull SpatialModeChangeListener spatialModeChangeListener) {
+            @Nullable SpatialModeChangeListener spatialModeChangeListener) {
         mSpatialModeChangeListener = spatialModeChangeListener;
         mActivitySpace.setSpatialModeChangeListener(spatialModeChangeListener);
     }

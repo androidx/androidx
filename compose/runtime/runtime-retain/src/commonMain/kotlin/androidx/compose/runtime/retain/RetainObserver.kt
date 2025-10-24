@@ -42,20 +42,21 @@ package androidx.compose.runtime.retain
 public interface RetainObserver {
     /**
      * Called when this object is successfully [retain]ed. This occurs when the result of a [retain]
-     * call is successfully created and installed in a [RetainScope] and has the same timing as
-     * [onRemembered][androidx.compose.runtime.RememberObserver.onRemembered] for the initial
+     * call is successfully created and installed in a [RetainedValuesStore] and has the same timing
+     * as [onRemembered][androidx.compose.runtime.RememberObserver.onRemembered] for the initial
      * retention of a value.
      *
      * When the composition is successful, this call will be immediately followed by a call to
      * [onEnteredComposition].
      *
-     * If the composition is abandoned and the associated [RetainScope] is currently keeping exited
-     * values, the value will be retained and may be used in a future (successful) composition. This
-     * is the only scenario in which it is possible for a RetainObserver to experience a lifecycle
-     * of Retained -> Retired without receiving any calls to [onEnteredComposition].
+     * If the composition is abandoned and the associated [RetainedValuesStore] is currently
+     * retaining exited values, the value will be retained and may be used in a future (successful)
+     * composition. This is the only scenario in which it is possible for a RetainObserver to
+     * experience a lifecycle of Retained -> Retired without receiving any calls to
+     * [onEnteredComposition].
      *
-     * If the composition is unsuccessful and the associated [RetainScope] is not keeping exited
-     * values, this callback will be skipped and [onUnused] will be called instead.
+     * If the composition is unsuccessful and the associated [RetainedValuesStore] is not retaining
+     * exited values, this callback will be skipped and [onUnused] will be called instead.
      */
     public fun onRetained()
 
@@ -96,8 +97,9 @@ public interface RetainObserver {
      * [androidx.compose.runtime.RememberObserver.onAbandoned]), or after [onExitedComposition].
      * When called after [onExitedComposition], this indicates that this value was previously used
      * in composition, but the content retaining this value has been removed and will not be
-     * returned to (either because the relevant [RetainScope] was not retaining at the time of
-     * removal, or the removed content was not restored after all retained objects were restored).
+     * returned to (either because the relevant [RetainedValuesStore] was not retaining at the time
+     * of removal, or the removed content was not restored after all retained objects were
+     * restored).
      *
      * Implementations of this method can be used to release resources held by the instance.
      *

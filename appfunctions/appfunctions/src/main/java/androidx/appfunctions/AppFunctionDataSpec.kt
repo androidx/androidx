@@ -324,7 +324,10 @@ internal abstract class AppFunctionDataSpec {
                 !isCollection && typeClazz == String::class.java
             }
             is AppFunctionBytesTypeMetadata -> {
-                !isCollection && typeClazz == Byte::class.java
+                // Unlike other primitive array types, AppFunction does not support Byte itself.
+                // Instead, ByteArray is considered as a primitive type. Therefore, when validating
+                // against AppFunctionBytesTypeMetadata, it must always be a collection.
+                isCollection && typeClazz == Byte::class.java
             }
             is AppFunctionPendingIntentTypeMetadata -> {
                 !isCollection && typeClazz == PendingIntent::class.java

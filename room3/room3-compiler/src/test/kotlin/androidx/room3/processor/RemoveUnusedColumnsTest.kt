@@ -130,7 +130,7 @@ class RemoveUnusedColumnsTest {
                         exportSchema = false
                     )
                     ${annotationText(annotateDb)}
-                    abstract class MyDb extends RoomDatabase {
+                    public abstract class MyDb extends RoomDatabase {
                         abstract public MyDao getDao();
                     }
                 """

@@ -113,7 +113,7 @@ public class EntityManagerTest {
         SystemClock.setCurrentTimeMillis(currentTimeMillis);
 
         // By default, set the activity space to the root of the underlying OpenXR reference space.
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
+        mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
     }
 
     @After
@@ -212,8 +212,7 @@ public class EntityManagerTest {
     }
 
     @Test
-    public void getAllSystemSpaceScenePoses_returnsAllSystemSpaceScenePoses()
-            throws Exception {
+    public void getAllSystemSpaceScenePoses_returnsAllSystemSpaceScenePoses() throws Exception {
         assertThat(mEntityManager.getAllSystemSpaceActivityPoses().size()).isAtLeast(4);
         assertThat(mEntityManager.getAllSystemSpaceActivityPoses())
                 .containsAtLeast(
@@ -222,8 +221,7 @@ public class EntityManagerTest {
     }
 
     @Test
-    public void getSystemSpaceScenePoseOfType_returnsSystemSpaceScenePoseOfType()
-            throws Exception {
+    public void getSystemSpaceScenePoseOfType_returnsSystemSpaceScenePoseOfType() throws Exception {
         assertThat(mEntityManager.getSystemSpaceActivityPoseOfType(ActivitySpace.class).get(0))
                 .isInstanceOf(ActivitySpaceImpl.class);
         assertThat(

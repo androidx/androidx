@@ -53,7 +53,6 @@ public class CameraPipeConfigTestRule(public val active: Boolean) : TestRule {
 
     override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {
-            private var standardHandler: Thread.UncaughtExceptionHandler? = null
 
             override fun evaluate() {
                 if (active) {
@@ -75,16 +74,14 @@ public class CameraPipeConfigTestRule(public val active: Boolean) : TestRule {
             private fun testInPipeLab() {
                 try {
                     log("started: ${description.displayName}")
-                    logUncaughtExceptions()
                     base.evaluate()
                 } catch (e: AssumptionViolatedException) {
                     log("AssumptionViolatedException: ${description.displayName}", e)
-                    handleException(e)
+                    throw e
                 } catch (e: Throwable) {
                     log("failed: ${description.displayName}", e)
-                    handleException(e)
+                    throw e
                 } finally {
-                    restoreUncaughtExceptionHandler()
                     log("finished: ${description.displayName}")
                 }
             }
@@ -102,26 +99,6 @@ public class CameraPipeConfigTestRule(public val active: Boolean) : TestRule {
 
             private fun testInAllowList() =
                 allowPresubmitTests.any { description.displayName.contains(it, ignoreCase = true) }
-
-            private fun handleException(e: Throwable) {
-                if (Log.isLoggable(CAMERA_PIPE_TEST_FLAG, Log.DEBUG)) {
-                    throw e
-                } else {
-                    throw AssumptionViolatedException("CameraPipeTestFailure", e)
-                }
-            }
-
-            private fun logUncaughtExceptions() {
-                standardHandler = Thread.getDefaultUncaughtExceptionHandler()
-                Thread.setDefaultUncaughtExceptionHandler { _, e ->
-                    log("Invoking uncaught exception handler: ${description.displayName}", e)
-                    handleException(e)
-                }
-            }
-
-            private fun restoreUncaughtExceptionHandler() {
-                Thread.setDefaultUncaughtExceptionHandler(standardHandler)
-            }
         }
 
     private companion object {

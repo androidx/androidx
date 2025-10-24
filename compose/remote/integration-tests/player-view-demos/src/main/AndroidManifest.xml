@@ -65,5 +65,20 @@
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".ExperimentWidgetProvider"
+            android:exported="true"
+            android:label="RemoteCompose Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.oldName"
+                android:value="com.android.deskclock.AnalogAppWidgetProvider" />
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
     </application>
 </manifest>

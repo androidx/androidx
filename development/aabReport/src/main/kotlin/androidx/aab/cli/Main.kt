@@ -80,7 +80,7 @@ fun usageAndDie() {
     println(
         """
             Report Usage:
-                 java -jar <path-to-jar> [--verbose] <path-to-aab> [<path-to-aab2>...]
+                 java -jar <path-to-jar> [--verbose] [--out=<output_dir_path>] <path-to-aab> [<path-to-aab2>...]
             CSV Usage:
                  java -jar <path-to-jar> [--verbose] --out=<output_dir_path> --csv <path-to-aab> [<path-to-aab2>...]
 

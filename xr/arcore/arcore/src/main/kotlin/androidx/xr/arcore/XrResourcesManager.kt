@@ -79,7 +79,7 @@ internal class XrResourcesManager {
 
     /** The data of the user's face */
     private var _userFace: RuntimeFace? = null
-    val userFace: Face? by lazy { _userFace?.let { Face(it) } }
+    val userFace: Face? by lazy { _userFace?.let { Face(it, this) } }
 
     /** Geospatial data */
     private var _earth: Earth? = null
@@ -201,6 +201,9 @@ internal class XrResourcesManager {
             when (runtimeTrackable) {
                 is RuntimePlane -> Plane(runtimeTrackable, this)
                 is RuntimeObject -> AugmentedObject(runtimeTrackable, this)
+                // TODO b/452702634: uncomment when API updates are approved and we can make Face a
+                // Trackable
+                // is RuntimeFace -> Face(runtimeTrackable, this)
                 else ->
                     throw IllegalArgumentException(
                         "Unsupported trackable type: ${runtimeTrackable.javaClass}"

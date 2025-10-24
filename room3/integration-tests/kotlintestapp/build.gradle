@@ -25,6 +25,7 @@ import com.google.devtools.ksp.gradle.KspTask
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    // Remove when b/442128557 is fixed
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("androidx.room3")
@@ -78,7 +79,6 @@ dependencies {
     // its kotlinx-coroutines-guava dependency's guava-jre version
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(project(":room3:room3-rxjava3"))
-    androidTestImplementation(project(":room3:room3-ktx"))
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":paging:paging-runtime"))
     androidTestImplementation(project(":paging:paging-guava"))
@@ -124,4 +124,5 @@ tasks.withType(KspTask).configureEach { kspTask ->
 
 androidx {
     kotlinTarget = KotlinTarget.KOTLIN_2_2
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
 }

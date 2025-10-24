@@ -345,8 +345,8 @@ class PerceptionStateExtenderTest {
             coreState.perceptionState!!.userFace!!.state.value.trackingState !=
                 TrackingState.TRACKING
         )
-        check(coreState.perceptionState!!.userFace!!.state.value.blendShapeValues.isEmpty())
-        check(coreState.perceptionState!!.userFace!!.state.value.confidenceValues.isEmpty())
+        check(coreState.perceptionState!!.userFace!!.state.value.blendShapeValues!!.isEmpty())
+        check(coreState.perceptionState!!.userFace!!.state.value.confidenceValues!!.isEmpty())
 
         // act
         timeSource += 10.milliseconds

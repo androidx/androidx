@@ -29,8 +29,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * An ScenePose representing the head of the user. This can be used to determine the location of
- * the user's head.
+ * An ScenePose representing the head of the user. This can be used to determine the location of the
+ * user's head.
  */
 class HeadScenePoseImpl extends BaseScenePose implements HeadScenePose {
     private final PerceptionLibrary mPerceptionLibrary;

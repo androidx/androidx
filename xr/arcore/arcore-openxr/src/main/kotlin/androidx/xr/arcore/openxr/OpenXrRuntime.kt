@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Config.ConfigMode
+import androidx.xr.runtime.XrDisplay.BlendMode
 import kotlin.time.ComparableTimeMark
 
 /**
@@ -59,6 +60,11 @@ internal constructor(
         return SUPPORTED_CONFIG_MODES.contains(configMode)
     }
 
+    override fun getPreferredBlendMode(): BlendMode {
+        val blendMode = nativeGetPreferredBlendMode()
+        return blendMode ?: BlendMode.NOT_APPLICABLE
+    }
+
     override fun destroy() {
         lifecycleManager.stop()
     }
@@ -86,7 +92,18 @@ internal constructor(
                 Config.EyeTrackingMode.DISABLED,
                 Config.EyeTrackingMode.COARSE_TRACKING,
                 Config.EyeTrackingMode.FINE_TRACKING,
-                Config.EyeTrackingMode.COARSE_AND_FINE_TRACKING,
             )
     }
+
+    private external fun nativeGetPreferredBlendMode(): BlendMode?
 }
+
+internal fun BlendMode.Companion.fromOpenXrEnvironmentBlendMode(type: Int): BlendMode =
+    when (type) {
+        1 -> NOT_APPLICABLE // XR_ENVIRONMENT_BLEND_MODE_OPAQUE
+        2 -> ADDITIVE // XR_ENVIRONMENT_BLEND_MODE_ADDITIVE
+        3 -> ALPHA_BLEND // XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND
+        else -> {
+            throw IllegalStateException("Invalid environment blend mode.")
+        }
+    }

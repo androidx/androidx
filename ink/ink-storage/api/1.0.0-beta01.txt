@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.ink.storage {
 
-  public final class AndroidBrushFamilyExtensions {
+  @SuppressCompatibility public final class AndroidBrushFamilyExtensions {
     method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input, androidx.ink.storage.BrushFamilyDecodeCallback getClientTextureId);
     method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output, androidx.ink.brush.TextureBitmapStore textureBitmapStore);
   }
@@ -16,7 +16,7 @@ package androidx.ink.storage {
     method public String onDecodeTexture(String clientTextureId, android.graphics.Bitmap? bitmap);
   }
 
-  public final class BrushFamilyExtensions {
+  @SuppressCompatibility public final class BrushFamilyExtensions {
     method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input);
     method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output);
   }

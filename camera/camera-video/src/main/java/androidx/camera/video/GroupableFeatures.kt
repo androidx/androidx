@@ -16,15 +16,11 @@
 
 package androidx.camera.video
 
-import androidx.annotation.RestrictTo
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.featuregroup.GroupableFeature
 import androidx.camera.core.featuregroup.GroupableFeature.Companion.FEATURE_TYPE_RECORDING_QUALITY
 import androidx.camera.video.featuregroup.RecordingQualityFeature
 
 /** A collection of [GroupableFeature] instances that are specific to video recording. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@OptIn(ExperimentalSessionConfig::class)
 public object GroupableFeatures {
     /**
      * A feature object of type [FEATURE_TYPE_RECORDING_QUALITY] representing [Quality.SD] video

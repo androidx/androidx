@@ -24,7 +24,9 @@ import android.app.Activity;
 
 import androidx.xr.runtime.math.FloatSize2d;
 import androidx.xr.runtime.math.Pose;
+import androidx.xr.scenecore.impl.impress.ExrImage;
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl;
+import androidx.xr.scenecore.impl.impress.GltfModel;
 import androidx.xr.scenecore.impl.impress.Material;
 import androidx.xr.scenecore.impl.impress.Texture;
 import androidx.xr.scenecore.runtime.ExrImageResource;
@@ -132,7 +134,7 @@ public class SpatialRenderingRuntimeTest {
 
         GltfFeature feature =
                 new GltfFeatureImpl(
-                        (GltfModelResourceImpl) model,
+                        (GltfModel) model,
                         mFakeImpressApi,
                         mSplitEngineSubspaceManager,
                         mXrExtensions);
@@ -169,9 +171,9 @@ public class SpatialRenderingRuntimeTest {
 
         ExrImageResource image = imageFuture.get();
         assertThat(image).isNotNull();
-        ExrImageResourceImpl imageImpl = (ExrImageResourceImpl) image;
-        assertThat(imageImpl).isNotNull();
-        long token = imageImpl.getExtensionImageToken();
+        ExrImage exrImage = (ExrImage) image;
+        assertThat(exrImage).isNotNull();
+        long token = exrImage.getNativeHandle();
         assertThat(token).isEqualTo(1);
     }
 
@@ -184,9 +186,9 @@ public class SpatialRenderingRuntimeTest {
 
         ExrImageResource image = imageFuture.get();
         assertThat(image).isNotNull();
-        ExrImageResourceImpl imageImpl = (ExrImageResourceImpl) image;
-        assertThat(imageImpl).isNotNull();
-        long token = imageImpl.getExtensionImageToken();
+        ExrImage exrImage = (ExrImage) image;
+        assertThat(exrImage).isNotNull();
+        long token = exrImage.getNativeHandle();
         assertThat(token).isEqualTo(1);
     }
 
@@ -197,11 +199,11 @@ public class SpatialRenderingRuntimeTest {
 
         assertThat(modelFuture).isNotNull();
 
-        GltfModelResource model = modelFuture.get();
+        GltfModelResource modelRes = modelFuture.get();
+        assertThat(modelRes).isNotNull();
+        GltfModel model = (GltfModel) modelRes;
         assertThat(model).isNotNull();
-        GltfModelResourceImpl modelImpl = (GltfModelResourceImpl) model;
-        assertThat(modelImpl).isNotNull();
-        long token = modelImpl.getExtensionModelToken();
+        long token = model.getNativeHandle();
         assertThat(token).isEqualTo(1);
     }
 
@@ -212,11 +214,11 @@ public class SpatialRenderingRuntimeTest {
 
         assertThat(modelFuture).isNotNull();
 
-        GltfModelResource model = modelFuture.get();
+        GltfModelResource modelRes = modelFuture.get();
+        assertThat(modelRes).isNotNull();
+        GltfModel model = (GltfModel) modelRes;
         assertThat(model).isNotNull();
-        GltfModelResourceImpl modelImpl = (GltfModelResourceImpl) model;
-        assertThat(modelImpl).isNotNull();
-        long token = modelImpl.getExtensionModelToken();
+        long token = model.getNativeHandle();
         assertThat(token).isEqualTo(1);
     }
 

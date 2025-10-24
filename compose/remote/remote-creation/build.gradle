@@ -73,6 +73,7 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.mockitoCore4)
                 implementation project(':compose:remote:remote-creation-core')
+                implementation(project(":compose:remote:remote-core-testutils"))
                 implementation("org.yaml:snakeyaml:2.4")
                 implementation("org.jetbrains.kotlin:kotlin-stdlib")
             }
@@ -88,7 +89,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.testRunner)
                 implementation(libs.espressoCore)
-                implementation(project(":compose:remote:test-utils"))
+                implementation(project(":compose:remote:remote-core-testutils"))
                 implementation(project(":compose:remote:remote-player-view"))
                 implementation(project(":compose:ui:ui-test-junit4"))
             }

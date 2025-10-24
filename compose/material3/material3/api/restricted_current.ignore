@@ -1,4 +1,30 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.compose.material3.AlertDialogKt:
+    Removed class androidx.compose.material3.AlertDialogKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.BottomSheetScaffoldKt:
+    Removed class androidx.compose.material3.BottomSheetScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.DatePicker_jvmKt:
+    Removed class androidx.compose.material3.DatePicker_jvmKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.ExposedDropdownMenuKt:
+    Removed class androidx.compose.material3.ExposedDropdownMenuKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.LabelKt:
+    Removed class androidx.compose.material3.LabelKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.ModalBottomSheetKt:
+    Removed class androidx.compose.material3.ModalBottomSheetKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.ModalBottomSheet_androidKt:
+    Removed class androidx.compose.material3.ModalBottomSheet_androidKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.SearchBarKt:
+    Removed class androidx.compose.material3.SearchBarKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TooltipKt:
+    Removed class androidx.compose.material3.TooltipKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.Tooltip_androidKt:
+    Removed class androidx.compose.material3.Tooltip_androidKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.carousel.CarouselKt:
+    Removed class androidx.compose.material3.carousel.CarouselKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.carousel.CarouselStateKt:
+    Removed class androidx.compose.material3.carousel.CarouselStateKt from compatibility checked API surface
+
+
 ChangedType: androidx.compose.material3.NavigationItemColors#iconColor(boolean, boolean):
     Source breaking change: Method androidx.compose.material3.NavigationItemColors.iconColor has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.material3.NavigationItemColors#textColor(boolean, boolean):

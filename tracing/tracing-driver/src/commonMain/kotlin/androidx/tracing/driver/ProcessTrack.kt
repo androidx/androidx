@@ -16,9 +16,13 @@
 
 package androidx.tracing.driver
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
+import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableScatterMapOf
 
 /** Represents a track for a process in a perfetto trace. */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public open class ProcessTrack(
     /** The tracing context. */
     context: TraceContext,
@@ -27,12 +31,14 @@ public open class ProcessTrack(
     /** The name of the process. */
     public val name: String,
 ) : SliceTrack(context = context, uuid = monotonicId()) {
-    internal val threads = mutableScatterMapOf<String, ThreadTrack>()
+
+    internal val threads = mutableIntObjectMapOf<ThreadTrack>()
     internal val counters = mutableScatterMapOf<String, CounterTrack>()
 
     init {
         synchronized(traceEventScope) {
-            conditionalEmitTraceEvent(immediateDispatch = true) { event ->
+            val event = obtainTraceEvent()
+            if (event != null) {
                 event.setPreamble(
                     TrackDescriptor(
                         name,
@@ -43,7 +49,7 @@ public open class ProcessTrack(
                         tid = DEFAULT_INT,
                     )
                 )
-                true
+                dispatchTraceEvent(event, immediateDispatch = true)
             }
         }
     }
@@ -53,20 +59,15 @@ public open class ProcessTrack(
      *   [name].
      */
     public open fun getOrCreateThreadTrack(id: Int, name: String): ThreadTrack {
-        // Thread ids are only unique for lifetime of the thread and can be potentially reused.
-        // Therefore we end up combining the `name` of the thread and its `id` as a key.
-        val key = "$id/$name"
         return synchronized(threads) {
-            val track = threads.getOrPut(key) { ThreadTrack(id = id, name = name, process = this) }
-            check(track.name == name)
-            track
+            threads.getOrPut(key = id) { ThreadTrack(id = id, name = name, process = this) }
         }
     }
 
     /** @return A [CounterTrack] for a given [ProcessTrack] and the provided counter [name]. */
     public open fun getOrCreateCounterTrack(name: String): CounterTrack {
         return synchronized(counters) {
-            counters.getOrPut(name) { CounterTrack(name = name, parent = this) }
+            counters.getOrPut(key = name) { CounterTrack(name = name, parent = this) }
         }
     }
 }

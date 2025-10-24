@@ -368,6 +368,89 @@ public fun SubspaceModifier.requiredSize(size: DpVolumeSize): SubspaceModifier =
     )
 
 /**
+ * Constrain the size of the content to be between min and max dp, disregarding the incoming
+ * measurement [VolumeConstraints].
+ *
+ * This is in contrast to [SubspaceModifier.sizeIn], which respects the parent's constraints.
+ * `requiredSizeIn` will ignore the min and max constraints from the incoming constraints, which can
+ * be useful for sizing an element to a specific range even if it exceeds the parent's bounds.
+ *
+ * @param minWidth The minimum width.
+ * @param maxWidth The maximum width.
+ * @param minHeight The minimum height.
+ * @param maxHeight The maximum height.
+ * @param minDepth The minimum depth.
+ * @param maxDepth The maximum depth.
+ */
+public fun SubspaceModifier.requiredSizeIn(
+    minWidth: Dp = Dp.Unspecified,
+    maxWidth: Dp = Dp.Unspecified,
+    minHeight: Dp = Dp.Unspecified,
+    maxHeight: Dp = Dp.Unspecified,
+    minDepth: Dp = Dp.Unspecified,
+    maxDepth: Dp = Dp.Unspecified,
+): SubspaceModifier =
+    this.then(
+        SizeElement(
+            minWidth = minWidth,
+            maxWidth = maxWidth,
+            minHeight = minHeight,
+            maxHeight = maxHeight,
+            minDepth = minDepth,
+            maxDepth = maxDepth,
+            enforceIncoming = false,
+        )
+    )
+
+/**
+ * Constrain the width of the content to be between `min` dp and `max` dp, disregarding the incoming
+ * measurement [VolumeConstraints].
+ *
+ * This is in contrast to [SubspaceModifier.widthIn], which respects the parent's constraints.
+ * `requiredWidthIn` will ignore the `minWidth` and `maxWidth` from the incoming constraints.
+ *
+ * @param min The minimum width.
+ * @param max The maximum width.
+ */
+public fun SubspaceModifier.requiredWidthIn(
+    min: Dp = Dp.Unspecified,
+    max: Dp = Dp.Unspecified,
+): SubspaceModifier =
+    this.then(SizeElement(minWidth = min, maxWidth = max, enforceIncoming = false))
+
+/**
+ * Constrain the height of the content to be between `min` dp and `max` dp, disregarding the
+ * incoming measurement [VolumeConstraints].
+ *
+ * This is in contrast to [SubspaceModifier.heightIn], which respects the parent's constraints.
+ * `requiredHeightIn` will ignore the `minHeight` and `maxHeight` from the incoming constraints.
+ *
+ * @param min The minimum height.
+ * @param max The maximum height.
+ */
+public fun SubspaceModifier.requiredHeightIn(
+    min: Dp = Dp.Unspecified,
+    max: Dp = Dp.Unspecified,
+): SubspaceModifier =
+    this.then(SizeElement(minHeight = min, maxHeight = max, enforceIncoming = false))
+
+/**
+ * Constrain the depth of the content to be between `min` dp and `max` dp, disregarding the incoming
+ * measurement [VolumeConstraints].
+ *
+ * This is in contrast to [SubspaceModifier.depthIn], which respects the parent's constraints.
+ * `requiredDepthIn` will ignore the `minDepth` and `maxDepth` from the incoming constraints.
+ *
+ * @param min The minimum depth.
+ * @param max The maximum depth.
+ */
+public fun SubspaceModifier.requiredDepthIn(
+    min: Dp = Dp.Unspecified,
+    max: Dp = Dp.Unspecified,
+): SubspaceModifier =
+    this.then(SizeElement(minDepth = min, maxDepth = max, enforceIncoming = false))
+
+/**
  * Have the content fill (possibly only partially) the [VolumeConstraints.maxWidth] of the incoming
  * measurement constraints, by setting the [minimum width][VolumeConstraints.minWidth] and the
  * [maximum width][VolumeConstraints.maxWidth] to be equal to the

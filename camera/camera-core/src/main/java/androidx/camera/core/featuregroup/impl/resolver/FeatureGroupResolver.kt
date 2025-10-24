@@ -16,7 +16,6 @@
 
 package androidx.camera.core.featuregroup.impl.resolver
 
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup
 
@@ -39,7 +38,6 @@ public interface FeatureGroupResolver {
      * @throws IllegalStateException If the underlying feature combination resolution logic
      *   encounters an unexpected state.
      */
-    @OptIn(ExperimentalSessionConfig::class)
     @Throws(IllegalStateException::class)
     public fun resolveFeatureGroup(sessionConfig: SessionConfig): FeatureGroupResolutionResult
 }

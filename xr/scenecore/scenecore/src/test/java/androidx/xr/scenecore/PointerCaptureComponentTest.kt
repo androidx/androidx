@@ -55,10 +55,10 @@ class PointerCaptureComponentTest {
     private val mockRtComponent = mock<RtPointerCaptureComponent>()
 
     private val stateListener =
-        object : Consumer<Int> {
-            var lastState: Int = -1
+        object : Consumer<PointerCaptureComponent.PointerCaptureState> {
+            var lastState: PointerCaptureComponent.PointerCaptureState? = null
 
-            override fun accept(newState: Int) {
+            override fun accept(newState: PointerCaptureComponent.PointerCaptureState) {
                 lastState = newState
             }
         }
@@ -135,19 +135,19 @@ class PointerCaptureComponentTest {
             RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE
         )
         assertThat(stateListener.lastState)
-            .isEqualTo(PointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_ACTIVE)
+            .isEqualTo(PointerCaptureComponent.PointerCaptureState.ACTIVE)
 
         stateListenerCaptured.onStateChanged(
             RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED
         )
         assertThat(stateListener.lastState)
-            .isEqualTo(PointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_PAUSED)
+            .isEqualTo(PointerCaptureComponent.PointerCaptureState.PAUSED)
 
         stateListenerCaptured.onStateChanged(
             RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED
         )
         assertThat(stateListener.lastState)
-            .isEqualTo(PointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STOPPED)
+            .isEqualTo(PointerCaptureComponent.PointerCaptureState.STOPPED)
     }
 
     @Test
@@ -174,11 +174,10 @@ class PointerCaptureComponentTest {
 
         // Only compare non-floating point values for stability
         inputListenerCaptor.lastValue.onInputEvent(inputEvent)
-        assertThat(inputListener.lastEvent.source).isEqualTo(InputEvent.Source.SOURCE_HANDS)
-        assertThat(inputListener.lastEvent.pointerType)
-            .isEqualTo(InputEvent.Pointer.POINTER_TYPE_LEFT)
+        assertThat(inputListener.lastEvent.source).isEqualTo(InputEvent.Source.HANDS)
+        assertThat(inputListener.lastEvent.pointerType).isEqualTo(InputEvent.Pointer.LEFT)
         assertThat(inputListener.lastEvent.timestamp).isEqualTo(inputEvent.timestamp)
-        assertThat(inputListener.lastEvent.action).isEqualTo(InputEvent.Action.ACTION_DOWN)
+        assertThat(inputListener.lastEvent.action).isEqualTo(InputEvent.Action.DOWN)
         assertThat(inputListener.lastEvent.hitInfoList).isNotEmpty()
         val hitInfoList = inputListener.lastEvent.hitInfoList
         assertThat(hitInfoList).isNotEmpty()

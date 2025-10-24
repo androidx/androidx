@@ -18,7 +18,6 @@ package androidx.camera.lifecycle
 
 import android.content.Context
 import android.os.Build
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.LegacySessionConfig
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.StreamSpecsCalculatorImpl
@@ -185,7 +184,6 @@ class LifecycleCameraRepositoriesTest {
             ),
         )
 
-    @OptIn(ExperimentalSessionConfig::class)
     private fun LifecycleCameraRepository.lazyBindToLifecycleCamera(
         lifecycleCamera: LifecycleCamera
     ) =

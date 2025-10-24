@@ -112,7 +112,7 @@ internal val LocalSubspaceRootNode: ProvidableCompositionLocal<Entity?> =
  */
 @Composable
 @ComposableOpenTarget(index = -1)
-@Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
+@Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
 public fun Subspace(content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit) {
     // If not in XR, do nothing
     if (!LocalSpatialConfiguration.current.hasXrSpatialFeature) return
@@ -166,7 +166,7 @@ public fun Subspace(content: @Composable @SubspaceComposable SpatialBoxScope.() 
  */
 @Composable
 @ComposableOpenTarget(index = -1)
-@Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
+@Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
 public fun ApplicationSubspace(
     modifier: SubspaceModifier = SubspaceModifier,
     allowUnboundedSubspace: Boolean = false,
@@ -206,10 +206,9 @@ private fun ApplicationSubspace(
     val context = LocalContext.current
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val compositionContext = rememberCompositionContext()
+    val subspaceRoot = remember { GroupEntity.create(session, "SubspaceRoot") }
     val scene by remember {
         session.scene.mainPanelEntity.setEnabled(false)
-        val subspaceRoot = GroupEntity.create(session, "SubspaceRoot")
-        subspaceRootNode?.let { subspaceRoot.parent = it }
         disposableValueOf(
             SpatialComposeScene(
                 lifecycleOwner = lifecycleOwner,
@@ -234,6 +233,7 @@ private fun ApplicationSubspace(
             }
         }
     }
+    LaunchedEffect(subspaceRootNode) { subspaceRootNode?.let { subspaceRoot.parent = it } }
 
     scene.rootVolumeConstraints = remember { VolumeConstraints() }
 
@@ -539,7 +539,7 @@ public fun UserSubspace(
  */
 @Composable
 @ComposableOpenTarget(index = -1)
-@Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
+@Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun GravityAlignedSubspace(
     modifier: SubspaceModifier = SubspaceModifier,
@@ -596,7 +596,9 @@ private fun View.findVolumeConstraints(): VolumeConstraints? {
  * Note: For Creating, loading, and persisting anchors, please check
  * [androidx.xr.scenecore.AnchorEntity] for more information
  *
- * @param lockTo the real-world [AnchorEntity] to which this space will be attached.
+ * @param lockTo the real-world [AnchorEntity] to which this space will be attached. If the
+ *   developer changes the anchor parameter then the subspace will be reanchored to the swapped
+ *   anchor.
  * @param modifier The [SubspaceModifier] to be applied to this Subspace.
  * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
  *   be applied, allowing the Subspace to be infinite. Defaults to false, providing a safe, bounded

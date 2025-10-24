@@ -18,7 +18,9 @@ package androidx.xr.arcore.apps.whitebox.mobile.samplerender
 
 import android.opengl.GLES30
 import java.io.Closeable
+import java.nio.Buffer
 import java.nio.IntBuffer
+import java.nio.ShortBuffer
 
 /**
  * A list of vertex indices stored GPU-side.
@@ -36,17 +38,22 @@ import java.nio.IntBuffer
  * [glDrawElements](https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glDrawElements.xhtml)
  *
  * @param render The [SampleRender] instance to which this buffer belongs.
- * @param entries The optional [IntBuffer] containing the index data.
+ * @param entries The optional [Buffer] containing the index data.
  */
-class IndexBuffer(val render: SampleRender, val entries: IntBuffer?) : Closeable {
+class IndexBuffer(val render: SampleRender, val entries: Buffer?) : Closeable {
+    private var buffer =
+        GpuBuffer(
+            GLES30.GL_ELEMENT_ARRAY_BUFFER,
+            if (entries is ShortBuffer) {
+                GpuBuffer.SHORT_SIZE
+            } else {
+                GpuBuffer.INT_SIZE
+            },
+            entries,
+        )
 
-    private var buffer: GpuBuffer
     internal val bufferId: Int
         get() = buffer.getBufferId()
-
-    init {
-        buffer = GpuBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, GpuBuffer.INT_SIZE, entries)
-    }
 
     /**
      * Populate with new data.

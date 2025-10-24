@@ -101,7 +101,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                 TAG,
                 "ResizeEvent(entity: ${resizeEvent.entity}, resizeState: ${resizeEvent.resizeState}, newSize: ${resizeEvent.newSize}",
             )
-            if (resizeEvent.resizeState == ResizeEvent.ResizeState.RESIZE_STATE_END) {
+            if (resizeEvent.resizeState == ResizeEvent.ResizeState.END) {
                 (resizeEvent.entity as PanelEntity).size = resizeEvent.newSize.to2d()
             }
         }
@@ -361,7 +361,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
         val everythingPanelInteractableComponent =
             InteractableComponent.create(session!!, executor) {
                 Log.i(TAG, "input event $it")
-                if (it.action == InputEvent.Action.ACTION_DOWN) {
+                if (it.action == InputEvent.Action.DOWN) {
                     changeTextAndBGColor(everythingPanelView.findViewById(R.id.textView))
                 }
             }
@@ -486,7 +486,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
         val interactableComponent =
             InteractableComponent.create(session!!, mainExecutor) {
                 Log.i(TAG, "input event $it")
-                if (it.action == InputEvent.Action.ACTION_DOWN) {
+                if (it.action == InputEvent.Action.DOWN) {
                     changeTextAndBGColor(interactablePanelTextView)
                 }
             }

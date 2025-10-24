@@ -30,7 +30,6 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplatePa
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.interop.setCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
-import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeCapturePipeline
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseSurfaceManager
@@ -68,14 +67,12 @@ class UseCaseCameraRequestControlTest {
 
         UseCaseThreads(cameraScope, dispatcher.asExecutor(), dispatcher)
     }
-    private val fakeCameraProperties = FakeCameraProperties()
     private val fakeCameraGraph = FakeCameraGraph()
     private val fakeUseCaseGraphConfig =
         UseCaseGraphConfig(graph = fakeCameraGraph, surfaceToStreamMap = surfaceToStreamMap)
     private val fakeUseCaseCameraState =
         UseCaseCameraState(
             useCaseGraphConfig = fakeUseCaseGraphConfig,
-            threads = useCaseThreads,
             templateParamsOverride = NoOpTemplateParamsOverride,
         )
     private val requestControl =

@@ -19,6 +19,9 @@ package androidx.xr.scenecore.impl.impress
 import android.view.Surface
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
@@ -175,28 +178,27 @@ public interface ImpressApi {
 
     /**
      * This method loads an image based lighting asset from the assets folder and returns a future
-     * with a token that can be used to reference the asset in other JNI calls.
+     * with an ExrImage that can be used to reference the asset in other JNI calls.
      */
-    public fun loadImageBasedLightingAsset(path: String): ListenableFuture<Long>
+    public fun loadImageBasedLightingAsset(path: String): ListenableFuture<ExrImage>
 
     /**
-     * This method loads an image based lighting asset from a byte array and returns a future with a
-     * token that can be used to reference the asset in other JNI calls.
+     * This method loads an image based lighting asset from a byte array and returns a future with
+     * an ExrImage that can be used to reference the asset in other JNI calls.
      */
-    public fun loadImageBasedLightingAsset(data: ByteArray, key: String): ListenableFuture<Long>
+    public fun loadImageBasedLightingAsset(data: ByteArray, key: String): ListenableFuture<ExrImage>
 
     /**
      * This method loads a glTF model from the local assets folder or a remote URL, and returns a
-     * future with the model token that can be used to reference the model in other JNI calls.
+     * future with the GltfModel that can be used to reference the model in other JNI calls.
      */
-    public fun loadGltfAsset(path: String): ListenableFuture<Long>
+    public fun loadGltfAsset(path: String): ListenableFuture<GltfModel>
 
     /**
-     * This method loads a glTF model from a byte array and returns a future with the model token
-     * that can be used to reference the model in other JNI calls.
+     * This method loads a glTF model from a byte array and returns a future with the GltfModel that
+     * can be used to reference the model in other JNI calls.
      */
-    // TODO(b/397500220): Add an accessor which gets the model token from a name.
-    public fun loadGltfAsset(data: ByteArray, key: String): ListenableFuture<Long>
+    public fun loadGltfAsset(data: ByteArray, key: String): ListenableFuture<GltfModel>
 
     /** This method releases the asset pointer of a previously loaded glTF model. */
     // TODO(b/374216912) - Add support for cancellation of loading operations (GLTF, EXR, etc.)
@@ -252,6 +254,26 @@ public interface ImpressApi {
     /** This method creates an Impress node and returns its impress node object. */
     public fun createImpressNode(): ImpressNode
 
+    /**
+     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model.
+     *
+     * The bounding box is defined in the model's local coordinate space, before any transformations
+     * (like scaling) from the entity are applied. This default implementation returns a unit box
+     * centered at the origin. The concrete implementation should query the underlying rendering
+     * engine for the actual bounds.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the glTF.
+     * @return A [BoundingBox] object representing the model's bounding box. The
+     *   [BoundingBox.center] defines the geometric center of the box, and the
+     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
+     *   of the box is twice the half-extent. All values are in meters.
+     */
+    public fun getGltfModelBoundingBox(impressNode: ImpressNode): BoundingBox =
+        BoundingBox.fromCenterAndHalfExtents(
+            center = Vector3(0.5f, 0.5f, 0.5f),
+            halfExtents = FloatSize3d(0.5f, 0.5f, 0.5f),
+        )
+
     /** This method destroys an Impress node using its node object. */
     public fun destroyImpressNode(impressNode: ImpressNode)
 
@@ -302,6 +324,17 @@ public interface ImpressApi {
         @ContentSecurityLevel contentSecurityLevel: Int,
         useSuperSampling: Boolean,
     ): ImpressNode
+
+    /**
+     * This method sets the Surface pixel dimenesions for a StereoSurfaceEntity.
+     *
+     * @param impressNode The Impress node which hosts the StereoSurfaceEntity to be updated.
+     * @param width The width in pixels to set the buffer size for the Surface.
+     * @param height The height in pixels to set the buffer size for the Surface.
+     * @throws IllegalArgumentException if the width or height are not positive, or if the impress
+     *   node does not host a StereoSurfaceEntity.
+     */
+    public fun setStereoSurfaceEntitySurfaceSize(impressNode: ImpressNode, width: Int, height: Int)
 
     /**
      * This method sets the canvas shape of a StereoSurfaceEntity using its Impress node object.

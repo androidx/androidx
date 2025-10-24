@@ -22,7 +22,6 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.CallSuper
 import androidx.core.content.res.use
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
@@ -42,6 +41,7 @@ import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NavigatorState
 import androidx.navigation.fragment.FragmentNavigator.Destination
+import androidx.savedstate.savedState
 import java.lang.ref.WeakReference
 
 /**
@@ -528,8 +528,7 @@ public open class FragmentNavigator(
         if (savedIds.isEmpty()) {
             return null
         }
-        @Suppress("DEPRECATION") // bundleOf is deprecated
-        return bundleOf(KEY_SAVED_IDS to ArrayList(savedIds))
+        return savedState { putStringList(KEY_SAVED_IDS, ArrayList(savedIds)) }
     }
 
     public override fun onRestoreState(savedState: Bundle) {

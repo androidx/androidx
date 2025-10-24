@@ -24,7 +24,6 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -73,7 +72,6 @@ suspend fun configureAndCreateInstances(
 }
 
 @Sampled
-@OptIn(ExperimentalSessionConfig::class)
 fun bindSessionConfigToLifecycle(
     cameraProvider: ProcessCameraProvider,
     lifecycleOwner: LifecycleOwner,
@@ -115,7 +113,6 @@ fun bindSessionConfigToLifecycle(
 }
 
 @Sampled
-@OptIn(ExperimentalSessionConfig::class)
 fun bindSessionConfigWithFeatureGroupsToLifecycle(
     cameraProvider: ProcessCameraProvider,
     lifecycleOwner: LifecycleOwner,

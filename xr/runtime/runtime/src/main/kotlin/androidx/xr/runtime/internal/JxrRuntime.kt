@@ -57,10 +57,7 @@ public interface JxrRuntime {
      * @param configMode the [ConfigMode] mode to check.
      * @return true if supported, false if not.
      */
-    @SuppressWarnings("UnavailableSymbol")
-    public fun isSupported(
-        @SuppressWarnings("HiddenTypeParameter") configMode: ConfigMode
-    ): Boolean {
+    public fun isSupported(configMode: ConfigMode): Boolean {
         return false
     }
 

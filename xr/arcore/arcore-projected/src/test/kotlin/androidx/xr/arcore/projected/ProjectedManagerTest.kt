@@ -16,6 +16,11 @@
 package androidx.xr.arcore.projected
 
 import android.app.Activity
+import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -73,5 +78,47 @@ class ProjectedManagerTest {
             .checkVpsAvailability(eq(1.0), eq(2.0), vpsAvailabilityCallbackCaptor.capture())
         vpsAvailabilityCallbackCaptor.value.onVpsAvailabilityChanged(0)
         advanceUntilIdle()
+    }
+
+    @Test
+    fun update_updatesPerceptionManager() = runTest {
+        val projectedPose =
+            ProjectedPose().apply {
+                vector =
+                    ProjectedVector3().apply {
+                        x = 1.0f
+                        y = 2.0f
+                        z = 3.0f
+                    }
+                q =
+                    ProjectedQuarternion().apply {
+                        x = 1.0f
+                        y = 2.0f
+                        z = 3.0f
+                        w = 4.0f
+                    }
+            }
+        val expectedPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
+        val expectedUpdateResult = ProjectedUpdateResult()
+        expectedUpdateResult.deviceTrackingState = ProjectedTrackingState.TRACKING
+        expectedUpdateResult.earthTrackingState = ProjectedTrackingState.STOPPED
+        expectedUpdateResult.devicePose = projectedPose
+        `when`(mockPerceptionService.update()).thenReturn(expectedUpdateResult)
+        val manager =
+            ProjectedManager(
+                mockActivity,
+                perceptionManager,
+                ProjectedTimeSource(),
+                Dispatchers.IO,
+                testPerceptionService = mockPerceptionService,
+            )
+        manager.create()
+
+        manager.update()
+        assertThat(perceptionManager.xrResources.deviceTrackingState)
+            .isEqualTo(TrackingState.TRACKING)
+        assertThat(perceptionManager.xrResources.earthTrackingState)
+            .isEqualTo(TrackingState.STOPPED)
+        assertThat(perceptionManager.arDevice.devicePose).isEqualTo(expectedPose)
     }
 }

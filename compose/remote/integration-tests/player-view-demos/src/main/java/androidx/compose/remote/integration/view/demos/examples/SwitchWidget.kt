@@ -32,9 +32,9 @@ import androidx.compose.remote.creation.compose.layout.rememberRemoteStringList
 import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
-import androidx.compose.remote.creation.compose.modifier.onClick
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
@@ -129,7 +129,7 @@ fun SwitchWidget(value: MutableRemoteInt) {
         val modifier =
             if (captureMode is NoRemoteCompose) {
                 LogTodo("support expressions in previews")
-                RemoteModifier.onClick(
+                RemoteModifier.clickable(
                     ValueChange(
                         fsm.currentState as MutableRemoteInt,
                         (fsm.currentState.value + 1) % 2,
@@ -137,7 +137,7 @@ fun SwitchWidget(value: MutableRemoteInt) {
                 )
             } else {
                 val toggleExpression = rememberRemoteInt { (fsm.currentState + 1) % 2 }
-                RemoteModifier.onClick(
+                RemoteModifier.clickable(
                     ValueChange(fsm.currentState as MutableRemoteInt, toggleExpression)
                 )
             }

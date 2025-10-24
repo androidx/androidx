@@ -66,14 +66,15 @@ public interface ScenePose {
     public annotation class HitTestFilterValue
 
     /**
-     * Creates a hit test from the specified origin in the specified direction into the Scene.
+     * Perform a hit test from the specified origin in the specified direction into the Scene.
      *
      * @param origin The translation of the origin of the hit test relative to this ScenePose.
      * @param direction The direction for the hit test ray from the origin.
-     * @return a HitResult. The HitResult describes if it hit something and where relative to this
-     *   ScenePose.
+     * @return The [HitTestResult], or null if the hit test did not find an intersection. The
+     *   HitTestResult describes the location and normal of the object closest to the hit, relative
+     *   to this ScenePose.
      */
-    public suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult
+    public suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult?
 
     /**
      * Creates a hit test from the specified origin in the specified direction into the scene.
@@ -82,14 +83,15 @@ public interface ScenePose {
      * @param direction The direction for the hit test ray from the origin
      * @param hitTestFilter Filter for which scenes to hit test. Hitting other scenes is only
      *   allowed for apps with the `com.android.extensions.xr.ACCESS_XR_OVERLAY_SPACE` permission.
-     * @return a HitResult. The HitResult describes if it hit something and where relative to this
-     *   ScenePose.
+     * @return The [HitTestResult], or null if the hit test did not find an intersection. The
+     *   HitTestResult describes the location and normal of the object closest to the hit, relative
+     *   to this ScenePose.
      */
     public suspend fun hitTest(
         origin: Vector3,
         direction: Vector3,
         @HitTestFilterValue hitTestFilter: Int,
-    ): HitTestResult
+    ): HitTestResult?
 }
 
 /** The BaseScenePose implements the [ScenePose] interface. */
@@ -114,14 +116,14 @@ protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
         origin: Vector3,
         direction: Vector3,
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
-    ): HitTestResult {
+    ): HitTestResult? {
         val hitTestRtFuture =
             this.rtScenePose.hitTest(origin, direction, hitTestFilter.toRtHitTestFilter())
         val deferredHitTestResult: RtHitTestResult = hitTestRtFuture.awaitSuspending()
         return deferredHitTestResult.toHitTestResult()
     }
 
-    override suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult {
+    override suspend fun hitTest(origin: Vector3, direction: Vector3): HitTestResult? {
         return hitTest(origin, direction, ScenePose.HitTestFilter.SELF_SCENE.toRtHitTestFilter())
     }
 }
@@ -191,13 +193,34 @@ public class Head private constructor(rtScenePose: RtHeadScenePose) :
  * PerceptionSpace is an [ScenePose] used to track the origin of the space used by ARCore for
  * Jetpack XR APIs.
  */
-public class PerceptionSpace private constructor(rtScenePose: RtPerceptionSpaceScenePose) :
-    BaseScenePose<RtPerceptionSpaceScenePose>(rtScenePose) {
+public class PerceptionSpace private constructor(private val sceneRuntime: SceneRuntime) :
+    BaseScenePose<RtPerceptionSpaceScenePose>(sceneRuntime.perceptionSpaceActivityPose) {
+
+    /**
+     * Returns a [ScenePose] from a [Pose] relative to this [PerceptionSpace].
+     *
+     * @param pose a Pose relative to the perceptionSpace.
+     * @return a ScenePose containing the position in the [PerceptionSpace].
+     */
+    public fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
+        return PerceptionScenePose.create(sceneRuntime, pose)
+    }
 
     internal companion object {
 
         /** Factory function for creating [PerceptionSpace] instance. */
         internal fun create(sceneRuntime: SceneRuntime): PerceptionSpace =
-            PerceptionSpace(sceneRuntime.perceptionSpaceActivityPose)
+            PerceptionSpace(sceneRuntime)
+    }
+}
+
+/** A ScenePose that is created based on a position in [PerceptionSpace]. */
+internal class PerceptionScenePose private constructor(rtScenePose: RtScenePose) :
+    BaseScenePose<RtScenePose>(rtScenePose) {
+
+    internal companion object {
+        /** Factory function for creating PerceptionScenePose instance. */
+        internal fun create(sceneRuntime: SceneRuntime, pose: Pose): ScenePose =
+            PerceptionScenePose(sceneRuntime.getScenePoseFromPerceptionPose(pose))
     }
 }

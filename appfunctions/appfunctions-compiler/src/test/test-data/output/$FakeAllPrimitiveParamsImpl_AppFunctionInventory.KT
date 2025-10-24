@@ -292,15 +292,8 @@ public class `$FakeAllPrimitiveParamsImpl_AppFunctionInventory` : AppFunctionInv
             description = "",
         )
 
-    private val PARAMETER_METADATA_ARG7_ARRAY_DATA_TYPE_PRIMITIVE_ITEM_TYPE:
-        AppFunctionBytesTypeMetadata = AppFunctionBytesTypeMetadata(
-            isNullable = false,
-            description = ""
-        )
-
-    private val PARAMETER_METADATA_ARG7_ARRAY_DATA_TYPE: AppFunctionArrayTypeMetadata =
-        AppFunctionArrayTypeMetadata(
-            itemType = PARAMETER_METADATA_ARG7_ARRAY_DATA_TYPE_PRIMITIVE_ITEM_TYPE,
+    private val PARAMETER_METADATA_ARG7_PRIMITIVE_DATA_TYPE: AppFunctionBytesTypeMetadata =
+        AppFunctionBytesTypeMetadata(
             isNullable = false,
             description = ""
         )
@@ -309,7 +302,7 @@ public class `$FakeAllPrimitiveParamsImpl_AppFunctionInventory` : AppFunctionInv
         AppFunctionParameterMetadata(
             name = "arg7",
             isRequired = true,
-            dataType = PARAMETER_METADATA_ARG7_ARRAY_DATA_TYPE,
+            dataType = PARAMETER_METADATA_ARG7_PRIMITIVE_DATA_TYPE,
             description = "",
         )
 

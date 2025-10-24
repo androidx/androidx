@@ -40,7 +40,7 @@ import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.semantics.ScrollableComponent;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
 import androidx.compose.remote.player.core.platform.BitmapLoader;
 import androidx.compose.remote.player.core.platform.SettingsRetriever;
@@ -65,6 +65,7 @@ import java.io.InputStream;
  * passing sensor values, etc.). It also exposes player APIs that allows to control how the document
  * is displayed as well as reacting to document events.
  */
+@RestrictTo(LIBRARY_GROUP)
 public class RemoteComposePlayer extends FrameLayout implements RemoteContextActions {
 
     private static final int MAX_SUPPORTED_MAJOR_VERSION = MAJOR_VERSION;
@@ -226,7 +227,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Returns the document
      */
-    public @NonNull RemoteComposeDocument getDocument() {
+    public @NonNull RemoteDocument getDocument() {
         return mInner.getDocument();
     }
 
@@ -236,7 +237,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * @param value the document to update variables in the current document width
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void updateDocument(RemoteComposeDocument value) {
+    public void updateDocument(RemoteDocument value) {
         AndroidRemoteContext tmpContext = new AndroidRemoteContext(value.getClock());
         tmpContext.setAccessibilityAnimationEnabled(
                 SettingsRetriever.animationsEnabled(getContext()));
@@ -256,7 +257,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      */
     @RestrictTo(LIBRARY_GROUP)
     public void updateDocument(byte[] buffer) {
-        RemoteComposeDocument document = new RemoteComposeDocument(buffer);
+        RemoteDocument document = new RemoteDocument(buffer);
         updateDocument(document);
     }
 
@@ -265,7 +266,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setDocument(byte[] buffer) {
-        RemoteComposeDocument document = new RemoteComposeDocument(buffer);
+        RemoteDocument document = new RemoteDocument(buffer);
         setDocument(document);
     }
 
@@ -274,14 +275,14 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setDocument(InputStream inputStream) {
-        RemoteComposeDocument document = new RemoteComposeDocument(inputStream);
+        RemoteDocument document = new RemoteDocument(inputStream);
         setDocument(document);
     }
 
     /**
      * Set a document on the player
      */
-    public void setDocument(@NonNull RemoteComposeDocument value) {
+    public void setDocument(@NonNull RemoteDocument value) {
         if (value != null) {
             if (value.canBeDisplayed(
                     MAX_SUPPORTED_MAJOR_VERSION, MAX_SUPPORTED_MINOR_VERSION, 0L)) {
@@ -703,7 +704,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
          * @return the original document
          */
         @NonNull
-        RemoteComposeDocument getOriginalDoc();
+        RemoteDocument getOriginalDoc();
     }
 
 
@@ -714,14 +715,14 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * @return true if the document needs to be prepared
      */
     @RestrictTo(LIBRARY_GROUP)
-    public boolean shouldPrepare(@NonNull RemoteComposeDocument doc) {
+    public boolean shouldPrepare(@NonNull RemoteDocument doc) {
         int size_small_enough_to_inline = 1_000;
         return doc.getDocument().getDocInfo().getSizeOfImages()
                 > size_small_enough_to_inline;
     }
 
     @RestrictTo(LIBRARY_GROUP)
-    private boolean isCompatible(@NonNull RemoteComposeDocument doc) {
+    private boolean isCompatible(@NonNull RemoteDocument doc) {
         if (doc.canBeDisplayed(
                 MAX_SUPPORTED_MAJOR_VERSION, MAX_SUPPORTED_MINOR_VERSION, 0L)) {
             return true;
@@ -738,7 +739,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * @return the prepared document
      */
     @RestrictTo(LIBRARY_GROUP)
-    public @Nullable PreparedDocument prepareDocument(@NonNull RemoteComposeDocument doc) {
+    public @Nullable PreparedDocument prepareDocument(@NonNull RemoteDocument doc) {
         if (isCompatible(doc)) {
             return new RemotePreparedDocument(doc);
         }

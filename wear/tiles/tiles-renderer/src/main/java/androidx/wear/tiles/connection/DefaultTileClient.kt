@@ -172,7 +172,7 @@ public class DefaultTileClient : TileClient {
 
     @Deprecated(
         "Use requestTileResourcesAsync instead.",
-        replaceWith = ReplaceWith("requestTileResourcesAsync"),
+        replaceWith = ReplaceWith("requestTileResourcesAsync(requestParams = requestParams)"),
     )
     @Suppress("deprecation")
     public override fun requestResources(

@@ -237,6 +237,7 @@ import java.util.Date
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.After
 import org.junit.Before
@@ -260,7 +261,7 @@ import org.mockito.kotlin.verify
 @OptIn(ExperimentalMaterialApi::class)
 @RunWith(AndroidJUnit4::class)
 class AndroidAccessibilityTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     private val accessibilityEventLoopIntervalMs = 100L
     private lateinit var androidComposeView: AndroidComposeView

@@ -267,13 +267,13 @@ public abstract class SystemSpaceEntityImplTest {
         Pose expectedPose = new Pose(Vector3.One, Quaternion.Identity);
         Vector3 expectedScale = new Vector3(4f, 5f, 6f);
 
-        systemSpaceEntity.mOpenXrReferenceSpacePose = expectedPose;
+        systemSpaceEntity.mOpenXrReferenceSpaceTransform.set(Matrix4.fromPose(expectedPose));
         systemSpaceEntity.mWorldSpaceScale = expectedScale;
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, executor);
-        systemSpaceEntity.setOpenXrReferenceSpacePose(Matrix4.Zero);
+        systemSpaceEntity.setOpenXrReferenceSpaceTransform(Matrix4.Zero);
         executor.runAll();
 
-        assertThat(systemSpaceEntity.mOpenXrReferenceSpacePose).isEqualTo(expectedPose);
+        assertThat(systemSpaceEntity.getPoseInOpenXrReferenceSpace()).isEqualTo(expectedPose);
         assertThat(systemSpaceEntity.mWorldSpaceScale).isEqualTo(expectedScale);
         verify(listener, Mockito.never()).run();
     }
@@ -285,7 +285,7 @@ public abstract class SystemSpaceEntityImplTest {
         FakeScheduledExecutorService executor = new FakeScheduledExecutorService();
 
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, executor);
-        systemSpaceEntity.setOpenXrReferenceSpacePose(Matrix4.Identity);
+        systemSpaceEntity.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
         executor.runAll();
 
         verify(listener).run();
@@ -309,7 +309,7 @@ public abstract class SystemSpaceEntityImplTest {
                         new Vector3(4f, 8f, 12f),
                         Quaternion.fromAxisAngle(new Vector3(0f, 0f, 1f), 90f));
 
-        systemSpaceEntity.setOpenXrReferenceSpacePose(matrix);
+        systemSpaceEntity.setOpenXrReferenceSpaceTransform(matrix);
         assertPose(systemSpaceEntity.getPoseInOpenXrReferenceSpace(), pose);
     }
 
@@ -328,7 +328,7 @@ public abstract class SystemSpaceEntityImplTest {
                         });
         Vector3 scale = new Vector3(3.3f, 3.3f, 3.3f);
 
-        systemSpaceEntity.setOpenXrReferenceSpacePose(matrix);
+        systemSpaceEntity.setOpenXrReferenceSpaceTransform(matrix);
         assertVector3(
                 systemSpaceEntity.getActivitySpaceScale(),
                 scale.scale(getActivitySpaceEntity().getWorldSpaceScale().inverse()));

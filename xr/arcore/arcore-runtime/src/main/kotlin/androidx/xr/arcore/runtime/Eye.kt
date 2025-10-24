@@ -17,20 +17,21 @@
 package androidx.xr.arcore.runtime
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
 /** Describes a user's eye information with coarse and fine precision. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface Eye {
-    /** The status of the eye with coarse accuracy */
-    public val coarseStatus: EyeStatus?
+    /**
+     * a flag indicating whether or not the eye is open. It's set to true if it's open, false if
+     * it's closed. *
+     */
+    public val isOpen: Boolean
 
-    /** The eye's pose with coarse accuracy */
-    public val coarsePose: Pose?
+    /** The eye's pose */
+    public val pose: Pose
 
-    /** The status of the eye with fine accuracy */
-    public val fineStatus: EyeStatus?
-
-    /** the eye's pose with fine accuracy */
-    public val finePose: Pose?
+    /** the tracking state of the eye */
+    public val trackingState: TrackingState
 }

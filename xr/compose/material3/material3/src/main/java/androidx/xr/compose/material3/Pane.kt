@@ -25,13 +25,11 @@ import androidx.compose.material3.adaptive.layout.AnimatedPaneScope
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneScaffoldValue
-import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.runtime.Composable
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.animation.AnimatedSpatialVisibility
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.fillMaxHeight
-import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.layout.fillMaxSize
 
 @OptIn(
     ExperimentalMaterial3AdaptiveComponentOverrideApi::class,
@@ -52,15 +50,7 @@ internal object XrAnimatedPaneOverride : AnimatedPaneOverride {
             scope.scaffoldStateTransition.targetState[scope.paneRole] != PaneAdaptedValue.Hidden
 
         AnimatedSpatialVisibility(visibleState = state) {
-            val width =
-                when (scope.paneRole as ThreePaneScaffoldRole) {
-                    ThreePaneScaffoldRole.Primary -> XrThreePaneScaffoldTokens.PrimaryPanePanelWidth
-                    ThreePaneScaffoldRole.Secondary ->
-                        XrThreePaneScaffoldTokens.SecondaryPanePanelWidth
-                    ThreePaneScaffoldRole.Tertiary ->
-                        XrThreePaneScaffoldTokens.TertiaryPanePanelWidth
-                }
-            SpatialPanel(SubspaceModifier.width(width).fillMaxHeight()) {
+            SpatialPanel(SubspaceModifier.fillMaxSize()) {
                 AnimatedPaneScope.create(this).content()
             }
         }

@@ -16,6 +16,8 @@
 
 package androidx.xr.scenecore.testing
 
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GltfEntity
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -39,6 +41,8 @@ class FakeGltfEntityTest {
         check(underTest.animationState == GltfEntity.AnimationState.STOPPED)
         check(!underTest.isLooping)
         check(underTest.currentAnimationName == null)
+        check(underTest.getGltfModelBoundingBox().center == Vector3(0.5f, 0.5f, 0.5f))
+        check(underTest.getGltfModelBoundingBox().halfExtents == FloatSize3d(0.5f, 0.5f, 0.5f))
     }
 
     @Test

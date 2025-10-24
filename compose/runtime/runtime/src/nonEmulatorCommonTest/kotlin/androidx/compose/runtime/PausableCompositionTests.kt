@@ -733,6 +733,74 @@ class PausableCompositionTests {
         mutatorJob.join()
         awaiter.await()
     }
+
+    @Test
+    fun rememberObserverThrashing() = compositionTest {
+        val events = mutableListOf<String>()
+        var enable by mutableStateOf(true)
+        var key by mutableStateOf("A")
+
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContent()
+            resumeTillComplete { false }
+
+            enable = false
+            advance()
+            resumeTillComplete { false }
+
+            enable = true
+            advance()
+            resumeTillComplete { false }
+
+            key = "B"
+            advance()
+            resumeTillComplete { false }
+
+            enable = false
+            advance()
+            resumeTillComplete { false }
+
+            enable = true
+            advance()
+            resumeTillComplete { false }
+
+            apply()
+            awaiter.done()
+        }
+
+        compose {
+            PausableContent(workflow) {
+                if (enable) {
+                    use(
+                        remember(key) {
+                            object : RememberObserver {
+                                val name = key
+
+                                override fun onRemembered() {
+                                    events += "Remember($name)"
+                                }
+
+                                override fun onForgotten() {
+                                    events += "Forget($name)"
+                                }
+
+                                override fun onAbandoned() {
+                                    events += "Abandon($name)"
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        awaiter.await()
+        assertEquals(events.size, 4)
+        assertEquals("Remember(B)", events[0])
+        assertEquals(2, events.count { it == "Abandon(A)" })
+        assertEquals(1, events.count { it == "Abandon(B)" })
+    }
 }
 
 fun String.splitRecording() = split(", ")

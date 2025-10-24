@@ -145,7 +145,7 @@ class SpatialAudioTrackTest {
     fun setWithSoundField_callsRuntimeAudioTrackBuilderSetSoundField() {
         val builder = AudioTrack.Builder()
         val soundFieldAttributes =
-            SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
+            SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
         whenever(
                 mockRtAudioTrackExtensions.setSoundFieldAttributes(
@@ -161,7 +161,8 @@ class SpatialAudioTrackTest {
             .setSoundFieldAttributes(
                 eq(builder),
                 argWhere<RtSoundFieldAttributes> {
-                    it.ambisonicsOrder == SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
+                    it.ambisonicsOrder.ambisonicsOrderToJxr() ==
+                        SpatializerConstants.AmbisonicsOrder.FIRST_ORDER
                 },
             )
     }
@@ -177,7 +178,7 @@ class SpatialAudioTrackTest {
         val sourceType = SpatialAudioTrack.getSpatialSourceType(session, audioTrack)
 
         verify(mockRtAudioTrackExtensions).getSpatialSourceType(eq(audioTrack))
-        assertThat(sourceType).isEqualTo(expectedSourceType)
+        assertThat(sourceType.sourceTypeToRt()).isEqualTo(expectedSourceType)
     }
 
     @Test
@@ -212,8 +213,9 @@ class SpatialAudioTrackTest {
     @Test
     fun getSoundFieldAttributes_callsRuntimeAudioTrackGetSoundFieldAttributes() {
         val audioTrack = AudioTrack.Builder().build()
-        val expectedAmbisonicsOrder = SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
-        val rtSoundFieldAttributes = RtSoundFieldAttributes(expectedAmbisonicsOrder)
+        val expectedAmbisonicsOrder = SpatializerConstants.AmbisonicsOrder.THIRD_ORDER
+        val rtSoundFieldAttributes =
+            RtSoundFieldAttributes(expectedAmbisonicsOrder.sourceTypeToRt())
 
         whenever(mockRtAudioTrackExtensions.getSoundFieldAttributes(eq(audioTrack)))
             .thenReturn(rtSoundFieldAttributes)

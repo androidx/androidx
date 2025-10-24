@@ -26,30 +26,18 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     implementation(project(":benchmark:benchmark-macro"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
-    implementation(project(":benchmark:benchmark-traceprocessor"))
     implementation(project(":tracing:tracing-perfetto-binary"))
     implementation(project(":test:uiautomator:uiautomator"))
     implementation(project(":test:uiautomator:uiautomator-shell"))
-
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.truth)
 }
 
 android {
-    sourceSets {
-        androidTest.assets.srcDirs += new File(
-                androidx.build.AndroidXConfig.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/testdata"
-        )
-    }
     namespace = "androidx.testutils.macrobenchmark"
 }
 

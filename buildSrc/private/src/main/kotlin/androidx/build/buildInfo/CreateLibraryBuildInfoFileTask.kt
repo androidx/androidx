@@ -215,7 +215,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 val artifactId = variant.artifactId
                 task.outputFile.set(
                     project.getBuildInfoDirectory().map {
-                        it.file("${group}_${artifactId}_build_info.txt")
+                        it.file("${group}_${artifactId.get()}_build_info.txt")
                     }
                 )
                 task.artifactId.set(artifactId)
@@ -330,13 +330,17 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
                         anchorTask = anchorTask,
                         pub = mavenPub,
                         libraryGroup = androidXExtension.mavenGroup,
-                        artifactId = mavenPub.artifactId,
+                        // `mavenPub.artifactId` is a var annotated @ToBeReplacedByLazyProperty
+                        // It may not yet be set to the right value at configuration time, so wrap
+                        // it in a provider.
+                        artifactId = project.provider { mavenPub.artifactId },
                         shouldPublishDocs = androidXExtension.requiresDocs(),
                         isKmp = androidXKmpExtension.supportedPlatforms.isNotEmpty(),
                         buildTarget = buildTarget,
                         kmpChildren = androidXKmpExtension.supportedPlatforms.map { it.id }.toSet(),
                         testModuleNames = androidXExtension.testModuleNames,
                         isolatedProjectEnabled = androidXExtension.isIsolatedProjectsEnabled(),
+                        variantName = mavenPub.name,
                     )
                 }
             }
@@ -348,13 +352,14 @@ private fun Project.createTaskForComponent(
     anchorTask: TaskProvider<Task>,
     pub: ProjectComponentPublication,
     libraryGroup: LibraryGroup?,
-    artifactId: String,
+    artifactId: Provider<String>,
     shouldPublishDocs: Boolean,
     isKmp: Boolean,
     buildTarget: String,
     kmpChildren: Set<String>,
     testModuleNames: Provider<Set<String>>,
     isolatedProjectEnabled: Boolean,
+    variantName: String,
 ) {
     val task =
         createBuildInfoTask(
@@ -367,6 +372,7 @@ private fun Project.createTaskForComponent(
             buildTarget = buildTarget,
             kmpChildren = kmpChildren,
             testModuleNames = testModuleNames,
+            variantName = variantName,
         )
     anchorTask.configure { it.dependsOn(task) }
     if (!isolatedProjectEnabled) {
@@ -377,15 +383,16 @@ private fun Project.createTaskForComponent(
 private fun Project.createBuildInfoTask(
     pub: ProjectComponentPublication,
     libraryGroup: LibraryGroup?,
-    artifactId: String,
+    artifactId: Provider<String>,
     shaProvider: Provider<String>,
     shouldPublishDocs: Boolean,
     isKmp: Boolean,
     buildTarget: String,
     kmpChildren: Set<String>,
     testModuleNames: Provider<Set<String>>,
+    variantName: String,
 ): TaskProvider<CreateLibraryBuildInfoFileTask> {
-    val kmpTaskSuffix = computeTaskSuffix(name, artifactId)
+    val kmpTaskSuffix = computeTaskSuffix(variantName, isKmp)
     return CreateLibraryBuildInfoFileTask.setup(
         project = project,
         mavenGroup = libraryGroup,
@@ -440,11 +447,24 @@ private fun ModuleVersionIdentifier.asDependency() =
 class BuildInfoVariantDependency(group: String, name: String, version: String) :
     DefaultExternalModuleDependency(group, name, version)
 
-// For examples, see CreateLibraryBuildInfoFileTaskTest
+/**
+ * Returns the suffix which should be used for a build info file task name.
+ *
+ * For a non-KMP project, this is an empty string.
+ *
+ * For a KMP project, there is one build info task for each variant published, so to disambiguate
+ * the tasks each gets a suffix based on the name of the variant. For the main anchor publication
+ * (variant "kotlinMultiplatform") the suffix will be empty, for all other variants it will be based
+ * on the variant name.
+ *
+ * For examples, see CreateLibraryBuildInfoFileTaskTest
+ */
 @VisibleForTesting
-fun computeTaskSuffix(projectName: String, artifactId: String) =
-    artifactId.substringAfter(projectName).split("-").joinToString("") { word ->
-        word.replaceFirstChar { it.uppercase() }
+fun computeTaskSuffix(variantName: String, isKmp: Boolean) =
+    if (isKmp && variantName != "kotlinMultiplatform") {
+        variantName.split("-").joinToString("") { word -> word.replaceFirstChar { it.uppercase() } }
+    } else {
+        ""
     }
 
 /**

@@ -53,8 +53,7 @@ import androidx.room3.solver.binderprovider.PagingSourceQueryResultBinderProvide
 import androidx.room3.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room3.solver.query.parameter.CollectionQueryParameterAdapter
-import androidx.room3.solver.query.result.MultiTypedPagingSourceQueryResultBinder
-import androidx.room3.solver.query.result.Paging3PagingSourceQueryResultBinder
+import androidx.room3.solver.query.result.MultiTypePagingSourceQueryResultBinder
 import androidx.room3.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateFunctionBinderProvider
 import androidx.room3.solver.shortcut.binderprovider.GuavaListenableFutureInsertOrUpsertFunctionBinderProvider
 import androidx.room3.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateFunctionBinderProvider
@@ -1284,7 +1283,7 @@ class TypeAdapterStoreTest {
                     .filterIsInstance<ReadQueryFunction>()
                     .first()
                     .queryResultBinder
-            assertThat(binder is Paging3PagingSourceQueryResultBinder).isTrue()
+            assertThat(binder is MultiTypePagingSourceQueryResultBinder).isTrue()
 
             val pagingSourceXRawType: XRawType? =
                 invocation.context.processingEnv
@@ -1349,7 +1348,7 @@ class TypeAdapterStoreTest {
             // its supertype PagingSource. ListenableFuturePagingSourceBinderProvider
             // must be added into list of binder providers in TypeAdapterStore before
             // generic PagingSource.
-            assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
+            assertThat(binder is MultiTypePagingSourceQueryResultBinder).isTrue()
             val listenableFuturePagingSourceXRawType: XRawType? =
                 invocation.context.processingEnv
                     .findType(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE.canonicalName)
@@ -1388,6 +1387,7 @@ class TypeAdapterStoreTest {
                     COMMON.USER,
                     COMMON.RX3_PAGING_SOURCE,
                     COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
+                    COMMON.RX3_SINGLE,
                 )
         ) { invocation: XTestInvocation ->
             val dao =
@@ -1402,7 +1402,7 @@ class TypeAdapterStoreTest {
                     .first()
                     .queryResultBinder
 
-            assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
+            assertThat(binder is MultiTypePagingSourceQueryResultBinder).isTrue()
             val rxPagingSourceXRawType: XRawType? =
                 invocation.context.processingEnv
                     .findType(PagingTypeNames.RX3_PAGING_SOURCE.canonicalName)

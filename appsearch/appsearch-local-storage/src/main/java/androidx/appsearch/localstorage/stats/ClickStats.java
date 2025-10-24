@@ -79,6 +79,26 @@ public class ClickStats extends BaseStats {
         return mIsGoodClick;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "ClickStats {\n"
+                        + "  timestampMillis=%d,\n"
+                        + "  timeStayOnResultMillis=%d,\n"
+                        + "  resultRankInBlock=%d,\n"
+                        + "  resultRankGlobal=%d,\n"
+                        + "  isGoodClick=%b\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mTimestampMillis,
+                mTimeStayOnResultMillis,
+                mResultRankInBlock,
+                mResultRankGlobal,
+                mIsGoodClick);
+    }
+
     /** Builder for {@link ClickStats} */
     public static final class Builder extends BaseStats.Builder<ClickStats.Builder> {
         private long mTimestampMillis;

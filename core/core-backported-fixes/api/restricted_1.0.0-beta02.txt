@@ -1,0 +1,45 @@
+// Signature format: 4.0
+package androidx.core.backported.fixes {
+
+  public final class BackportedFixManager {
+    ctor public BackportedFixManager();
+    ctor public BackportedFixManager(androidx.core.backported.fixes.StatusResolver resolver);
+    method public androidx.core.backported.fixes.Status getStatus(androidx.core.backported.fixes.KnownIssue ki);
+    method public boolean isFixed(androidx.core.backported.fixes.KnownIssue ki);
+  }
+
+  public final class KnownIssue {
+    method @InaccessibleFromKotlin public long getId();
+    method @InaccessibleFromKotlin public String getUrl();
+    property public long id;
+    property public String url;
+  }
+
+  public abstract sealed class KnownIssues {
+    field public static final androidx.core.backported.fixes.KnownIssues.Companion Companion;
+    field public static final androidx.core.backported.fixes.KnownIssue KI_350037023;
+    field public static final androidx.core.backported.fixes.KnownIssue KI_350037348;
+    field public static final androidx.core.backported.fixes.KnownIssue KI_372917199;
+    field public static final androidx.core.backported.fixes.KnownIssue KI_398591036;
+  }
+
+  public static final class KnownIssues.Companion {
+    property public androidx.core.backported.fixes.KnownIssue KI_350037023;
+    property public androidx.core.backported.fixes.KnownIssue KI_350037348;
+    property public androidx.core.backported.fixes.KnownIssue KI_372917199;
+    property public androidx.core.backported.fixes.KnownIssue KI_398591036;
+  }
+
+  public enum Status {
+    enum_constant public static final androidx.core.backported.fixes.Status Fixed;
+    enum_constant public static final androidx.core.backported.fixes.Status NotApplicable;
+    enum_constant public static final androidx.core.backported.fixes.Status NotFixed;
+    enum_constant public static final androidx.core.backported.fixes.Status Unknown;
+  }
+
+  public interface StatusResolver {
+    method public androidx.core.backported.fixes.Status getStatus(androidx.core.backported.fixes.KnownIssue ki);
+  }
+
+}
+

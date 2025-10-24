@@ -26,6 +26,15 @@ import androidx.build.SdkResourceGenerator
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
+    id("java-gradle-plugin")
+}
+
+configurations {
+    // Config for plugin classpath to be used during tests
+    testPlugin {
+        canBeConsumed = false
+        canBeResolved = true
+    }
 }
 
 dependencies {
@@ -34,9 +43,21 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(gradleTestKit())
+
+    testPlugin("com.android.tools.build:gradle:8.4.2")
+    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950")
+    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:linux")
+    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:osx")
+    testPlugin(libs.kotlinGradlePlugin)
+    testPlugin(libs.kspGradlePlugin)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
+// Configure the generating task of plugin-under-test-metadata.properties to
+// include additional dependencies for the injected plugin classpath that
+// are not present in the main runtime dependencies.
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+    it.pluginClasspath.from(configurations.testPlugin)
+}
 
 tasks.withType(Test).configureEach { test ->
     test.dependsOn(
@@ -51,4 +72,13 @@ tasks.withType(Test).configureEach { test ->
             ":sqlite:sqlite:publish",
             ":sqlite:sqlite-framework:publish",
     )
+}
+
+gradlePlugin {
+    plugins {
+        room {
+            id = "androidx.room3.empty"
+            implementationClass = "androidx.room3.gradle.EmptyGradlePlugin"
+        }
+    }
 }

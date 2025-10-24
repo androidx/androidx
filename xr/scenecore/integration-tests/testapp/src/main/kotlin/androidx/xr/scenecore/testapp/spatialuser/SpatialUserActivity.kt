@@ -28,13 +28,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.xr.arcore.ArDevice
+import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.CameraView
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
@@ -48,6 +49,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class SpatialUserActivity : AppCompatActivity() {
     private var session: Session? = null
+    private lateinit var device: ArDevice
+    private var cameraLeft: RenderViewpoint? = null
+    private var cameraRight: RenderViewpoint? = null
     private val poseOffset = Pose(Vector3(0f, 0f, -1f), Quaternion.Identity)
     private var checkVisibility = false
     private lateinit var spatialUserPanel: PanelEntity
@@ -83,6 +87,9 @@ class SpatialUserActivity : AppCompatActivity() {
                 headTracking = Config.HeadTrackingMode.LAST_KNOWN,
             )
         )
+        device = ArDevice.getInstance(session!!)
+        cameraLeft = RenderViewpoint.left(session!!)
+        cameraRight = RenderViewpoint.right(session!!)
 
         // toolbar
         findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
@@ -123,12 +130,10 @@ class SpatialUserActivity : AppCompatActivity() {
             val pos =
                 session!!
                     .scene
-                    .spatialUser
-                    .head
-                    ?.transformPoseTo(poseOffset, session!!.scene.activitySpace)
-            if (pos != null) {
-                spatialUserPanel.setPose(pos)
-            }
+                    .perceptionSpace
+                    .getScenePoseFromPerceptionPose(device.state.value.devicePose)
+                    .transformPoseTo(poseOffset, session!!.scene.activitySpace)
+            spatialUserPanel.setPose(pos)
         }
         checkVisibility(
             session!!,
@@ -145,34 +150,32 @@ class SpatialUserActivity : AppCompatActivity() {
         lifecycleScope.launch {
             while (true) {
                 delay(16L)
-                val leftCamera =
-                    session.scene.spatialUser.cameraViews[CameraView.CameraType.LEFT_EYE]
-                val rightCamera =
-                    session.scene.spatialUser.cameraViews[CameraView.CameraType.RIGHT_EYE]
                 val leftVisible =
-                    leftCamera?.let { isEntityInView(session.scene.mainPanelEntity, it) } ?: false
+                    cameraLeft?.let { isEntityInView(session.scene.mainPanelEntity, it) } ?: false
                 val rightVisible =
-                    rightCamera?.let { isEntityInView(session.scene.mainPanelEntity, it) } ?: false
+                    cameraRight?.let { isEntityInView(session.scene.mainPanelEntity, it) } ?: false
                 panelLeftView.text = "$leftVisible"
                 panelRightView.text = "$rightVisible"
             }
         }
     }
 
-    private fun isEntityInView(entity: Entity, camera: CameraView): Boolean {
-        val cameraToEntity = entity.transformPoseTo(poseOffset, camera).translation
+    private fun isEntityInView(entity: Entity, camera: RenderViewpoint): Boolean {
+        val cameraScenePose =
+            session!!.scene.perceptionSpace.getScenePoseFromPerceptionPose(camera.state.value.pose)
+        val cameraToEntity = entity.transformPoseTo(poseOffset, cameraScenePose).translation
 
         // If the xValue is negative use the angleLeft to calculate.
         if (cameraToEntity.x < 0) {
             // Calculate the visible xDistance from the camera at the entities distance.
-            val xDist = tan(camera.fov.angleLeft) * (-cameraToEntity.z)
+            val xDist = tan(camera.state.value.fieldOfView.angleLeft) * (-cameraToEntity.z)
             // If the entities distance is greater than the calculated view distance return
             // false
             if (cameraToEntity.x < xDist) {
                 return false
             }
         } else if (cameraToEntity.x > 0) {
-            val xDist = tan(camera.fov.angleRight) * (-cameraToEntity.z)
+            val xDist = tan(camera.state.value.fieldOfView.angleRight) * (-cameraToEntity.z)
             if (cameraToEntity.x > xDist) {
                 return false
             }
@@ -180,12 +183,12 @@ class SpatialUserActivity : AppCompatActivity() {
 
         // Do the same with the Y values.
         if (cameraToEntity.y < 0) {
-            val yDist = tan(camera.fov.angleDown) * (-cameraToEntity.z)
+            val yDist = tan(camera.state.value.fieldOfView.angleDown) * (-cameraToEntity.z)
             if (cameraToEntity.y < yDist) {
                 return false
             }
         } else if (cameraToEntity.y > 0) {
-            val yDist = tan(camera.fov.angleUp) * (-cameraToEntity.z)
+            val yDist = tan(camera.state.value.fieldOfView.angleUp) * (-cameraToEntity.z)
             if (cameraToEntity.y > yDist) {
                 return false
             }

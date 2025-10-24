@@ -36,17 +36,20 @@ import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.room3.Room
-import androidx.room3.RoomDatabase
 import androidx.room3.integration.kotlintestapp.testutil.ItemStore
+import androidx.room3.integration.kotlintestapp.testutil.MainThreadCheckSQLiteDriver
 import androidx.room3.integration.kotlintestapp.testutil.PagingDb
 import androidx.room3.integration.kotlintestapp.testutil.PagingEntity
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.FilteringCoroutineContext
 import androidx.testutils.FilteringExecutor
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executors
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -70,8 +73,10 @@ class ListenableFuturePagingSourceTest {
 
     // Multiple threads are necessary to prevent deadlock, since Room will acquire a thread to
     // dispatch on, when using the query / transaction dispatchers.
-    private val queryExecutor = FilteringExecutor(Executors.newFixedThreadPool(2))
-    private val mainThreadQueries = mutableListOf<Pair<String, String>>()
+    private val queryContext = FilteringCoroutineContext(Executors.newFixedThreadPool(2))
+    private val queryExecutor: FilteringExecutor
+        get() = queryContext.executor
+
     private val pagingSources = mutableListOf<ListenableFuturePagingSourceImpl>()
 
     @Before
@@ -79,32 +84,15 @@ class ListenableFuturePagingSourceTest {
         coroutineScope = CoroutineScope(Dispatchers.Main)
         itemStore = ItemStore(coroutineScope)
 
-        val mainThread: Thread = runBlocking(Dispatchers.Main) { Thread.currentThread() }
         db =
-            Room.inMemoryDatabaseBuilder(
-                    ApplicationProvider.getApplicationContext(),
-                    PagingDb::class.java,
-                )
-                .setQueryCallback(
-                    object : RoomDatabase.QueryCallback {
-                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                            if (Thread.currentThread() === mainThread) {
-                                mainThreadQueries.add(sqlQuery to Throwable().stackTraceToString())
-                            }
-                        }
-                    }
-                ) {
-                    // instantly execute the log callback so that we can check the thread.
-                    it.run()
-                }
-                .setQueryExecutor(queryExecutor)
+            Room.inMemoryDatabaseBuilder<PagingDb>(ApplicationProvider.getApplicationContext())
+                .setDriver(MainThreadCheckSQLiteDriver(AndroidSQLiteDriver()))
+                .setQueryCoroutineContext(queryContext)
                 .build()
     }
 
     @After
     fun tearDown() {
-        // Check no mainThread queries happened.
-        assertThat(mainThreadQueries).isEmpty()
         coroutineScope.cancel()
         db.close()
     }
@@ -115,11 +103,10 @@ class ListenableFuturePagingSourceTest {
         db.getDao().insert(items)
 
         // filter right away to block initial load
-        queryExecutor.filterFunction = { runnable ->
-            // filtering out the transform async function called inside loadFuture
-            // filtering as String b/c `AbstractTransformFuture` is a package-private class
-            runnable.javaClass.enclosingClass?.toString()?.contains("AbstractTransformFuture") !=
-                true
+        queryContext.filterFunction = { ctx, _ ->
+            ctx[CoroutineName]
+                ?.name
+                ?.equals("LimitOffsetListenableFuturePagingSource.loadFuture") != true
         }
 
         runTest {
@@ -154,12 +141,10 @@ class ListenableFuturePagingSourceTest {
             assertThat(futures.size).isEqualTo(1)
             assertThat(futures[0].isDone).isTrue() // initial load future is complete
 
-            queryExecutor.filterFunction = { runnable ->
-                // filtering out the transform async function called inside loadFuture
-                // filtering as String b/c `AbstractTransformFuture` is a package-private class
-                runnable.javaClass.enclosingClass
-                    ?.toString()
-                    ?.contains("AbstractTransformFuture") != true
+            queryContext.filterFunction = { ctx, _ ->
+                ctx[CoroutineName]
+                    ?.name
+                    ?.equals("LimitOffsetListenableFuturePagingSource.loadFuture") != true
             }
 
             // now access more items that should trigger loading more
@@ -203,12 +188,10 @@ class ListenableFuturePagingSourceTest {
             assertThat(futures.size).isEqualTo(1)
             assertThat(futures[0].isDone).isTrue() // initial load future is complete
 
-            queryExecutor.filterFunction = { runnable ->
-                // filtering out the transform async function called inside loadFuture
-                // filtering as String b/c `AbstractTransformFuture` is a package-private class
-                runnable.javaClass.enclosingClass
-                    ?.toString()
-                    ?.contains("AbstractTransformFuture") != true
+            queryContext.filterFunction = { ctx, _ ->
+                ctx[CoroutineName]
+                    ?.name
+                    ?.equals("LimitOffsetListenableFuturePagingSource.loadFuture") != true
             }
 
             // now access more items that should trigger loading more

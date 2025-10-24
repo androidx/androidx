@@ -242,7 +242,7 @@ class SlidingPaneLayoutTest {
 
                 override fun setColorFilter(colorFilter: ColorFilter?) {}
 
-                @Suppress("DeprecatedCallableAddReplaceWith")
+                @Suppress("DeprecatedCallableAddReplaceWith", "OVERRIDE_DEPRECATION")
                 @Deprecated("Deprecated in Java")
                 override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 

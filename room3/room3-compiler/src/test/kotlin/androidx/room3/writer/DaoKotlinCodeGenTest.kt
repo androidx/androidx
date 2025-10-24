@@ -1016,6 +1016,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     src,
                     databaseSrc,
                     COMMON.LIMIT_OFFSET_PAGING_SOURCE,
+                    COMMON.RX3_SINGLE,
                     COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
                     COMMON.RX3_PAGING_SOURCE,
                     COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,

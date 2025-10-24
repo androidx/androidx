@@ -112,6 +112,7 @@ class AccessibilityActivity : ComponentActivity() {
                     showBottomBar = false,
                     onClickBackArrow = { this@AccessibilityActivity.finish() },
                 ) { padding ->
+                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(padding)) {
                         Column(
                             verticalArrangement = Arrangement.Center,

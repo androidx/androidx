@@ -123,6 +123,7 @@ public class WebViewFeature {
             PRERENDER_WITH_URL,
             SAVE_STATE,
             NAVIGATION_CALLBACK_BASIC,
+            NAVIGATION_LISTENER_V1,
             PAYMENT_REQUEST,
             WEBVIEW_BUILDER,
             WARM_UP_RENDERER_PROCESS,
@@ -131,6 +132,7 @@ public class WebViewFeature {
             HYPERLINK_CONTEXT_MENU_ITEMS,
             ORIGIN_MATCHED_HEADERS,
             CUSTOM_REQUEST_HEADERS,
+            ADD_QUIC_HINTS_V1,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -729,6 +731,10 @@ public class WebViewFeature {
      */
     public static final String NAVIGATION_CALLBACK_BASIC = "WEB_VIEW_NAVIGATION_CLIENT_BASIC_USAGE";
 
+    @WebNavigationClient.ExperimentalNavigationCallback
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NAVIGATION_LISTENER_V1 = "NAVIGATION_LISTENER_V1";
+
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
@@ -817,6 +823,12 @@ public class WebViewFeature {
      */
     @Profile.ExperimentalPreconnect
     public static final String PRECONNECT = "PRECONNECT";
+
+    /**
+     * Feature for {@link Profile#addQuicHints(Set)}.
+     */
+    @Profile.ExperimentalAddQuicHints
+    public static final String ADD_QUIC_HINTS_V1 = "ADD_QUIC_HINTS";
 
     /**
      * This feature covers

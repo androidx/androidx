@@ -133,10 +133,7 @@ class TransformationActivity : AppCompatActivity() {
                 for (panel in debugTextPanelsToUpdate) {
                     if (panel.trackedEntity == null) continue // Skip if no tracked entity
                     if (panel == anchorDebugPanel) {
-                        anchorDebugPanel.view.setLine(
-                            "Anchor State",
-                            anchorStateToString(anchorState),
-                        )
+                        anchorDebugPanel.view.setLine("Anchor State", anchorState.toString())
                     }
                     updateDebugTextPanel(panel.view, panel.trackedEntity!!, anchorState)
                 }
@@ -198,7 +195,7 @@ class TransformationActivity : AppCompatActivity() {
     private fun updateDebugTextPanel(
         view: DebugTextLinearView,
         trackedEntity: Entity,
-        anchorState: Int,
+        anchorState: AnchorEntity.State,
     ) {
         // Need to handle IllegalArgumentException from the anchorEntity's getPose
         val localPose =
@@ -423,15 +420,5 @@ class TransformationActivity : AppCompatActivity() {
     companion object {
         var onActivitySpaceUpdatedCount = 0
         var onAnchorSpaceUpdatedCount = 0
-    }
-
-    private fun anchorStateToString(state: Int): String {
-        return when (state) {
-            AnchorEntity.State.ANCHORED -> "ANCHORED"
-            AnchorEntity.State.UNANCHORED -> "UNANCHORED"
-            AnchorEntity.State.TIMEDOUT -> "TIMEDOUT"
-            AnchorEntity.State.ERROR -> "ERROR"
-            else -> "Unknown ($state)"
-        }
     }
 }

@@ -270,6 +270,10 @@ public class AppSearchLoggerTest {
         int queryProcessorLexerExtractTokenLatencyMillis = 11;
         int queryProcessorParserConsumeQueryLatencyMillis = 12;
         int queryProcessorQueryVisitorLatencyMillis = 13;
+        int numUnquantizedEmbeddingsScored = 14;
+        int numQuantizedEmbeddingsScored = 15;
+        int numEmbeddingShardsRead = 16;
+        long numEmbeddingBytesRead = 17L;
 
         QueryStatsProto.SearchStats searchStats = QueryStatsProto.SearchStats.newBuilder()
                 .setQueryLength(nativeQueryLength)
@@ -290,6 +294,10 @@ public class AppSearchLoggerTest {
                 .setQueryProcessorParserConsumeQueryLatencyMs(
                         queryProcessorParserConsumeQueryLatencyMillis)
                 .setQueryProcessorQueryVisitorLatencyMs(queryProcessorQueryVisitorLatencyMillis)
+                .setNumUnquantizedEmbeddingsScored(numUnquantizedEmbeddingsScored)
+                .setNumQuantizedEmbeddingsScored(numQuantizedEmbeddingsScored)
+                .setNumEmbeddingShardsRead(numEmbeddingShardsRead)
+                .setNumEmbeddingBytesRead(numEmbeddingBytesRead)
                 .build();
 
         boolean nativeIsFirstPage = true;
@@ -385,6 +393,14 @@ public class AppSearchLoggerTest {
                 .isEqualTo(queryProcessorParserConsumeQueryLatencyMillis);
         assertThat(parentSearchStats.getNativeQueryProcessorQueryVisitorLatencyMillis())
                 .isEqualTo(queryProcessorQueryVisitorLatencyMillis);
+        assertThat(parentSearchStats.getNativeNumUnquantizedEmbeddingsScored()).isEqualTo(
+                numUnquantizedEmbeddingsScored);
+        assertThat(parentSearchStats.getNativeNumQuantizedEmbeddingsScored()).isEqualTo(
+                numQuantizedEmbeddingsScored);
+        assertThat(parentSearchStats.getNativeNumEmbeddingShardsRead()).isEqualTo(
+                numEmbeddingShardsRead);
+        assertThat(parentSearchStats.getNativeNumEmbeddingBytesRead()).isEqualTo(
+                numEmbeddingBytesRead);
 
         SearchStats childSearchStats = sStats.getParentSearchStats();
 
@@ -414,6 +430,14 @@ public class AppSearchLoggerTest {
                 .isEqualTo(queryProcessorParserConsumeQueryLatencyMillis);
         assertThat(childSearchStats.getNativeQueryProcessorQueryVisitorLatencyMillis())
                 .isEqualTo(queryProcessorQueryVisitorLatencyMillis);
+        assertThat(childSearchStats.getNativeNumUnquantizedEmbeddingsScored()).isEqualTo(
+                numUnquantizedEmbeddingsScored);
+        assertThat(childSearchStats.getNativeNumQuantizedEmbeddingsScored()).isEqualTo(
+                numQuantizedEmbeddingsScored);
+        assertThat(childSearchStats.getNativeNumEmbeddingShardsRead()).isEqualTo(
+                numEmbeddingShardsRead);
+        assertThat(childSearchStats.getNativeNumEmbeddingBytesRead()).isEqualTo(
+                numEmbeddingBytesRead);
     }
 
     @Test

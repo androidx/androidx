@@ -59,6 +59,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Before
 import org.junit.Ignore
@@ -73,7 +74,9 @@ import org.junit.runner.RunWith
 // SandboxedSdkViewEventListener?, Boolean)
 @OptIn(ExperimentalFeatures.ChangingContentUiZOrderApi::class)
 class SandboxedSdkUiTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<UiLibComposeActivity>()
+    @get:Rule
+    val composeTestRule =
+        createAndroidComposeRule<UiLibComposeActivity>(effectContext = StandardTestDispatcher())
     private var testSandboxedUiAdapter by mutableStateOf(TestSandboxedUiAdapter())
     private var eventListener by mutableStateOf(TestEventListener())
     private var providerUiOnTop by mutableStateOf(false)

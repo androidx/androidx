@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
@@ -483,7 +484,10 @@ private class DefaultPagerNestedScrollConnection(
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         return if (
             // rounding error and drag only
-            source == NestedScrollSource.UserInput && abs(state.currentPageOffsetFraction) > 1e-6
+            source == NestedScrollSource.UserInput &&
+                abs(state.currentPageOffsetFraction) > 1e-6 &&
+                // only need to treat deltas on this Pager's orientation
+                available.toFloat().absoluteValue > 0f
         ) {
             // find the current and next page (in the direction of dragging)
             val currentPageOffset = state.currentPageOffsetFraction * state.pageSize
@@ -502,7 +506,7 @@ private class DefaultPagerNestedScrollConnection(
                 maxBound = nextClosestPageOffset
             }
 
-            val delta = if (orientation == Orientation.Horizontal) available.x else available.y
+            val delta = available.toFloat()
             val coerced = delta.coerceIn(minBound, maxBound)
             // dispatch and return reversed as usual
             val consumed = -state.dispatchRawDelta(-coerced)
@@ -514,6 +518,8 @@ private class DefaultPagerNestedScrollConnection(
             Offset.Zero
         }
     }
+
+    private fun Offset.toFloat() = if (orientation == Orientation.Horizontal) x else y
 
     override fun onPostScroll(
         consumed: Offset,

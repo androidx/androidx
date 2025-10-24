@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl;
+import androidx.xr.scenecore.impl.impress.GltfModel;
 import androidx.xr.scenecore.impl.impress.ImpressApi;
 import androidx.xr.scenecore.impl.impress.ImpressNode;
 import androidx.xr.scenecore.impl.impress.Material;
@@ -90,19 +91,16 @@ public class GltfFeatureImplTest {
     }
 
     private GltfFeature createGltfFeature() throws ExecutionException, InterruptedException {
-        long modelToken = -1;
-        ListenableFuture<Long> modelTokenFuture =
+        ListenableFuture<GltfModel> modelTokenFuture =
                 mFakeImpressApi.loadGltfAsset("FakeGltfAsset.glb");
-        modelToken = modelTokenFuture.get();
-        GltfModelResourceImpl modelResource = new GltfModelResourceImpl(modelToken);
-        mModelImpressNode =
-                mFakeImpressApi.instanceGltfModel(modelResource.getExtensionModelToken());
+        GltfModel model = modelTokenFuture.get();
+        long modelToken = model.getNativeHandle();
+        mModelImpressNode = mFakeImpressApi.instanceGltfModel(modelToken);
         when(mMockImpressApi.createImpressNode()).thenReturn(mFakeImpressApi.createImpressNode());
-        when(mMockImpressApi.instanceGltfModel(modelResource.getExtensionModelToken()))
-                .thenReturn(mModelImpressNode);
+        when(mMockImpressApi.instanceGltfModel(modelToken)).thenReturn(mModelImpressNode);
 
         return new GltfFeatureImpl(
-                modelResource, mMockImpressApi, mSplitEngineSubspaceManager, mXrExtensions);
+                model, mMockImpressApi, mSplitEngineSubspaceManager, mXrExtensions);
     }
 
     @Nullable

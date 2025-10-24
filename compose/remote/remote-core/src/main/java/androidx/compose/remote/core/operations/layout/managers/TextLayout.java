@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
@@ -41,7 +41,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 /** Text component, referencing a text id */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -60,11 +59,12 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
     public static final int OVERFLOW_START_ELLIPSIS = 4;
     public static final int OVERFLOW_MIDDLE_ELLIPSIS = 5;
 
-    @Nullable
-    private Boolean mIsDynamicColorEnabled;
     public static final int FLAG_IS_DYNAMIC_COLOR = 1;
 
     private static final boolean DEBUG = false;
+
+    private final boolean mIsDynamicColorEnabled;
+
     private int mTextId = -1;
     private int mColor = 0;
     private int mColorValue = -1;
@@ -94,7 +94,7 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
     @Nullable
     private String mNewString;
 
-    Platform.ComputedTextLayout mComputedTextLayout;
+    RcPlatformServices.ComputedTextLayout mComputedTextLayout;
 
     @Nullable
     @Override
@@ -111,7 +111,7 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
             if (Float.isNaN(mFontSize)) {
                 context.listensTo(Utils.idFromNan(mFontSize), this);
             }
-            if (isDynamicColorEnabled()) {
+            if (mIsDynamicColorEnabled) {
                 context.listensTo(mColor, this);
             }
         }
@@ -122,16 +122,9 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         return context.supportsVersion(1, 1, 0);
     }
 
-    private Boolean isDynamicColorEnabled() {
-        if (mTextAlign == -1) { //  Text align is not initialized yet.
-            return null;
-        }
-        if (mIsDynamicColorEnabled != null) {
-            return mIsDynamicColorEnabled;
-        }
-        short flags = getFlagsFromTextAlign(mTextAlign);
-        mIsDynamicColorEnabled = (flags & FLAG_IS_DYNAMIC_COLOR) > 0;
-        return mIsDynamicColorEnabled;
+    private boolean isDynamicColorEnabled(int textAlign) {
+        short flags = getFlagsFromTextAlign(textAlign);
+        return (flags & FLAG_IS_DYNAMIC_COLOR) > 0;
     }
 
     private static short getFlagsFromTextAlign(int textAlign) {
@@ -147,7 +140,7 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
                             : mFontSize;
 
             mTextAlignValue = (short) (mTextAlign & 0xFFFF);
-            if (isDynamicColorEnabled()) {
+            if (mIsDynamicColorEnabled) {
                 mColorValue = context.getColor(mColor);
             } else {
                 mColorValue = mColor;
@@ -215,8 +208,8 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         if (!Float.isNaN(mFontSize)) {
             mFontSizeValue = fontSize;
         }
-
-        if (Objects.equals(isDynamicColorEnabled(), Boolean.FALSE)) {
+        mIsDynamicColorEnabled = isDynamicColorEnabled(textAlign);
+        if (!mIsDynamicColorEnabled) {
             mColorValue = color;
         }
         mFontStyle = fontStyle;
@@ -451,7 +444,7 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         mPaint.reset();
         mPaint.setTextSize(mFontSizeValue);
         mPaint.setTextStyle(mType, (int) mFontWeight, mFontStyle == 1);
-        mPaint.setColor(mColor);
+        mPaint.setColor(mColorValue);
         context.replacePaint(mPaint);
         float[] bounds = new float[4];
         if (mNewString != null && !mNewString.equals(mCachedString)) {
@@ -662,7 +655,7 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         serializer.add("textId", mTextId);
         short flags = getFlagsFromTextAlign(mTextAlign);
         serializer.add("flags", flags);
-        if (isDynamicColorEnabled()) {
+        if (mIsDynamicColorEnabled) {
             serializer.add("color", (float) mColor, (float) mColorValue);
         } else {
             serializer.add("color", Utils.colorInt(mColorValue));

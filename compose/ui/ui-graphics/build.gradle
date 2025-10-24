@@ -41,7 +41,6 @@ androidXMultiplatform {
             it.consumerKeepRules.publish = true
             it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
         }
-        lint.disable += "ComposeTestRuleDispatcher"
     }
     jvmStubs()
     linuxX64Stubs()

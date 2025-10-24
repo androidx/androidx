@@ -170,10 +170,10 @@ class InteractableComponentTest {
         val inputEventCaptor = argumentCaptor<InputEvent>()
         verify(mockListener).accept(inputEventCaptor.capture())
         val inputEvent = inputEventCaptor.lastValue
-        assertThat(inputEvent.source).isEqualTo(InputEvent.Source.SOURCE_HANDS)
-        assertThat(inputEvent.pointerType).isEqualTo(InputEvent.Pointer.POINTER_TYPE_RIGHT)
+        assertThat(inputEvent.source).isEqualTo(InputEvent.Source.HANDS)
+        assertThat(inputEvent.pointerType).isEqualTo(InputEvent.Pointer.RIGHT)
         assertThat(inputEvent.timestamp).isEqualTo(rtInputEvent.timestamp)
-        assertThat(inputEvent.action).isEqualTo(InputEvent.Action.ACTION_DOWN)
+        assertThat(inputEvent.action).isEqualTo(InputEvent.Action.DOWN)
         assertThat(inputEvent.hitInfoList).isNotEmpty()
         assertThat(inputEvent.hitInfoList).hasSize(1)
 

@@ -41,10 +41,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.LongSparseArray
 import androidx.collection.set
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.indirect.AndroidIndirectTouchEvent
+import androidx.compose.ui.input.indirect.AndroidIndirectPointerEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.indirect.IndirectPointerInputChange
-import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
-import androidx.compose.ui.input.indirect.convertActionToIndirectTouchEventType
+import androidx.compose.ui.input.indirect.convertActionToIndirectPointerEventType
 import androidx.compose.ui.input.indirect.indirectPrimaryDirectionalScrollAxis
 import androidx.compose.ui.util.fastIsFinite
 
@@ -63,11 +63,11 @@ internal class MotionEventAdapter {
 
     private val pointers = mutableListOf<PointerInputEventData>()
 
-    private val previousIndirectTouchEventData: LongSparseArray<IndirectTouchEventData> =
+    private val previousIndirectPointerEventData: LongSparseArray<IndirectPointerEventData> =
         LongSparseArray()
 
     @JvmInline
-    private value class IndirectTouchEventData(val packedValue: Long) {
+    private value class IndirectPointerEventData(val packedValue: Long) {
         constructor(
             uptime: Long,
             position: Offset,
@@ -191,19 +191,20 @@ internal class MotionEventAdapter {
 
     /*
      * Converts a single [MotionEvent] from an Android event stream into an
-     * [AndroidIndirectTouchEvent].
+     * [AndroidIndirectPointerEvent].
      * @param motionEvent The MotionEvent to process.
      * @param primaryDirectionalMotionAxisOverride The primary directional motion axis override. The
      * primaryDirectionalMotionAxisOverride is used for testing, because there is no way to
      * override the primary directional motion axis from the MotionEvent's device properly with
      * mockito (MotionEvent and Mockito don't work together). The override allows tests to inject a
      * custom value (null means use the actual MotionEvent device's value).
-     * @return The AndroidIndirectTouchEvent or null if the event action was ACTION_CANCEL.
+     * @return The AndroidIndirectPointerEvent or null if the event action was ACTION_CANCEL.
      */
-    internal fun convertToIndirectTouchEvent(
+    internal fun convertToIndirectPointerEvent(
         motionEvent: MotionEvent,
-        primaryDirectionalMotionAxisOverride: IndirectTouchEventPrimaryDirectionalMotionAxis? = null,
-    ): AndroidIndirectTouchEvent? {
+        primaryDirectionalMotionAxisOverride: IndirectPointerEventPrimaryDirectionalMotionAxis? =
+            null,
+    ): AndroidIndirectPointerEvent? {
         val action = motionEvent.actionMasked
 
         clearOnDeviceChange(motionEvent)
@@ -239,13 +240,13 @@ internal class MotionEventAdapter {
                     Offset(x = motionEvent.getX(index), y = motionEvent.getY(index))
                 val isPressed = index != upIndex
 
-                val previousData = previousIndirectTouchEventData[pointerId.value]
+                val previousData = previousIndirectPointerEventData[pointerId.value]
 
                 if (index == upIndex) {
-                    previousIndirectTouchEventData.remove(pointerId.value)
+                    previousIndirectPointerEventData.remove(pointerId.value)
                 } else if (downOrMove) {
-                    previousIndirectTouchEventData[pointerId.value] =
-                        IndirectTouchEventData(
+                    previousIndirectPointerEventData[pointerId.value] =
+                        IndirectPointerEventData(
                             uptime = motionEvent.eventTime,
                             position = currentLocation,
                             down = true,
@@ -270,9 +271,9 @@ internal class MotionEventAdapter {
             primaryDirectionalMotionAxisOverride
                 ?: indirectPrimaryDirectionalScrollAxis(motionEvent)
 
-        return AndroidIndirectTouchEvent(
+        return AndroidIndirectPointerEvent(
             changes = changes,
-            type = convertActionToIndirectTouchEventType(action),
+            type = convertActionToIndirectPointerEventType(action),
             primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
             nativeEvent = motionEvent,
         )

@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.featuregroup.GroupableFeature
@@ -39,7 +38,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalSessionConfig::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class FeatureCombinationDeviceTest(
@@ -55,7 +53,7 @@ class FeatureCombinationDeviceTest(
     }
 
     @Test
-    fun isFeatureGroupSupported_queryReturnsFalseWithUnselectedPreferredFeatures(): Unit =
+    fun isSessionConfigSupported_queryReturnsFalseWithUnselectedPreferredFeatures(): Unit =
         runBlocking {
             // Arrange: Bind with all features as preferred and store the selected ones.
             val useCases = useCasesToTest.toUseCases()
@@ -76,7 +74,7 @@ class FeatureCombinationDeviceTest(
                     .that(
                         cameraProvider
                             .getCameraInfo(cameraSelector)
-                            .isFeatureGroupSupported(
+                            .isSessionConfigSupported(
                                 SessionConfig(
                                     useCases = useCases,
                                     requiredFeatureGroup = selectedFeatures + feature,
@@ -130,7 +128,7 @@ class FeatureCombinationDeviceTest(
                 assumeTrue(
                     cameraProvider
                         .getCameraInfo(cameraSelector)
-                        .isFeatureGroupSupported(sessionConfig)
+                        .isSessionConfigSupported(sessionConfig)
                 )
 
                 cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)

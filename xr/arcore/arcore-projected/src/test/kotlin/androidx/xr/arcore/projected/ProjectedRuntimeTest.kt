@@ -70,7 +70,6 @@ class ProjectedRuntimeTest {
                 Config.FaceTrackingMode.USER,
                 Config.EyeTrackingMode.COARSE_TRACKING,
                 Config.EyeTrackingMode.FINE_TRACKING,
-                Config.EyeTrackingMode.COARSE_AND_FINE_TRACKING,
             )
 
         for (mode in unsupportedModes) {

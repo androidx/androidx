@@ -18,10 +18,12 @@ package androidx.webkit;
 
 /**
  * This class serves solely as a key for Page-associated data.
- * The instance itself functions as the key/identifier.
+ * The instance itself functions as the key/identifier through {@link Object#equals(Object)} and
+ * {@link Object#hashCode()}.
  * <p>
  * While this interface is currently empty, it may be expanded on in the future.
  * For example, it could be enhanced to expose lifecycle state information.
  */
 @WebNavigationClient.ExperimentalNavigationCallback
-public interface Page { }
+public interface Page {
+}

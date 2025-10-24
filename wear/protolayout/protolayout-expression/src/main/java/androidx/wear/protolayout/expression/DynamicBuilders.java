@@ -6945,7 +6945,8 @@ public final class DynamicBuilders {
      * operate on that precision level.
      */
     @RequiresSchemaVersion(major = 1, minor = 300)
-    interface DynamicZonedDateTime extends DynamicType {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public interface DynamicZonedDateTime extends DynamicType {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         DynamicProto.@NonNull DynamicZonedDateTime toDynamicZonedDateTimeProto();

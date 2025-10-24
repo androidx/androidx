@@ -84,7 +84,16 @@ internal class CameraStateExtender : StateExtender {
 
     private fun getCameraState(coreState: CoreState): CameraState {
         val camera = perceptionManager._latestFrame.camera
-        if (camera.trackingState == ARCoreTrackingState.TRACKING) {
+
+        /**
+         * When using the front-facing camera in ARCore 1.x, the Camera's TrackingState will always
+         * be PAUSED, so in that case we need to ignore trackingState and populate the rest of the
+         * values anyway, since an AR feature like FaceMesh tracking is likely being done.
+         */
+        if (
+            camera.trackingState == ARCoreTrackingState.TRACKING ||
+                perceptionManager.usingFrontFacingCamera
+        ) {
             val projectionMatrixData = FloatArray(16)
             camera.getProjectionMatrix(
                 projectionMatrixData,

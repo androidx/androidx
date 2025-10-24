@@ -17,6 +17,17 @@ package androidx.xr.scenecore.impl.impress {
     method public void register(Object, Runnable);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ExrImage extends androidx.xr.scenecore.impl.impress.BindingsResource implements androidx.xr.scenecore.runtime.ExrImageResource {
+    method protected void releaseBindingsResource(long);
+  }
+
+  public static class ExrImage.Builder {
+    ctor public ExrImage.Builder();
+    method public androidx.xr.scenecore.impl.impress.ExrImage build();
+    method public androidx.xr.scenecore.impl.impress.ExrImage.Builder setImpressApi(androidx.xr.scenecore.impl.impress.ImpressApi);
+    method public androidx.xr.scenecore.impl.impress.ExrImage.Builder setNativeExrImage(long);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakeImpressApiImpl implements androidx.xr.scenecore.impl.impress.ImpressApi {
     ctor public FakeImpressApiImpl();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> animateGltfModel(androidx.xr.scenecore.impl.impress.ImpressNode, String?, boolean);
@@ -49,10 +60,10 @@ package androidx.xr.scenecore.impl.impress {
     method public int impressNodeLoopAnimatingSize();
     method public androidx.xr.scenecore.impl.impress.ImpressNode instanceGltfModel(long);
     method public androidx.xr.scenecore.impl.impress.ImpressNode instanceGltfModel(long, boolean);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadGltfAsset(byte[], String);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadGltfAsset(String);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadImageBasedLightingAsset(byte[], String);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadImageBasedLightingAsset(String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.GltfModel!> loadGltfAsset(byte[], String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.GltfModel!> loadGltfAsset(String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.ExrImage!> loadImageBasedLightingAsset(byte[], String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.ExrImage!> loadImageBasedLightingAsset(String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.Texture!> loadTexture(String);
     method public void onPause();
     method public void onResume();
@@ -108,10 +119,11 @@ package androidx.xr.scenecore.impl.impress {
     method public void setStereoSurfaceEntityCanvasShapeQuad(androidx.xr.scenecore.impl.impress.ImpressNode, float, float);
     method public void setStereoSurfaceEntityCanvasShapeSphere(androidx.xr.scenecore.impl.impress.ImpressNode, float);
     method public void setStereoSurfaceEntityColliderEnabled(androidx.xr.scenecore.impl.impress.ImpressNode, boolean);
+    method public void setStereoSurfaceEntitySurfaceSize(androidx.xr.scenecore.impl.impress.ImpressNode, int, int);
     method public void setTransmissionFactorOnKhronosPbrMaterial(long, float);
     method public void setTransmissionTextureOnKhronosPbrMaterial(long, long, androidx.xr.scenecore.runtime.TextureSampler);
     method public void setTransmissionUvTransformOnKhronosPbrMaterial(long, float, float, float, float, float, float, float, float, float);
-    method public void setup(com.google.ar.imp.view.View);
+    method public void setup(com.google.ar.imp.view.View?);
     method public void stopGltfModelAnimation(androidx.xr.scenecore.impl.impress.ImpressNode);
   }
 
@@ -147,6 +159,8 @@ package androidx.xr.scenecore.impl.impress {
     method public float getRadius();
     method @androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode public int getStereoMode();
     method public android.view.Surface? getSurface();
+    method public int getSurfaceHeight();
+    method public int getSurfaceWidth();
     method public float getWidth();
   }
 
@@ -158,6 +172,17 @@ package androidx.xr.scenecore.impl.impress {
 
   public static class FakeImpressApiImpl.TestSurface extends android.view.Surface {
     ctor public FakeImpressApiImpl.TestSurface(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class GltfModel extends androidx.xr.scenecore.impl.impress.BindingsResource implements androidx.xr.scenecore.runtime.GltfModelResource {
+    method protected void releaseBindingsResource(long);
+  }
+
+  public static class GltfModel.Builder {
+    ctor public GltfModel.Builder();
+    method public androidx.xr.scenecore.impl.impress.GltfModel build();
+    method public androidx.xr.scenecore.impl.impress.GltfModel.Builder setImpressApi(androidx.xr.scenecore.impl.impress.ImpressApi);
+    method public androidx.xr.scenecore.impl.impress.GltfModel.Builder setNativeGltfModel(long);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface ImpressApi {
@@ -175,14 +200,15 @@ package androidx.xr.scenecore.impl.impress {
     method public void destroyNativeObject(long nativeHandle);
     method public void disposeAllResources();
     method public androidx.xr.scenecore.impl.impress.BindingsResourceManager getBindingsResourceManager();
+    method public default androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox(androidx.xr.scenecore.impl.impress.ImpressNode impressNode);
     method public androidx.xr.scenecore.impl.impress.Texture getReflectionTextureFromIbl(long iblToken);
     method public android.view.Surface getSurfaceFromStereoSurface(androidx.xr.scenecore.impl.impress.ImpressNode panelImpressNode);
     method public androidx.xr.scenecore.impl.impress.ImpressNode instanceGltfModel(long gltfToken);
     method public androidx.xr.scenecore.impl.impress.ImpressNode instanceGltfModel(long gltfToken, boolean enableCollider);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long> loadGltfAsset(byte[] data, String key);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long> loadGltfAsset(String path);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long> loadImageBasedLightingAsset(byte[] data, String key);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long> loadImageBasedLightingAsset(String path);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.GltfModel> loadGltfAsset(byte[] data, String key);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.GltfModel> loadGltfAsset(String path);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.ExrImage> loadImageBasedLightingAsset(byte[] data, String key);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.ExrImage> loadImageBasedLightingAsset(String path);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.Texture> loadTexture(String path);
     method public void onPause();
     method public void onResume();
@@ -238,6 +264,7 @@ package androidx.xr.scenecore.impl.impress {
     method public void setStereoSurfaceEntityCanvasShapeQuad(androidx.xr.scenecore.impl.impress.ImpressNode impressNode, float width, float height);
     method public void setStereoSurfaceEntityCanvasShapeSphere(androidx.xr.scenecore.impl.impress.ImpressNode impressNode, float radius);
     method public void setStereoSurfaceEntityColliderEnabled(androidx.xr.scenecore.impl.impress.ImpressNode impressNode, boolean enableCollider);
+    method public void setStereoSurfaceEntitySurfaceSize(androidx.xr.scenecore.impl.impress.ImpressNode impressNode, int width, int height);
     method public void setTransmissionFactorOnKhronosPbrMaterial(long nativeKhronosPbrMaterial, float factor);
     method public void setTransmissionTextureOnKhronosPbrMaterial(long nativeKhronosPbrMaterial, long transmissionTexture, androidx.xr.scenecore.runtime.TextureSampler sampler);
     method public void setTransmissionUvTransformOnKhronosPbrMaterial(long nativeKhronosPbrMaterial, float ux, float uy, float uz, float vx, float vy, float vz, float wx, float wy, float wz);
@@ -373,10 +400,10 @@ package androidx.xr.scenecore.impl.impress {
     method public android.view.Surface getSurfaceFromStereoSurface(androidx.xr.scenecore.impl.impress.ImpressNode);
     method public androidx.xr.scenecore.impl.impress.ImpressNode instanceGltfModel(long);
     method public androidx.xr.scenecore.impl.impress.ImpressNode instanceGltfModel(long, boolean);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadGltfAsset(byte[], String);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadGltfAsset(String);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadImageBasedLightingAsset(byte[], String);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> loadImageBasedLightingAsset(String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.GltfModel!> loadGltfAsset(byte[], String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.GltfModel!> loadGltfAsset(String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.ExrImage!> loadImageBasedLightingAsset(byte[], String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.ExrImage!> loadImageBasedLightingAsset(String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.impress.Texture!> loadTexture(String);
     method public void onPause();
     method public void onResume();
@@ -432,10 +459,11 @@ package androidx.xr.scenecore.impl.impress {
     method public void setStereoSurfaceEntityCanvasShapeQuad(androidx.xr.scenecore.impl.impress.ImpressNode, float, float);
     method public void setStereoSurfaceEntityCanvasShapeSphere(androidx.xr.scenecore.impl.impress.ImpressNode, float);
     method public void setStereoSurfaceEntityColliderEnabled(androidx.xr.scenecore.impl.impress.ImpressNode, boolean);
+    method public void setStereoSurfaceEntitySurfaceSize(androidx.xr.scenecore.impl.impress.ImpressNode, int, int);
     method public void setTransmissionFactorOnKhronosPbrMaterial(long, float);
     method public void setTransmissionTextureOnKhronosPbrMaterial(long, long, androidx.xr.scenecore.runtime.TextureSampler);
     method public void setTransmissionUvTransformOnKhronosPbrMaterial(long, float, float, float, float, float, float, float, float, float);
-    method public void setup(com.google.ar.imp.view.View);
+    method public void setup(com.google.ar.imp.view.View?);
     method public void stopGltfModelAnimation(androidx.xr.scenecore.impl.impress.ImpressNode);
   }
 

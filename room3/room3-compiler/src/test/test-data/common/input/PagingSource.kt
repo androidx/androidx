@@ -13,3 +13,7 @@ public abstract class PagingSource<K : Any, T : Any> {
 
     public abstract suspend fun load(params: LoadParams<K>): LoadResult<K, T>
 }
+
+public class PagingState<Key : Any, Value : Any> {
+
+}

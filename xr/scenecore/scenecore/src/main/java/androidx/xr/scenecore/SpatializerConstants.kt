@@ -16,78 +16,107 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.SpatializerConstants as RtSpatializerConstants
 
 /** Constants for spatialized audio. */
 public interface SpatializerConstants {
 
-    public companion object {
-        /** Specifies spatial rendering using First Order Ambisonics */
-        public const val AMBISONICS_ORDER_FIRST_ORDER: Int = 0
-        /** Specifies spatial rendering using Second Order Ambisonics */
-        public const val AMBISONICS_ORDER_SECOND_ORDER: Int = 1
-        /** Specifies spatial rendering using Third Order Ambisonics */
-        public const val AMBISONICS_ORDER_THIRD_ORDER: Int = 2
+    /** Specifies the Ambisonics order of a [SoundFieldAttributes] */
+    public class AmbisonicsOrder private constructor(private val name: String) {
+        public companion object {
+            /** Specifies spatial rendering using First Order Ambisonics */
+            @JvmField public val FIRST_ORDER: AmbisonicsOrder = AmbisonicsOrder("FIRST")
 
-        /** The sound source has not been spatialized with SceneCore APIs. */
-        public const val SOURCE_TYPE_DEFAULT: Int = 0
-        /** The sound source has been spatialized as a 3D point source. */
-        public const val SOURCE_TYPE_POINT_SOURCE: Int = 1
-        /** The sound source is an ambisonics sound field. */
-        public const val SOURCE_TYPE_SOUND_FIELD: Int = 2
+            /** Specifies spatial rendering using Second Order Ambisonics */
+            @JvmField public val SECOND_ORDER: AmbisonicsOrder = AmbisonicsOrder("SECOND")
+
+            /** Specifies spatial rendering using Third Order Ambisonics */
+            @JvmField public val THIRD_ORDER: AmbisonicsOrder = AmbisonicsOrder("THIRD")
+        }
+
+        override fun toString(): String = name
     }
 
-    /** Used to set the Ambisonics order of a [SoundFieldAttributes] */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        value =
-            [
-                AMBISONICS_ORDER_FIRST_ORDER,
-                AMBISONICS_ORDER_SECOND_ORDER,
-                AMBISONICS_ORDER_THIRD_ORDER,
-            ]
-    )
-    public annotation class AmbisonicsOrder
-
     /** Represents the type of spatialization for an audio source. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(value = [SOURCE_TYPE_DEFAULT, SOURCE_TYPE_POINT_SOURCE, SOURCE_TYPE_SOUND_FIELD])
-    public annotation class SourceType
+    public class SourceType private constructor(private val name: String) {
+
+        public companion object {
+
+            /** The sound source has not been spatialized with SceneCore APIs. */
+            @JvmField public val DEFAULT: SourceType = SourceType("DEFAULT")
+
+            /** The sound source has been spatialized as a 3D point source. */
+            @JvmField public val POINT_SOURCE: SourceType = SourceType("POINT_SOURCE")
+
+            /** The sound source is an ambisonics sound field. */
+            public const val SOURCE_TYPE_SOUND_FIELD: Int = 2
+            @JvmField public val SOUND_FIELD: SourceType = SourceType("SOUND_FIELD")
+        }
+
+        override fun toString(): String = name
+    }
 }
 
-/** Converts the [SceneRuntime] SourceType IntDef to the SceneCore API. */
-@SpatializerConstants.SourceType
-internal fun @receiver:RtSpatializerConstants.SourceType Int.sourceTypeToJxr(): Int {
+/** Converts the runtime SourceType IntDef to the SceneCore API. */
+internal fun @receiver:RtSpatializerConstants.SourceType Int.sourceTypeToJxr():
+    SpatializerConstants.SourceType {
     return when (this) {
-        RtSpatializerConstants.SOURCE_TYPE_BYPASS -> SpatializerConstants.SOURCE_TYPE_DEFAULT
+        RtSpatializerConstants.SOURCE_TYPE_BYPASS -> SpatializerConstants.SourceType.DEFAULT
         RtSpatializerConstants.SOURCE_TYPE_POINT_SOURCE ->
-            SpatializerConstants.SOURCE_TYPE_POINT_SOURCE
+            SpatializerConstants.SourceType.POINT_SOURCE
         RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD ->
-            SpatializerConstants.SOURCE_TYPE_SOUND_FIELD
+            SpatializerConstants.SourceType.SOUND_FIELD
         else -> {
             // Unknown source type, returning bypass.
-            SpatializerConstants.SOURCE_TYPE_DEFAULT
+            SpatializerConstants.SourceType.DEFAULT
         }
     }
 }
 
-/** Converts the [SceneRuntime] SourceType IntDef to the SceneCore API. */
-@SpatializerConstants.AmbisonicsOrder
-internal fun @receiver:RtSpatializerConstants.AmbisonicsOrder Int.ambisonicsOrderToJxr(): Int {
+/** Converts the SourceType to the runtime IntDef . */
+@RtSpatializerConstants.SourceType
+internal fun SpatializerConstants.SourceType.sourceTypeToRt(): Int {
+    return when (this) {
+        SpatializerConstants.SourceType.DEFAULT -> RtSpatializerConstants.SOURCE_TYPE_BYPASS
+        SpatializerConstants.SourceType.POINT_SOURCE ->
+            RtSpatializerConstants.SOURCE_TYPE_POINT_SOURCE
+        SpatializerConstants.SourceType.SOUND_FIELD ->
+            RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD
+        else -> RtSpatializerConstants.SOURCE_TYPE_BYPASS
+    }
+}
+
+/** Converts the runtime AmbisonicsOrder IntDef to the SceneCore API. */
+internal fun @receiver:RtSpatializerConstants.AmbisonicsOrder Int.ambisonicsOrderToJxr():
+    SpatializerConstants.AmbisonicsOrder {
     return when (this) {
         RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER ->
-            SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
+            SpatializerConstants.AmbisonicsOrder.FIRST_ORDER
         RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER ->
-            SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
+            SpatializerConstants.AmbisonicsOrder.SECOND_ORDER
         RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER ->
-            SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
+            SpatializerConstants.AmbisonicsOrder.THIRD_ORDER
         else -> {
             // Unknown order, returning first order
-            SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
+            SpatializerConstants.AmbisonicsOrder.FIRST_ORDER
+        }
+    }
+}
+
+/** Converts the SceneCore AmbisonicsOrder API to the SceneCore API. */
+@RtSpatializerConstants.AmbisonicsOrder
+internal fun SpatializerConstants.AmbisonicsOrder.sourceTypeToRt(): Int {
+
+    return when (this) {
+        SpatializerConstants.AmbisonicsOrder.FIRST_ORDER ->
+            RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
+        SpatializerConstants.AmbisonicsOrder.SECOND_ORDER ->
+            RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
+        SpatializerConstants.AmbisonicsOrder.THIRD_ORDER ->
+            RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
+        else -> {
+            // Unknown order, returning first order
+            RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
         }
     }
 }

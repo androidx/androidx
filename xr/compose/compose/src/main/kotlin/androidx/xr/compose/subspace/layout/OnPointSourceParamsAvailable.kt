@@ -17,6 +17,7 @@
 package androidx.xr.compose.subspace.layout
 
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PointSourceParams
 
 /**
@@ -55,14 +56,17 @@ private class PointSourceElement(private val onPointSourceParams: (PointSourcePa
     }
 }
 
-private class PointSourceNode(internal var onPointSourceParams: (PointSourceParams) -> Unit) :
+// TODO(b/453766082) Add unit tests for the onPointSourceParamsAvailable modifier.
+private class PointSourceNode(var onPointSourceParams: (PointSourceParams) -> Unit) :
     SubspaceModifier.Node(), CoreEntityNode {
-    private var hasInvoked = false
+    private var currentEntity: Entity? = null
 
     override fun CoreEntityScope.modifyCoreEntity() {
-        if (!hasInvoked) {
-            onPointSourceParams(coreEntity.pointSourceParams)
-            hasInvoked = true
+        coreEntity.onEntityAttached { entity ->
+            if (currentEntity != entity) {
+                currentEntity = entity
+                onPointSourceParams(PointSourceParams(entity))
+            }
         }
     }
 }

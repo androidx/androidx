@@ -43,8 +43,7 @@ abstract class SystemSpaceEntityImpl extends AndroidXrEntity implements SystemSp
 
     // Transform for this space's origin in OpenXR reference space.
     protected final AtomicReference<Matrix4> mOpenXrReferenceSpaceTransform =
-            new AtomicReference<>(Matrix4.Identity);
-    protected Pose mOpenXrReferenceSpacePose;
+            new AtomicReference<>(null);
     protected Vector3 mWorldSpaceScale = new Vector3(1f, 1f, 1f);
     // Visible for testing.
     Closeable mNodeTransformCloseable;
@@ -87,7 +86,10 @@ abstract class SystemSpaceEntityImpl extends AndroidXrEntity implements SystemSp
      * XrExtensions#getOpenXrWorldReferenceSpaceType()}
      */
     public Pose getPoseInOpenXrReferenceSpace() {
-        return mOpenXrReferenceSpacePose;
+        if (mOpenXrReferenceSpaceTransform.get() == null) {
+            return null;
+        }
+        return mOpenXrReferenceSpaceTransform.get().unscaled().getPose();
     }
 
     /**
@@ -98,14 +100,12 @@ abstract class SystemSpaceEntityImpl extends AndroidXrEntity implements SystemSp
      *     reference space. The OpenXR reference space is of the type defined by the {@link
      *     XrExtensions#getOpenXrWorldReferenceSpaceType()} method.
      */
-    protected void setOpenXrReferenceSpacePose(Matrix4 openXrReferenceSpaceTransform) {
+    protected void setOpenXrReferenceSpaceTransform(Matrix4 openXrReferenceSpaceTransform) {
         if (openXrReferenceSpaceTransform.equals(Matrix4.Zero)) {
             return;
         }
         mOpenXrReferenceSpaceTransform.set(openXrReferenceSpaceTransform);
         // TODO: b/353511649 - Make SystemSpaceEntityImpl thread safe.
-        mOpenXrReferenceSpacePose = openXrReferenceSpaceTransform.unscaled().getPose();
-
         // Matrix4.scale returns either a positive or negative scale based on the rotation
         // matrix determinant, but we keep it positive for now to avoid any unexpected issues.
         // SpaceFlinger might apply a scale to the task node, for example if the user caused the
@@ -130,7 +130,7 @@ abstract class SystemSpaceEntityImpl extends AndroidXrEntity implements SystemSp
                 node.subscribeToTransform(
                         executor,
                         (transform) ->
-                                setOpenXrReferenceSpacePose(
+                                setOpenXrReferenceSpaceTransform(
                                         RuntimeUtils.getMatrix(transform.getTransform())));
     }
 

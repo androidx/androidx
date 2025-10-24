@@ -3,6 +3,14 @@ AddedAbstractMethod: androidx.wear.compose.material.ScalingParams#resolveViewpor
     Source breaking change: Added method androidx.wear.compose.material.ScalingParams.resolveViewportVerticalOffset(androidx.compose.ui.unit.Constraints)
 
 
+BecameUnchecked: androidx.wear.compose.material.PlaceholderKt:
+    Removed class androidx.wear.compose.material.PlaceholderKt from compatibility checked API surface
+BecameUnchecked: androidx.wear.compose.material.SwipeToRevealKt:
+    Removed class androidx.wear.compose.material.SwipeToRevealKt from compatibility checked API surface
+BecameUnchecked: androidx.wear.compose.material.SwipeableKt:
+    Removed class androidx.wear.compose.material.SwipeableKt from compatibility checked API surface
+
+
 ChangedType: androidx.wear.compose.material.PageIndicatorDefaults#style():
     Source breaking change: Method androidx.wear.compose.material.PageIndicatorDefaults.style has changed return type from int to androidx.wear.compose.material.PageIndicatorStyle
 ChangedType: androidx.wear.compose.material.PositionIndicatorState#visibility(float):

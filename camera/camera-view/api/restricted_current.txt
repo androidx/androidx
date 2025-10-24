@@ -166,7 +166,7 @@ package androidx.camera.view {
 
 }
 
-package androidx.camera.view.transform {
+package @SuppressCompatibility androidx.camera.view.transform {
 
   @SuppressCompatibility public final class CoordinateTransform {
     ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);

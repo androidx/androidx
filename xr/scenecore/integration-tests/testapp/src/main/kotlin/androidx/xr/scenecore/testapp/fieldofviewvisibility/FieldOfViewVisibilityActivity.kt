@@ -51,9 +51,8 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
     private lateinit var mPanelEntityManager: PanelEntityManager
     private lateinit var mPerceivedResolutionManager: PerceivedResolutionManager
     private lateinit var mHeadLockedPanelView: DebugTextLinearView
-    private val _mSpatialVisibilityFlow =
-        MutableStateFlow(SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN)
-    var mSpatialVisibility: Int
+    private val _mSpatialVisibilityFlow = MutableStateFlow(SpatialVisibility.UNKNOWN)
+    var mSpatialVisibility: SpatialVisibility
         get() = _mSpatialVisibilityFlow.value
         set(value) {
             _mSpatialVisibilityFlow.value = value
@@ -101,13 +100,10 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         mHeadLockedPanelView.setLine("State", "UNKNOWN")
         this.mHeadLockedUIManager = HeadLockedUIManager(session!!, this, mHeadLockedPanelView)
 
-        session!!.scene.setSpatialVisibilityChangedListener { visibility: Int ->
+        session!!.scene.setSpatialVisibilityChangedListener { visibility: SpatialVisibility ->
             mSpatialVisibility = visibility
-            Log.i(
-                TAG,
-                "Spatial visibility changed listener called ${visibility.toSpatialVisibilityString()}",
-            )
-            mHeadLockedPanelView.setLine("State", visibility.toSpatialVisibilityString())
+            Log.i(TAG, "Spatial visibility changed listener called $visibility")
+            mHeadLockedPanelView.setLine("State", visibility.toString())
             updateTextViews()
         }
         session!!
@@ -118,7 +114,7 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
 
     private fun updateTextViews() {
         findViewById<TextView>(R.id.fov_textview1).also {
-            it.text = "SpatialVisibility: ${mSpatialVisibility.toSpatialVisibilityString()}"
+            it.text = "SpatialVisibility: $mSpatialVisibility"
         }
 
         findViewById<TextView>(R.id.fov_textview2).also {
@@ -159,19 +155,5 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         mPanelEntityManager = PanelEntityManager(session!!, this)
         mPerceivedResolutionManager =
             PerceivedResolutionManager(session!!, this, mSurfaceEntityManager, mPanelEntityManager)
-    }
-
-    fun Int.toSpatialVisibilityString(): String {
-        val visibilityString =
-            when (this) {
-                SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN -> "UNKNOWN"
-                SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW ->
-                    "OUTSIDE_FIELD_OF_VIEW"
-                SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW ->
-                    "PARTIALLY_WITHIN_FIELD_OF_VIEW"
-                SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW -> "WITHIN_FIELD_OF_VIEW"
-                else -> "UNKNOWN"
-            }
-        return "SpatialVisibility($visibilityString)"
     }
 }

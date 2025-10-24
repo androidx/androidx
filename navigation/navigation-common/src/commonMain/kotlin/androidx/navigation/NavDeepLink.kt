@@ -382,8 +382,8 @@ internal constructor(
      * Parses subsequent arg values under the same queryParameterName
      *
      * For example with route "...?myArg=one&myArg=two&myArg=three", [savedState] is expected to
-     * already contain bundleOf([name] to "one"), and this function will parse & put values "two"
-     * and "three" into the SavedState under the same [name].
+     * already contain `[name] to "one"`, and this function will parse & put values "two" and
+     * "three" into the SavedState under the same [name].
      */
     private fun parseArgumentForRepeatedParam(
         savedState: SavedState,

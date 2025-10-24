@@ -23,8 +23,7 @@ import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose;
 import org.jspecify.annotations.NonNull;
 
 /** A ScenePose representing the origin of the OpenXR reference space. */
-final class PerceptionSpaceScenePoseImpl extends BaseScenePose
-        implements PerceptionSpaceScenePose {
+final class PerceptionSpaceScenePoseImpl extends BaseScenePose implements PerceptionSpaceScenePose {
     private final OpenXrScenePoseHelper mOpenXrScenePoseHelper;
 
     PerceptionSpaceScenePoseImpl(

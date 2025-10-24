@@ -31,11 +31,10 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.RoomSQLiteQuery
-import androidx.room3.paging.util.ThreadSafeInvalidationObserver
+import androidx.room3.RoomRawQuery
 import androidx.room3.util.getColumnIndexOrThrow
-import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.room3.util.performSuspending
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -43,7 +42,6 @@ import androidx.testutils.TestExecutor
 import androidx.testutils.withTestTimeout
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -111,34 +109,12 @@ class LimitOffsetRxPagingSourceTest {
     }
 
     @Test
-    fun initialLoad_invalidationTracker_isRegistered() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
-        val pagingSource = LimitOffsetRxPagingSourceImpl(db)
-        val single = pagingSource.refresh()
-        // run loadSingle to register InvalidationTracker
-        single.await()
-
-        assertTrue(pagingSource.observer.privateRegisteredState().get())
-    }
-
-    @Test
-    fun nonInitialLoad_invalidationTracker_isRegistered() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
-        val pagingSource = LimitOffsetRxPagingSourceImpl(db)
-        val single = pagingSource.prepend(key = 20)
-        // run loadSingle to register InvalidationTracker
-        single.await()
-
-        assertTrue(pagingSource.observer.privateRegisteredState().get())
-    }
-
-    @Test
     fun refresh_singleImmediatelyReturn() = setupAndRun { db ->
         db.getDao().addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.refresh()
 
-        var observer = single.test()
+        val observer = single.test()
         observer.assertNotComplete()
 
         // let room complete its tasks
@@ -157,7 +133,7 @@ class LimitOffsetRxPagingSourceTest {
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.append(key = 10)
 
-        var observer = single.test()
+        val observer = single.test()
         observer.assertNotComplete()
 
         // let room complete its tasks
@@ -176,7 +152,7 @@ class LimitOffsetRxPagingSourceTest {
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.prepend(key = 15)
 
-        var observer = single.test()
+        val observer = single.test()
         observer.assertNotComplete()
 
         // let room complete its tasks
@@ -198,10 +174,6 @@ class LimitOffsetRxPagingSourceTest {
         // trigger load to register observer
         single.await()
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
-
-        // make sure observer is registered and pagingSource is still valid at this point
-        assertTrue(pagingSource.observer.privateRegisteredState().get())
-        assertFalse(pagingSource.invalid)
 
         // this should cause refreshVersionsSync to invalidate pagingSource
         db.getDao().addItem(TestItem(113))
@@ -225,7 +197,7 @@ class LimitOffsetRxPagingSourceTest {
         assertTrue(pagingSource.invalid)
 
         // trigger load
-        var result = single.await()
+        val result = single.await()
 
         // let room complete its tasks
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
@@ -243,7 +215,7 @@ class LimitOffsetRxPagingSourceTest {
         assertTrue(pagingSource.invalid)
 
         // trigger load
-        var observer = single.test()
+        val observer = single.test()
 
         // let room complete its tasks
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
@@ -381,10 +353,10 @@ class LimitOffsetRxPagingSourceTest {
     fun assert_usesQueryExecutor() {
         val queryExecutor = TestExecutor()
         val testDb =
-            Room.inMemoryDatabaseBuilder(
-                    ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java,
+            Room.inMemoryDatabaseBuilder<LimitOffsetTestDb>(
+                    ApplicationProvider.getApplicationContext()
                 )
+                .setDriver(AndroidSQLiteDriver())
                 .setQueryExecutor(queryExecutor)
                 .build()
 
@@ -420,10 +392,10 @@ class LimitOffsetRxPagingSourceTest {
     @Test
     fun cancelledCoroutine_disposesSingle() {
         val testDb =
-            Room.inMemoryDatabaseBuilder(
-                    ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java,
+            Room.inMemoryDatabaseBuilder<LimitOffsetTestDb>(
+                    ApplicationProvider.getApplicationContext()
                 )
+                .setDriver(AndroidSQLiteDriver())
                 .build()
 
         testDb.getDao().addAllItems(ITEMS_LIST)
@@ -453,66 +425,6 @@ class LimitOffsetRxPagingSourceTest {
     }
 
     @Test
-    fun refresh_secondaryConstructor() = setupAndRun { db ->
-        val pagingSource =
-            object :
-                LimitOffsetRxPagingSource<TestItem>(
-                    db = db,
-                    supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
-                ) {
-                override fun convertRows(statement: SQLiteStatement): List<TestItem> {
-                    return convertRowsHelper(statement)
-                }
-            }
-
-        db.getDao().addAllItems(ITEMS_LIST)
-        val single = pagingSource.refresh()
-        val result = single.await() as LoadResult.Page
-        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
-    }
-
-    @Test
-    fun append_secondaryConstructor() = setupAndRun { db ->
-        val pagingSource =
-            object :
-                LimitOffsetRxPagingSource<TestItem>(
-                    db = db,
-                    supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
-                ) {
-                override fun convertRows(statement: SQLiteStatement): List<TestItem> {
-                    return convertRowsHelper(statement)
-                }
-            }
-
-        db.getDao().addAllItems(ITEMS_LIST)
-        val single = pagingSource.append(key = 15)
-        val result = single.await() as LoadResult.Page
-        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(15, 20))
-    }
-
-    @Test
-    fun prepend_secondaryConstructor() = setupAndRun { db ->
-        val pagingSource =
-            object :
-                LimitOffsetRxPagingSource<TestItem>(
-                    db = db,
-                    supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
-                ) {
-                override fun convertRows(statement: SQLiteStatement): List<TestItem> {
-                    return convertRowsHelper(statement)
-                }
-            }
-
-        db.getDao().addAllItems(ITEMS_LIST)
-        val single = pagingSource.prepend(key = 15)
-        val result = single.await() as LoadResult.Page
-        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(10, 15))
-    }
-
-    @Test
     fun jumping_enabled() = setupAndRun { db ->
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         assertTrue(pagingSource.jumpingSupported)
@@ -520,10 +432,10 @@ class LimitOffsetRxPagingSourceTest {
 
     private fun setupAndRun(test: suspend (LimitOffsetTestDb) -> Unit) {
         val db =
-            Room.inMemoryDatabaseBuilder(
-                    ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java,
+            Room.inMemoryDatabaseBuilder<LimitOffsetTestDb>(
+                    ApplicationProvider.getApplicationContext()
                 )
+                .setDriver(AndroidSQLiteDriver())
                 .build()
 
         runTest { test(db) }
@@ -537,22 +449,25 @@ private class LimitOffsetRxPagingSourceImpl(
 ) :
     LimitOffsetRxPagingSource<TestItem>(
         db = db,
-        sourceQuery = RoomSQLiteQuery.acquire(query, 0),
+        sourceQuery = RoomRawQuery(query),
         tables = arrayOf(tableName),
     ) {
-    override fun convertRows(statement: SQLiteStatement): List<TestItem> {
-        return convertRowsHelper(statement)
+    override suspend fun convertRows(
+        limitOffsetQuery: RoomRawQuery,
+        itemCount: Int,
+    ): List<TestItem> {
+        return performSuspending(db, isReadOnly = true, inTransaction = false) { connection ->
+            connection.prepare(limitOffsetQuery.sql).use { statement ->
+                val stmtIndexOfId = getColumnIndexOrThrow(statement, "id")
+                buildList {
+                    while (statement.step()) {
+                        val tmpId = statement.getInt(stmtIndexOfId)
+                        add(TestItem(tmpId))
+                    }
+                }
+            }
+        }
     }
-}
-
-private fun convertRowsHelper(statement: SQLiteStatement): List<TestItem> {
-    val cursorIndexOfId = getColumnIndexOrThrow(statement, "id")
-    val data = mutableListOf<TestItem>()
-    while (statement.step()) {
-        val tmpId = statement.getInt(cursorIndexOfId)
-        data.add(TestItem(tmpId))
-    }
-    return data
 }
 
 private fun LimitOffsetRxPagingSource<TestItem>.refresh(
@@ -565,6 +480,7 @@ private fun LimitOffsetRxPagingSource<TestItem>.append(
     key: Int? = -1
 ): Single<LoadResult<Int, TestItem>> {
     itemCount.set(ITEMS_LIST.size) // to bypass check for initial load
+    refreshComplete.set(true)
     return loadSingle(createLoadParam(loadType = LoadType.APPEND, key = key))
 }
 
@@ -572,6 +488,7 @@ private fun LimitOffsetRxPagingSource<TestItem>.prepend(
     key: Int? = -1
 ): Single<LoadResult<Int, TestItem>> {
     itemCount.set(ITEMS_LIST.size) // to bypass check for initial load
+    refreshComplete.set(true)
     return loadSingle(createLoadParam(loadType = LoadType.PREPEND, key = key))
 }
 
@@ -613,14 +530,6 @@ private fun createLoadParam(
             )
         }
     }
-}
-
-@Suppress("UNCHECKED_CAST")
-private fun ThreadSafeInvalidationObserver.privateRegisteredState(): AtomicBoolean {
-    return ThreadSafeInvalidationObserver::class.java.getDeclaredField("registered").let {
-        it.isAccessible = true
-        it.get(this)
-    } as AtomicBoolean
 }
 
 @Database(entities = [TestItem::class], version = 1, exportSchema = false)

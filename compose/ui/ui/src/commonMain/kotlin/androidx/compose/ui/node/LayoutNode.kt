@@ -98,11 +98,14 @@ internal class LayoutNode(
     InteroperableComposeUiNode,
     Owner.OnLayoutCompletedListener {
 
-    internal var offsetFromRoot: IntOffset = IntOffset.Max
+    // Params managed by RectManager start:
+    internal var hasPositionalLayerTransformationsInOffsetFromRoot: Boolean = false
+    internal var lastOffsetFromParent: IntOffset = IntOffset.Max
     internal var lastSize: IntSize = IntSize.Zero
     internal var outerToInnerOffset: IntOffset = IntOffset.Max
     internal var outerToInnerOffsetDirty: Boolean = true
-    internal var addedToRectList: Boolean = true
+    internal var addedToRectList: Boolean = false
+    // Params managed by RectManager end.
 
     override var compositeKeyHash: Int = 0
 
@@ -601,9 +604,9 @@ internal class LayoutNode(
         ignoreRemeasureRequests { _foldedChildren.forEach { child -> child.detach() } }
         nodes.markAsDetached()
         owner.onDetach(this)
+        owner.rectManager.remove(this)
         this.owner = null
 
-        offsetFromRoot = IntOffset.Max
         lookaheadRoot = null
         depth = 0
         measurePassDelegate.onNodeDetached()
@@ -1197,24 +1200,8 @@ internal class LayoutNode(
         requireOwner().requestOnPositionedCallback(this)
     }
 
-    /**
-     * When the position of this node changes, we need to invalidate the cached [offsetFromRoot]
-     * value. Additionally, this will make all of the [offsetFromRoot] values below it incorrect as
-     * well.
-     */
-    private fun invalidateOffsetFromRoot() {
-        // we want to avoid doing this recursive invalidation multiple times.
-        // if offsetFromRoot is already "unset", then we can assume that everything below
-        // it is also unset, and can exit early.
-        if (offsetFromRoot == IntOffset.Max) return
-        // Recursively "unset" offsetFromRoot
-        offsetFromRoot = IntOffset.Max
-        forEachChild { it.invalidateOffsetFromRoot() }
-    }
-
     internal fun onCoordinatorPositionChanged() {
         outerToInnerOffsetDirty = true
-        forEachChild { it.invalidateOffsetFromRoot() }
 
         // Since there has been an update to a coordinator somewhere in the
         // modifier chain of this layout node, we might have onRectChanged
@@ -1472,6 +1459,8 @@ internal class LayoutNode(
             resetModifierState()
         }
         val oldSemanticsId = semanticsId
+        // semanticsId is used as the identity. we need to remove from rectlist before changing it
+        owner?.rectManager?.remove(this)
         semanticsId = generateSemanticsId()
         owner?.onPreLayoutNodeReused(this, oldSemanticsId)
         // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.

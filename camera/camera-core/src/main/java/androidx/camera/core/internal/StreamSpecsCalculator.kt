@@ -33,6 +33,7 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import androidx.camera.core.impl.utils.TransformUtils
+import androidx.camera.core.impl.utils.UseCaseUtil.containsVideoCapture
 import androidx.camera.core.streamsharing.StreamSharing
 
 /**
@@ -295,7 +296,7 @@ public class StreamSpecsCalculatorImpl(
                         ArrayList<AttachedSurfaceInfo?>(attachedSurfaceInfoToUseCaseMap.keys),
                         configToSupportedSizesMap,
                         isPreviewStabilizationOn,
-                        CameraUseCaseAdapter.hasVideoCapture(newUseCases),
+                        newUseCases.containsVideoCapture(),
                         isFeatureComboInvocation,
                         findMaxSupportedFrameRate,
                     )

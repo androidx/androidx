@@ -22,78 +22,11 @@
  * modifying its settings.
  */
 import androidx.build.SoftwareType
-import javax.inject.Inject
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-}
-
-abstract class BundleTestSdkDexTask extends DefaultTask {
-
-    @InputFiles
-    @PathSensitive(PathSensitivity.NAME_ONLY)
-    abstract ConfigurableFileCollection getTestSdkApkFolders()
-
-    @OutputDirectory
-    abstract DirectoryProperty getOutputDir()
-
-    @Inject
-    abstract FileSystemOperations getFileSystemOperations()
-
-    @Inject
-    abstract ArchiveOperations getArchiveOperations()
-
-    @TaskAction
-    def exec() {
-        for (File folder : testSdkApkFolders.files) {
-            for (File file : folder.listFiles()) {
-                String fileName = file.name
-                if (!fileName.endsWith(".apk")) {
-                    continue
-                }
-
-                int projectNameEnd = fileName.indexOf("-")
-                String projectName = projectNameEnd > 0 ? fileName.substring(0, projectNameEnd) : fileName
-
-                fileSystemOperations.copy {
-                    from(archiveOperations.zipTree(file))
-                    into(outputDir.dir("test-sdks/$projectName/"))
-                    include('*.dex')
-                }
-            }
-        }
-    }
-}
-
-def bundleTestSdkDexTaskProvider = tasks.register("bundleTestSdkDexTask", BundleTestSdkDexTask) {
-    description = "Bundle DEX from the androidTestBundleDex configuration into assets folder"
-
-    def configuration = configurations.getByName("androidTestBundleDex")
-    testSdkApkFolders.from(configuration.incoming.artifactView {}.files)
-}
-
-androidComponents {
-    onVariants(selector().withBuildType("release")) {
-        androidTest.sources.assets.addGeneratedSourceDirectory(
-                bundleTestSdkDexTaskProvider,
-                BundleTestSdkDexTask::getOutputDir
-        )
-    }
-}
-
-configurations {
-    androidTestBundleDex {
-        canBeConsumed = false
-        canBeResolved = true
-        attributes {
-            attribute(
-                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                    objects.named(LibraryElements, "testSdkApk")
-            )
-        }
-    }
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -110,34 +43,9 @@ dependencies {
     testImplementation(libs.truth)
     // TODO(b/438455972): Use ToT of compiler-processing-testing
     testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
-
-    // TODO(b/249982004): cleanup dependencies
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
-
-    androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.dexmakerMockitoInline)
-
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:current"))
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v7"))
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v8"))
 }
 
 android {
-    sourceSets {
-        androidTest {
-            assets {
-                srcDirs += "src/androidTest/assets"
-            }
-        }
-    }
-
     namespace = "androidx.privacysandbox.sdkruntime.client"
     compileSdk = 35
     compileSdkExtension = 14

@@ -61,7 +61,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalSessionConfig::class)
 class UseCaseTest {
     private lateinit var fakeCamera: FakeCamera
     private lateinit var fakeFrontCamera: FakeCamera

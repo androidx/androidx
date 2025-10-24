@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.xr.compose.material3 {
 
-  public final class AppBarKt {
+  @SuppressCompatibility public final class AppBarKt {
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.xr.compose.material3.HorizontalOrbiterProperties getDefaultSingleRowTopAppBarOrbiterProperties();
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.xr.compose.material3.HorizontalOrbiterProperties getDefaultTwoRowsTopAppBarOrbiterProperties();
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.HorizontalOrbiterProperties> getLocalSingleRowTopAppBarOrbiterProperties();
@@ -12,12 +12,12 @@ package androidx.xr.compose.material3 {
     property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.HorizontalOrbiterProperties> LocalTwoRowsTopAppBarOrbiterProperties;
   }
 
-  public final class BasicAlertDialogKt {
+  @SuppressCompatibility public final class BasicAlertDialogKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void BasicAlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.xr.compose.spatial.SpatialDialogProperties properties, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void BasicAlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.xr.compose.spatial.SpatialDialogProperties?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class EnableXrComponentOverridesKt {
+  @SuppressCompatibility public final class EnableXrComponentOverridesKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void EnableXrComponentOverrides(optional androidx.xr.compose.material3.XrComponentOverrideEnabler overrideEnabler, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void EnableXrComponentOverrides(androidx.xr.compose.material3.XrComponentOverrideEnabler?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
@@ -62,7 +62,7 @@ package androidx.xr.compose.material3 {
     property public androidx.xr.compose.subspace.layout.SpatialShape shape;
   }
 
-  public final class NavigationBarKt {
+  @SuppressCompatibility public final class NavigationBarKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationBar(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.unit.Dp tonalElevation, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationBar-PEIptTM(androidx.compose.ui.Modifier?, long, long, float, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.xr.compose.material3.HorizontalOrbiterProperties getDefaultNavigationBarOrbiterProperties();
@@ -71,7 +71,7 @@ package androidx.xr.compose.material3 {
     property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.HorizontalOrbiterProperties> LocalNavigationBarOrbiterProperties;
   }
 
-  public final class NavigationRailKt {
+  @SuppressCompatibility public final class NavigationRailKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationRail(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color contentColor, optional kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? header, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationRail-DTcfvLk(androidx.compose.ui.Modifier?, long, long, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.ColumnScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.ColumnScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.xr.compose.material3.VerticalOrbiterProperties getDefaultNavigationRailOrbiterProperties();
@@ -80,12 +80,12 @@ package androidx.xr.compose.material3 {
     property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.VerticalOrbiterProperties> LocalNavigationRailOrbiterProperties;
   }
 
-  public final class NavigationSuiteScaffoldKt {
+  @SuppressCompatibility public final class NavigationSuiteScaffoldKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationSuiteScaffold(kotlin.jvm.functions.Function1<androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope,kotlin.Unit> navigationSuiteItems, androidx.xr.compose.subspace.layout.SubspaceModifier modifier, androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType layoutType, optional androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors navigationSuiteColors, optional androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState state, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationSuiteScaffold-K6DM4qE(kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope!,kotlin.Unit!>, androidx.xr.compose.subspace.layout.SubspaceModifier, String, androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors?, androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class ShortNavigationBarKt {
+  @SuppressCompatibility public final class ShortNavigationBarKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void ShortNavigationBar(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color contentColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void ShortNavigationBar-eopBjH0(androidx.compose.ui.Modifier?, long, long, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.HorizontalOrbiterProperties> getLocalShortNavigationBarOrbiterProperties();
@@ -105,7 +105,7 @@ package androidx.xr.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void SpaceToggleButton(androidx.compose.ui.Modifier?, androidx.compose.material3.IconToggleButtonColors?, kotlin.jvm.functions.Function3<? super java.lang.Boolean!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class ThreePaneScaffoldKt {
+  @SuppressCompatibility public final class ThreePaneScaffoldKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void ThreePaneScaffold(androidx.xr.compose.subspace.layout.SubspaceModifier modifier, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective scaffoldDirective, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldHorizontalOrder paneOrder, kotlin.jvm.functions.Function0<kotlin.Unit> secondaryPane, optional kotlin.jvm.functions.Function0<kotlin.Unit>? tertiaryPane, kotlin.jvm.functions.Function0<kotlin.Unit> primaryPane);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void ThreePaneScaffold(androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldHorizontalOrder, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }

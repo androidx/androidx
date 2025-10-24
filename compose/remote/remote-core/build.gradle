@@ -27,7 +27,8 @@ dependencies {
     api("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-    testImplementation project(':compose:remote:remote-creation-core')
+    testImplementation(project(":compose:remote:remote-creation-core"))
+    testImplementation(project(":compose:remote:remote-core-testutils"))
     testImplementation("org.yaml:snakeyaml:2.4")
     testImplementation("org.jetbrains.kotlin:kotlin-stdlib")
 }

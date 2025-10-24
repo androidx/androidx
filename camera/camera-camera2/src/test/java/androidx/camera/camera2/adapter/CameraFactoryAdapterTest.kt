@@ -26,11 +26,13 @@ import android.util.Size
 import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraThreadConfig
@@ -95,6 +97,10 @@ class CameraFactoryAdapterTest {
         fakeCameraPipe =
             object : CameraPipe by mock() {
                 override fun cameras(): CameraDevices = fakeCameraDevices
+
+                override fun createCameraGraph(config: CameraGraph.Config): CameraGraph {
+                    return FakeCameraGraph()
+                }
             }
     }
 

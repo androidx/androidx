@@ -25,8 +25,8 @@ import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.toArgb
 
 /**
@@ -424,10 +424,10 @@ internal constructor(
 @RequiresApi(26)
 public fun rememberRemoteColor(
     name: String,
-    domain: String = "USER",
+    domain: RemoteDomains = RemoteDomains.USER,
     value: () -> androidx.compose.ui.graphics.Color,
 ): RemoteColor {
-    return remember(name) {
+    return rememberNamedState(name, domain) {
         val color = value().toArgb()
         RemoteColor(
             constantValue = null,

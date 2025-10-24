@@ -151,3 +151,16 @@ androidx {
     description = "The implementation of SQLite library using the framework code."
     kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
+
+// b/446711395
+// IDE Sync only error:
+// Reason: Task ':sqlite:sqlite-framework:linuxArm64TestCinterop-sqliteSharedArchiveKlib' uses this output of task ':sqlite:sqlite-framework:cinteropTestSqliteSharedArchiveLinuxArm64'
+// without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+tasks.withType(Zip).configureEach {
+    if (name == "linuxX64TestCinterop-sqliteSharedArchiveKlib") {
+        mustRunAfter(tasks.named("cinteropTestSqliteSharedArchiveLinuxX64"))
+    }
+    if (name == "linuxArm64TestCinterop-sqliteSharedArchiveKlib") {
+        mustRunAfter(tasks.named("cinteropTestSqliteSharedArchiveLinuxArm64"))
+    }
+}

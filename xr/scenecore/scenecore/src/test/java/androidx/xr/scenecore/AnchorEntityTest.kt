@@ -230,7 +230,7 @@ class AnchorEntityTest {
     fun setOnStateChangedListener_receivesStateChangedCallback() {
         val anchorEntity = AnchorEntity.create(session, anchor)
         val stateChangedListener =
-            Consumer<Int> { newState ->
+            Consumer<AnchorEntity.State> { newState ->
                 assertThat(newState).isEqualTo(AnchorEntity.State.ANCHORED)
             }
 

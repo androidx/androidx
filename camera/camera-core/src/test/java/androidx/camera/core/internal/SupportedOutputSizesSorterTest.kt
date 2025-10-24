@@ -159,29 +159,32 @@ class SupportedOutputSizesSorterTest {
     }
 
     @Test
-    fun getSupportedOutputSizes_aspectRatio4x3_fallbackRuleAuto() {
-        verifySupportedOutputSizesWithResolutionSelectorSettings(
-            preferredAspectRatio = AspectRatio.RATIO_4_3,
-            aspectRatioFallbackRule = AspectRatioStrategy.FALLBACK_RULE_AUTO,
-            expectedList =
-                listOf(
-                    // Matched preferred AspectRatio items, sorted by area size.
-                    Size(4032, 3024), // 4:3
-                    Size(1920, 1440),
-                    Size(1280, 960),
-                    Size(640, 480),
-                    Size(320, 240),
-                    // Mismatched preferred AspectRatio items, sorted by FOV and area size.
-                    Size(960, 960), // 1:1
-                    Size(3840, 2160), // 16:9
-                    Size(1920, 1080),
-                    Size(1280, 720),
-                    Size(960, 544),
-                    Size(800, 450),
-                    Size(320, 180),
-                    Size(256, 144),
-                ),
-        )
+    fun getSupportedOutputSizes_aspectRatio4x3OrDefault_fallbackRuleAuto() {
+        // Using RATIO_DEFAULT should obtain the same result as RATIO_4_3
+        listOf(AspectRatio.RATIO_4_3, AspectRatio.RATIO_DEFAULT).forEach {
+            verifySupportedOutputSizesWithResolutionSelectorSettings(
+                preferredAspectRatio = it,
+                aspectRatioFallbackRule = AspectRatioStrategy.FALLBACK_RULE_AUTO,
+                expectedList =
+                    listOf(
+                        // Matched preferred AspectRatio items, sorted by area size.
+                        Size(4032, 3024), // 4:3
+                        Size(1920, 1440),
+                        Size(1280, 960),
+                        Size(640, 480),
+                        Size(320, 240),
+                        // Mismatched preferred AspectRatio items, sorted by FOV and area size.
+                        Size(960, 960), // 1:1
+                        Size(3840, 2160), // 16:9
+                        Size(1920, 1080),
+                        Size(1280, 720),
+                        Size(960, 544),
+                        Size(800, 450),
+                        Size(320, 180),
+                        Size(256, 144),
+                    ),
+            )
+        }
     }
 
     @Test

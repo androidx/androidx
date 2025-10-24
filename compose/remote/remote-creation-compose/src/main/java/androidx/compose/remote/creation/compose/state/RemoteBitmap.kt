@@ -25,7 +25,6 @@ import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.core.graphics.createBitmap
 
 /**
@@ -147,7 +146,7 @@ public fun rememberRemoteBitmapValue(
     value: () -> Bitmap,
 ): RemoteBitmap {
     val state = LocalRemoteComposeCreationState.current
-    return remember(name) {
+    return rememberNamedState(name, domain) {
         val initial = value()
         MutableRemoteBitmap(state, mutableStateOf(initial), constantValue = null) { creationState ->
             creationState.document.addNamedBitmap("$domain:$name", initial)
@@ -164,7 +163,7 @@ public fun rememberRemoteBitmap(
     height: Int = 1,
 ): RemoteBitmap {
     val state = LocalRemoteComposeCreationState.current
-    return remember(name) {
+    return rememberNamedState(name, domain) {
         // We create a bitmap of the specified dimensions as a placeholder. The actual bitmap will
         // be loaded from the URL on the remote side. Providing accurate dimensions can prevent
         // unnecessary relayouts.

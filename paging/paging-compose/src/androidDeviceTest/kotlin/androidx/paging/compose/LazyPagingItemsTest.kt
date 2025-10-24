@@ -72,7 +72,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class LazyPagingItemsTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     val items = (1..10).toList().map { it }
     private val itemsSizePx = 30f

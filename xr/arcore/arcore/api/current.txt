@@ -129,6 +129,29 @@ package androidx.xr.arcore {
     property public int width;
   }
 
+  public final class Eye {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> getState();
+    method public static androidx.xr.arcore.Eye? left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> state;
+    field public static final androidx.xr.arcore.Eye.Companion Companion;
+  }
+
+  public static final class Eye.Companion {
+    method public androidx.xr.arcore.Eye? left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
+  }
+
+  public static final class Eye.State {
+    ctor public Eye.State(boolean isOpen, androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.TrackingState trackingState);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    property public boolean isOpen;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
   public final class Face {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> getState();
     method public static androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);

@@ -49,6 +49,8 @@ constructor(
     public val geospatial: GeospatialMode = GeospatialMode.DISABLED,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val eyeTracking: EyeTrackingMode = EyeTrackingMode.DISABLED,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public val cameraFacingDirection: CameraFacingDirection = CameraFacingDirection.WORLD,
 ) {
 
     /**
@@ -107,6 +109,7 @@ constructor(
         if (geospatial != other.geospatial) return false
         if (augmentedObjectCategories != other.augmentedObjectCategories) return false
         if (eyeTracking != other.eyeTracking) return false
+        if (cameraFacingDirection != other.cameraFacingDirection) return false
 
         return true
     }
@@ -121,6 +124,7 @@ constructor(
         result = 31 * result + geospatial.hashCode()
         result = 31 * result + augmentedObjectCategories.hashCode()
         result = 31 * result + eyeTracking.hashCode()
+        result = 31 * result + cameraFacingDirection.hashCode()
         return result
     }
 
@@ -142,6 +146,7 @@ constructor(
             faceTracking = this.faceTracking,
             geospatial = this.geospatial,
             eyeTracking = this.eyeTracking,
+            cameraFacingDirection = this.cameraFacingDirection,
         )
     }
 
@@ -157,6 +162,7 @@ constructor(
         geospatial: GeospatialMode = this.geospatial,
         augmentedObjectCategories: List<AugmentedObjectCategory> = this.augmentedObjectCategories,
         eyeTracking: EyeTrackingMode = this.eyeTracking,
+        cameraFacingDirection: CameraFacingDirection = this.cameraFacingDirection,
     ): Config {
         return Config(
             planeTracking = planeTracking,
@@ -168,22 +174,20 @@ constructor(
             faceTracking = faceTracking,
             geospatial = geospatial,
             eyeTracking = eyeTracking,
+            cameraFacingDirection = cameraFacingDirection,
         )
     }
 
-    // This is restricted to LIBRARY_GROUP_PREFIX because the API is implemented in ARCore.
     /** Describes a specific value used to set the configuration via [Session.configure]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public interface ConfigMode {
         /**
          * Queries whether the [ConfigMode] is supported and is available to be configured for the
-         * [session] via [Session.configure]. Attempting to configure this [ConfigMode] if it not
+         * [session] via [Session.configure]. Attempting to configure this [ConfigMode] if it is not
          * supported will result in [Session.configure] returning [UnsupportedOperationException].
          *
          * @param session the [Session] to check support for.
          * @return true if supported, else false.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public fun isSupported(session: Session): Boolean {
             return session.runtimes.map { it.isSupported(this) }.contains(true)
         }
@@ -376,6 +380,9 @@ constructor(
      *
      * Setting this feature to [FaceTrackingMode.USER] requires that the `FACE_TRACKING` Android
      * permission is granted by the calling application.
+     *
+     * Setting this feature to [FaceTrackingMode.MESHES] requires the `CAMERA` Android permission to
+     * be granted and that [CameraFacingDirection] is set to [CameraFacingDirection.USER].
      */
     @SuppressWarnings("HiddenSuperclass")
     public class FaceTrackingMode
@@ -385,8 +392,15 @@ constructor(
         public companion object {
             /** Faces will not be tracked. */
             @JvmField public val DISABLED: FaceTrackingMode = FaceTrackingMode(0)
-            /** The user's face will be tracked. */
+
+            // TODO b/451663642: Rename Config.FaceTrackingMode.USER to better reflect its use case
+            /** Blend shapes of the user's face will be tracked. */
             @JvmField public val USER: FaceTrackingMode = FaceTrackingMode(1)
+
+            /** Face meshes will be tracked using the front-facing camera. */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @JvmField
+            public val MESHES: FaceTrackingMode = FaceTrackingMode(2)
         }
     }
 
@@ -486,14 +500,21 @@ constructor(
             @JvmField public val COARSE_TRACKING: EyeTrackingMode = EyeTrackingMode(1)
             /** Enables fine eye tracking, providing more precise gaze direction. */
             @JvmField public val FINE_TRACKING: EyeTrackingMode = EyeTrackingMode(2)
-            /** Enables both coarse and fine eye tracking. */
-            @JvmField public val COARSE_AND_FINE_TRACKING: EyeTrackingMode = EyeTrackingMode(3)
         }
+    }
 
-        public val isCoarseTrackingEnabled: Boolean
-            get() = this == COARSE_TRACKING || this == COARSE_AND_FINE_TRACKING
+    /** Declare whether the Session should use the world-facing or user-facing camera. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public class CameraFacingDirection
+    private constructor(
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
+    ) {
+        public companion object {
+            /** Use the world-facing camera. This is the default behavior across all devices. */
+            @JvmField public val WORLD: CameraFacingDirection = CameraFacingDirection(0)
 
-        public val isFineTrackingEnabled: Boolean
-            get() = this == FINE_TRACKING || this == COARSE_AND_FINE_TRACKING
+            /** Use the user-facing camera. */
+            @JvmField public val USER: CameraFacingDirection = CameraFacingDirection(1)
+        }
     }
 }

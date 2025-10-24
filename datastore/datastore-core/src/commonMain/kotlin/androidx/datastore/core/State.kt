@@ -30,6 +30,9 @@ internal class Data<T>(val value: T, val hashCode: Int, version: Int) : State<T>
     }
 }
 
+/** The same as [Data] but do not store the value. This is only used for updateData Message. */
+internal class NoValueDataState<T>(version: Int) : State<T>(version)
+
 /** A read from disk has failed. ReadException is the exception that was thrown. */
 internal class ReadException<T>(val readException: Throwable, version: Int) : State<T>(version)
 

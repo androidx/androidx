@@ -118,6 +118,18 @@ public abstract class TileService extends Service {
     public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
 
     /**
+     * The name of the metadata key that should contain the name of the group the tile belongs to.
+     * If not set, the fully qualified class name of the TileService class will be used.
+     *
+     * <p>Tile providers in the same group represent the same tile on the device. Only one provider
+     * service should be enabled at a time for a given group.
+     *
+     * <p>This can be used to replace which provider service is associated with a widget on the
+     * device.
+     */
+    public static final String METADATA_GROUP_KEY = "androidx.wear.tiles.GROUP";
+
+    /**
      * Name of the SharedPreferences file used for getting the preferences from the application
      * context. The preferences are shared by all TileService implementations from the same app and
      * store information regarding the tiles considered to be active. The SharedPreferences key is

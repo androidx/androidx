@@ -48,12 +48,13 @@ import static androidx.compose.remote.core.operations.utilities.IntegerExpressio
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteComposeState;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.DataMapIds;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.NamedVariable;
@@ -87,7 +88,7 @@ import java.util.Map;
 public class RemoteComposeWriter {
     protected @NonNull RemoteComposeBuffer mBuffer;
     protected @NonNull RemoteComposeState mState = new RemoteComposeState();
-    protected @NonNull Platform mPlatform;
+    protected @NonNull RcPlatformServices mPlatform;
     private int mOriginalWidth = 0;
     private int mOriginalHeight = 0;
     private @NonNull String mContentDescription = "";
@@ -98,6 +99,16 @@ public class RemoteComposeWriter {
     public static final int FONT_TYPE_SANS_SERIF = PaintBundle.FONT_TYPE_SANS_SERIF;
     public static final int FONT_TYPE_SERIF = PaintBundle.FONT_TYPE_SERIF;
     public static final int FONT_TYPE_MONOSPACE = PaintBundle.FONT_TYPE_MONOSPACE;
+
+    protected final @NonNull RcPaint mPainter = new RcPaint(this);
+
+    /**
+     * Returns the paint object
+     * @return the paint object
+     */
+    public @NonNull RcPaint getRcPaint() {
+        return mPainter;
+    }
 
     /**
      * Factory to obtain a RemoteComposeWriter
@@ -135,7 +146,8 @@ public class RemoteComposeWriter {
      * @param platform the platform to use
      */
     public RemoteComposeWriter(
-            int width, int height, @NonNull String contentDescription, @NonNull Platform platform) {
+            int width, int height, @NonNull String contentDescription,
+            @NonNull RcPlatformServices platform) {
         this.mPlatform = platform;
         mBuffer = new RemoteComposeBuffer();
         header(width, height, contentDescription, 1f, 0);
@@ -150,7 +162,7 @@ public class RemoteComposeWriter {
      * @param width original document width
      * @param height original document height
      * @param contentDescription content description
-     * @param apilLevel document api level
+     * @param apiLevel document api level
      * @param profiles bitmap for the profiles
      * @param platform the platform to use
      */
@@ -158,12 +170,12 @@ public class RemoteComposeWriter {
             int width,
             int height,
             @NonNull String contentDescription,
-            int apilLevel,
+            int apiLevel,
             int profiles,
-            @NonNull Platform platform) {
+            @NonNull RcPlatformServices platform) {
         this(
                 platform,
-                apilLevel,
+                apiLevel,
                 hTag(Header.DOC_WIDTH, width),
                 hTag(Header.DOC_HEIGHT, height),
                 hTag(Header.DOC_CONTENT_DESCRIPTION, contentDescription),
@@ -177,7 +189,8 @@ public class RemoteComposeWriter {
      * @param apiLevel document api level
      * @param tags properties of the document
      */
-    public RemoteComposeWriter(@NonNull Platform platform, int apiLevel, HTag @NonNull ... tags) {
+    public RemoteComposeWriter(@NonNull RcPlatformServices platform, int apiLevel,
+            HTag @NonNull ... tags) {
         this.mPlatform = platform;
         mBuffer = new RemoteComposeBuffer(apiLevel);
 
@@ -214,7 +227,7 @@ public class RemoteComposeWriter {
      * @param platform the platform to use
      * @param tags properties of the document
      */
-    public RemoteComposeWriter(@NonNull Platform platform, HTag @NonNull ... tags) {
+    public RemoteComposeWriter(@NonNull RcPlatformServices platform, HTag @NonNull ... tags) {
         this(platform, CoreDocument.DOCUMENT_API_LEVEL, tags);
     }
 
@@ -1060,6 +1073,25 @@ public class RemoteComposeWriter {
             pathId = addPathData(path);
         }
         mBuffer.addDrawTextOnPath(textId, pathId, hOffset, vOffset);
+    }
+
+    /**
+     * Draw the curved text, along the specified circle with origin at (x,y).
+     *
+     * @param textId the id of the text variable
+     * @param centerX the center X of the circle
+     * @param centerY the center Y of the circle
+     * @param radius the radius of the circle
+     * @param startAngle the start angle to draw from
+     * @param warpRadiusOffset the offset of the warp radius
+     * @param alignment the alignment of the text relative to start
+     * @param placement the placement inside or outside the circle
+     */
+    public void drawTextOnCircle(int textId, float centerX, float centerY, float radius,
+            float startAngle, float warpRadiusOffset, DrawTextOnCircle.@NonNull Alignment alignment,
+            DrawTextOnCircle.@NonNull Placement placement) {
+        mBuffer.addDrawTextOnCircle(textId, centerX, centerY, radius, startAngle, warpRadiusOffset,
+                alignment, placement);
     }
 
     /**
@@ -3263,6 +3295,18 @@ public class RemoteComposeWriter {
     /**
      * Add a dynamic array
      *
+     * @param size
+     * @return
+     */
+    public float addDynamicFloatArray(float size) {
+        int id = createID(NanMap.TYPE_ARRAY);
+        mBuffer.addDynamicFloatArray(id, size);
+        return Utils.asNan(id);
+    }
+
+    /**
+     * Add a dynamic array
+     *
      * @param id
      * @param size
      * @return
@@ -3829,6 +3873,19 @@ public class RemoteComposeWriter {
      */
     public void addModifierBackground(int color, int shape) {
         mBuffer.addModifierBackground(color, shape);
+    }
+
+    /**
+     * Add a modifier background
+     *
+     * @param r the red value, possibly a remote float
+     * @param g the green value, possibly a remote float
+     * @param b the blue value, possibly a remote float
+     * @param a the alpha value, possibly a remote float
+     * @param shape the shape to set
+     */
+    public void addModifierBackground(float r, float g, float b, float a, int shape) {
+        mBuffer.addModifierBackground(r, g, b, a, shape);
     }
 
     /**

@@ -1,12 +1,8 @@
 // Baseline format: 1.0
-AddedMethod: androidx.graphics.CanvasBufferedRenderer#CanvasBufferedRenderer(int, int, int, long, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
-    Added constructor androidx.graphics.CanvasBufferedRenderer(int,int,int,long,int,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
 AddedMethod: androidx.graphics.CanvasBufferedRenderer#releaseBuffer$default(androidx.graphics.CanvasBufferedRenderer, android.hardware.HardwareBuffer, androidx.hardware.SyncFenceCompat, int, Object):
     Added method androidx.graphics.CanvasBufferedRenderer.releaseBuffer$default(androidx.graphics.CanvasBufferedRenderer,android.hardware.HardwareBuffer,androidx.hardware.SyncFenceCompat,int,Object)
 AddedMethod: androidx.graphics.CanvasBufferedRenderer.RenderRequest#draw$default(androidx.graphics.CanvasBufferedRenderer.RenderRequest, boolean, kotlin.coroutines.Continuation, int, Object):
     Added method androidx.graphics.CanvasBufferedRenderer.RenderRequest.draw$default(androidx.graphics.CanvasBufferedRenderer.RenderRequest,boolean,kotlin.coroutines.Continuation,int,Object)
-AddedMethod: androidx.graphics.lowlatency.BufferInfo#BufferInfo(int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
-    Added constructor androidx.graphics.lowlatency.BufferInfo(int,int,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
 AddedMethod: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer#CanvasFrontBufferedRenderer(android.view.SurfaceView, androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.Callback, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
     Added constructor androidx.graphics.lowlatency.CanvasFrontBufferedRenderer(android.view.SurfaceView,androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.Callback,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
 AddedMethod: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer#release$default(androidx.graphics.lowlatency.CanvasFrontBufferedRenderer, boolean, kotlin.jvm.functions.Function0, int, Object):
@@ -35,8 +31,6 @@ AddedMethod: androidx.graphics.opengl.GLRenderer#start$default(androidx.graphics
     Added method androidx.graphics.opengl.GLRenderer.start$default(androidx.graphics.opengl.GLRenderer,String,int,Object)
 AddedMethod: androidx.graphics.opengl.GLRenderer#stop$default(androidx.graphics.opengl.GLRenderer, boolean, kotlin.jvm.functions.Function1, int, Object):
     Added method androidx.graphics.opengl.GLRenderer.stop$default(androidx.graphics.opengl.GLRenderer,boolean,kotlin.jvm.functions.Function1,int,Object)
-AddedMethod: androidx.graphics.opengl.GLRenderer.RenderTarget#RenderTarget(int, androidx.graphics.opengl.GLRenderer, kotlin.jvm.functions.Function0, int, kotlin.jvm.internal.DefaultConstructorMarker):
-    Added constructor androidx.graphics.opengl.GLRenderer.RenderTarget(int,androidx.graphics.opengl.GLRenderer,kotlin.jvm.functions.Function0,int,kotlin.jvm.internal.DefaultConstructorMarker)
 AddedMethod: androidx.graphics.opengl.GLRenderer.RenderTarget#detach$default(androidx.graphics.opengl.GLRenderer.RenderTarget, boolean, kotlin.jvm.functions.Function1, int, Object):
     Added method androidx.graphics.opengl.GLRenderer.RenderTarget.detach$default(androidx.graphics.opengl.GLRenderer.RenderTarget,boolean,kotlin.jvm.functions.Function1,int,Object)
 AddedMethod: androidx.graphics.opengl.GLRenderer.RenderTarget#requestRender$default(androidx.graphics.opengl.GLRenderer.RenderTarget, kotlin.jvm.functions.Function1, int, Object):

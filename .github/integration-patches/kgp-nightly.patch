@@ -1,30 +1,30 @@
-diff --git a/benchmark/benchmark-darwin-gradle-plugin/src/main/kotlin/androidx/benchmark/darwin/gradle/DarwinBenchmarkPlugin.kt b/benchmark/benchmark-darwin-gradle-plugin/src/main/kotlin/androidx/benchmark/darwin/gradle/DarwinBenchmarkPlugin.kt
-index b9855a3ede2..0204c30c80b 100644
---- a/benchmark/benchmark-darwin-gradle-plugin/src/main/kotlin/androidx/benchmark/darwin/gradle/DarwinBenchmarkPlugin.kt
-+++ b/benchmark/benchmark-darwin-gradle-plugin/src/main/kotlin/androidx/benchmark/darwin/gradle/DarwinBenchmarkPlugin.kt
-@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-  * results in `json`.
-  */
- class DarwinBenchmarkPlugin : Plugin<Project> {
-+    @Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
-     override fun apply(project: Project) {
-         val extension =
-             project.extensions.create("darwinBenchmark", DarwinBenchmarkPluginExtension::class.java)
-diff --git a/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt b/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt
-index bba13155856..00b9b157031 100644
---- a/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt
-+++ b/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt
-@@ -319,9 +319,7 @@ class BinaryCompatibilityValidation(
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt b/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
+index abf6e304bcd..1cdc74bc684 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
+@@ -146,7 +146,8 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
+                         TempFiles(),
+                         objectFiles = objectFiles,
+                         executable = outputFile.canonicalPath,
+-                        libraries = linkedObjectFiles,
++                        dynamicLibraries = linkedObjectFiles,
++                        staticLibraries = emptyList(),
+                         linkerArgs = linkerFlags,
+                         optimize = true,
+                         debug = false,
+diff --git a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
+index c666ca828d7..453135288ea 100644
+--- a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
++++ b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
+@@ -41,7 +41,7 @@ enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: Strin
+     KOTLIN_2_0(KotlinVersion.KOTLIN_2_0, "kotlin20"),
+     KOTLIN_2_1(KotlinVersion.KOTLIN_2_1, "kotlin21"),
+     KOTLIN_2_2(KotlinVersion.KOTLIN_2_2, "kotlin22"),
+-    DEFAULT(KOTLIN_2_0),
++    DEFAULT(KOTLIN_2_1),
+     LATEST(KOTLIN_2_2);
  
-             val target = currentTarget.toKlibTarget()
- 
--            val isEnabled =
--                currentTarget is KotlinNativeTarget &&
--                    HostManager().isEnabled(currentTarget.konanTarget)
-+            val isEnabled = HostManager().isEnabled(currentTarget.konanTarget)
-             if (isEnabled) {
-                 val buildTargetAbi =
-                     configureKlibCompilation(
+     constructor(
 diff --git a/buildSrc/shared.gradle b/buildSrc/shared.gradle
 index b27c1ab28af..add98e68e37 100644
 --- a/buildSrc/shared.gradle

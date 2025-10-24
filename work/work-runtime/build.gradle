@@ -30,6 +30,7 @@ import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    // Remove when b/442128557 is fixed
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("androidx.stableaidl")

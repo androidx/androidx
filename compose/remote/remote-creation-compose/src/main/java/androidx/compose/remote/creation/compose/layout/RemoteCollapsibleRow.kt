@@ -92,6 +92,7 @@ public fun RemoteCollapsibleRow(
     val scope = remember { RemoteCollapsibleRowScope() }
 
     if (captureMode is NoRemoteCompose) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Row(
             modifier.toComposeUi(),
             horizontalArrangement = horizontalArrangement.toComposeUi(),
@@ -110,6 +111,7 @@ public fun RemoteCollapsibleRow(
 
         composeModifiers = composeModifiers.then(Modifier.wrapContentSize(unbounded = true))
 
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Row(
             composeModifiers,
             horizontalArrangement = horizontalArrangement.toComposeUi(),

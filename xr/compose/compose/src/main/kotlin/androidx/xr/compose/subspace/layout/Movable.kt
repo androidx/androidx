@@ -324,8 +324,10 @@ internal class MovableNode(
                 entityMoveListener = this,
             )
 
-        check(component?.let { coreEntity.addComponent(it) } == true) {
-            "Could not add MovableComponent to Core Entity."
+        coreEntity.onEntityAttached {
+            check(component?.let { coreEntity.addComponent(it) } == true) {
+                "Could not add MovableComponent to Core Entity."
+            }
         }
     }
 
@@ -448,7 +450,7 @@ internal class MovableNode(
             )
         scaleFromMovement = scale
 
-        requestRelayout()
+        invalidatePlacement()
     }
 
     companion object {

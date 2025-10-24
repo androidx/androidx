@@ -168,6 +168,50 @@ public class PersistToDiskStats extends BaseStats {
         return mEmbeddingIndexPersistLatencyMillis;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "PersistToDiskStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  triggerCallType=%d,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  persistType=%s,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  blobStorePersistLatencyMillis=%d,\n"
+                        + "  documentStoreTotalPersistLatencyMillis=%d,\n"
+                        + "  documentStoreComponentsPersistLatencyMillis=%d,\n"
+                        + "  documentStoreChecksumUpdateLatencyMillis=%d,\n"
+                        + "  documentLogChecksumUpdateLatencyMillis=%d,\n"
+                        + "  documentLogDataSyncLatencyMillis=%d,\n"
+                        + "  schemaStorePersistLatencyMillis=%d,\n"
+                        + "  indexPersistLatencyMillis=%d,\n"
+                        + "  integerIndexPersistLatencyMillis=%d,\n"
+                        + "  qualifiedIdJoinIndexPersistLatencyMillis=%d,\n"
+                        + "  embeddingIndexPersistLatencyMillis=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mTriggerCallType,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mPersistType.name(),
+                mNativeLatencyMillis,
+                mBlobStorePersistLatencyMillis,
+                mDocumentStoreTotalPersistLatencyMillis,
+                mDocumentStoreComponentsPersistLatencyMillis,
+                mDocumentStoreChecksumUpdateLatencyMillis,
+                mDocumentLogChecksumUpdateLatencyMillis,
+                mDocumentLogDataSyncLatencyMillis,
+                mSchemaStorePersistLatencyMillis,
+                mIndexPersistLatencyMillis,
+                mIntegerIndexPersistLatencyMillis,
+                mQualifiedIdJoinIndexPersistLatencyMillis,
+                mEmbeddingIndexPersistLatencyMillis);
+    }
+
     /** Builder for {@link PersistToDiskStats}. */
     public static class Builder extends BaseStats.Builder<PersistToDiskStats.Builder> {
         private final @Nullable String mPackageName;

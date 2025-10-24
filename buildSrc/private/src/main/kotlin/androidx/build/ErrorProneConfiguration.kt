@@ -63,6 +63,10 @@ fun Project.configureErrorProneForAndroid() {
     val androidComponents = extensions.findByType(AndroidComponentsExtension::class.java)
     androidComponents?.onVariants { variant ->
         if (variant.buildType == "release") {
+            @Suppress("UnstableApiUsage", "USELESS_ELVIS")
+            // b/397707182 this is still @Incubating in AGP
+            // b/328749039 This is being made nullable in AGP
+            val javaCompilation = variant.javaCompilation ?: return@onVariants
             val errorProneConfiguration = createErrorProneConfiguration()
             configurations
                 .getByName(variant.annotationProcessorConfiguration.name)
@@ -78,7 +82,7 @@ fun Project.configureErrorProneForAndroid() {
                     taskSuffix = variant.name.camelCase(),
                 ) { javaCompile ->
                     @Suppress("UnstableApiUsage") // JavaCompilation b/397707182
-                    val annotationArgs = variant.javaCompilation.annotationProcessor.arguments
+                    val annotationArgs = javaCompilation.annotationProcessor.arguments
                     javaCompile.options.compilerArgumentProviders.add(
                         CommandLineArgumentProviderAdapter(annotationArgs)
                     )

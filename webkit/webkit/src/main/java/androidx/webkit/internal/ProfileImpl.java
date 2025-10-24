@@ -342,4 +342,15 @@ public class ProfileImpl implements Profile {
         }
     }
 
+    @Override
+    @ExperimentalAddQuicHints
+    public void addQuicHints(@NonNull Set<String> urls) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.ADD_QUIC_HINTS_V1;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.addQuicHints(urls);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
 }

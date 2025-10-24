@@ -341,4 +341,14 @@ public final class SurfaceFeatureImplTest {
         assertThat(surface).isNotNull();
         assertThat(surface).isEqualTo(quadData.getSurface());
     }
+
+    @Test
+    public void setPixelDimensions_forwardsToImpress() {
+        int kTestWidth = 100;
+        int kTestHeight = 200;
+        mSurfaceFeature.setSurfacePixelDimensions(kTestWidth, kTestHeight);
+        verify(mImpressApi)
+                .setStereoSurfaceEntitySurfaceSize(
+                        mSurfaceFeature.getEntityImpressNode(), kTestWidth, kTestHeight);
+    }
 }

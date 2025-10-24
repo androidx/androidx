@@ -16,9 +16,13 @@
 
 package androidx.compose.ui.text.style
 
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.text.internal.requirePrecondition
+
 /**
  * Defines the algorithm to be used while determining the text direction.
  *
+ * @property value The integer representation of TextDirection.
  * @see ResolvedTextDirection
  */
 @kotlin.jvm.JvmInline
@@ -35,14 +39,6 @@ value class TextDirection internal constructor(val value: Int) {
             else -> "Invalid"
         }
     }
-
-    /**
-     * Returns `true` if this baseline shift is not [TextDirection.Unspecified].
-     *
-     * @see TextDirection.Unspecified
-     */
-    val isSpecified: Boolean
-        get() = value != 0
 
     companion object {
         /** Always sets the text direction to be Left to Right. */
@@ -89,10 +85,30 @@ value class TextDirection internal constructor(val value: Int) {
          * serialize/deserialize TextDirection values.
          *
          * @param value The integer representation of the TextDirection.
-         * @see [TextDirection.value]
+         * @throws IllegalArgumentException if the given [value] is not recognized.
+         * @see androidx.compose.ui.text.style.TextDirection.value
          */
         fun valueOf(value: Int): TextDirection {
+            requirePrecondition(value in 0..5) {
+                "The given value=$value is not recognized by TextDirection."
+            }
             return TextDirection(value)
         }
     }
+}
+
+/**
+ * Returns `true` if this [TextDirection] is not [TextDirection.Unspecified].
+ *
+ * @see TextDirection.Unspecified
+ */
+inline val TextDirection.isSpecified: Boolean
+    get() = value != 0
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun TextDirection.takeOrElse(block: () -> TextDirection): TextDirection {
+    return if (isSpecified) this else block()
 }

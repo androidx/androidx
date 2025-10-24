@@ -25,12 +25,12 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
+import androidx.wear.protolayout.expression.pipeline.DynamicProtoHashEquals;
 import androidx.wear.protolayout.proto.TriggerProto;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /** Builders for triggers that can be used to start an animation. */
@@ -340,7 +340,7 @@ public final class TriggerBuilders {
         @Override
         public int hashCode() {
             DynamicBool condition = getCondition();
-            return condition == null ? 4 : Arrays.hashCode(condition.toDynamicBoolByteArray());
+            return condition == null ? 4 : DynamicProtoHashEquals.hashCode(condition);
         }
 
         @Override
@@ -352,14 +352,7 @@ public final class TriggerBuilders {
                 return false;
             }
             OnConditionMetTrigger that = (OnConditionMetTrigger) obj;
-            DynamicBool condition = getCondition();
-            DynamicBool thatCondition = that.getCondition();
-            return (condition == thatCondition)
-                    || (condition != null
-                            && thatCondition != null
-                            && Arrays.equals(
-                                    condition.toDynamicBoolByteArray(),
-                                    thatCondition.toDynamicBoolByteArray()));
+            return DynamicProtoHashEquals.equals(getCondition(), that.getCondition());
         }
 
         @Override

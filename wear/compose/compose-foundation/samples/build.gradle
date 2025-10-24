@@ -28,7 +28,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -44,6 +44,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.8.0")
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material"))
+    implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-ui-tooling"))
 }
 

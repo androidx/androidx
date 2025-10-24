@@ -143,6 +143,12 @@ private class FocusableElement(private val interactionSource: MutableInteraction
     }
 }
 
+/**
+ * The node that adds functionality on top of the underlying focus system.
+ *
+ * When making changes here, consider adding similar functionality to the FocusTargetInteropNode for
+ * View-Compose interop cases.
+ */
 internal class FocusableNode(
     private var interactionSource: MutableInteractionSource?,
     focusability: Focusability = Focusability.Always,

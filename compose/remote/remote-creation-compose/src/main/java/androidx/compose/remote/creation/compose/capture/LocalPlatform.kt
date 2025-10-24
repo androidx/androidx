@@ -18,11 +18,12 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.Platform
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
-public val LocalPlatform: ProvidableCompositionLocal<Platform> = staticCompositionLocalOf {
-    AndroidxPlatformServices()
-}
+public val LocalRcPlatformServices: ProvidableCompositionLocal<RcPlatformServices> =
+    staticCompositionLocalOf {
+        AndroidxRcPlatformServices()
+    }

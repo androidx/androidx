@@ -61,7 +61,7 @@ data class DexInfo(
     val noPackageClassCount: Int,
     val classInfo: List<ClassInfo>,
 ) {
-    class ClassInfo(val packageName: String, val className: String) {
+    class ClassInfo(val packageName: String, val className: String, val size: Int) {
         val fullName: String = if (packageName.isEmpty()) className else "$packageName.$className"
         val startsWithLowerCase = className[0].isLowerCase()
         val classNameAppearsMinified =
@@ -171,7 +171,7 @@ data class DexInfo(
                 val packageName = packageNameForType(type)
                 val className = classNameForType(type)
 
-                ClassInfo(packageName, className).apply {
+                ClassInfo(packageName, className, cls.size).apply {
                     if (startsWithLowerCase) minifiedClassCountLowercase++
                     if (classNameAppearsMinified) minifiedClassCountLengthHeuristic++
                     if (packageName.isEmpty()) noPackage++

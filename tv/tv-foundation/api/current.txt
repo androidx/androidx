@@ -1,14 +1,14 @@
 // Signature format: 4.0
-package androidx.tv.foundation {
+package @SuppressCompatibility androidx.tv.foundation {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This tv-foundation API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvFoundationApi {
   }
 
 }
 
-package androidx.tv.foundation.text {
+package @SuppressCompatibility androidx.tv.foundation.text {
 
-  public final class TvImeOptionsKt {
+  @SuppressCompatibility public final class TvImeOptionsKt {
     method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions PlatformImeOptions(androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
     method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions keyboardAlignment(androidx.compose.ui.text.input.PlatformImeOptions, androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
   }

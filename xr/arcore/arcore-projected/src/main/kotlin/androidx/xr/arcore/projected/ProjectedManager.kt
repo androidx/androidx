@@ -28,6 +28,9 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.internal.LifecycleManager
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -100,10 +103,21 @@ internal constructor(
         }
     }
 
+    private fun toPose(projectedPose: ProjectedPose): Pose {
+        return Pose(
+            Vector3(projectedPose.vector.x, projectedPose.vector.y, projectedPose.vector.z),
+            Quaternion(projectedPose.q.x, projectedPose.q.y, projectedPose.q.z, projectedPose.q.w),
+        )
+    }
+
     override suspend fun update(): ComparableTimeMark {
         delay(30.milliseconds)
         val result = perceptionManager.xrResources.service.update()
         updateTrackingStates(result.deviceTrackingState.toInt(), result.earthTrackingState.toInt())
+        perceptionManager.xrResources.arDevice.update(
+            toTrackingState(result.deviceTrackingState.toInt()),
+            toPose(result.devicePose),
+        )
         timeSource.update(result.currentTimeNanos)
         return timeSource.markNow()
     }
@@ -124,10 +138,12 @@ internal constructor(
                         println("ProjectedManager: onServiceConnected called")
                         val service = IProjectedPerceptionService.Stub.asInterface(binder)
                         perceptionManager.xrResources.service = service
-                        // TODO: b/452091636 - how do config and enableVps work?
-                        val enableVps = true
+                        // TODO: b/452091636 - Remove hardcoded config
                         // TODO: b/445567556 - Pass the API key to the service.
-                        service.start(enableVps, "" /* api key */)
+                        val config = ProjectedConfig()
+                        config.trackingMode = ProjectedTrackingMode.PROJECTED_TRACKING_3DOF
+                        config.geospatialMode = ProjectedGeospatialMode.ENABLED
+                        service.startWithConfiguration(config)
 
                         // When the service connects, we resume the coroutine with the binder.
                         if (continuation.isActive) {

@@ -180,7 +180,7 @@ package androidx.benchmark.macro {
     property public boolean requireSingleValue;
   }
 
-  public final class MetricResultExtensionsKt {
+  @SuppressCompatibility public final class MetricResultExtensionsKt {
     method @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static void assertEqualMeasurements(java.util.List<androidx.benchmark.macro.Metric.Measurement> expected, java.util.List<androidx.benchmark.macro.Metric.Measurement> observed, double threshold);
   }
 
@@ -257,7 +257,7 @@ package androidx.benchmark.macro {
     method public abstract java.util.List<androidx.benchmark.macro.Metric.Measurement> getMeasurements(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.traceprocessor.TraceProcessor.Session traceSession);
   }
 
-  public final class TraceProcessorExtensionsKt {
+  @SuppressCompatibility public final class TraceProcessorExtensionsKt {
     method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
     method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, optional long timeoutMs, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
     method @BytecodeOnly @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static Object! runServer$default(androidx.benchmark.traceprocessor.TraceProcessor.Companion!, long, kotlin.jvm.functions.Function1!, int, Object!);

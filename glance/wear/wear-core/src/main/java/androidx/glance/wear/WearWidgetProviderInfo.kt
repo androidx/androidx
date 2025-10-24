@@ -72,10 +72,12 @@ import org.xmlpull.v1.XmlPullParserException
  *   represents a supported type.
  * @property preferredContainerType The preferred Container Type to use for a widget instance when
  *   type is not specified when adding a widget. This can be used when this provider is replacing a
- *   legacy Wear Tile. This can be one of [ContainerInfo.CONTAINER_TYPE_LARGE] or
- *   [ContainerInfo.CONTAINER_TYPE_SMALL].
- * @property group The name of the group this widget provider is associated with. Defaults to the
- *   fully qualified name of the provider service.
+ *   legacy Wear Tile provider. See [ContainerInfo].
+ * @property group The name of the group this widget provider is associated with. Widget providers
+ *   in the same group represent the same widget on the device. Only one provider service should be
+ *   enabled at a time for a given group. This can be used to replace which provider service is
+ *   associated with a widget on the device. Defaults to the fully qualified name of the provider
+ *   service.
  * @property configIntentAction The intent action to launch an activity for configuring the widget.
  *   This can be null if no configuration is needed.
  * @property minSchemaVersion The minimum schema version supported by this widget provider.
@@ -102,6 +104,11 @@ public constructor(
     public companion object {
         /** Name for the `meta-data` tag for the provider info. */
         private const val META_DATA_WEAR_WIDGET_PROVIDER = "androidx.glance.wear.widget.provider"
+
+        /** Intent action for binding to a Widget Service. */
+        @RestrictTo(LIBRARY_GROUP)
+        public const val ACTION_BIND_WIDGET_PROVIDER: String =
+            "androidx.glance.wear.action.BIND_WIDGET_PROVIDER"
 
         /**
          * Parses a [WearWidgetProviderInfo] from the metadata of a service.
@@ -153,7 +160,8 @@ public constructor(
  *     android:label="@string/large_label" />
  * ```
  *
- * @property type The type of this widget container.
+ * @property type The type of this widget container. This can be one of
+ *   [ContainerInfo.CONTAINER_TYPE_LARGE] or [ContainerInfo.CONTAINER_TYPE_SMALL].
  * @property previewImage The resource id of the preview image for this widget container.
  * @property label The override label for this widget container.
  * @property description The override description for this widget container.

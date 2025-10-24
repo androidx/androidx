@@ -26,7 +26,7 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 
 import androidx.compose.remote.creation.RemoteComposeWriter;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -56,7 +56,7 @@ public class ActivityLongRun extends Activity {
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         FrameLayout frameLayout = new FrameLayout(getApplicationContext());
         byte[] buffer = doc.getBuffer().getBuffer().cloneBytes();
-        RemoteComposeDocument rcd = new RemoteComposeDocument(buffer);
+        RemoteDocument rcd = new RemoteDocument(buffer);
         RemoteComposePlayer player = new RemoteComposePlayer(getApplicationContext());
         player.setDocument(rcd);
         frameLayout.setBackgroundColor(Color.BLACK);

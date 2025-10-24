@@ -33,7 +33,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@OptIn(ExperimentalHighSpeedVideo::class)
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 class HighSpeedVideoSessionConfigTest {

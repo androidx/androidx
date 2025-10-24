@@ -24,7 +24,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm()
+    desktop()
     androidLibrary {
         namespace = "androidx.tracing.driver"
     }
@@ -40,20 +40,19 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(libs.kotlinCoroutinesTest)
             }
         }
-        jvmTest {
+        desktopTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTestJunit)
                 implementation(libs.truth)
             }
         }
-        jvmMain {
+        desktopMain {
             dependsOn(commonMain)
         }
         androidMain {

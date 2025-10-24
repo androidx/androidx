@@ -29,7 +29,6 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -145,7 +144,6 @@ class FakeHealthConnectClientClockTest {
         assertThat(records.records.first().title).isEqualTo(record1.title)
     }
 
-    @Ignore // b/424868728
     @Test
     fun timeRangeFilterLocalTime_noEndTime() = runTest {
 

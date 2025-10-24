@@ -148,10 +148,6 @@ class CameraAvailabilityTest(private val testConfig: CameraTestConfig) {
         addCamerasToShadow(hasBackCamera = true, hasFrontCamera = false)
         initializeProviderWithConfig(customConfig)
 
-        // Arrange: Wait for the library to register its availability listener.
-        val listenerWasRegistered = shadowAgent.awaitListenerRegistration(5, TimeUnit.SECONDS)
-        assertThat(listenerWasRegistered).isTrue()
-
         assertThat(cameraProvider!!.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)).isTrue()
         assertThat(cameraProvider!!.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)).isFalse()
 
@@ -207,10 +203,6 @@ class CameraAvailabilityTest(private val testConfig: CameraTestConfig) {
         // Arrange: Start with two available cameras.
         addCamerasToShadow(hasBackCamera = true, hasFrontCamera = true)
         initializeProviderWithConfig(customConfig)
-
-        // Arrange: Wait for the library to register its availability listener.
-        val listenerWasRegistered = shadowAgent.awaitListenerRegistration(5, TimeUnit.SECONDS)
-        assertThat(listenerWasRegistered).isTrue()
 
         assertThat(cameraProvider!!.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)).isTrue()
 

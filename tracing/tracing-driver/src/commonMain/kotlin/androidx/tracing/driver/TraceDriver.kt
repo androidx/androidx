@@ -16,11 +16,17 @@
 
 package androidx.tracing.driver
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
+
 /** The entry point for the tracing API. */
-public class TraceDriver(public val context: TraceContext) {
+public open class TraceDriver
+internal constructor(@get:RestrictTo(Scope.LIBRARY_GROUP) public val context: TraceContext) :
+    AutoCloseable {
     /**
      * Builds an instance of [androidx.tracing.driver.TraceDriver] using the provided [TraceSink] if
-     * `isEnabled` is `true`. Otherwise you get an instance of a no-op [TraceContext].
+     * `isEnabled` is `true`. Otherwise you get an instance of a no-op
+     * [androidx.tracing.driver.TraceDriver].
      */
     public constructor(
         sink: TraceSink,
@@ -34,11 +40,18 @@ public class TraceDriver(public val context: TraceContext) {
             }
     )
 
-    /**
-     * @param id is the Process id.
-     * @param name is the name of the Process.
-     * @return a [ProcessTrack] instance that we can associate trace packets to.
-     */
-    public fun ProcessTrack(id: Int, name: String): ProcessTrack =
-        context.getOrCreateProcessTrack(id, name)
+    /** Create an instance of a [Tracer] that can be used to emit trace events. */
+    public open fun createTracer(name: String): Tracer {
+        return context.createTracer(name = name)
+    }
+
+    /** Flushes the trace packets into the underlying [TraceSink]. */
+    public open fun flush() {
+        context.flush()
+    }
+
+    /** Flushes all outstanding packets to the [TraceSink] and then closes the [TraceSink]. */
+    public override fun close() {
+        context.close()
+    }
 }

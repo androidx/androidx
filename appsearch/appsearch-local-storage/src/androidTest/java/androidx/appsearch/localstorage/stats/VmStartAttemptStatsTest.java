@@ -34,6 +34,11 @@ public class VmStartAttemptStatsTest {
 
         assertThat(stats.getStatusCode()).isEqualTo(statusCode);
         assertThat(stats.getLatencyMillis()).isEqualTo(latencyMillis);
+        String expectedString = "VmStartAttemptStats {\n"
+                + "  statusCode=3,\n"
+                + "  latencyMillis=12345\n"
+                + "}";
+        assertThat(stats.toString()).isEqualTo(expectedString);
     }
 
     @Test

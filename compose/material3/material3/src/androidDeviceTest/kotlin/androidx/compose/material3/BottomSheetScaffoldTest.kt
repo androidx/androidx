@@ -580,6 +580,7 @@ class BottomSheetScaffoldTest {
                 }
 
                 @Deprecated("deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun onLowMemory() {
                     // NO-OP
                 }
@@ -636,6 +637,7 @@ class BottomSheetScaffoldTest {
                 }
 
                 @Deprecated("deprecated")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun onLowMemory() {
                     // NO-OP
                 }

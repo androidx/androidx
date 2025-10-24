@@ -29,7 +29,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -38,7 +38,7 @@ dependencies {
     api(project(":xr:arcore:arcore-testing"))
     api(project(":xr:scenecore:scenecore-runtime"))
 
-    implementation("com.google.ar:impress:0.0.7")
+    implementation("com.google.ar:impress:0.0.8")
     implementation(libs.testExtTruth)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")

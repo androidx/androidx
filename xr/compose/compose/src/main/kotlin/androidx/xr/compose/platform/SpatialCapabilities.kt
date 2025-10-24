@@ -22,11 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_3D_CONTENT
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_APP_ENVIRONMENT
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_SPATIAL_AUDIO
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_UI
+import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 
 /**
@@ -99,17 +95,17 @@ internal class SessionSpatialCapabilities(session: Session) : SpatialCapabilitie
         }
 
     override val isSpatialUiEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_UI)
+        get() = capabilities.contains(SpatialCapability.SPATIAL_UI)
 
     override val isContent3dEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_3D_CONTENT)
+        get() = capabilities.contains(SpatialCapability.SPATIAL_3D_CONTENT)
 
     override val isAppEnvironmentEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_APP_ENVIRONMENT)
+        get() = capabilities.contains(SpatialCapability.APP_ENVIRONMENT)
 
     override val isPassthroughControlEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL)
+        get() = capabilities.contains(SpatialCapability.PASSTHROUGH_CONTROL)
 
     override val isSpatialAudioEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_SPATIAL_AUDIO)
+        get() = capabilities.contains(SpatialCapability.SPATIAL_AUDIO)
 }

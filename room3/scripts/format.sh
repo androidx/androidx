@@ -11,7 +11,6 @@
   :room3:room3-external-antlr:ktformat \
   :room3:room3-guava:ktformat \
   :room3:room3-gradle-plugin:ktformat \
-  :room3:room3-ktx:ktformat \
   :room3:room3-migration:ktformat \
   :room3:room3-paging:ktformat \
   :room3:room3-paging-guava:ktformat \

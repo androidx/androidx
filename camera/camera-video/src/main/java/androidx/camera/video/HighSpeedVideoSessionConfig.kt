@@ -20,7 +20,6 @@ import android.util.Range
 import androidx.annotation.RestrictTo
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -91,8 +90,6 @@ import androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
  * @See androidx.camera.lifecycle.ProcessCameraProvider.bindToLifecycle
  * @See Recorder.getHighSpeedVideoCapabilities
  */
-@ExperimentalHighSpeedVideo
-@OptIn(ExperimentalSessionConfig::class)
 public class HighSpeedVideoSessionConfig
 @JvmOverloads
 constructor(

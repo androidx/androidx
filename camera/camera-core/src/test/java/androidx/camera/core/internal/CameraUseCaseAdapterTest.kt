@@ -32,7 +32,6 @@ import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
-import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringAction.FLAG_AE
 import androidx.camera.core.FocusMeteringAction.FLAG_AF
@@ -113,7 +112,6 @@ private const val CAMERA_ID = "0"
 private const val SECONDARY_CAMERA_ID = "1"
 
 /** Unit tests for [CameraUseCaseAdapter]. */
-@OptIn(ExperimentalSessionConfig::class)
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @org.robolectric.annotation.Config(instrumentedPackages = ["androidx.camera.core"])

@@ -631,12 +631,43 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         touchDoubleTapThenDragTest(endOffset = characterPosition(26), endSelection = 12 to 29)
     }
 
+    @Test
+    fun whenTouch_withTripleClick_selectsParagraph() {
+        performTouchGesture { repeat(3) { click(characterPosition(13)) } }
+
+        asserter.applyAndAssert {
+            textToolbarShown = true
+            selectionHandlesShown = true
+            selection = 6 to 23
+        }
+    }
+
+    @Test
+    fun whenTouch_withTripleClickThenDragUp_selectsParagraphs() {
+        touchTripleTapThenDragTest(endOffset = characterPosition(2), endSelection = 23 to 0)
+    }
+
+    @Test
+    fun whenTouch_withTripleClickThenDragDown_selectsParagraphs() {
+        touchTripleTapThenDragTest(endOffset = characterPosition(26), endSelection = 6 to 29)
+    }
+
     private fun touchDoubleTapThenDragTest(endOffset: Offset, endSelection: TextRange) {
         touchTapsThenDragTest(
             numTaps = 2,
             startOffset = characterPosition(13),
             endOffset = endOffset,
             startSelection = TextRange(12, 17),
+            endSelection = endSelection,
+        )
+    }
+
+    private fun touchTripleTapThenDragTest(endOffset: Offset, endSelection: TextRange) {
+        touchTapsThenDragTest(
+            numTaps = 3,
+            startOffset = characterPosition(13),
+            endOffset = endOffset,
+            startSelection = TextRange(6, 23),
             endSelection = endSelection,
         )
     }

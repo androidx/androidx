@@ -163,9 +163,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
                     executor = Executors.newSingleThreadExecutor(),
                     resizeEventListener =
                         Consumer<ResizeEvent> { resizeEvent: ResizeEvent ->
-                            if (
-                                resizeEvent.resizeState == ResizeEvent.ResizeState.RESIZE_STATE_END
-                            ) {
+                            if (resizeEvent.resizeState == ResizeEvent.ResizeState.END) {
                                 Log.i(TAG, "resize event ${resizeEvent.newSize}")
                                 (resizeEvent.entity as PanelEntity).size =
                                     resizeEvent.newSize.to2d()

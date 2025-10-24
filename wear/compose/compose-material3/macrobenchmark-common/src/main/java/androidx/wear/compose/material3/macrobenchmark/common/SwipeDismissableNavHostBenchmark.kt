@@ -18,6 +18,7 @@ package androidx.wear.compose.material3.macrobenchmark.common
 
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,33 +43,38 @@ val SwipeDismissableNavHostBenchmark =
         override val content: @Composable (BoxScope.() -> Unit)
             get() = {
                 val navController = rememberSwipeDismissableNavController()
-                SwipeDismissableNavHost(
-                    navController = navController,
-                    startDestination = "off",
-                    modifier = Modifier.semantics { contentDescription = CONTENT_DESCRIPTION_HOST },
+                Box(
+                    modifier = Modifier.semantics { contentDescription = CONTENT_DESCRIPTION_HOST }
                 ) {
-                    composable("off") {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Button(
-                                modifier =
-                                    Modifier.semantics { contentDescription = CONTENT_DESCRIPTION },
-                                onClick = { navController.navigate("on") },
+                    SwipeDismissableNavHost(
+                        navController = navController,
+                        startDestination = "off",
+                    ) {
+                        composable("off") {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
                             ) {
-                                Text("On")
+                                Button(
+                                    modifier =
+                                        Modifier.semantics {
+                                            contentDescription = CONTENT_DESCRIPTION
+                                        },
+                                    onClick = { navController.navigate("on") },
+                                ) {
+                                    Text("On")
+                                }
                             }
                         }
-                    }
-                    composable("on") {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Button(onClick = { navController.navigate("off") }) { Text("Off") }
+                        composable("on") {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Button(onClick = { navController.navigate("off") }) { Text("Off") }
+                            }
                         }
                     }
                 }

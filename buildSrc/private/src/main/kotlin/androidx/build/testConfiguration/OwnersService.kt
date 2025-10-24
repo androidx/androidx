@@ -64,6 +64,7 @@ internal fun Project.registerOwnersServiceTasks() {
         task.exclude("buildSrc/.gradle/**")
         task.exclude(".gradle/**")
         task.exclude("build/reports/**")
+        task.exclude("kotlin-js-store/**")
         task.includeEmptyDirs = false
     }
 

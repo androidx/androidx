@@ -486,18 +486,8 @@ internal constructor(
         return getPendingIntentOrNull(key)
     }
 
-    /**
-     * Retrieves a [PendingIntent] value associated with the specified [key], or returns null if the
-     * associated value is not found.
-     *
-     * This method is used internally by the [AppFunctionSerializableFactory] to retrieve the
-     * underlying PendingIntent value.
-     *
-     * @param key The key to retrieve the value for.
-     * @return The value associated with the [key], or null if the associated value is not found.
-     * @throws IllegalArgumentException if the [key] is not allowed or the value type is incorrect
-     *   according to the metadata specification.
-     */
+    // Equivalent to getPendingIntent. Provided for generated AppFunctionSerializableFactory to use
+    // without changing the access getter name based on type.
     @RestrictTo(LIBRARY_GROUP)
     public fun getPendingIntentOrNull(key: String): PendingIntent? {
         val pendingIntentValue = extras.getParcelable(extrasKey(key), PendingIntent::class.java)
@@ -707,6 +697,13 @@ internal constructor(
      *   according to the metadata specification.
      */
     public fun getByteArray(key: String): ByteArray? {
+        return getByteArrayOrNull(key)
+    }
+
+    // Equivalent to getByteArray. Provided for generated AppFunctionSerializableFactory to use
+    // without changing the access getter name based on type.
+    @RestrictTo(LIBRARY_GROUP)
+    public fun getByteArrayOrNull(key: String): ByteArray? {
         val byteArrayValue = unsafeGetProperty(key, Array<ByteArray>::class.java)
         val finalByteArrayValue =
             if (byteArrayValue == null || byteArrayValue.isEmpty()) {

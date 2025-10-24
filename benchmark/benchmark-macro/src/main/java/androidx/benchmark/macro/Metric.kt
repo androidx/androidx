@@ -485,6 +485,8 @@ abstract class TraceMetric : Metric() {
     /**
      * Get the metric result for a given iteration given information about the target process and a
      * TraceProcessor session
+     *
+     * @sample androidx.benchmark.samples.getMeasurementsSample
      */
     public abstract override fun getMeasurements(
         captureInfo: CaptureInfo,

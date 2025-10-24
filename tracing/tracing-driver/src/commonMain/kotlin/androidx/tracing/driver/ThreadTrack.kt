@@ -16,7 +16,11 @@
 
 package androidx.tracing.driver
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
+
 /** [Track] representing a `Thread` in the specified [ProcessTrack]. */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public open class ThreadTrack(
     /** The thread id. */
     public val id: Int,
@@ -27,19 +31,18 @@ public open class ThreadTrack(
 ) : SliceTrack(context = process.context, uuid = monotonicId()) {
 
     init {
-        conditionalEmitTraceEvent(immediateDispatch = true) { packet ->
-            packet.setPreamble(
-                TrackDescriptor(
-                    name = name,
-                    uuid = uuid,
-                    parentUuid = DEFAULT_LONG,
-                    pid = process.id,
-                    tid = id,
-                    type = TRACK_DESCRIPTOR_TYPE_THREAD,
-                )
+        val event = obtainTraceEvent()
+        event?.setPreamble(
+            TrackDescriptor(
+                name = name,
+                uuid = uuid,
+                parentUuid = DEFAULT_LONG,
+                pid = process.id,
+                tid = id,
+                type = TRACK_DESCRIPTOR_TYPE_THREAD,
             )
-            true
-        }
+        )
+        dispatchTraceEvent(event, immediateDispatch = true)
     }
 }
 

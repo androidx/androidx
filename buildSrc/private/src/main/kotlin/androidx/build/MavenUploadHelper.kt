@@ -364,7 +364,7 @@ private fun Project.validateCoordinatesAndGetGroup(extension: AndroidXExtension)
 
 private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: MavenPom) {
     pom.name.set(extension.name)
-    pom.description.set(provider { extension.description })
+    extension.description?.let { pom.description.set(provider { it }) }
     pom.url.set(
         provider {
             fun defaultUrl() =
@@ -375,7 +375,7 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
             getAlternativeProjectUrl() ?: defaultUrl()
         }
     )
-    pom.inceptionYear.set(provider { extension.inceptionYear })
+    extension.inceptionYear?.let { pom.inceptionYear.set(provider { it }) }
     pom.licenses { licenses ->
         licenses.license { license ->
             license.name.set(extension.license.name)
@@ -385,8 +385,8 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
 
         for (extraLicense in extension.getExtraLicenses()) {
             licenses.license { license ->
-                license.name.set(provider { extraLicense.name })
-                license.url.set(provider { extraLicense.url })
+                license.name.set(provider { extraLicense.name!! })
+                license.url.set(provider { extraLicense.url!! })
                 license.distribution.set("repo")
             }
         }

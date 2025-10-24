@@ -96,10 +96,10 @@ class SessionLifecycleHelper(
         if (config.headTracking != Config.HeadTrackingMode.DISABLED) {
             permissions.add(HEAD_TRACKING)
         }
-        if (config.eyeTracking.isCoarseTrackingEnabled) {
+        if (config.eyeTracking == Config.EyeTrackingMode.COARSE_TRACKING) {
             permissions.add(EYE_TRACKING_COARSE)
         }
-        if (config.eyeTracking.isFineTrackingEnabled) {
+        if (config.eyeTracking == Config.EyeTrackingMode.FINE_TRACKING) {
             permissions.add(EYE_TRACKING_FINE)
         }
         return permissions

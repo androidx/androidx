@@ -150,4 +150,5 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:ui:ui-test:ui-test-samples"))
     enableRobolectric()
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
 }

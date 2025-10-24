@@ -26,6 +26,7 @@ import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.net.ConnectException
@@ -42,6 +43,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import perfetto.protos.TraceMetrics
 
+@SdkSuppress(minSdkVersion = 24) // b/452720052
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TraceProcessorTest {

@@ -266,7 +266,7 @@ package androidx.car.app.hardware {
 
 }
 
-package androidx.car.app.hardware.climate {
+package @SuppressCompatibility androidx.car.app.hardware.climate {
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class CabinTemperatureProfile {
     method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!> getCarZoneSetsToCabinCelsiusTemperatureRanges();
@@ -880,7 +880,7 @@ package androidx.car.app.media {
 
 }
 
-package androidx.car.app.media.model {
+package @SuppressCompatibility androidx.car.app.media.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(8) public class MediaPlaybackTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.Header? getHeader();
@@ -938,7 +938,7 @@ package androidx.car.app.mediaextensions.analytics {
 
 }
 
-package androidx.car.app.mediaextensions.analytics.client {
+package @SuppressCompatibility androidx.car.app.mediaextensions.analytics.client {
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public interface AnalyticsCallback {
     method public void onBrowseNodeChangeEvent(androidx.car.app.mediaextensions.analytics.event.BrowseChangeEvent);
@@ -1910,7 +1910,7 @@ package androidx.car.app.model {
 
 }
 
-package androidx.car.app.model.signin {
+package @SuppressCompatibility androidx.car.app.model.signin {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(2) public final class InputSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
     method public androidx.car.app.model.CarText? getDefaultValue();
@@ -2428,7 +2428,7 @@ package androidx.car.app.suggestion {
 
 }
 
-package androidx.car.app.suggestion.model {
+package @SuppressCompatibility androidx.car.app.suggestion.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Suggestion {
     method public android.app.PendingIntent? getAction();

@@ -97,12 +97,10 @@ final class EntityManager {
     }
 
     /**
-     * Returns a list of all {@link ScenePose}s of type {@code T} (including subtypes of {@code
-     * T}).
+     * Returns a list of all {@link ScenePose}s of type {@code T} (including subtypes of {@code T}).
      *
      * @param systemSpaceScenePoseClass the type of {@link ScenePose} to return.
-     * @return a list of all {@link ScenePose}s of type {@code T} (including subtypes of {@code
-     *     T}).
+     * @return a list of all {@link ScenePose}s of type {@code T} (including subtypes of {@code T}).
      */
     <T extends ScenePose> List<T> getSystemSpaceActivityPoseOfType(
             @NonNull Class<T> systemSpaceScenePoseClass) {

@@ -39,7 +39,6 @@ import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.models.FormEditRecord
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.models.ListItem
-import kotlin.random.Random
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -238,15 +237,13 @@ internal open class FakePdfDocument(
                 else scaledPageSizePx
             val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
             bitmap.apply {
-                val colorRng = Random(System.currentTimeMillis())
-                eraseColor(
-                    Color.argb(
-                        255,
-                        colorRng.nextInt(256),
-                        colorRng.nextInt(256),
-                        colorRng.nextInt(256),
-                    )
-                )
+                // Use a deterministic, varied color based on the page number to ensure
+                // consistent and distinct screenshots.
+                val r = ((pageNumber + 1) * 50) % 255
+                val g = ((pageNumber + 1) * 90) % 255
+                val b = ((pageNumber + 1) * 30) % 255
+                val color = Color.rgb(r, g, b)
+                eraseColor(color)
             }
             return bitmap
         }

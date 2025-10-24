@@ -474,6 +474,7 @@ public fun SpatialPanel(
         val isDialogActive = dialogManager.isSpatialDialogActive.value
 
         // The root is a Box. Its size is determined by its content.
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         Box {
             // The user's content is the first child. It determines the size of the parent Box.
             CompositionLocalProvider(LocalOpaqueEntity provides corePanelEntity, content = content)
@@ -481,6 +482,7 @@ public fun SpatialPanel(
             // The scrim for input handling. It uses matchParentSize to avoid affecting
             // the measurement of the parent Box.
             if (isDialogActive) {
+                @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
                 Box(
                     modifier =
                         Modifier.matchParentSize() // This sizes the overlay without affecting the

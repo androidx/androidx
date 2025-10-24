@@ -38,8 +38,8 @@ import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.createFakeSession
+import androidx.xr.compose.testing.disableXr
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
@@ -56,7 +56,7 @@ class SpatialElevationTest {
 
     @Test
     fun spatialElevation_mainContent_isComposed() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             SpatialElevation {
                 Box(modifier = Modifier.size(100.dp).testTag("MainContent")) {
                     Text("Main Content")
@@ -69,15 +69,15 @@ class SpatialElevationTest {
 
     @Test
     fun spatialElevation_popup_doesNotThrowError() {
-        composeTestRule.setContentWithCompatibilityForXr {
-            SpatialElevation { Popup { Text("Popup") } }
-        }
+        composeTestRule.setContent { SpatialElevation { Popup { Text("Popup") } } }
 
         composeTestRule.onAllNodesWithText("Popup").onLast().assertIsDisplayed()
     }
 
     @Test
     fun spatialElevation_xrNotSupported_doesNotThrowError() {
+        composeTestRule.disableXr()
+
         composeTestRule.setContent { SpatialElevation { Popup { Text("Popup") } } }
 
         composeTestRule.onNodeWithText("Popup").assertExists()
@@ -88,7 +88,7 @@ class SpatialElevationTest {
         composeTestRule.session =
             createFakeSession(composeTestRule.activity).apply { scene.requestHomeSpaceMode() }
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) { SpatialElevation { Text("Main Content") } }
         }
 
@@ -97,7 +97,7 @@ class SpatialElevationTest {
 
     @Test
     fun spatialElevation_fullSpaceMode_doesElevate() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) { SpatialElevation { Text("Main Content") } }
         }
 
@@ -109,9 +109,8 @@ class SpatialElevationTest {
 
     @Test
     fun spatialElevation_elevated_panelSizeMatchesContentSize() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Box(Modifier.size(1000.dp))
-
             SpatialElevation { Box(Modifier.size(100.dp)) { Text("Main Content") } }
         }
 
@@ -122,9 +121,8 @@ class SpatialElevationTest {
 
     @Test
     fun spatialElevation_elevatedPanel_noXYOffsetIfParentViewIsSameSize() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Box(Modifier.size(100.dp))
-
             SpatialElevation(elevation = 10.dp) {
                 Box(Modifier.size(100.dp)) { Text("Main Content") }
             }
@@ -142,9 +140,8 @@ class SpatialElevationTest {
 
     @Test
     fun spatialElevation_elevatedPanel_contentIsOnlyDisplayedOnce() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Box(Modifier.size(100.dp))
-
             SpatialElevation(elevation = 10.dp) {
                 Box(Modifier.size(100.dp)) { Text("Main Content") }
             }

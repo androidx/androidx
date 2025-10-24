@@ -68,6 +68,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 internal class UwbManagerImpl(private val context: Context) : UwbManager {
     companion object {
         const val TAG = "UwbManagerImpl"
+        private const val USE_RANGING_MODULE = false
         private const val INIT_TIMEOUT_MS = 5000L
         val PUBLIC_AVAILABLE_CONFIG_IDS =
             setOf(
@@ -124,7 +125,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
     }
 
     override suspend fun isAvailable(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && USE_RANGING_MODULE) {
             initializeRangingManager()
             return mRangingCapabilities.get()?.uwbCapabilities != null
         }
@@ -150,7 +151,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
 
     private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
         checkSystemFeature(context)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && USE_RANGING_MODULE) {
             createRangingClientSessionScope(isController)
         } else if (isGmsDevice()) {
             createGmsClientSessionScope(isController)

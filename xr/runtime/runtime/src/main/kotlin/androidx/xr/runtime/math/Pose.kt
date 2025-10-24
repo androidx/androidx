@@ -29,7 +29,7 @@ constructor(
     public val rotation: Quaternion = Quaternion(),
 ) {
 
-    /** Returns a pose that performs the opposite translation. */
+    /** Returns a pose that performs the opposite transformation. */
     public val inverse: Pose
         get() = invert()
 

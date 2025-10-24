@@ -25,7 +25,7 @@ import kotlinx.coroutines.CompletableDeferred
  */
 internal class AwaitFirstLayoutModifier : OnGloballyPositionedModifier {
     private var wasPositioned = false
-    private val lock = CompletableDeferred(Unit)
+    private val lock = CompletableDeferred<Unit>()
 
     suspend fun waitForFirstLayout() {
         if (!wasPositioned) {

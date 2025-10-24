@@ -42,7 +42,9 @@ dependencies {
     implementation(libs.androidToolsRepository) // com.android.repository for Stable AIDL plugin
     implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
     implementation(libs.spdxGradlePluginz)
+    runtimeOnly(libs.androidExperimentalBuiltInKotlinPlugin)
     runtimeOnly(libs.androidKotlinMultiplatform)
+    runtimeOnly(libs.androidLegacyKaptPlugin)
     implementation(libs.binaryCompatibilityValidator)
 
     // For Room Gradle Plugin

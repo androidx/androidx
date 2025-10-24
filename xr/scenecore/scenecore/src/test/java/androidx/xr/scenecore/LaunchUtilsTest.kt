@@ -22,6 +22,7 @@ import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
 import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SpatialCapabilities
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,6 +50,7 @@ class LaunchUtilsTest {
         whenever(mockSceneRuntime.mainPanelEntity).thenReturn(mock())
         whenever(mockSceneRuntime.spatialEnvironment).thenReturn(mock())
         whenever(mockSceneRuntime.perceptionSpaceActivityPose).thenReturn(mock())
+        whenever(mockSceneRuntime.spatialCapabilities).thenReturn(SpatialCapabilities(0))
         session =
             Session(
                 activity,

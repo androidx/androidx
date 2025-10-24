@@ -20,7 +20,6 @@ import android.media.SoundPool
 import androidx.activity.ComponentActivity
 import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.SpatializerConstants.Companion.AMBISONICS_ORDER_FIRST_ORDER
 import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
 import androidx.xr.scenecore.runtime.Entity as RtEntity
 import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
@@ -128,7 +127,8 @@ class SpatialSoundPoolTest {
     @Test
     fun playWithSoundField_callsRuntimeSoundPoolPlaySoundField() {
         val soundPool = SoundPool.Builder().build()
-        val soundFieldAttributes = SoundFieldAttributes(AMBISONICS_ORDER_FIRST_ORDER)
+        val soundFieldAttributes =
+            SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
         assertThat(
                 SpatialSoundPool.play(
@@ -147,7 +147,7 @@ class SpatialSoundPoolTest {
 
     @Test
     fun getSourceType_returnsRuntimeSoundPoolGetSourceType() {
-        val expected = SpatializerConstants.SOURCE_TYPE_SOUND_FIELD
+        val expected = SpatializerConstants.SourceType.SOUND_FIELD
         val soundPool = SoundPool.Builder().build()
 
         whenever(mockRtSoundPoolExtensions.getSpatialSourceType(any(), any()))

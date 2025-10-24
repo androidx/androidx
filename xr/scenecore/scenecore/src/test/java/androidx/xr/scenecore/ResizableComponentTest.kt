@@ -389,21 +389,17 @@ class ResizableComponentTest {
         // Invoke the runtime resize event listener with a resize event.
         rtResizeEventListener.onResizeEvent(rtResizeEvent)
         val expectedStartResizeEvent =
-            ResizeEvent(entity, ResizeEvent.ResizeState.RESIZE_STATE_START, FloatSize3d(1f, 1f, 1f))
+            ResizeEvent(entity, ResizeEvent.ResizeState.START, FloatSize3d(1f, 1f, 1f))
         verify(mockResizeListener).accept(expectedStartResizeEvent)
         rtResizeEvent = RtResizeEvent(RtResizeEvent.RESIZE_STATE_ONGOING, RtDimensions(2f, 2f, 2f))
         val expectedOngoingResizeEvent =
-            ResizeEvent(
-                entity,
-                ResizeEvent.ResizeState.RESIZE_STATE_ONGOING,
-                FloatSize3d(2f, 2f, 2f),
-            )
+            ResizeEvent(entity, ResizeEvent.ResizeState.ONGOING, FloatSize3d(2f, 2f, 2f))
         rtResizeEventListener.onResizeEvent(rtResizeEvent)
         rtResizeEventListener.onResizeEvent(rtResizeEvent)
         verify(mockResizeListener, times(2)).accept(expectedOngoingResizeEvent)
         rtResizeEvent = RtResizeEvent(RtResizeEvent.RESIZE_STATE_END, RtDimensions(2f, 2f, 2f))
         val expectedEndResizeEvent =
-            ResizeEvent(entity, ResizeEvent.ResizeState.RESIZE_STATE_END, FloatSize3d(2f, 2f, 2f))
+            ResizeEvent(entity, ResizeEvent.ResizeState.END, FloatSize3d(2f, 2f, 2f))
         rtResizeEventListener.onResizeEvent(rtResizeEvent)
         verify(mockResizeListener).accept(expectedEndResizeEvent)
     }
@@ -443,16 +439,12 @@ class ResizableComponentTest {
         rtResizeEventListener.onResizeEvent(rtResizeEvent)
         rtResizeEventListener.onResizeEvent(rtResizeEvent)
         val expectedOngoingResizeEvent =
-            ResizeEvent(
-                entity,
-                ResizeEvent.ResizeState.RESIZE_STATE_ONGOING,
-                FloatSize3d(2f, 2f, 2f),
-            )
+            ResizeEvent(entity, ResizeEvent.ResizeState.ONGOING, FloatSize3d(2f, 2f, 2f))
         verify(mockResizeListener, times(2)).accept(expectedOngoingResizeEvent)
         rtResizeEvent = RtResizeEvent(RtResizeEvent.RESIZE_STATE_END, RtDimensions(2f, 2f, 2f))
         rtResizeEventListener.onResizeEvent(rtResizeEvent)
         val expectedEndResizeEvent =
-            ResizeEvent(entity, ResizeEvent.ResizeState.RESIZE_STATE_END, FloatSize3d(2f, 2f, 2f))
+            ResizeEvent(entity, ResizeEvent.ResizeState.END, FloatSize3d(2f, 2f, 2f))
         verify(mockResizeListener).accept(expectedEndResizeEvent)
     }
 

@@ -52,7 +52,7 @@ dependencies {
     // TODO(b/438455972): Use ToT of compiler-processing-testing
     testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
     testImplementation(libs.googleCompileTesting)
-    testImplementation(libs.kotlinCompilerEmbeddable)
+    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21")
     testImplementation(libs.kotlinCompileTestingKsp)
 }
 

@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.tracing.driver.wire {
 
+  public final class TraceDriverUtils {
+    method public static androidx.tracing.driver.TraceDriver TraceDriver(android.content.Context context, androidx.tracing.driver.wire.TraceSink sink);
+    method public static androidx.tracing.driver.TraceDriver TraceDriver(android.content.Context context, androidx.tracing.driver.wire.TraceSink sink, optional boolean isEnabled);
+    method @BytecodeOnly public static androidx.tracing.driver.TraceDriver! TraceDriver$default(android.content.Context!, androidx.tracing.driver.wire.TraceSink!, boolean, int, Object!);
+  }
+
   public final class TraceSink extends androidx.tracing.driver.TraceSink {
     ctor public TraceSink(int sequenceId, okio.BufferedSink bufferedSink, optional kotlin.coroutines.CoroutineContext coroutineContext);
     ctor @BytecodeOnly public TraceSink(int, okio.BufferedSink!, kotlin.coroutines.CoroutineContext!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -10,7 +16,7 @@ package androidx.tracing.driver.wire {
     method public void onDroppedTraceEvent();
   }
 
-  public final class TraceSink_androidKt {
+  public final class TraceSinkUtils {
     method public static androidx.tracing.driver.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext);
     method public static androidx.tracing.driver.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, optional java.io.File traceFile);
     method public static androidx.tracing.driver.TraceSink TraceSink(android.content.Context context, int sequenceId, kotlin.coroutines.CoroutineContext coroutineContext, java.io.OutputStream outputStream);

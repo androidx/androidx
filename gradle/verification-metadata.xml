@@ -95,7 +95,9 @@
          <trusted-key id="0F06FF86BEEAF4E71866EE5232EE5355A6BC6E42">
             <trusting group="com.android"/>
             <trusting group="com.android.databinding"/>
+            <trusting group="com.android.experimental.built-in-kotlin"/>
             <trusting group="com.android.kotlin.multiplatform.library"/>
+            <trusting group="com.android.legacy-kapt"/>
             <trusting group="com.android.settings"/>
             <trusting group="com.android.tools"/>
             <trusting group="com.android.tools.analytics-library"/>

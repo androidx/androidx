@@ -123,4 +123,5 @@ androidx {
     description = "Compose layout implementations"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
 }

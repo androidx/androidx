@@ -45,6 +45,7 @@ import androidx.xr.scenecore.runtime.PlaneSemantic
 import androidx.xr.scenecore.runtime.PlaneType
 import androidx.xr.scenecore.runtime.PointerCaptureComponent
 import androidx.xr.scenecore.runtime.RenderingEntityFactory
+import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
 import androidx.xr.scenecore.runtime.SpatialCapabilities
@@ -140,6 +141,10 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
             CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE -> cameraViewActivityPoseR
             else -> null
         }
+    }
+
+    override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
+        return FakePerceptionSpaceScenePose()
     }
 
     public var deviceDpPerMeter: Float = DEFAULT_DP_PER_METER

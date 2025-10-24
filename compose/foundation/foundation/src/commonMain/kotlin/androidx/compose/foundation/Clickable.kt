@@ -35,9 +35,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerInputChange
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode
+import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
@@ -80,6 +80,7 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
+import kotlin.math.abs
 import kotlin.math.max
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -922,7 +923,7 @@ internal open class ClickableNode(
                     change.consume()
                     this.downEvent = change
                     if (enabled) {
-                        handlePressInteractionStart(change.position, indirectTouch = false)
+                        handlePressInteractionStart(change.position, indirectPointer = false)
                     }
                 }
             } else if (pointerEvent.changes.fastAll { it.changedToUp() }) {
@@ -930,7 +931,7 @@ internal open class ClickableNode(
                 val up = pointerEvent.changes[0]
                 up.consume()
                 if (enabled) {
-                    handlePressInteractionRelease(downEvent.position, indirectTouch = false)
+                    handlePressInteractionRelease(downEvent.position, indirectPointer = false)
                     onClick()
                 }
                 this.downEvent = null
@@ -943,7 +944,7 @@ internal open class ClickableNode(
                 ) {
                     // Canceled
                     this.downEvent = null
-                    handlePressInteractionCancel(indirectTouch = false)
+                    handlePressInteractionCancel(indirectPointer = false)
                 }
             }
         } else if (pass == PointerEventPass.Final && downEvent != null) {
@@ -952,7 +953,7 @@ internal open class ClickableNode(
             if (pointerEvent.changes.fastAny { it.isConsumed && it != downEvent }) {
                 // Canceled
                 downEvent = null
-                handlePressInteractionCancel(indirectTouch = false)
+                handlePressInteractionCancel(indirectPointer = false)
             }
         }
     }
@@ -961,7 +962,7 @@ internal open class ClickableNode(
         super.onCancelPointerInput()
         if (downEvent != null) {
             downEvent = null
-            handlePressInteractionCancel(indirectTouch = false)
+            handlePressInteractionCancel(indirectPointer = false)
         }
     }
 
@@ -1256,7 +1257,7 @@ internal abstract class AbstractClickableNode(
     TraversableNode,
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode,
-    IndirectTouchInputModifierNode {
+    IndirectPointerInputModifierNode {
     protected var enabled = enabled
         private set
 
@@ -1282,8 +1283,8 @@ internal abstract class AbstractClickableNode(
     private val currentKeyPressInteractions = mutableLongObjectMapOf<PressInteraction.Press>()
     private var centerOffset: Offset = Offset.Zero
 
-    private var indirectTouchPressInteraction: PressInteraction.Press? = null
-    private var indirectTouchEventPressPosition: Offset? = null
+    private var indirectPointerPressInteraction: PressInteraction.Press? = null
+    private var indirectPointerEventPressPosition: Offset? = null
 
     // Track separately from interactionSource, as we will create our own internal
     // InteractionSource if needed
@@ -1293,7 +1294,7 @@ internal abstract class AbstractClickableNode(
 
     private fun shouldLazilyCreateIndication() = userProvidedInteractionSource == null
 
-    private var indirectTouchClickDetector: IndirectTouchClickDetector? = null
+    private var indirectPointerClickDetector: IndirectPointerClickDetector? = null
 
     /**
      * Handles subclass-specific click related pointer input logic. Hover is already handled
@@ -1366,18 +1367,18 @@ internal abstract class AbstractClickableNode(
         focusableNode.update(this.interactionSource)
     }
 
-    override fun onIndirectTouchEvent(event: IndirectTouchEvent, pass: PointerEventPass) {
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
         initializeIndicationAndInteractionSourceIfNeeded()
         if (enabled) {
-            if (indirectTouchClickDetector == null) {
-                indirectTouchClickDetector = IndirectTouchClickDetector(this)
+            if (indirectPointerClickDetector == null) {
+                indirectPointerClickDetector = IndirectPointerClickDetector(this)
             }
-            indirectTouchClickDetector?.processRawEvent(event, pass, onClick)
+            indirectPointerClickDetector?.processRawEvent(event, pass, onClick)
         }
     }
 
-    override fun onCancelIndirectTouchInput() {
-        indirectTouchClickDetector?.resetDetector()
+    override fun onCancelIndirectPointerInput() {
+        indirectPointerClickDetector?.resetDetector()
     }
 
     final override fun onAttach() {
@@ -1427,7 +1428,7 @@ internal abstract class AbstractClickableNode(
                 val interaction = PressInteraction.Cancel(oldValue)
                 interactionSource.tryEmit(interaction)
             }
-            indirectTouchPressInteraction?.let { oldValue ->
+            indirectPointerPressInteraction?.let { oldValue ->
                 val interaction = PressInteraction.Cancel(oldValue)
                 interactionSource.tryEmit(interaction)
             }
@@ -1440,8 +1441,8 @@ internal abstract class AbstractClickableNode(
             }
         }
         pressInteraction = null
-        indirectTouchPressInteraction = null
-        indirectTouchEventPressPosition = null
+        indirectPointerPressInteraction = null
+        indirectPointerEventPressPosition = null
         hoverInteraction = null
         currentKeyPressInteractions.clear()
     }
@@ -1456,12 +1457,12 @@ internal abstract class AbstractClickableNode(
                 currentKeyPressInteractions.forEachValue {
                     coroutineScope.launch { interactionSource?.emit(PressInteraction.Cancel(it)) }
                 }
-                indirectTouchPressInteraction?.let {
+                indirectPointerPressInteraction?.let {
                     coroutineScope.launch { interactionSource?.emit(PressInteraction.Cancel(it)) }
                 }
             }
             currentKeyPressInteractions.clear()
-            indirectTouchPressInteraction = null
+            indirectPointerPressInteraction = null
             onCancelKeyInput()
         }
     }
@@ -1611,10 +1612,10 @@ internal abstract class AbstractClickableNode(
      * Handles emitting a [PressInteraction.Press].
      *
      * @param offset offset of the press
-     * @param indirectTouch whether the source of this press was indirect touch. False for pointer
-     *   input.
+     * @param indirectPointer whether the source of this press was indirect pointer. False for
+     *   pointer input.
      */
-    protected fun handlePressInteractionStart(offset: Offset, indirectTouch: Boolean) {
+    protected fun handlePressInteractionStart(offset: Offset, indirectPointer: Boolean) {
         interactionSource?.let { interactionSource ->
             val press = PressInteraction.Press(offset)
             if (delayPressInteraction()) {
@@ -1622,15 +1623,15 @@ internal abstract class AbstractClickableNode(
                     coroutineScope.launch {
                         delay(TapIndicationDelay)
                         interactionSource.emit(press)
-                        if (indirectTouch) {
-                            indirectTouchPressInteraction = press
+                        if (indirectPointer) {
+                            indirectPointerPressInteraction = press
                         } else {
                             pressInteraction = press
                         }
                     }
             } else {
-                if (indirectTouch) {
-                    indirectTouchPressInteraction = press
+                if (indirectPointer) {
+                    indirectPointerPressInteraction = press
                 } else {
                     pressInteraction = press
                 }
@@ -1643,10 +1644,10 @@ internal abstract class AbstractClickableNode(
      * Handles emitting a [PressInteraction.Release].
      *
      * @param offset offset of the press
-     * @param indirectTouch whether the source of this press was indirect touch. False for pointer
-     *   input.
+     * @param indirectPointer whether the source of this press was indirect pointer. False for
+     *   pointer input.
      */
-    protected fun handlePressInteractionRelease(offset: Offset, indirectTouch: Boolean) {
+    protected fun handlePressInteractionRelease(offset: Offset, indirectPointer: Boolean) {
         interactionSource?.let { interactionSource ->
             // To resolve b/414319919 it is important that we capture a reference to `delayJob`
             // outside the coroutine block - when the CPU is busy we can end up handling
@@ -1675,7 +1676,7 @@ internal abstract class AbstractClickableNode(
                 }
             } else {
                 val interaction =
-                    if (indirectTouch) indirectTouchPressInteraction else pressInteraction
+                    if (indirectPointer) indirectPointerPressInteraction else pressInteraction
                 interaction?.let {
                     coroutineScope.launch {
                         // Important that we capture `interaction` outside the `launch`, rather than
@@ -1686,8 +1687,8 @@ internal abstract class AbstractClickableNode(
                     }
                 }
             }
-            if (indirectTouch) {
-                indirectTouchPressInteraction = null
+            if (indirectPointer) {
+                indirectPointerPressInteraction = null
             } else {
                 pressInteraction = null
             }
@@ -1697,10 +1698,10 @@ internal abstract class AbstractClickableNode(
     /**
      * Handles emitting a [PressInteraction.Cancel].
      *
-     * @param indirectTouch whether the source of this press was indirect touch. False for pointer
-     *   input.
+     * @param indirectPointer whether the source of this press was indirect pointer. False for
+     *   pointer input.
      */
-    protected fun handlePressInteractionCancel(indirectTouch: Boolean) {
+    protected fun handlePressInteractionCancel(indirectPointer: Boolean) {
         interactionSource?.let { interactionSource ->
             if (delayJob?.isActive == true) {
                 // We didn't finish sending the press, and we are cancelled, so we don't emit
@@ -1708,7 +1709,7 @@ internal abstract class AbstractClickableNode(
                 delayJob?.cancel()
             } else {
                 val interaction =
-                    if (indirectTouch) indirectTouchPressInteraction else pressInteraction
+                    if (indirectPointer) indirectPointerPressInteraction else pressInteraction
                 interaction?.let {
                     val endInteraction = PressInteraction.Cancel(it)
                     // If this is being called from inside onDetach(), we are still attached, but
@@ -1727,8 +1728,8 @@ internal abstract class AbstractClickableNode(
                     }
                 }
             }
-            if (indirectTouch) {
-                indirectTouchPressInteraction = null
+            if (indirectPointer) {
+                indirectPointerPressInteraction = null
             } else {
                 pressInteraction = null
             }
@@ -1799,11 +1800,12 @@ internal abstract class AbstractClickableNode(
 
     override val traverseKey: Any = TraverseKey
 
-    class IndirectTouchClickDetector(val node: AbstractClickableNode) {
+    class IndirectPointerClickDetector(val node: AbstractClickableNode) {
         private var downEvent: IndirectPointerInputChange? = null
 
+        // TODO(b/449944873): Align PointerInput and IndirectTouchInput implementations
         fun processRawEvent(
-            pointerEvent: IndirectTouchEvent,
+            pointerEvent: IndirectPointerEvent,
             pass: PointerEventPass,
             onClick: () -> Unit,
         ) {
@@ -1812,22 +1814,28 @@ internal abstract class AbstractClickableNode(
                 if (downEvent == null) {
                     if (pointerEvent.changes.fastAny { it.changedToDownIgnoreConsumed() }) {
                         val change = pointerEvent.changes[0]
-                        change.consume()
                         this.downEvent = change
-                        node.handlePressInteractionStart(change.position, indirectTouch = true)
+                        node.handlePressInteractionStart(change.position, indirectPointer = true)
+                        change.consume()
+                    }
+                } else if (pointerEvent.changes.fastAny { it.isMovingIgnoreConsumed() }) {
+                    val change = pointerEvent.changes[0]
+                    val distanceFromPress = change.position - downEvent.position
+                    val touchSlop = node.currentValueOf(LocalViewConfiguration).touchSlop
+                    if (abs(distanceFromPress.getDistance()) > touchSlop) {
+                        resetDetector()
                     }
                 } else if (pointerEvent.changes.fastAll { it.changedToUp() }) {
                     // All pointers are up
                     val up = pointerEvent.changes[0]
                     up.consume()
-                    node.handlePressInteractionRelease(downEvent.position, indirectTouch = true)
+                    node.handlePressInteractionRelease(downEvent.position, indirectPointer = true)
                     onClick()
                     this.downEvent = null
                 } else {
                     if (pointerEvent.changes.fastAny { it.isConsumed }) {
                         // Canceled
-                        this.downEvent = null
-                        node.handlePressInteractionCancel(indirectTouch = true)
+                        resetDetector()
                     }
                 }
             } else if (pass == PointerEventPass.Final && downEvent != null) {
@@ -1835,8 +1843,7 @@ internal abstract class AbstractClickableNode(
                 // existing pointer event because it comes after the pass we checked above.
                 if (pointerEvent.changes.fastAny { it.isConsumed && it != downEvent }) {
                     // Canceled
-                    downEvent = null
-                    node.handlePressInteractionCancel(indirectTouch = true)
+                    resetDetector()
                 }
             }
         }
@@ -1844,7 +1851,7 @@ internal abstract class AbstractClickableNode(
         fun resetDetector() {
             if (downEvent != null) {
                 downEvent = null
-                node.handlePressInteractionCancel(indirectTouch = true)
+                node.handlePressInteractionCancel(indirectPointer = true)
             }
         }
     }
@@ -1872,3 +1879,5 @@ private fun unsupportedIndicationExceptionMessage(indication: Indication): Strin
 private fun IndirectPointerInputChange.changedToUp() = !isConsumed && previousPressed && !pressed
 
 private fun IndirectPointerInputChange.changedToDownIgnoreConsumed() = !previousPressed && pressed
+
+private fun IndirectPointerInputChange.isMovingIgnoreConsumed() = previousPressed && pressed

@@ -25,6 +25,8 @@ internal const val SCREENSHOT_GOLDEN_DIRECTORY = "pdf/pdf-viewer"
  *
  * Refer go/scuba-best-practices#use-good-naming for naming file names for scuba screenshots.
  */
+internal const val FAST_SCROLLER_BOTTOM = "fast_scroller_bottom"
+internal const val FAST_SCROLLER_TOP = "fast_scroller_top"
 internal const val SEARCH_VIEW_IN_LTR_MODE = "search_view_in_ltr_mode"
 internal const val SEARCH_VIEW_IN_RTL_MODE = "search_view_in_rtl_mode"
 internal const val ANNOTATION_VIEW_SINGLE_SQUARE_NO_TRANSFORM =

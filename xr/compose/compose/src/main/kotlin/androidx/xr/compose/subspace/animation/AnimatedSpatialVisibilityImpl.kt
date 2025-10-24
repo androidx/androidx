@@ -136,7 +136,7 @@ private fun <T> AnimatedSpatialEnterExitImpl(
                     }
             }
         if (!childTransition.exitFinished || !shouldDisposeAfterExit) {
-            val scope = remember(transition) { AnimatedSpatialVisibilityScopeImpl(childTransition) }
+            val scope = remember(transition) { AnimatedSpatialVisibilityScope(childTransition) }
             SubspaceLayout(
                 modifier = modifier.then(childTransition.createModifier(enter, exit)),
                 content = { scope.content() },
@@ -314,7 +314,3 @@ private val IntVolumeOffsetToVector: TwoWayConverter<IntVolumeOffset, AnimationV
         { AnimationVector3D(it.x.toFloat(), it.y.toFloat(), it.z.toFloat()) },
         { IntVolumeOffset(it.v1.fastRoundToInt(), it.v2.fastRoundToInt(), it.v3.fastRoundToInt()) },
     )
-
-private class AnimatedSpatialVisibilityScopeImpl(
-    override val transition: Transition<EnterExitState>
-) : AnimatedSpatialVisibilityScope

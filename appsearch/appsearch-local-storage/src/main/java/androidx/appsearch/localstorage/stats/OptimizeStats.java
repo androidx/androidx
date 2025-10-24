@@ -217,6 +217,50 @@ public final class OptimizeStats extends BaseStats {
         return mOnExecutorLatencyMillis;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "OptimizeStats {\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  nativeLatencyMillis=%d,\n"
+                        + "  nativeDocumentStoreOptimizeLatencyMillis=%d,\n"
+                        + "  nativeIndexRestorationLatencyMillis=%d,\n"
+                        + "  nativeOriginalDocumentCount=%d,\n"
+                        + "  nativeDeletedDocumentCount=%d,\n"
+                        + "  nativeExpiredDocumentCount=%d,\n"
+                        + "  nativeStorageSizeBeforeBytes=%d,\n"
+                        + "  nativeStorageSizeAfterBytes=%d,\n"
+                        + "  nativeTimeSinceLastOptimizeMillis=%d,\n"
+                        + "  indexRestorationMode=%d,\n"
+                        + "  numOriginalNamespaces=%d,\n"
+                        + "  numDeletedNamespaces=%d,\n"
+                        + "  callReceivedTimestampMillis=%d,\n"
+                        + "  executorAcquisitionLatencyMillis=%d,\n"
+                        + "  onExecutorLatencyMillis=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mStatusCode,
+                mTotalLatencyMillis,
+                mNativeLatencyMillis,
+                mNativeDocumentStoreOptimizeLatencyMillis,
+                mNativeIndexRestorationLatencyMillis,
+                mNativeOriginalDocumentCount,
+                mNativeDeletedDocumentCount,
+                mNativeExpiredDocumentCount,
+                mNativeStorageSizeBeforeBytes,
+                mNativeStorageSizeAfterBytes,
+                mNativeTimeSinceLastOptimizeMillis,
+                mIndexRestorationMode,
+                mNumOriginalNamespaces,
+                mNumDeletedNamespaces,
+                mCallReceivedTimestampMillis,
+                mExecutorAcquisitionLatencyMillis,
+                mOnExecutorLatencyMillis);
+    }
+
     /** Builder for {@link RemoveStats}. */
     public static class Builder extends BaseStats.Builder<OptimizeStats.Builder> {
         /**
