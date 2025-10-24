@@ -102,7 +102,7 @@ jobs:
           echo "files=$AFFECTED_FILES" >> $GITHUB_OUTPUT
 
       - name: "Setup Gradle"
-        uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
         with:
           # Only save Gradle User Home state for builds on the 'androidx-main' branch.
           # Builds on other branches will only read existing entries from the cache.
