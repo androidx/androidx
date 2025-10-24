@@ -4751,6 +4751,15 @@ final val androidx.compose.ui.uikit/LocalUIViewController // androidx.compose.ui
 final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop|#static{}androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Back$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Back$stableprop|#static{}androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Back$stableprop[0]
+
+// Targets: [ios]
+final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Disabled$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Disabled$stableprop|#static{}androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Disabled$stableprop[0]
+
+// Targets: [ios]
+final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Forward$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Forward$stableprop|#static{}androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Forward$stableprop[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_OnFocusBehavior_DoNothing$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_OnFocusBehavior_DoNothing$stableprop|#static{}androidx_compose_ui_uikit_OnFocusBehavior_DoNothing$stableprop[0]
 
 // Targets: [ios]
@@ -4823,6 +4832,15 @@ final fun androidx.compose.ui.platform/androidx_compose_ui_platform_CFScopeRelea
 
 // Targets: [ios]
 final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter|androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Back$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Back$stableprop_getter|androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Back$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Disabled$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Disabled$stableprop_getter|androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Disabled$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Forward$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Forward$stableprop_getter|androidx_compose_ui_uikit_EndEdgePanGestureBehavior_Forward$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_OnFocusBehavior_DoNothing$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_OnFocusBehavior_DoNothing$stableprop_getter|androidx_compose_ui_uikit_OnFocusBehavior_DoNothing$stableprop_getter(){}[0]

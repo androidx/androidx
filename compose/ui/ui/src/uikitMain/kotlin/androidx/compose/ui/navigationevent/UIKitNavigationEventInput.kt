@@ -17,11 +17,7 @@
 package androidx.compose.ui.navigationevent
 
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.uikit.EndEdgePanGestureBehavior
 import androidx.compose.ui.uikit.utils.CMPScreenEdgePanGestureRecognizer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -30,7 +26,6 @@ import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.width
 import androidx.navigationevent.NavigationEvent
-import androidx.navigationevent.NavigationEventInput
 import kotlin.math.abs
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.CPointed
@@ -48,12 +43,14 @@ import platform.UIKit.UIGestureRecognizerStateFailed
 import platform.UIKit.UIRectEdgeLeft
 import platform.UIKit.UIRectEdgeRight
 import platform.UIKit.UIScreenEdgePanGestureRecognizer
+import platform.UIKit.UIUserInterfaceLayoutDirection.*
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 import platform.darwin.NSObject
 
 internal class UIKitNavigationEventInput(
     private val density: Density,
+    private val endEdgePanGestureBehavior: EndEdgePanGestureBehavior,
     private val getTopLeftOffsetInWindow: () -> IntOffset
 ) : BackNavigationEventInput() {
     companion object {
@@ -61,26 +58,30 @@ internal class UIKitNavigationEventInput(
         private const val BACK_GESTURE_VELOCITY = 100
     }
 
+    private var isRecognizersEnabled: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            updateRecognizers()
+        }
+    private var isRtlEnabled: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            updateRecognizers()
+        }
+
     private val iosGestureHandler = UiKitScreenEdgePanGestureHandler()
 
-    private val leftEdgePanGestureRecognizer = UIKitBackGestureRecognizer(
+    private val startEdgePanGestureRecognizer = UIKitBackGestureRecognizer(
         target = iosGestureHandler,
         action = NSSelectorFromString(UiKitScreenEdgePanGestureHandler::handleEdgePan.name + ":")
-    ).apply {
-        edges = UIRectEdgeLeft
-    }
+    )
 
-    private val rightEdgePanGestureRecognizer = UIKitBackGestureRecognizer(
+    private val endEdgePanGestureRecognizer = UIKitBackGestureRecognizer(
         target = iosGestureHandler,
         action = NSSelectorFromString(UiKitScreenEdgePanGestureHandler::handleEdgePan.name + ":")
-    ).apply {
-        edges = UIRectEdgeRight
-    }
-
-    override fun onHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {
-        leftEdgePanGestureRecognizer.enabled = hasEnabledHandlers
-        rightEdgePanGestureRecognizer.enabled = hasEnabledHandlers
-    }
+    )
 
     private val activeGestureStates = listOf(
         UIGestureRecognizerStateBegan,
@@ -89,12 +90,36 @@ internal class UIKitNavigationEventInput(
 
     val isBackGestureActive: Boolean
         get() =
-            leftEdgePanGestureRecognizer.state in activeGestureStates ||
-                rightEdgePanGestureRecognizer.state in activeGestureStates
+            startEdgePanGestureRecognizer.state in activeGestureStates ||
+                endEdgePanGestureRecognizer.state in activeGestureStates
+
+    init {
+        updateRecognizers()
+    }
+
+    private fun updateRecognizers() {
+        startEdgePanGestureRecognizer.edges = if (!isRtlEnabled) UIRectEdgeLeft else UIRectEdgeRight
+        endEdgePanGestureRecognizer.edges = if (isRtlEnabled) UIRectEdgeLeft else UIRectEdgeRight
+
+        if (isRecognizersEnabled) {
+            startEdgePanGestureRecognizer.enabled = true
+            endEdgePanGestureRecognizer.enabled =
+                endEdgePanGestureBehavior != EndEdgePanGestureBehavior.Disabled
+        } else {
+            startEdgePanGestureRecognizer.enabled = false
+            endEdgePanGestureRecognizer.enabled = false
+        }
+    }
+
+    override fun onHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {
+        isRecognizersEnabled = hasEnabledHandlers
+    }
 
     fun onDidMoveToWindow(window: UIWindow?, composeRootView: UIView) {
         removeGestureListeners()
         if (window != null) {
+            isRtlEnabled =
+                composeRootView.effectiveUserInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft
             var view: UIView = composeRootView
             while (view.superview != window) {
                 view = requireNotNull(view.superview) {
@@ -106,17 +131,60 @@ internal class UIKitNavigationEventInput(
     }
 
     private fun addGestureListeners(view: UIView) {
-        view.addGestureRecognizer(leftEdgePanGestureRecognizer)
-        view.addGestureRecognizer(rightEdgePanGestureRecognizer)
+        view.addGestureRecognizer(startEdgePanGestureRecognizer)
+        view.addGestureRecognizer(endEdgePanGestureRecognizer)
     }
 
     private fun removeGestureListeners() {
-        leftEdgePanGestureRecognizer.view?.removeGestureRecognizer(leftEdgePanGestureRecognizer)
-        rightEdgePanGestureRecognizer.view?.removeGestureRecognizer(rightEdgePanGestureRecognizer)
+        startEdgePanGestureRecognizer.view?.removeGestureRecognizer(startEdgePanGestureRecognizer)
+        endEdgePanGestureRecognizer.view?.removeGestureRecognizer(endEdgePanGestureRecognizer)
     }
 
     @OptIn(BetaInteropApi::class, ExperimentalComposeUiApi::class)
     inner class UiKitScreenEdgePanGestureHandler : NSObject() {
+        private val UIScreenEdgePanGestureRecognizer.isBackEdge: Boolean
+            get() = this === startEdgePanGestureRecognizer ||
+                (this === endEdgePanGestureRecognizer && endEdgePanGestureBehavior == EndEdgePanGestureBehavior.Back)
+
+        private fun dispatchOnEventStarted(
+            recognizer: UIScreenEdgePanGestureRecognizer,
+            event: NavigationEvent
+        ) {
+            if (recognizer.isBackEdge) {
+                dispatchOnBackStarted(event)
+            } else {
+                dispatchOnForwardStarted(event)
+            }
+        }
+        private fun dispatchOnEventProgressed(
+            recognizer: UIScreenEdgePanGestureRecognizer,
+            event: NavigationEvent
+        ) {
+            if (recognizer.isBackEdge) {
+                dispatchOnBackProgressed(event)
+            } else {
+                dispatchOnForwardProgressed(event)
+            }
+        }
+        private fun dispatchOnEventCompleted(
+            recognizer: UIScreenEdgePanGestureRecognizer
+        ) {
+            if (recognizer.isBackEdge) {
+                dispatchOnBackCompleted()
+            } else {
+                dispatchOnForwardCompleted()
+            }
+        }
+        private fun dispatchOnEventCancelled(
+            recognizer: UIScreenEdgePanGestureRecognizer
+        ) {
+            if (recognizer.isBackEdge) {
+                dispatchOnBackCancelled()
+            } else {
+                dispatchOnForwardCancelled()
+            }
+        }
+
         @ObjCAction
         fun handleEdgePan(recognizer: UIScreenEdgePanGestureRecognizer) {
             val view = recognizer.view ?: return
@@ -125,7 +193,8 @@ internal class UIKitNavigationEventInput(
                     val touch = recognizer.locationOfTouch(0u, view).asDpOffset()
                     val eventOffset =
                         touch.toOffset(density) - getTopLeftOffsetInWindow().toOffset()
-                    dispatchOnBackStarted(
+                    dispatchOnEventStarted(
+                        recognizer,
                         NavigationEvent(
                             touchX = eventOffset.x,
                             touchY = eventOffset.y,
@@ -151,7 +220,8 @@ internal class UIKitNavigationEventInput(
                     } else {
                         (bounds.width - touch.x) / bounds.width
                     }
-                    dispatchOnBackProgressed(
+                    dispatchOnEventProgressed(
+                        recognizer,
                         NavigationEvent(
                             touchX = eventOffset.x,
                             touchY = eventOffset.y,
@@ -178,13 +248,13 @@ internal class UIKitNavigationEventInput(
                                     if (edge == UIRectEdgeLeft) this@velocity.x else -this@velocity.x
                                 when {
                                     //if movement is fast in the right direction
-                                    velX > BACK_GESTURE_VELOCITY -> dispatchOnBackCompleted()
+                                    velX > BACK_GESTURE_VELOCITY -> dispatchOnEventCompleted(recognizer)
                                     //if movement is backward
-                                    velX < -10 -> dispatchOnBackCancelled()
+                                    velX < -10 -> dispatchOnEventCancelled(recognizer)
                                     //if there is no movement, or the movement is slow,
                                     //but the touch is already more than BACK_GESTURE_SCREEN_SIZE
-                                    abs(x) >= size.width * BACK_GESTURE_SCREEN_SIZE -> dispatchOnBackCompleted()
-                                    else -> dispatchOnBackCancelled()
+                                    abs(x) >= size.width * BACK_GESTURE_SCREEN_SIZE -> dispatchOnEventCompleted(recognizer)
+                                    else -> dispatchOnEventCancelled(recognizer)
                                 }
                             }
                         }
@@ -192,11 +262,11 @@ internal class UIKitNavigationEventInput(
                 }
 
                 UIGestureRecognizerStateCancelled -> {
-                    dispatchOnBackCancelled()
+                    dispatchOnEventCancelled(recognizer)
                 }
 
                 UIGestureRecognizerStateFailed -> {
-                    dispatchOnBackCompleted()
+                    dispatchOnEventCompleted(recognizer)
                 }
             }
         }
