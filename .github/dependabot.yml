@@ -5,43 +5,45 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Go modules in repo root (add more directories if needed)
+  - package-ecosystem: "gomod"
+    directory: "/"
     schedule:
-    
       interval: "weekly"
 
-  - package-ecosystem: github-actions
-    directory: /
+  # GitHub Actions used in this repo
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: daily
+      interval: "weekly"
 
-  - package-ecosystem: npm
-    directory: /development/benchmarks-chrome-extension
+  # Keep existing ecosystems below if still relevant. Adjust as needed.
+  - package-ecosystem: "npm"
+    directory: "/development/benchmarks-chrome-extension"
     schedule:
-      interval: daily
+      interval: "weekly"
 
-  - package-ecosystem: npm
-    directory: /development/fetchLicenses
+  - package-ecosystem: "npm"
+    directory: "/development/fetchLicenses"
     schedule:
-      interval: daily
+      interval: "weekly"
 
-  - package-ecosystem: npm
-    directory: /development/plot-benchmarks
+  - package-ecosystem: "npm"
+    directory: "/development/plot-benchmarks"
     schedule:
-      interval: daily
+      interval: "weekly"
 
-  - package-ecosystem: pip
-    directory: /development/project-creator
+  - package-ecosystem: "pip"
+    directory: "/development/project-creator"
     schedule:
-      interval: daily
+      interval: "weekly"
 
-  - package-ecosystem: npm
-    directory: /kotlin-js-store/wasm
+  - package-ecosystem: "npm"
+    directory: "/kotlin-js-store/wasm"
     schedule:
-      interval: daily
+      interval: "weekly"
 
-  - package-ecosystem: npm
-    directory: /kotlin-js-store
+  - package-ecosystem: "npm"
+    directory: "/kotlin-js-store"
     schedule:
-      interval: daily
+      interval: "weekly"
