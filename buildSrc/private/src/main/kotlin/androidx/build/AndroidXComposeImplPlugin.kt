@@ -120,7 +120,8 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             project.tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile>().configureEach {
                 it.compilerOptions.freeCompilerArgs.addAll(
                     "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
-                    "-opt-in=kotlin.experimental.ExperimentalNativeApi"
+                    "-opt-in=kotlin.experimental.ExperimentalNativeApi",
+                    "-opt-in=kotlin.js.ExperimentalWasmJsInterop",
                 )
             }
         }
