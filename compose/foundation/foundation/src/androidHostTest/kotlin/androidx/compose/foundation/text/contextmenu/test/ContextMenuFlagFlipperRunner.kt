@@ -33,7 +33,7 @@ import org.junit.runners.model.MultipleFailureException
 import org.junit.runners.model.Statement
 
 // KEEP THIS FILE UP TO DATE WITH
-// compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/contextmenu/test/ContextMenuFlagFlipperRunner.kt
+// compose/foundation/foundation/src/androidDeviceTest/kotlin/androidx/compose/foundation/text/contextmenu/test/ContextMenuFlagFlipperRunner.kt
 
 /**
  * Annotation that tells junit to **NOT** run the test or test class with

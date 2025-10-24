@@ -32,13 +32,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,6 +44,7 @@ import kotlin.concurrent.thread
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -58,7 +55,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CompositionRegistrationObserverTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     private lateinit var rootRecomposer: Recomposer
 
@@ -675,26 +673,6 @@ class CompositionRegistrationObserverTest {
 
         disposed = true
         handle.dispose()
-    }
-
-    // Regression test for b/434701720
-    @Test
-    fun forceRecompositionDuringInitialComposition() = runTest {
-        var someState by mutableStateOf(true)
-
-        setContent {
-            val someStateValue = someState
-
-            if (someStateValue) {
-                someState = false
-                // This is unnecessary cursed, but robolectric does that sometimes
-                composeTestRule.mainClock.advanceTimeByFrame()
-            }
-
-            Text("$someStateValue", Modifier.testTag("text"))
-        }
-
-        composeTestRule.onNodeWithTag("text").assertTextEquals("true")
     }
 
     private fun setContent(content: @Composable () -> Unit) {

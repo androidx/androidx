@@ -20,7 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.test.R;
 import androidx.test.filters.SdkSuppress;
@@ -177,7 +177,7 @@ public class CtsTest {
         int tw = expectedBitmap.getWidth();
         int th = expectedBitmap.getHeight();
         Bitmap localBitmap = blank(tw, th);
-        RemoteComposeDocument fileDoc = getDoc(mDocId, sAppContext);
+        RemoteDocument fileDoc = getDoc(mDocId, sAppContext);
         Bitmap fromFileBitmap = docToBitmap(tw, th, sAppContext, fileDoc);
         float diff = compareImages(expectedBitmap, fromFileBitmap, mName);
         if (diff > 8.0f) {
@@ -193,11 +193,11 @@ public class CtsTest {
         return BitmapFactory.decodeResource(context.getResources(), resourceId, opts);
     }
 
-    static RemoteComposeDocument getDoc(int resourceId, Context context) {
+    static RemoteDocument getDoc(int resourceId, Context context) {
 
         try (InputStream fis = context.getResources().openRawResource(resourceId)) {
             // Compress and write the bitmap to the file
-            RemoteComposeDocument doc = new RemoteComposeDocument(fis);
+            RemoteDocument doc = new RemoteDocument(fis);
             return doc;
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -206,7 +206,7 @@ public class CtsTest {
         }
     }
 
-    static Bitmap docToBitmap(int w, int h, Context appContext, RemoteComposeDocument doc) {
+    static Bitmap docToBitmap(int w, int h, Context appContext, RemoteDocument doc) {
         Bitmap bitmap = blank(w, h); // see below
         RemoteComposeView remoteCanvas = new RemoteComposeView(appContext);
         remoteCanvas.setDocument(doc);

@@ -36,7 +36,7 @@ import android.util.Log;
 
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.test.R;
 import androidx.test.filters.SdkSuppress;
@@ -62,7 +62,7 @@ public class ColorTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, run);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -92,7 +92,7 @@ public class ColorTest {
                     rdoc.drawPath(v);
                 };
         TestUtils.Callback use = cb == null ? basic : cb;
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, use);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, use);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         String result = debugContext.getTestResults();
@@ -234,7 +234,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         TestUtils.captureGold("clipPath", doc, appContext);
 
@@ -341,7 +341,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         TestUtils.captureGold("clipPath", doc, appContext);
 
@@ -440,7 +440,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         TestUtils.captureGold("clipPath", doc, appContext);
 
@@ -512,7 +512,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         Bitmap remoteBitmap = TestUtils.docToBitmap(tw, th, appContext, doc);
 
@@ -584,7 +584,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         TestUtils.captureGold("clipPath", doc, appContext);
 
@@ -658,7 +658,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         TestUtils.captureGold("clipPath", doc, appContext);
         final ArrayList<String> colors = new ArrayList<>();
@@ -777,7 +777,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         TestUtils.captureGold("clipPath", doc, appContext);
 
@@ -887,7 +887,7 @@ public class ColorTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         TestUtils.captureGold("clipPath", doc, appContext);
 

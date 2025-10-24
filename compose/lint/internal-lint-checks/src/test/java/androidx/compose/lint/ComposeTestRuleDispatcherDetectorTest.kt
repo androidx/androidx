@@ -31,7 +31,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
     private val activityStubs: TestFile =
         bytecodeStub(
             filename = "Activity.kt",
-            filepath = "androidx/activity",
+            filepath = "android/app",
             checksum = 0x8fba919,
             source =
                 """
@@ -136,6 +136,99 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
                 SjiQoXaNSl+H6b52LUUDiYMvj2pX+TZ7MzOQZvmmvRmdZuGGNP8zPQ2+ju4b8AJlA62fIM/jI0jV
                 4UkdVvAPq6jCWh2ewqdHQCR8Bs+OYErChARLQkHCvISShAo+MBIWJDyQsCSh/C9xLHUdbAoAAA==
             """,
+        )
+
+    private val composeUiTestStub: TestFile =
+        bytecodeStub(
+            filename = "ComposeUiTest.kt",
+            filepath = "androidx/compose/ui/test",
+            checksum = 0x50541813,
+            source =
+                """
+                package androidx.compose.ui.test
+
+                import java.lang.Class
+                import android.app.Activity
+                import kotlin.coroutines.CoroutineContext
+                import kotlin.coroutines.EmptyCoroutineContext
+
+                open class TestResult
+                interface ComposeUiTest
+                fun runComposeUiTest(
+                    effectContext: CoroutineContext = EmptyCoroutineContext,
+                    runTestContext: CoroutineContext = EmptyCoroutineContext,
+                    block: suspend ComposeUiTest.() -> Unit
+                ):TestResult = TODO()
+                fun runAndroidComposeUiTest(
+                    effectContext: CoroutineContext = EmptyCoroutineContext,
+                    runTestContext: CoroutineContext = EmptyCoroutineContext,
+                    block: suspend ComposeUiTest.() -> Unit
+                ):TestResult = TODO()
+                fun <A : Activity> runAndroidComposeUiTest(
+                    activityClass: Class<A>,
+                    effectContext: CoroutineContext = EmptyCoroutineContext,
+                    runTestContext: CoroutineContext = EmptyCoroutineContext,
+                    block: suspend ComposeUiTest.() -> Unit
+                ):TestResult = TODO()
+                """,
+            """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgAmJGBijg0uaSSMxLKcrPTKnQS87PLcgvTtUr
+                zdQrSS0uEeJ3hgiEZoYAud4lXKZc4tn5JTmZeSC1RfmlJZl5qcUQtVIgJc4w
+                QZfM4oLEkuSM1KJi7xIlBi0GANn54cp8AAAA
+                """,
+            """
+                androidx/compose/ui/test/ComposeUiTest.class:
+                H4sIAAAAAAAA/41Oy0oDQRCsntUkrq+NGog/IJ6cJHjzJIKwEBF8XfY02R1l
+                spsZycyGHPNdHiRnP0rsNSdvdkNVVzV09df3xyeAS/QIZ8oWc2eKpczd7N15
+                LWsjg/ZB3mz0s3li1QYRkqlaKFkp+ybvJ1OdsxsRuuPShcpYeaeDKlRQVwQx
+                W0ScIBqgBkCgkv2ladSAp2JI6K1XnVj0RSwSnl7769VIDKhZjgjn4/+9xnF8
+                PfnjXZSBED+6ep7rW1NpwulDbYOZ6RfjzaTS19a6oIJx1rc4D1vYlMDxLx7h
+                hHnIh7e5WxmiFO0UnRQ7iJmxm2IP+xnI4wCHGYRH4tH9AdGYtztbAQAA
+                """,
+            """
+                androidx/compose/ui/test/ComposeUiTestKt.class:
+                H4sIAAAAAAAA/+VWXVNbRRh+9iQkJyEJ4VAopKWlQOWr6Umxam0QjXxIbKC1
+                UGYcblySAx6SnJM5e8LQG4d/4LV3Tn+Boxd2dMYyXvqjOr57cgKBgAWteOFM
+                svvu7vv1PPvu7vnj9S+/AbiPpwzj3Co5tlna04t2tWYLQ6+bumsIV59rjJ+Z
+                azR65IbBGJI7fJfrFW5t6483d4wizQZo1qlbx7QZvh0vlG23Ylrk1rHrrmkZ
+                gjz64pxtucaem72Izs5uVd+qW0XXtC2hL/rSdHaicCYCmcpTQ9Qrbpbh9WVl
+                NJM+O6NjLGXTp0azSKhz6WrmUOGZZbrZ2exU4ST/NHleAkYKtrOt7xjupsNN
+                Sphblu3yRvIrtrtSr1RIK25sbZFfH6uKCMONFrwmTTsWr+h5y3XIi1kUYXQy
+                9Ba/Nopl380T7vCqQYoMY+PtKbfMrEon29mJ9RjiSEQRQxdDgspJZn6YQzdD
+                x2bFLpZV9DCk/HQoWL5aqxhVg9RKC45jO2H0MoRmTGJrlmF+vD1SvnAamHlj
+                ixNJFFC4Tr3o2s4yd8qG4yV2Ff1R9GGAYfQ81cEw9KaSZeg/eWJGS40UGF5c
+                2snJt2/NeWtprD38QrXmPj+ZQxg3GdT8yupabmVugWHilLxPNczGcAvDEQxh
+                hGH4zWDDuB1DB0JRKBhjuEr85hpITlxMN89YaW5ADBMNL1MM37cW0FyFC3Eh
+                3i/hVmN3Z3IPm6o6r9X0HDnYNd3n2dm25GfWcnRd/M9vwTj3CfIoUaEzdLft
+                MsNP/93W/+1jKUs3LUv3XYnJj7JsuLzEXU6YlOpugJ59RTZMNmBgZZrfM+Uo
+                Q1LpHmOzB/sPogf7UaVfaXaKqjT65j8p/4eLgVbdg/3UEi2llAybVlXSJCng
+                SUFPGkt2pEZUpgU1JRPWoprqSZGMqoW0YD/LRDOh31+EFLVTtskYOYu/NV9f
+                NXwNq+rBfjIxqWS6pmPJZMozW0pkut9CEE2yOM1w+5z1qDU3qvV5GD/v2Wl5
+                bM44PaRC23yjqbWw5xr0attWM9za85pBOizH0Hf6RULfd8eC3i3TNRqcs0sG
+                Q1eBAq7Uq5uGs8Y3K4bEYxd5ZZ07phz7k5FVc9vibt0h+drTOmVXNfLWrilM
+                Ws4dfYfQE3ty9fBb4phafNXlxfIyr/kBoqt23Skai6YcDPg+1tv84x6djqCs
+                fIQwIN8LGuVptEGyPAODk1r0JZJTmkbtHe0Ktb+i70sWZD8j9UoeHnzuGRNQ
+                dOERyUMNQ0RwzXM8iG6SmCf14DpZFDy7MJZ9S5X6Ffr3BPxBS5uMkNkNkmVW
+                q+S6g/pbg8FvvkP0R4we4J1Hgx1Hg8Lk1J2XGP/Bi/CY2iCUeMzLsc8z7aSI
+                8tuqk3KJI0X9gHzg/gnsK/8O7MkLw75zNuwkRewmwEnKRSPYSQ922oddJh1Z
+                BSOTWsaDHfVgS/DpvwTfT64k+MmGOXQqKHhSxAc/4tGgeJKkIeDTcLeNhoFg
+                Ow0tZEz7ZKxTqBD1o73BVgJ6g+Gj0TLRkX6J+8f4SMRb+OilfbiKBPW9BOI6
+                tQqeeNpL+IL6EkV7jzTf30Agjw/yeJDHh3hIIrJ5zOCjDTCBWXy8gR6BDoFP
+                BCIC1wS6hZzJCXwqMCcw7/0WBEICEwKLAp8J6HTwBNJ/Au6Sg6l3DgAA
+                """,
+            """
+                androidx/compose/ui/test/TestResult.class:
+                H4sIAAAAAAAA/41QwUojQRSs7kkmcYzrJLrZqOthEUE9ODEIHnYRXEEIRAV1
+                c8mpk2m0k0m3pHvEY77FP/Ak7GEJHvejFl9HP2Av9bqqHq/rvb//fv8BcIhN
+                hi2h04lR6WMyMON7Y2WSq8RJ65Ibgitp88yVwBjioXgQSSb0bXLZH8oBqQFD
+                +ENp5Y4Zgp3dbgVFhBEKKDEU3J2yDNud/5j/naHaGRmXKZ2cSydS4QRpfPwQ
+                UEzugXkAAxuR/qg8a9IrPaANZtNKxBs84vFsGvEyL9cbs2mLN9nP0utTWCjz
+                OPCtLeYHxKfvMX4p///+yFHUU5NKhuWO0vIiH/fl5Eb0M1JqHTMQWVdMlOcf
+                YnRt8slAnilP1q5y7dRYdpVV5J5obZxwymiLb+B0iY/U/jCEDWLJnAPFvReU
+                n/1+WCMM5+IC1gkr7w3Eorm/Mccv+Er1iLxF8io9BG0stfGpjWXEVFFto4aV
+                HpjFKj73ULCILOoWRYvwDas7YYP0AQAA
+                """,
         )
 
     private val coroutinesTestStubs =
@@ -365,7 +458,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                src/com/example/test/MyComposeTest.kt:7: Error: TestDispatcher is required. Add StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                src/com/example/test/MyComposeTest.kt:7: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
                     val rule = createComposeRule()
                                ~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
@@ -374,10 +467,10 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 7: Replace with createComposeRule(kotlinx.coroutines.test.StandardTestDispatcher()):
+            Fix for src/com/example/test/MyComposeTest.kt line 7: Add effectContext = StandardTestDispatcher():
             @@ -7 +7 @@
             -    val rule = createComposeRule()
-            +    val rule = createComposeRule(StandardTestDispatcher())
+            +    val rule = createComposeRule(effectContext = StandardTestDispatcher())
         """
                     .trimIndent()
             )
@@ -417,7 +510,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 8: Replace with kotlinx.coroutines.test.StandardTestDispatcher():
+            Fix for src/com/example/test/MyComposeTest.kt line 8: Replace with StandardTestDispatcher():
             @@ -8 +8 @@
             -    val rule = createComposeRule(UnconfinedTestDispatcher())
             +    val rule = createComposeRule(StandardTestDispatcher())
@@ -501,7 +594,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                src/com/example/test/MyComposeTest.kt:7: Error: TestDispatcher is required. Add StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                src/com/example/test/MyComposeTest.kt:7: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
                     val rule = createEmptyComposeRule()
                                ~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
@@ -510,10 +603,10 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 7: Replace with createEmptyComposeRule(kotlinx.coroutines.test.StandardTestDispatcher()):
+            Fix for src/com/example/test/MyComposeTest.kt line 7: Add effectContext = StandardTestDispatcher():
             @@ -7 +7 @@
             -    val rule = createEmptyComposeRule()
-            +    val rule = createEmptyComposeRule(StandardTestDispatcher())
+            +    val rule = createEmptyComposeRule(effectContext = StandardTestDispatcher())
             """
                     .trimIndent()
             )
@@ -553,7 +646,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 8: Replace with kotlinx.coroutines.test.StandardTestDispatcher():
+            Fix for src/com/example/test/MyComposeTest.kt line 8: Replace with StandardTestDispatcher():
             @@ -8 +8 @@
             -    val rule = createEmptyComposeRule(UnconfinedTestDispatcher())
             +    val rule = createEmptyComposeRule(StandardTestDispatcher())
@@ -639,7 +732,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                src/com/example/test/MyComposeTest.kt:8: Error: TestDispatcher is required. Add StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                src/com/example/test/MyComposeTest.kt:8: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
                     val rule = createAndroidComposeRule<ComponentActivity>()
                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
@@ -648,10 +741,10 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 8: Replace with createAndroidComposeRule<ComponentActivity>(kotlinx.coroutines.test.StandardTestDispatcher()):
+            Fix for src/com/example/test/MyComposeTest.kt line 8: Add effectContext = StandardTestDispatcher():
             @@ -8 +8 @@
             -    val rule = createAndroidComposeRule<ComponentActivity>()
-            +    val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+            +    val rule = createAndroidComposeRule<ComponentActivity>(effectContext = StandardTestDispatcher())
             """
                     .trimIndent()
             )
@@ -693,7 +786,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 9: Replace with kotlinx.coroutines.test.StandardTestDispatcher():
+            Fix for src/com/example/test/MyComposeTest.kt line 9: Replace with StandardTestDispatcher():
             @@ -9 +9 @@
             -    val rule = createAndroidComposeRule<ComponentActivity>(UnconfinedTestDispatcher())
             +    val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
@@ -731,7 +824,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                src/com/example/test/MyComposeTest.kt:10: Error: TestDispatcher is required. Add StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                src/com/example/test/MyComposeTest.kt:10: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
                     val rule = createAndroidComposeRule(ComponentActivity::class.java)
                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
@@ -740,10 +833,10 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 10: Replace with createAndroidComposeRule(ComponentActivity::class.java, kotlinx.coroutines.test.StandardTestDispatcher()):
+            Fix for src/com/example/test/MyComposeTest.kt line 10: Add effectContext = StandardTestDispatcher():
             @@ -10 +10 @@
             -    val rule = createAndroidComposeRule(ComponentActivity::class.java)
-            +    val rule = createAndroidComposeRule(ComponentActivity::class.java, StandardTestDispatcher())
+            +    val rule = createAndroidComposeRule(ComponentActivity::class.java, effectContext = StandardTestDispatcher())
             """
                     .trimIndent()
             )
@@ -791,7 +884,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Fix for src/com/example/test/MyComposeTest.kt line 13: Replace with kotlinx.coroutines.test.StandardTestDispatcher():
+            Fix for src/com/example/test/MyComposeTest.kt line 13: Replace with StandardTestDispatcher():
             @@ -13 +13 @@
             -        UnconfinedTestDispatcher()
             +        StandardTestDispatcher()
@@ -958,7 +1051,7 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-                Fix for src/com/example/test/MyComposeTest.kt line 9: Replace with kotlinx.coroutines.test.StandardTestDispatcher():
+                Fix for src/com/example/test/MyComposeTest.kt line 9: Replace with StandardTestDispatcher():
                 @@ -4,0 +5 @@
                 +import kotlinx.coroutines.test.StandardTestDispatcher
                 @@ -9 +10 @@
@@ -1026,5 +1119,421 @@ class ComposeTestRuleDispatcherDetectorTest : LintDetectorTest() {
             )
             .run()
             .expectClean()
+    }
+
+    @Test
+    fun runComposeUiTest_with_no_dispatcher_and_trailing_lambda() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runComposeUiTest
+
+                        class MyComposeTest {
+                            fun myTest() = runComposeUiTest {
+                                // test body
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:5: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                    fun myTest() = runComposeUiTest {
+                                   ^
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 5: Add effectContext = StandardTestDispatcher():
+                @@ -2,0 +3 @@
+                +import kotlinx.coroutines.test.StandardTestDispatcher
+                @@ -5 +6 @@
+                -    fun myTest() = runComposeUiTest {
+                +    fun myTest() = runComposeUiTest(effectContext = StandardTestDispatcher()) {
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun runComposeUiTest_with_unconfinedTestDispatcher() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runComposeUiTest
+                        import kotlinx.coroutines.test.UnconfinedTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:7: Error: Use StandardTestDispatcher() instead of UnconfinedTestDispatcher(). [ComposeTestRuleDispatcher]
+                        runComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
+                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 7: Replace with StandardTestDispatcher():
+                @@ -2,0 +3 @@
+                +import kotlinx.coroutines.test.StandardTestDispatcher
+                @@ -7 +8 @@
+                -        runComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
+                +        runComposeUiTest(effectContext = StandardTestDispatcher()) {
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun runComposeUiTest_with_standardTestDispatcher() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runComposeUiTest
+                        import kotlinx.coroutines.test.StandardTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runComposeUiTest(effectContext = StandardTestDispatcher()) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun runComposeUiTest_with_runTestContext_but_missing_effectContext() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runComposeUiTest
+                        import kotlinx.coroutines.test.StandardTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runComposeUiTest(runTestContext = StandardTestDispatcher()) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:7: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                        runComposeUiTest(runTestContext = StandardTestDispatcher()) {
+                        ^
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 7: Add effectContext = StandardTestDispatcher():
+                @@ -7 +7 @@
+                -        runComposeUiTest(runTestContext = StandardTestDispatcher()) {
+                +        runComposeUiTest(runTestContext = StandardTestDispatcher(), effectContext = StandardTestDispatcher()) {
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun runComposeUiTest_with_unconfined_effectContext() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runComposeUiTest
+                        import kotlinx.coroutines.test.StandardTestDispatcher
+                        import kotlinx.coroutines.test.UnconfinedTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runComposeUiTest(
+                                    runTestContext = StandardTestDispatcher(),
+                                    effectContext = UnconfinedTestDispatcher()
+                                ) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:10: Error: Use StandardTestDispatcher() instead of UnconfinedTestDispatcher(). [ComposeTestRuleDispatcher]
+                            effectContext = UnconfinedTestDispatcher()
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 10: Replace with StandardTestDispatcher():
+                @@ -10 +10 @@
+                -            effectContext = UnconfinedTestDispatcher()
+                +            effectContext = StandardTestDispatcher()
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun runAndroidComposeUiTest_with_no_dispatcher_and_trailing_lambda() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runAndroidComposeUiTest
+
+                        class MyComposeTest {
+                            fun myTest() = runAndroidComposeUiTest {
+                                // test body
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:5: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                    fun myTest() = runAndroidComposeUiTest {
+                                   ^
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 5: Add effectContext = StandardTestDispatcher():
+                @@ -2,0 +3 @@
+                +import kotlinx.coroutines.test.StandardTestDispatcher
+                @@ -5 +6 @@
+                -    fun myTest() = runAndroidComposeUiTest {
+                +    fun myTest() = runAndroidComposeUiTest(effectContext = StandardTestDispatcher()) {
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun runAndroidComposeUiTest_with_unconfinedTestDispatcher() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runAndroidComposeUiTest
+                        import kotlinx.coroutines.test.UnconfinedTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runAndroidComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:7: Error: Use StandardTestDispatcher() instead of UnconfinedTestDispatcher(). [ComposeTestRuleDispatcher]
+                        runAndroidComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
+                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 7: Replace with StandardTestDispatcher():
+                @@ -2,0 +3 @@
+                +import kotlinx.coroutines.test.StandardTestDispatcher
+                @@ -7 +8 @@
+                -        runAndroidComposeUiTest(effectContext = UnconfinedTestDispatcher()) {
+                +        runAndroidComposeUiTest(effectContext = StandardTestDispatcher()) {
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun runAndroidComposeUiTest_with_standardTestDispatcher() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runAndroidComposeUiTest
+                        import kotlinx.coroutines.test.StandardTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runAndroidComposeUiTest(effectContext = StandardTestDispatcher()) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun runAndroidComposeUiTest_with_runTestContext_but_missing_effectContext() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runAndroidComposeUiTest
+                        import kotlinx.coroutines.test.StandardTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runAndroidComposeUiTest(runTestContext = StandardTestDispatcher()) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:7: Error: TestDispatcher is required. Add effectContext = StandardTestDispatcher() to control coroutine execution. [ComposeTestRuleDispatcher]
+                        runAndroidComposeUiTest(runTestContext = StandardTestDispatcher()) {
+                        ^
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 7: Add effectContext = StandardTestDispatcher():
+                @@ -7 +7 @@
+                -        runAndroidComposeUiTest(runTestContext = StandardTestDispatcher()) {
+                +        runAndroidComposeUiTest(runTestContext = StandardTestDispatcher(), effectContext = StandardTestDispatcher()) {
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun runAndroidComposeUiTest_with_unconfined_effectContext() {
+        lint()
+            .files(
+                composeUiTestStub,
+                coroutinesTestStubs,
+                kotlin(
+                        """
+                        package com.example.test
+                        import androidx.compose.ui.test.runAndroidComposeUiTest
+                        import kotlinx.coroutines.test.StandardTestDispatcher
+                        import kotlinx.coroutines.test.UnconfinedTestDispatcher
+
+                        class MyComposeTest {
+                            fun myTest() {
+                                runAndroidComposeUiTest(
+                                    runTestContext = StandardTestDispatcher(),
+                                    effectContext = UnconfinedTestDispatcher()
+                                ) {
+                                    // test body
+                                }
+                            }
+                        }
+                        """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test/MyComposeTest.kt:10: Error: Use StandardTestDispatcher() instead of UnconfinedTestDispatcher(). [ComposeTestRuleDispatcher]
+                            effectContext = UnconfinedTestDispatcher()
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/test/MyComposeTest.kt line 10: Replace with StandardTestDispatcher():
+                @@ -10 +10 @@
+                -            effectContext = UnconfinedTestDispatcher()
+                +            effectContext = StandardTestDispatcher()
+                """
+                    .trimIndent()
+            )
     }
 }

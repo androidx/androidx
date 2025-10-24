@@ -143,6 +143,10 @@ public abstract class DimensionModifierOperation extends Operation
         mOutValue = mValue = value;
     }
 
+    public void setType(@NonNull Type type) {
+        mType = type;
+    }
+
     /**
      * Returns the serialized name for this operation
      *

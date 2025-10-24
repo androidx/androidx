@@ -165,10 +165,10 @@ public class RemoteComposeState implements CollectionsAccess {
     }
 
     /**
-     * The path data the Array of floats that is asoicated with the path It also removes the current
-     * path object.
+     * The path data the Array of floats that is associated with the path It also removes the
+     * current path object.
      *
-     * @param id the integer asociated with the data and path
+     * @param id the integer associated with the data and path
      * @param data the array of floats that represents the path
      */
     public void putPathData(int id, float @NonNull [] data) {

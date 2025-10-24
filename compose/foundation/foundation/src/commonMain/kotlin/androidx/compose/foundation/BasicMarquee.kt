@@ -58,7 +58,6 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireGraphicsContext
-import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -71,7 +70,6 @@ import kotlin.jvm.JvmInline
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.roundToInt
-import kotlin.math.sign
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -137,7 +135,8 @@ object MarqueeDefaults {
  *   [WhileFocused], otherwise the initial delay will be [repeatDelayMillis].
  * @param spacing A [MarqueeSpacing] that specifies how much space to leave at the end of the
  *   content before showing the beginning again.
- * @param velocity The speed of the animation in dps / second.
+ * @param velocity The speed of the animation in dps / second. A positive velocity means that the
+ *   marquee will animate in the direction of the current [LayoutDirection].
  */
 @Stable
 fun Modifier.basicMarquee(
@@ -216,14 +215,11 @@ private class MarqueeModifierNode(
     var spacing: MarqueeSpacing by mutableStateOf(spacing)
     var animationMode: MarqueeAnimationMode by mutableStateOf(animationMode)
 
+    /**
+     * The animation of the marquee content - this is always in the range
+     * [0, contentWidth + spacingWidth].
+     */
     private val offset = Animatable(0f)
-    private val direction
-        get() =
-            sign(velocity.value) *
-                when (requireLayoutDirection()) {
-                    LayoutDirection.Ltr -> 1
-                    LayoutDirection.Rtl -> -1
-                }
 
     private val spacingPx by derivedStateOf {
         with(spacing) { requireDensity().calculateSpacing(contentWidth, containerWidth) }
@@ -293,7 +289,7 @@ private class MarqueeModifierNode(
         return layout(containerWidth, placeable.height) {
             // Placing the marquee content in a layer means we don't invalidate the parent draw
             // scope on every animation frame.
-            placeable.placeWithLayer(x = (-offset.value * direction).roundToInt(), y = 0)
+            placeable.placeWithLayer(0, 0)
         }
     }
 
@@ -323,22 +319,32 @@ private class MarqueeModifierNode(
     ): Int = measurable.maxIntrinsicHeight(Constraints.Infinity)
 
     override fun ContentDrawScope.draw() {
-        val clipOffset = offset.value * direction
-        val firstCopyVisible =
-            when (direction) {
-                1f -> offset.value < contentWidth
-                else -> offset.value < containerWidth
+        // Drawing and clipping strategy:
+        // In both layout directions and for all velocities, we draw the first copy of the content
+        // in [0, contentWidth], and the second copy in
+        // [contentWidth + spacingPx, contentWidth * 2 + spacingPx]
+        // We then calculate the clip window offset such that we move the correct direction, and
+        // have the correct starting point, based on the layout direction and velocity.
+        // Our resulting sliding window of
+        // [clipWindowOffset, clipWindowOffset + containerWidth] should always be contained within
+        // [0, contentWidth * 2 + spacingPx].
+        val clipWindowOffset =
+            if (velocity > 0.dp) {
+                when (layoutDirection) {
+                    LayoutDirection.Ltr -> offset.value
+                    LayoutDirection.Rtl ->
+                        -offset.value + contentWidth * 2 + spacingPx - containerWidth
+                }
+            } else {
+                when (layoutDirection) {
+                    LayoutDirection.Ltr -> -offset.value + contentWidth + spacingPx
+                    LayoutDirection.Rtl -> offset.value + contentWidth - containerWidth
+                }
             }
-        val secondCopyVisible =
-            when (direction) {
-                1f -> offset.value > (contentWidth + spacingPx) - containerWidth
-                else -> offset.value > spacingPx
-            }
-        val secondCopyOffset =
-            when (direction) {
-                1f -> contentWidth + spacingPx
-                else -> -contentWidth - spacingPx
-            }.toFloat()
+
+        val firstCopyVisible = clipWindowOffset < contentWidth
+        val secondCopyVisible = clipWindowOffset + containerWidth > contentWidth + spacingPx
+        val secondCopyOffset = (contentWidth + spacingPx).toFloat()
 
         val drawHeight = size.height
         marqueeLayer?.let { layer ->
@@ -346,24 +352,29 @@ private class MarqueeModifierNode(
                 this@draw.drawContent()
             }
         }
-        clipRect(left = clipOffset, right = clipOffset + containerWidth) {
-            val layer = marqueeLayer
-            // Unless there are circumstances where the Modifier's draw call can be invoked without
-            // an attach call, the else case here is optional. However we can be safe and make sure
-            // that we definitely draw even when the layer could not be initialized for any reason.
-            if (layer != null) {
-                if (firstCopyVisible) {
-                    drawLayer(layer)
-                }
-                if (secondCopyVisible) {
-                    translate(left = secondCopyOffset) { drawLayer(layer) }
-                }
-            } else {
-                if (firstCopyVisible) {
-                    this@draw.drawContent()
-                }
-                if (secondCopyVisible) {
-                    translate(left = secondCopyOffset) { this@draw.drawContent() }
+        clipRect(right = containerWidth.toFloat()) {
+            translate(left = -clipWindowOffset) {
+                val layer = marqueeLayer
+                // Unless there are circumstances where the Modifier's draw call can be invoked
+                // without
+                // an attach call, the else case here is optional. However we can be safe and make
+                // sure
+                // that we definitely draw even when the layer could not be initialized for any
+                // reason.
+                if (layer != null) {
+                    if (firstCopyVisible) {
+                        drawLayer(layer)
+                    }
+                    if (secondCopyVisible) {
+                        translate(left = secondCopyOffset) { drawLayer(layer) }
+                    }
+                } else {
+                    if (firstCopyVisible) {
+                        this@draw.drawContent()
+                    }
+                    if (secondCopyVisible) {
+                        translate(left = secondCopyOffset) { this@draw.drawContent() }
+                    }
                 }
             }
         }

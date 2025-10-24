@@ -49,18 +49,6 @@ public class TouchCancelModifierOperation extends ListActionsOperation implement
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {
-        if (context.getDocument() == null) {
-            return;
-        }
-        RootLayoutComponent root = context.getDocument().getRootLayoutComponent();
-        if (root != null) {
-            root.setHasTouchListeners(true);
-        }
-        super.apply(context);
-    }
-
-    @Override
     public void onTouchDown(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,

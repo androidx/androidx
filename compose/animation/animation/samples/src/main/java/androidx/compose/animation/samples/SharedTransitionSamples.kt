@@ -82,7 +82,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
@@ -552,7 +551,6 @@ fun BackHandler(content: @Composable () -> Unit) {
     TODO("Not yet implemented")
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun DynamicallyEnabledSharedElementInPagerSample() {
@@ -603,40 +601,50 @@ fun DynamicallyEnabledSharedElementInPagerSample() {
                             .sharedElement(
                                 rememberSharedContentState(
                                     color,
-                                    SharedContentConfig {
-                                        // This is a lambda that returns a Boolean indicating
-                                        // whether shared element should be enabled.
-                                        val nonNullCoordinates =
-                                            // If the item has never been placed, we will consider
-                                            // it enabled.
-                                            coordinates ?: return@SharedContentConfig true
+                                    object : SharedTransitionScope.SharedContentConfig {
+                                        override val SharedContentState.isEnabled: Boolean
+                                            get() {
+                                                // This is a lambda that returns a Boolean
+                                                // indicating
+                                                // whether shared element should be enabled.
+                                                val nonNullCoordinates =
+                                                    // If the item has never been placed, we will
+                                                    // consider
+                                                    // it enabled.
+                                                    coordinates ?: return true
 
-                                        // In this specific case, we will use the
-                                        // SharedTransitionLayout to approximate viewport.
-                                        val scopeCoords =
-                                            // Obtain the coordinates of the SharedTransitionLayout/
-                                            // SharedTransitionScope.
-                                            // Since SharedTransitionScope is a LookaheadScope, we
-                                            // can use `lookaheadScopeCoordinates` to acquire the
-                                            // coordinates of the scope.
-                                            nonNullCoordinates.lookaheadScopeCoordinates(
-                                                this@SharedTransitionLayout
-                                            )
-                                        val (w, h) = scopeCoords.size
-                                        // Calculate the relative position of the item within
-                                        // SharedTransitionLayout.
-                                        val positionInScope =
-                                            scopeCoords.localPositionOf(nonNullCoordinates)
-                                        // Check the left, top, right, bottom of the relative
-                                        // bounds of the item to see if it is within
-                                        // SharedTransitionLayout. This result will inform
-                                        // whether shared element transition should be enabled
-                                        // for this item.
-                                        positionInScope.x >= 0 &&
-                                            positionInScope.y >= 0 &&
-                                            positionInScope.x + nonNullCoordinates.size.width <=
-                                                w &&
-                                            positionInScope.y + nonNullCoordinates.size.height <= h
+                                                // In this specific case, we will use the
+                                                // SharedTransitionLayout to approximate viewport.
+                                                val scopeCoords =
+                                                    // Obtain the coordinates of the
+                                                    // SharedTransitionLayout/
+                                                    // SharedTransitionScope.
+                                                    // Since SharedTransitionScope is a
+                                                    // LookaheadScope, we
+                                                    // can use `lookaheadScopeCoordinates` to
+                                                    // acquire the
+                                                    // coordinates of the scope.
+                                                    lookaheadScopeCoordinates(nonNullCoordinates)
+                                                val (w, h) = scopeCoords.size
+                                                // Calculate the relative position of the item
+                                                // within
+                                                // SharedTransitionLayout.
+                                                val positionInScope =
+                                                    scopeCoords.localPositionOf(nonNullCoordinates)
+                                                // Check the left, top, right, bottom of the
+                                                // relative
+                                                // bounds of the item to see if it is within
+                                                // SharedTransitionLayout. This result will inform
+                                                // whether shared element transition should be
+                                                // enabled
+                                                // for this item.
+                                                return positionInScope.x >= 0 &&
+                                                    positionInScope.y >= 0 &&
+                                                    positionInScope.x +
+                                                        nonNullCoordinates.size.width <= w &&
+                                                    positionInScope.y +
+                                                        nonNullCoordinates.size.height <= h
+                                            }
                                     },
                                 ),
                                 this@AnimatedContent,
@@ -759,13 +767,15 @@ fun DynamicallyEnableSharedElementsSample() {
 
                 val config = remember {
                     // Creates a SharedContentConfig to dynamically enable/disable shared elements
-                    SharedContentConfig {
-                        // Returns whether a shared element should be enabled based on
-                        // the current state of the target state of the AnimatedContent.
-                        listOfEnabledStatePairs.contains(
-                            animatedContentTransition.currentState to
-                                animatedContentTransition.targetState
-                        )
+                    object : SharedTransitionScope.SharedContentConfig {
+                        override val SharedContentState.isEnabled: Boolean
+                            get() =
+                                // Returns whether a shared element should be enabled based on
+                                // the current state of the target state of the AnimatedContent.
+                                listOfEnabledStatePairs.contains(
+                                    animatedContentTransition.currentState to
+                                        animatedContentTransition.targetState
+                                )
                     }
                 }
                 animatedContentTransition.AnimatedContent(

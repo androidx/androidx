@@ -19,5 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="tooltip_description" msgid="3765533235322692011">"qalqib chiquvchi maslahat oynasi"</string>
     <string name="tooltip_label" msgid="3124740595719787496">"maslahat oynasini koʻrsatish"</string>
-    <string name="androidx_compose_foundation_autofill" msgid="389117264260014992">"Avtomatik kiritish"</string>
+    <string name="androidx_compose_foundation_autofill" msgid="8719607706653693137">"Avtomatik kiritish"</string>
 </resources>

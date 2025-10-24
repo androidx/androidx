@@ -23,11 +23,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.BlendMode;
 import android.graphics.Canvas;
+import android.graphics.ComposePathEffect;
+import android.graphics.DashPathEffect;
+import android.graphics.DiscretePathEffect;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathDashPathEffect;
+import android.graphics.PathEffect;
 import android.graphics.PathMeasure;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -38,6 +43,7 @@ import android.graphics.RenderEffect;
 import android.graphics.RenderNode;
 import android.graphics.RuntimeShader;
 import android.graphics.Shader;
+import android.graphics.SumPathEffect;
 import android.graphics.SweepGradient;
 import android.graphics.Typeface;
 import android.graphics.fonts.Font;
@@ -53,7 +59,7 @@ import android.text.TextUtils;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.PaintContext;
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ClipPath;
 import androidx.compose.remote.core.operations.ShaderData;
@@ -62,6 +68,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.paint.PaintChanges;
+import androidx.compose.remote.core.operations.paint.PaintPathEffects;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -434,7 +441,7 @@ public class AndroidPaintContext extends PaintContext {
     }
 
     @Override
-    public Platform.@Nullable ComputedTextLayout layoutComplexText(
+    public RcPlatformServices.@Nullable ComputedTextLayout layoutComplexText(
             int textId,
             int start,
             int end,
@@ -515,7 +522,8 @@ public class AndroidPaintContext extends PaintContext {
     }
 
     @Override
-    public void drawComplexText(Platform.@Nullable ComputedTextLayout computedTextLayout) {
+    public void drawComplexText(
+            RcPlatformServices.@Nullable ComputedTextLayout computedTextLayout) {
         if (computedTextLayout == null) {
             return;
         }
@@ -849,6 +857,57 @@ public class AndroidPaintContext extends PaintContext {
                 }
 
                 @Override
+                public void setPathEffect(float @Nullable [] pathEffect) {
+                    if (pathEffect == null) {
+                        mPaint.setPathEffect(null);
+                        return;
+                    }
+                    PaintPathEffects pe = PaintPathEffects.parse(pathEffect, 0);
+                    mPaint.setPathEffect(getPathEffect(pe));
+                }
+
+                private PathEffect getPathEffect(PaintPathEffects pe) {
+                    if (pe == null) {
+                        return null;
+                    }
+                    int type = pe.getType();
+                    PathEffect ret;
+                    switch (type) {
+                        case PaintPathEffects.DASH:
+                            PaintPathEffects.Dash dash = (PaintPathEffects.Dash) pe;
+                            ret = new DashPathEffect(dash.mIntervals, dash.mPhase);
+                            break;
+                        case PaintPathEffects.DISCRETE_PATH:
+                            PaintPathEffects.Discrete discrete = (PaintPathEffects.Discrete) pe;
+                            ret = new DiscretePathEffect(discrete.mSegmentLength,
+                                    discrete.mDeviation);
+                            break;
+                        case PaintPathEffects.PATH_DASH:
+                            PaintPathEffects.PathDash pathDash = (PaintPathEffects.PathDash) pe;
+                            ret = new PathDashPathEffect(
+                                    getPath(pathDash.mShapeId, 0f, 1f),
+                                    pathDash.mAdvance,
+                                    pathDash.mPhase,
+                                    PathDashPathEffect.Style.values()[pathDash.mStyle]);
+                            break;
+                        case PaintPathEffects.SUM:
+                            PaintPathEffects.Sum sum = (PaintPathEffects.Sum) pe;
+                            ret = new SumPathEffect(getPathEffect(sum.mFirst),
+                                    getPathEffect(sum.mSecond));
+                            break;
+                        case PaintPathEffects.COMPOSE:
+                            PaintPathEffects.Compose compose = (PaintPathEffects.Compose) pe;
+                            ret = new ComposePathEffect(getPathEffect(compose.mOuterPE),
+                                    getPathEffect(compose.mInnerPE));
+                            break;
+                        default:
+                            ret = null;
+                    }
+                    return ret;
+                }
+
+
+                @Override
                 public void setStrokeWidth(float width) {
                     mPaint.setStrokeWidth(width);
                 }
@@ -885,7 +944,14 @@ public class AndroidPaintContext extends PaintContext {
                     for (int i = 0; i < names.length; i++) {
                         String name = names[i];
                         float[] val = data.getUniformFloats(name);
-                        shader.setFloatUniform(name, val);
+                        if (val.length == 1 && Float.isNaN(val[0])) {
+                            // check if dynamic array
+                            float[] values = mContext.getCollectionsAccess().getDynamicFloats(
+                                    Utils.idFromNan(val[0]));
+                            shader.setFloatUniform(name, values);
+                        } else {
+                            shader.setFloatUniform(name, val);
+                        }
                     }
                     names = data.getUniformIntegerNames();
                     for (int i = 0; i < names.length; i++) {

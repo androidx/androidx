@@ -73,5 +73,6 @@ internal actual fun getSystemThemeObserver(): SystemThemeObserver =
 
 // supported by all browsers since 2015
 // https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia
-@JsFun("() => window.matchMedia != undefined")
-private external fun isMatchMediaSupported(): Boolean
+// Changed from `@JsFun` annotation because in 2.2.20 it's marked as not available on LV = 2.0
+// TODO: Cannot add opt-in with LV = 2.0 due to https://youtrack.jetbrains.com/issue/KT-79716
+private fun isMatchMediaSupported(): Boolean = js("window.matchMedia != undefined")

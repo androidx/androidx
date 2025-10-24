@@ -18,15 +18,19 @@
 package androidx.compose.remote.creation
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.Platform
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
+import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.actions.Action
+import androidx.compose.remote.creation.modifiers.ComponentLayoutChanges
+import androidx.compose.remote.creation.modifiers.ComponentLayoutComputeModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.Profile
 
@@ -53,7 +57,12 @@ public open class RemoteComposeContext {
         content()
     }
 
-    public constructor(width: Int, height: Int, contentDescription: String, platform: Platform) {
+    public constructor(
+        width: Int,
+        height: Int,
+        contentDescription: String,
+        platform: RcPlatformServices,
+    ) {
         mRemoteWriter = RemoteComposeWriter(width, height, contentDescription, platform)
     }
 
@@ -61,7 +70,7 @@ public open class RemoteComposeContext {
         width: Int,
         height: Int,
         contentDescription: String,
-        platform: Platform,
+        platform: RcPlatformServices,
         content: RemoteComposeContext.() -> Unit,
     ) {
         mRemoteWriter = RemoteComposeWriter(width, height, contentDescription, platform)
@@ -74,7 +83,7 @@ public open class RemoteComposeContext {
         contentDescription: String,
         apiLevel: Int,
         profiles: Int,
-        platform: Platform,
+        platform: RcPlatformServices,
         content: RemoteComposeContext.() -> Unit,
     ) {
         mRemoteWriter =
@@ -88,7 +97,7 @@ public open class RemoteComposeContext {
         contentDescription: String,
         apiLevel: Int,
         profiles: Int,
-        platform: Platform,
+        platform: RcPlatformServices,
     ) {
         mRemoteWriter =
             RemoteComposeWriter(width, height, contentDescription, apiLevel, profiles, platform)
@@ -96,7 +105,7 @@ public open class RemoteComposeContext {
 
     public constructor(
         vararg tags: RemoteComposeWriter.HTag,
-        platform: Platform,
+        platform: RcPlatformServices,
         content: RemoteComposeContext.() -> Unit,
     ) {
         mRemoteWriter = RemoteComposeWriter(platform, *tags)
@@ -1121,6 +1130,34 @@ public open class RemoteComposeContext {
         )
     }
 
+    public fun startTextComponent(
+        modifier: RecordingModifier,
+        textId: Int,
+        color: Int,
+        fontSize: Float,
+        fontStyle: Int,
+        fontWeight: Float,
+        fontFamily: String?,
+        flags: Short,
+        textAlign: Short,
+        overflow: Int,
+        maxLines: Int,
+    ) {
+        mRemoteWriter.startTextComponent(
+            modifier,
+            textId,
+            color,
+            fontSize,
+            fontStyle,
+            fontWeight,
+            fontFamily,
+            flags,
+            textAlign,
+            overflow,
+            maxLines,
+        )
+    }
+
     public fun endTextComponent() {
         mRemoteWriter.endTextComponent()
     }
@@ -1324,8 +1361,8 @@ public open class RemoteComposeContext {
     }
 
     /** The time in seconds relative to animation 0 at start of running */
-    public fun deltTime(): RFloat {
-        return mRemoteWriter.deltTime()
+    public fun deltaTime(): RFloat {
+        return mRemoteWriter.deltaTime()
     }
 
     public fun rf(vararg elements: Float): RFloat {
@@ -1334,6 +1371,33 @@ public open class RemoteComposeContext {
 
     public fun rf(v: Number): RFloat {
         return mRemoteWriter.rf(v)
+    }
+
+    public fun text(
+        string: String,
+        modifier: RecordingModifier = RecordingModifier(),
+        color: Int = 0xFF000000.toInt(),
+        fontSize: Float = 36f,
+        fontStyle: Int = 0,
+        fontWeight: Float = 400f,
+        fontFamily: String? = null,
+        textAlign: Int = TextLayout.TEXT_ALIGN_LEFT,
+        overflow: Int = TextLayout.OVERFLOW_CLIP,
+        maxLines: Int = Int.MAX_VALUE,
+    ) {
+        val textId = mRemoteWriter.textCreateId(string)
+        mRemoteWriter.textComponent(
+            modifier,
+            textId,
+            color,
+            fontSize,
+            fontStyle,
+            fontWeight,
+            fontFamily,
+            textAlign,
+            overflow,
+            maxLines,
+        ) {}
     }
 }
 
@@ -1481,3 +1545,15 @@ public fun RemoteComposeContext.createCirclePath(
 }
 */
 private fun RecordingModifier.clip(unit: Any) {}
+
+public fun RecordingModifier.computeMeasure(
+    block: ComponentLayoutChanges.() -> Unit
+): RecordingModifier {
+    return then(ComponentLayoutComputeModifier(LayoutComputeOperation.TYPE_MEASURE, block))
+}
+
+public fun RecordingModifier.computePosition(
+    block: ComponentLayoutChanges.() -> Unit
+): RecordingModifier {
+    return then(ComponentLayoutComputeModifier(LayoutComputeOperation.TYPE_POSITION, block))
+}

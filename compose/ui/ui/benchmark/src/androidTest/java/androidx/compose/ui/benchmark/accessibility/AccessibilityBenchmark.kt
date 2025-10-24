@@ -43,6 +43,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,7 +52,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AccessibilityBenchmark {
 
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @OptIn(ExperimentalBenchmarkConfigApi::class)
     @get:Rule
@@ -74,7 +75,7 @@ class AccessibilityBenchmark {
         }
 
         // Parent AccessibilityNodeInfo must always be requested before their children
-        provider.createAccessibilityNodeInfo(HOST_VIEW_ID)
+        composeTestRule.runOnUiThread { provider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
         nodesWithTag(container1Tag).forEach { provider.createAccessibilityNodeInfo(it.id) }
         nodesWithTag(container2Tag).forEach { provider.createAccessibilityNodeInfo(it.id) }
 

@@ -27,7 +27,7 @@ final enum class androidx.compose.animation/EnterExitState : kotlin/Enum<android
 }
 
 abstract fun interface androidx.compose.animation/BoundsTransform { // androidx.compose.animation/BoundsTransform|null[0]
-    abstract fun transform(androidx.compose.ui.geometry/Rect, androidx.compose.ui.geometry/Rect): androidx.compose.animation.core/FiniteAnimationSpec<androidx.compose.ui.geometry/Rect> // androidx.compose.animation/BoundsTransform.transform|transform(androidx.compose.ui.geometry.Rect;androidx.compose.ui.geometry.Rect){}[0]
+    abstract fun createAnimationSpec(androidx.compose.ui.geometry/Rect, androidx.compose.ui.geometry/Rect): androidx.compose.animation.core/FiniteAnimationSpec<androidx.compose.ui.geometry/Rect> // androidx.compose.animation/BoundsTransform.createAnimationSpec|createAnimationSpec(androidx.compose.ui.geometry.Rect;androidx.compose.ui.geometry.Rect){}[0]
 }
 
 abstract interface androidx.compose.animation/AnimatedVisibilityScope { // androidx.compose.animation/AnimatedVisibilityScope|null[0]
@@ -49,9 +49,8 @@ abstract interface androidx.compose.animation/SharedTransitionScope : androidx.c
     abstract fun OverlayClip(androidx.compose.ui.graphics/Shape): androidx.compose.animation/SharedTransitionScope.OverlayClip // androidx.compose.animation/SharedTransitionScope.OverlayClip|OverlayClip(androidx.compose.ui.graphics.Shape){}[0]
     open fun (androidx.compose.ui/Modifier).skipToLookaheadPosition(kotlin/Function0<kotlin/Boolean> = ...): androidx.compose.ui/Modifier // androidx.compose.animation/SharedTransitionScope.skipToLookaheadPosition|skipToLookaheadPosition@androidx.compose.ui.Modifier(kotlin.Function0<kotlin.Boolean>){}[0]
     open fun SharedContentConfig(): androidx.compose.animation/SharedTransitionScope.SharedContentConfig // androidx.compose.animation/SharedTransitionScope.SharedContentConfig|SharedContentConfig(){}[0]
-    open fun SharedContentConfig(kotlin/Function1<androidx.compose.animation/SharedTransitionScope.SharedContentState, kotlin/Boolean>): androidx.compose.animation/SharedTransitionScope.SharedContentConfig // androidx.compose.animation/SharedTransitionScope.SharedContentConfig|SharedContentConfig(kotlin.Function1<androidx.compose.animation.SharedTransitionScope.SharedContentState,kotlin.Boolean>){}[0]
     open fun rememberSharedContentState(kotlin/Any, androidx.compose.animation/SharedTransitionScope.SharedContentConfig, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.animation/SharedTransitionScope.SharedContentState // androidx.compose.animation/SharedTransitionScope.rememberSharedContentState|rememberSharedContentState(kotlin.Any;androidx.compose.animation.SharedTransitionScope.SharedContentConfig;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
-    open fun rememberSharedContentState(kotlin/Any, androidx.compose.animation/SharedTransitionScope.SharedContentConfig?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.animation/SharedTransitionScope.SharedContentState // androidx.compose.animation/SharedTransitionScope.rememberSharedContentState|rememberSharedContentState(kotlin.Any;androidx.compose.animation.SharedTransitionScope.SharedContentConfig?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+    open fun rememberSharedContentState(kotlin/Any, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.animation/SharedTransitionScope.SharedContentState // androidx.compose.animation/SharedTransitionScope.rememberSharedContentState|rememberSharedContentState(kotlin.Any;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 
     abstract fun interface PlaceholderSize { // androidx.compose.animation/SharedTransitionScope.PlaceholderSize|null[0]
         abstract fun calculateSize(androidx.compose.ui.unit/IntSize, androidx.compose.ui.unit/IntSize): androidx.compose.ui.unit/IntSize // androidx.compose.animation/SharedTransitionScope.PlaceholderSize.calculateSize|calculateSize(androidx.compose.ui.unit.IntSize;androidx.compose.ui.unit.IntSize){}[0]
@@ -82,13 +81,8 @@ abstract interface androidx.compose.animation/SharedTransitionScope : androidx.c
             final val RemeasureToBounds // androidx.compose.animation/SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds|{}RemeasureToBounds[0]
                 final fun <get-RemeasureToBounds>(): androidx.compose.animation/SharedTransitionScope.ResizeMode // androidx.compose.animation/SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds.<get-RemeasureToBounds>|<get-RemeasureToBounds>(){}[0]
 
-            final fun ScaleToBounds(androidx.compose.ui.layout/ContentScale = ..., androidx.compose.ui/Alignment = ...): androidx.compose.animation/SharedTransitionScope.ResizeMode // androidx.compose.animation/SharedTransitionScope.ResizeMode.Companion.ScaleToBounds|ScaleToBounds(androidx.compose.ui.layout.ContentScale;androidx.compose.ui.Alignment){}[0]
             final fun scaleToBounds(androidx.compose.ui.layout/ContentScale = ..., androidx.compose.ui/Alignment = ...): androidx.compose.animation/SharedTransitionScope.ResizeMode // androidx.compose.animation/SharedTransitionScope.ResizeMode.Companion.scaleToBounds|scaleToBounds(androidx.compose.ui.layout.ContentScale;androidx.compose.ui.Alignment){}[0]
         }
-    }
-
-    final class ComposeDefaultImpls { // androidx.compose.animation/SharedTransitionScope.ComposeDefaultImpls|null[0]
-        final fun rememberSharedContentState$default(kotlin/Any, androidx.compose.animation/SharedTransitionScope.SharedContentConfig?, androidx.compose.animation/SharedTransitionScope, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.animation/SharedTransitionScope.SharedContentState // androidx.compose.animation/SharedTransitionScope.ComposeDefaultImpls.rememberSharedContentState$default|rememberSharedContentState$default#static(kotlin.Any;androidx.compose.animation.SharedTransitionScope.SharedContentConfig?;androidx.compose.animation.SharedTransitionScope;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
     }
 
     final class SharedContentState { // androidx.compose.animation/SharedTransitionScope.SharedContentState|null[0]

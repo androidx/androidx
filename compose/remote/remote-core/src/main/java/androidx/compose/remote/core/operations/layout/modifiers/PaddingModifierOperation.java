@@ -21,8 +21,10 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.SerializeTags;
@@ -36,7 +38,8 @@ import java.util.List;
  * modifiers.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PaddingModifierOperation extends Operation implements ModifierOperation {
+public class PaddingModifierOperation extends Operation implements ModifierOperation,
+        VariableSupport {
     private static final int OP_CODE = Operations.MODIFIER_PADDING;
     public static final String CLASS_NAME = "PaddingModifierOperation";
     float mLeft;
@@ -44,11 +47,20 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
     float mRight;
     float mBottom;
 
+    float mLeftValue;
+    float mTopValue;
+    float mRightValue;
+    float mBottomValue;
+
     public PaddingModifierOperation(float left, float top, float right, float bottom) {
         this.mLeft = left;
         this.mTop = top;
         this.mRight = right;
         this.mBottom = bottom;
+        this.mLeftValue = left;
+        this.mTopValue = top;
+        this.mRightValue = right;
+        this.mBottomValue = bottom;
     }
 
     public float getLeft() {
@@ -95,7 +107,8 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {}
+    public void apply(@NonNull RemoteContext context) {
+    }
 
     @NonNull
     @Override
@@ -140,9 +153,9 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
      * Write operation to the buffer
      *
      * @param buffer a WireBuffer
-     * @param left left padding
-     * @param top top padding
-     * @param right right padding
+     * @param left   left padding
+     * @param top    top padding
+     * @param right  right padding
      * @param bottom bottom padding
      */
     public static void apply(
@@ -157,7 +170,7 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -191,5 +204,32 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
                 .add("top", mTop)
                 .add("right", mRight)
                 .add("bottom", mBottom);
+    }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        if (Float.isNaN(mLeftValue)) {
+            context.listensTo(Utils.idFromNan(mLeftValue), this);
+        }
+        if (Float.isNaN(mTopValue)) {
+            context.listensTo(Utils.idFromNan(mTopValue), this);
+        }
+        if (Float.isNaN(mRightValue)) {
+            context.listensTo(Utils.idFromNan(mRightValue), this);
+        }
+        if (Float.isNaN(mBottomValue)) {
+            context.listensTo(Utils.idFromNan(mBottomValue), this);
+        }
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {
+        mLeft = Float.isNaN(mLeftValue) ? context.getFloat(Utils.idFromNan(mLeftValue))
+                : mLeftValue;
+        mTop = Float.isNaN(mTopValue) ? context.getFloat(Utils.idFromNan(mTopValue)) : mTopValue;
+        mRight = Float.isNaN(mRightValue) ? context.getFloat(Utils.idFromNan(mRightValue))
+                : mRightValue;
+        mBottomValue = Float.isNaN(mBottomValue) ? context.getFloat(Utils.idFromNan(mBottomValue))
+                : mBottomValue;
     }
 }

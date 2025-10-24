@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -65,7 +66,7 @@ import androidx.wear.compose.material3.LocalTextStyle
 public fun RemoteText(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
-    color: Color = Color.Unspecified,
+    color: RemoteColor = RemoteMaterialTheme.colorScheme.onSurface,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,

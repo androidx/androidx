@@ -22,15 +22,15 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.util.Log;
 
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteComposeState;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -45,10 +45,10 @@ import java.io.ByteArrayInputStream;
 @RunWith(AndroidJUnit4.class)
 public class ImageDrawTest {
 
-    private final Platform mPlatform = new AndroidxPlatformServices();
+    private final RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
 
     // ########################### TEST UTILS ######################################
-    private RemoteComposeDocument createDocument(
+    private RemoteDocument createDocument(
             RemoteContext context, Bitmap lightImage, Bitmap darkImage) {
         int tw = lightImage.getWidth();
         int th = lightImage.getHeight();
@@ -75,8 +75,8 @@ public class ImageDrawTest {
         byte[] buffer = doc.buffer();
         int bufferSize = doc.bufferSize();
         System.out.println("size of doc " + bufferSize / 1024 + "KB");
-        RemoteComposeDocument recreatedDocument =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         recreatedDocument.initializeContext(context);
         return recreatedDocument;
     }
@@ -91,7 +91,7 @@ public class ImageDrawTest {
         Bitmap darkImage = TestUtils.createImage(tw, th, true);
         DebugPlayerContext debugContext = new DebugPlayerContext();
 
-        RemoteComposeDocument doc = createDocument(debugContext, lightImage, darkImage);
+        RemoteDocument doc = createDocument(debugContext, lightImage, darkImage);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         String result = doc.toString();
@@ -137,7 +137,7 @@ public class ImageDrawTest {
                 InstrumentationRegistry.getInstrumentation().getTargetContext();
         DebugPlayerContext debugContext = new DebugPlayerContext();
 
-        RemoteComposeDocument doc = createDocument(debugContext, lightImage, darkImage);
+        RemoteDocument doc = createDocument(debugContext, lightImage, darkImage);
         doc.paint(debugContext, Theme.UNSPECIFIED);
         RemoteComposeView player = new RemoteComposeView(appContext);
         player.setDocument(doc);
@@ -168,7 +168,7 @@ public class ImageDrawTest {
                 InstrumentationRegistry.getInstrumentation().getTargetContext();
         DebugPlayerContext debugContext = new DebugPlayerContext();
 
-        RemoteComposeDocument doc = createDocument(debugContext, lightImage, darkImage);
+        RemoteDocument doc = createDocument(debugContext, lightImage, darkImage);
         doc.paint(debugContext, Theme.UNSPECIFIED);
         RemoteComposeView player = new RemoteComposeView(appContext);
         player.setDocument(doc);
@@ -214,8 +214,8 @@ public class ImageDrawTest {
 
         byte[] buffer = doc.buffer();
         int bufferSize = doc.bufferSize();
-        RemoteComposeDocument recreatedDocument =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument recreatedDocument =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         recreatedDocument.initializeContext(debugContext);
         RemoteComposeView player = new RemoteComposeView(appContext);
         player.setDocument(recreatedDocument);

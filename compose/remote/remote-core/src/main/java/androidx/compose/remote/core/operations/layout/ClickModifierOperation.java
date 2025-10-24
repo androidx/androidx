@@ -121,10 +121,6 @@ public class ClickModifierOperation extends PaintOperation
 
     @Override
     public void apply(@NonNull RemoteContext context) {
-        RootLayoutComponent root = context.getDocument().getRootLayoutComponent();
-        if (root != null) {
-            root.setHasTouchListeners(true);
-        }
         for (Operation op : mList) {
             if (op instanceof TextData) {
                 op.apply(context);

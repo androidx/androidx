@@ -1,32 +1,241 @@
 // Baseline format: 1.0
-[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.ui/composed(kotlin/Function1<androidx.compose.ui.platform/InspectorInfo, kotlin/Unit>, kotlin/Function1<androidx.compose.ui/Modifier, androidx.compose.ui/Modifier>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.ui/composed(kotlin/String, kotlin/Any?, kotlin/Any?, kotlin/Any?, kotlin/Function1<androidx.compose.ui.platform/InspectorInfo, kotlin/Unit>, kotlin/Function1<androidx.compose.ui/Modifier, androidx.compose.ui/Modifier>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.ui/composed(kotlin/String, kotlin/Any?, kotlin/Any?, kotlin/Function1<androidx.compose.ui.platform/InspectorInfo, kotlin/Unit>, kotlin/Function1<androidx.compose.ui/Modifier, androidx.compose.ui/Modifier>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.ui/composed(kotlin/String, kotlin/Any?, kotlin/Function1<androidx.compose.ui.platform/InspectorInfo, kotlin/Unit>, kotlin/Function1<androidx.compose.ui/Modifier, androidx.compose.ui/Modifier>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).androidx.compose.ui/composed(kotlin/String, kotlin/Array<out kotlin/Any?>, kotlin/Function1<androidx.compose.ui.platform/InspectorInfo, kotlin/Unit>, kotlin/Function1<androidx.compose.ui/Modifier, androidx.compose.ui/Modifier>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/Group(kotlin/String, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin.collections/List<androidx.compose.ui.graphics.vector/PathNode>, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/Path(kotlin.collections/List<androidx.compose.ui.graphics.vector/PathNode>, androidx.compose.ui.graphics/PathFillType, kotlin/String, androidx.compose.ui.graphics/Brush?, kotlin/Float, androidx.compose.ui.graphics/Brush?, kotlin/Float, kotlin/Float, androidx.compose.ui.graphics/StrokeCap, androidx.compose.ui.graphics/StrokeJoin, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/RenderVectorGroup(androidx.compose.ui.graphics.vector/VectorGroup, kotlin.collections/Map<kotlin/String, androidx.compose.ui.graphics.vector/VectorConfig>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/rememberVectorPainter(androidx.compose.ui.graphics.vector/ImageVector) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/rememberVectorPainter(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, kotlin/Float, kotlin/Float, kotlin/String, androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/BlendMode, kotlin/Boolean, kotlin/Function2<kotlin/Float, kotlin/Float, kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/rememberVectorPainter(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, kotlin/Float, kotlin/Float, kotlin/String, androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/BlendMode, kotlin/Function2<kotlin/Float, kotlin/Float, kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.graphics/rememberGraphicsLayer() from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/LookaheadScope(kotlin/Function1<androidx.compose.ui.layout/LookaheadScope, kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/MultiMeasureLayout(androidx.compose.ui/Modifier, kotlin/Function0<kotlin/Unit>, androidx.compose.ui.layout/MeasurePolicy) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/SubcomposeLayout(androidx.compose.ui.layout/SubcomposeLayoutState, androidx.compose.ui/Modifier, kotlin/Function2<androidx.compose.ui.layout/SubcomposeMeasureScope, androidx.compose.ui.unit/Constraints, androidx.compose.ui.layout/MeasureResult>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/SubcomposeLayout(androidx.compose.ui/Modifier, kotlin/Function2<androidx.compose.ui.layout/SubcomposeMeasureScope, androidx.compose.ui.unit/Constraints, androidx.compose.ui.layout/MeasureResult>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/TestModifierUpdaterLayout(kotlin/Function1<androidx.compose.ui.layout/TestModifierUpdater, kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/combineAsVirtualLayouts(kotlin.collections/List<kotlin/Function0<kotlin/Unit>>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.text/rememberTextMeasurer(kotlin/Int) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.window/Dialog(kotlin/Function0<kotlin/Unit>, androidx.compose.ui.window/DialogProperties, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.window/Popup(androidx.compose.ui.window/PopupPositionProvider, kotlin/Function0<kotlin/Unit>?, androidx.compose.ui.window/PopupProperties, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.window/Popup(androidx.compose.ui/Alignment, androidx.compose.ui.unit/IntOffset, kotlin/Function0<kotlin/Unit>?, androidx.compose.ui.window/PopupProperties, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/Layout(androidx.compose.ui/Modifier, androidx.compose.ui.layout/MeasurePolicy) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/Layout(kotlin.collections/List<kotlin/Function0<kotlin/Unit>>, androidx.compose.ui/Modifier, androidx.compose.ui.layout/MultiContentMeasurePolicy) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration androidx.compose.ui.layout/Layout(kotlin/Function0<kotlin/Unit>, androidx.compose.ui/Modifier, androidx.compose.ui.layout/MeasurePolicy) from androidx.compose.ui:ui
-[linuxX64]: Removed declaration subcompose(kotlin/Any?, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui.layout/SubcomposeMeasureScope
-[linuxX64]: Added declaration subcompose(kotlin/Any?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.ui.layout/SubcomposeMeasureScope
-[linuxX64]: Added declaration plus(androidx.compose.ui.autofill/ContentType) to androidx.compose.ui.autofill/ContentType
-[linuxX64]: Removed declaration precompose(kotlin/Any?, kotlin/Function0<kotlin/Unit>) from androidx.compose.ui.layout/SubcomposeLayoutState
-[linuxX64]: Return type changed from kotlin/Function1<androidx.compose.runtime/SkippableUpdater<androidx.compose.ui.node/ComposeUiNode>, kotlin/Unit> to kotlin/Function3<androidx.compose.runtime/SkippableUpdater<androidx.compose.ui.node/ComposeUiNode>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit> for androidx.compose.ui.layout/materializerOf
-[linuxX64]: Return type changed from kotlin/Function1<androidx.compose.runtime/SkippableUpdater<androidx.compose.ui.node/ComposeUiNode>, kotlin/Unit> to kotlin/Function3<androidx.compose.runtime/SkippableUpdater<androidx.compose.ui.node/ComposeUiNode>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit> for androidx.compose.ui.layout/materializerOfWithCompositionLocalInjection
+[linuxX64]: Removed declaration androidx.compose.ui.draganddrop/androidx_compose_ui_draganddrop_DragAndDropNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockDropShadowElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockDropShadowNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockInnerShadowElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockInnerShadowNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_DrawBackgroundModifier$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_ShadowGraphicsLayerElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleDropShadowElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleDropShadowNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleInnerShadowElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleInnerShadowNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_CancelIndicatingFocusBoundaryScope$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusInvalidationManager$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusOrderToProperties$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusOwnerImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusPropertiesImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusRestorerNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusTargetNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusTargetNode_FocusTargetElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_DrawCache$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_GroupComponent$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_PathComponent$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_VectorComponent$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_BlockGraphicsLayerModifier$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_Fields$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_ReusableGraphicsLayerScope$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.hapticfeedback/androidx_compose_ui_hapticfeedback_PlatformHapticFeedbackType$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.nestedscroll/androidx_compose_ui_input_nestedscroll_NestedScrollNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer.util/androidx_compose_ui_input_pointer_util_DataPointAtTime$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer.util/androidx_compose_ui_input_pointer_util_PointerIdArray$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_CancelTimeoutCancellationException$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_HitPathTracker$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_HoverIconModifierNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_InternalPointerEvent$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_Node$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_NodeParent$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerHoverIconModifierElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerHoverIconModifierNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputEvent$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputEventData$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputEventProcessor$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputResetException$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_StylusHoverIconModifierElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_StylusHoverIconModifierNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_SuspendPointerInputElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_SuspendingPointerInputModifierNodeImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input/androidx_compose_ui_input_InputModeManagerImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.internal/androidx_compose_ui_internal_PlatformOptimizedCancellationException$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_ApproachIntrinsicsMeasureScope$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_ApproachMeasureScopeImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_DefaultIntrinsicMeasurable$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_IntrinsicsMeasureScope$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutBoundsElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutBoundsNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutIdModifier$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutModifierImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutNodeSubcompositionsState$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LookaheadLayoutCoordinates$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LookaheadScopeImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_RootMeasurePolicy$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_BackwardsCompatLocalMap$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_EmptyMap$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocalManager$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_MultiLocalMap$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_SingleLocalMap$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_AlignmentLines$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_BackwardsCompatNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_DepthSortedSet$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_DepthSortedSetsForDifferentPasses$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_HitTestResult$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_InnerNodeCoordinator$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_IntrinsicsPolicy$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutModifierNodeCoordinator$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNodeAlignmentLines$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNodeDrawScope$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNodeLayoutDelegate$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNode_NoIntrinsicsMeasurePolicy$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutTreeConsistencyChecker$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadAlignmentLines$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadCapablePlaceable$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadDelegate$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadPassDelegate$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_MeasureAndLayoutDelegate$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_MeasurePassDelegate$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_MutableVectorWithMutationTracking$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_NodeChain$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_NodeCoordinator$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_NodeMeasuringIntrinsics$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_Nodes$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_ObserverNodeOwnerScope$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_OnPositionedDispatcher$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_OwnerSnapshotObserver$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_SortedSet$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_TailModifierNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_WeakReference$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_AtomicInt$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_DelegatingSoftwareKeyboardController$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_SynchronizedObject$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_WindowInfoImpl$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_AppendedSemanticsElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_ClearAndSetSemanticsElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_CoreSemanticsModifierNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_EmptySemanticsModifier$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_SemanticsNodeWithAdjustedBounds$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.spatial/androidx_compose_ui_spatial_RectList$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.spatial/androidx_compose_ui_spatial_RectManager$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.spatial/androidx_compose_ui_spatial_ThrottledCallbacks$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_InteropViewFactoryHolder$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.window/androidx_compose_ui_window_AlignmentOffsetPositionProvider$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_AtomicReference$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_CompositionLocalMapInjectionElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_CompositionLocalMapInjectionNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_FrameRateModifierNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_ModifierNodeDetachedCancellationException$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_ZIndexElement$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_ZIndexNode$stableprop from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draganddrop/androidx_compose_ui_draganddrop_DragAndDropNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockDropShadowElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockDropShadowNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockInnerShadowElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_BlockInnerShadowNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_DrawBackgroundModifier$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_ShadowGraphicsLayerElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleDropShadowElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleDropShadowNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleInnerShadowElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.draw/androidx_compose_ui_draw_SimpleInnerShadowNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_CancelIndicatingFocusBoundaryScope$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusInvalidationManager$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusOrderToProperties$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusOwnerImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusPropertiesImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusRestorerNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusTargetNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.focus/androidx_compose_ui_focus_FocusTargetNode_FocusTargetElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_DrawCache$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_GroupComponent$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_PathComponent$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics.vector/androidx_compose_ui_graphics_vector_VectorComponent$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_BlockGraphicsLayerModifier$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_Fields$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_ReusableGraphicsLayerScope$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.hapticfeedback/androidx_compose_ui_hapticfeedback_PlatformHapticFeedbackType$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.nestedscroll/androidx_compose_ui_input_nestedscroll_NestedScrollNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer.util/androidx_compose_ui_input_pointer_util_DataPointAtTime$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer.util/androidx_compose_ui_input_pointer_util_PointerIdArray$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_CancelTimeoutCancellationException$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_HitPathTracker$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_HoverIconModifierNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_InternalPointerEvent$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_Node$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_NodeParent$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerHoverIconModifierElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerHoverIconModifierNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputEvent$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputEventData$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputEventProcessor$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_PointerInputResetException$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_StylusHoverIconModifierElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_StylusHoverIconModifierNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_SuspendPointerInputElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input.pointer/androidx_compose_ui_input_pointer_SuspendingPointerInputModifierNodeImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.input/androidx_compose_ui_input_InputModeManagerImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.internal/androidx_compose_ui_internal_PlatformOptimizedCancellationException$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_ApproachIntrinsicsMeasureScope$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_ApproachMeasureScopeImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_DefaultIntrinsicMeasurable$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_IntrinsicsMeasureScope$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutBoundsElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutBoundsNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutIdModifier$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutModifierImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LayoutNodeSubcompositionsState$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LookaheadLayoutCoordinates$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_LookaheadScopeImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.layout/androidx_compose_ui_layout_RootMeasurePolicy$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_BackwardsCompatLocalMap$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_EmptyMap$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_ModifierLocalManager$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_MultiLocalMap$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.modifier/androidx_compose_ui_modifier_SingleLocalMap$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_AlignmentLines$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_BackwardsCompatNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_DepthSortedSet$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_DepthSortedSetsForDifferentPasses$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_HitTestResult$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_InnerNodeCoordinator$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_IntrinsicsPolicy$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutModifierNodeCoordinator$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNodeAlignmentLines$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNodeDrawScope$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNodeLayoutDelegate$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutNode_NoIntrinsicsMeasurePolicy$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LayoutTreeConsistencyChecker$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadAlignmentLines$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadCapablePlaceable$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadDelegate$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_LookaheadPassDelegate$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_MeasureAndLayoutDelegate$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_MeasurePassDelegate$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_MutableVectorWithMutationTracking$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_NodeChain$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_NodeCoordinator$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_NodeMeasuringIntrinsics$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_Nodes$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_ObserverNodeOwnerScope$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_OnPositionedDispatcher$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_OwnerSnapshotObserver$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_SortedSet$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_TailModifierNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.node/androidx_compose_ui_node_WeakReference$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_AtomicInt$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_DelegatingSoftwareKeyboardController$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_SynchronizedObject$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.platform/androidx_compose_ui_platform_WindowInfoImpl$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_AppendedSemanticsElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_ClearAndSetSemanticsElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_CoreSemanticsModifierNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_EmptySemanticsModifier$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.semantics/androidx_compose_ui_semantics_SemanticsNodeWithAdjustedBounds$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.spatial/androidx_compose_ui_spatial_RectList$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.spatial/androidx_compose_ui_spatial_RectManager$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.spatial/androidx_compose_ui_spatial_ThrottledCallbacks$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_InteropViewFactoryHolder$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui.window/androidx_compose_ui_window_AlignmentOffsetPositionProvider$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_AtomicReference$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_CompositionLocalMapInjectionElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_CompositionLocalMapInjectionNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_FrameRateModifierNode$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_ModifierNodeDetachedCancellationException$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_ZIndexElement$stableprop_getter() from androidx.compose.ui:ui
+[linuxX64]: Removed declaration androidx.compose.ui/androidx_compose_ui_ZIndexNode$stableprop_getter() from androidx.compose.ui:ui

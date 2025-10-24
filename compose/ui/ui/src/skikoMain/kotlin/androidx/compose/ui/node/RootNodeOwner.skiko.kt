@@ -18,11 +18,11 @@ package androidx.compose.ui.node
 
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
-import androidx.compose.runtime.retain.ForgetfulRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
@@ -491,7 +491,7 @@ internal class RootNodeOwner(
         override val pointerIconService = PointerIconServiceImpl()
         override val semanticsOwner = SemanticsOwner(root, rootSemanticsNode, layoutNodes)
         override val windowInfo get() = platformContext.windowInfo
-        override val retainScope: RetainScope get() = ForgetfulRetainScope
+        override val retainedValuesStore: RetainedValuesStore get() = ForgetfulRetainedValuesStore
         override val rectManager = RectManager()
 
         @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")

@@ -38,7 +38,7 @@ open class RecompositionHandler<T : RecompositionData>(
     @GuardedBy("lock") private var collectingRecompositionCounts = false
 
     // The data collected for recomposition counts and state reads.
-    @GuardedBy("lock") protected val counts = mutableMapOf<Any, T>()
+    @GuardedBy("lock") protected val counts = hashMapOf<Any, T>()
 
     init {
         currentHandler = this
@@ -82,7 +82,7 @@ open class RecompositionHandler<T : RecompositionData>(
     // Increment the recomposition count.
     // Adjust the state reads based on the max number of recompositions with state reads
     // the agent is supposed to maintain.
-    open fun incrementRecompositionCount(anchor: Any): T? {
+    fun incrementRecompositionCount(anchor: Any): T? {
         synchronized(lock) {
             if (collectingRecompositionCounts) {
                 val data = counts.getOrPut(anchor, createRecompositionData)

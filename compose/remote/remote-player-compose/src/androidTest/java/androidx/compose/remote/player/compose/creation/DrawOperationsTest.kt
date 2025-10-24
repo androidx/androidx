@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Profiles.PROFILE_WIDGETS
+import androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter

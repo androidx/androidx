@@ -20,6 +20,7 @@ package androidx.compose.ui.platform
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
@@ -79,16 +80,16 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
-import androidx.compose.runtime.retain.ForgetfulRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags.isAdaptiveRefreshRateEnabled
 import androidx.compose.ui.ComposeUiFlags.isCanScrollUsingLastDownEventFixEnabled
-import androidx.compose.ui.ComposeUiFlags.isIndirectTouchNavigationGestureDetectorEnabled
+import androidx.compose.ui.ComposeUiFlags.isIndirectPointerNavigationGestureDetectorEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
+import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
@@ -140,8 +141,8 @@ import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.indirect.nativeEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
@@ -286,10 +287,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     private var superclassInitComplete = true
 
     // Allows tests to override the calculated primaryDirectionalMotionAxis from a MotionEvent (see
-    // [IndirectTouchEventNavigationSystemTests] for more details).
+    // [IndirectPointerEventNavigationSystemTests] for more details).
     @VisibleForTesting
     internal var primaryDirectionalMotionAxisOverride:
-        IndirectTouchEventPrimaryDirectionalMotionAxis? =
+        IndirectPointerEventPrimaryDirectionalMotionAxis? =
         null
 
     override val sharedDrawScope = LayoutNodeDrawScope()
@@ -297,10 +298,26 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override val view: View
         get() = this
 
-    internal var frameEndScheduler: LifecycleRetainScopeOwner.FrameEndScheduler? = null
-    private var lifecycleRetainScopeOwnerEntry: LifecycleRetainScopeOwner.RetainScopeEntry? = null
-    override var retainScope: RetainScope = ForgetfulRetainScope
+    internal var frameEndScheduler: LifecycleRetainedValuesStoreOwner.FrameEndScheduler? = null
+    private var lifecycleRetainedValuesStoreOwnerEntry:
+        LifecycleRetainedValuesStoreOwner.RetainedValuesStoreEntry? =
+        null
+    override var retainedValuesStore: RetainedValuesStore = ForgetfulRetainedValuesStore
         private set
+
+    // Out of frame scheduler currently has different semantics compared to the frame end scheduler
+    // The frame end scheduler executes its tasks at the end of the next recomposition frame,
+    // whereas out of frame scheduler is guaranteed to be executed before next recomposition frame.
+    // In some cases, those value overlap (if we already are recomposing, for example), but that
+    // is not always the case. We should eventually consolidate these (b/452101047)
+    private val outOfFrameQueue = ArrayDeque<() -> Unit>()
+    private val outOfFrameRunnable = Runnable {
+        trace("AndroidOwner:outOfFrameExecutor") {
+            while (outOfFrameQueue.isNotEmpty()) {
+                outOfFrameQueue.removeLast().invoke()
+            }
+        }
+    }
 
     override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
         private set
@@ -594,11 +611,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
     /**
-     * Used for updating LocalConfiguration when configuration changes - consume LocalConfiguration
-     * instead of changing this observer if you are writing a component that adapts to configuration
-     * changes.
+     * The snapshot-state backed current [Configuration]. This is updated by [updateConfiguration].
      */
-    var configurationChangeObserver: (Configuration) -> Unit = {}
+    var configuration: Configuration by
+        mutableStateOf(Configuration(context.resources.configuration))
 
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
 
@@ -693,7 +709,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         get() = measureAndLayoutDelegate.measureIteration
 
     override val hasPendingMeasureOrLayout
-        get() = measureAndLayoutDelegate.hasPendingMeasureOrLayout
+        get() = measureAndLayoutDelegate.hasPendingMeasureOrLayout || outOfFrameQueue.isNotEmpty()
 
     private var globalPosition: IntOffset = IntOffset(Int.MAX_VALUE, Int.MAX_VALUE)
 
@@ -773,10 +789,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override var fontFamilyResolver: FontFamily.Resolver by
         mutableStateOf(createFontFamilyResolver(context), referentialEqualityPolicy())
         private set
-
-    // keeps track of changes in font weight adjustment to update fontFamilyResolver
-    private var currentFontWeightAdjustment: Int =
-        context.resources.configuration.fontWeightAdjustmentCompat
 
     private val Configuration.fontWeightAdjustmentCompat: Int
         get() = if (SDK_INT >= S) fontWeightAdjustment else 0
@@ -902,11 +914,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     /** Set to `true` when [sendHoverExitEvent] has been posted. */
     private var hoverExitReceived = false
 
-    // Enables event stream tracking for indirect touch navigation gestures.
-    private var indirectTouchNavigationGestureDetectorActiveForEventStream = false
     // Determines scroll/swipe to next or previous focusable element for indirect touch events.
-    private val indirectTouchNavigationGestureDetector =
-        IndirectTouchNavigationGestureDetector(context) {
+    private val indirectPointerNavigationGestureDetector =
+        IndirectPointerNavigationGestureDetector(context) {
             focusOwner.moveFocus(focusDirection = it, wrapAroundForOneDimensionalFocus = false)
         }
 
@@ -1050,11 +1060,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (SDK_INT < 30) {
             showLayoutBounds = getIsShowingLayoutBounds()
         }
-        lifecycleRetainScopeOwnerEntry?.stopKeepingExitedValues(frameEndScheduler!!)
+        lifecycleRetainedValuesStoreOwnerEntry?.stopRetainingExitedValues(frameEndScheduler!!)
     }
 
     override fun onStop(owner: LifecycleOwner) {
-        lifecycleRetainScopeOwnerEntry?.startKeepingExitedValues()
+        lifecycleRetainedValuesStoreOwnerEntry?.startRetainingExitedValues()
     }
 
     override fun focusSearch(focused: View?, direction: Int): View? {
@@ -1291,7 +1301,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
-        // TODO (jjw): Add logic for indirect cancel for active streams
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
         if (!gainFocus && !hasFocus()) {
             focusOwner.releaseFocus()
@@ -1328,14 +1337,14 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // Finally, dispatch the key event to onPreKeyEvent/onKeyEvent listeners.
             focusOwner.dispatchKeyEvent(keyEvent)
 
-    /** This function is used by the testing framework to send indirect touch events. */
-    @ExperimentalIndirectTouchTypeApi
-    override fun sendIndirectTouchEvent(indirectTouchEvent: IndirectTouchEvent): Boolean {
-        if (indirectTouchEvent.nativeEvent.actionMasked == ACTION_CANCEL) {
-            focusOwner.dispatchIndirectTouchCancel()
+    /** This function is used by the testing framework to send indirect pointer events. */
+    @ExperimentalIndirectPointerApi
+    override fun sendIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean {
+        if (indirectPointerEvent.nativeEvent.actionMasked == ACTION_CANCEL) {
+            focusOwner.dispatchIndirectPointerCancel()
             return true
         }
-        return handleIndirectTouchEvent(indirectTouchEvent)
+        return handleIndirectPointerEvent(indirectPointerEvent)
     }
 
     override fun dispatchKeyEvent(event: AndroidKeyEvent): Boolean =
@@ -1686,24 +1695,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             parent?.hasFixedInnerContentConstraints == false
     }
 
-    internal var isSendPendingContentCaptureEventsScheduled = false
-    private val cachedLambdaForSendPendingContentCaptureEvents = {
-        contentCaptureManager.sendPendingContentCaptureEvents()
-        isSendPendingContentCaptureEventsScheduled = false
-    }
-
-    private fun scheduleSendPendingContentCaptureEvents(): Unit {
-        if (
-            isAttachedToWindow &&
-                contentCaptureManager.isEnabled &&
-                contentCaptureManager.hasPendingEvents &&
-                !isSendPendingContentCaptureEventsScheduled
-        ) {
-            schedule(cachedLambdaForSendPendingContentCaptureEvents)
-            isSendPendingContentCaptureEventsScheduled = true
-        }
-    }
-
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
         // only run the logic when we have something pending
         if (
@@ -1720,7 +1711,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 dispatchPendingInteropLayoutCallbacks()
             }
         }
-        scheduleSendPendingContentCaptureEvents()
     }
 
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
@@ -1734,7 +1724,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 dispatchPendingInteropLayoutCallbacks()
             }
             rectManager.dispatchCallbacks()
-            scheduleSendPendingContentCaptureEvents()
         }
     }
 
@@ -1793,6 +1782,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override fun measureAndLayoutForTest() {
         measureAndLayout()
+        handler?.removeCallbacks(outOfFrameRunnable)
+        outOfFrameRunnable.run()
     }
 
     override fun setUncaughtExceptionHandler(handler: RootForTest.UncaughtExceptionHandler?) {
@@ -2190,8 +2181,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         val savedStateRegistryOwner = findViewTreeSavedStateRegistryOwner()
         val viewModelStoreOwner = findViewTreeViewModelStoreOwner()
 
-        retainScope =
-            installLocalRetainScope(lifecycleOwner, viewModelStoreOwner) ?: ForgetfulRetainScope
+        retainedValuesStore =
+            installLocalRetainedValuesStore(lifecycleOwner, viewModelStoreOwner)
+                ?: ForgetfulRetainedValuesStore
 
         val oldViewTreeOwners = viewTreeOwners
         // We need to change the ViewTreeOwner if there isn't one yet (null)
@@ -2245,33 +2237,30 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             focusOwner.listeners += it
             semanticsOwner.listeners += it
         }
-
-        if (ComposeUiFlags.isContentCaptureOptimizationEnabled) {
-            contentCaptureManager.let { semanticsOwner.listeners += it }
-        }
     }
 
-    private fun installLocalRetainScope(
+    private fun installLocalRetainedValuesStore(
         lifecycleOwner: LifecycleOwner?,
         viewModelStoreOwner: ViewModelStoreOwner?,
-    ): RetainScope? {
+    ): RetainedValuesStore? {
         val frameEndScheduler = frameEndScheduler
         if (lifecycleOwner == null || viewModelStoreOwner == null || frameEndScheduler == null)
             return null
 
-        val retainScopeOwner =
+        val retainedValuesStoreOwner =
             ViewModelProvider.create(
                     store = viewModelStoreOwner.viewModelStore,
                     factory = ViewModelProvider.NewInstanceFactory(),
                 )
-                .get<LifecycleRetainScopeOwner>()
+                .get<LifecycleRetainedValuesStoreOwner>()
 
         // If we have a unique View Id, its on our parent ComposeView, not the AndroidComposeView
         // implementation child view.
         val viewId = (parent as View).id
-        val retainScopeEntry = retainScopeOwner.getOrCreateRetainScopeEntry(viewId)
-        lifecycleRetainScopeOwnerEntry = retainScopeEntry
-        return retainScopeEntry.retainScope
+        val retainedValuesStoreEntry =
+            retainedValuesStoreOwner.getOrCreateRetainedValuesStoreEntry(viewId)
+        lifecycleRetainedValuesStoreOwnerEntry = retainedValuesStoreEntry
+        return retainedValuesStoreEntry.retainedValuesStore
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -2304,8 +2293,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         viewTreeObserver.removeOnScrollChangedListener(this)
         viewTreeObserver.removeOnTouchModeChangeListener(this)
 
-        lifecycleRetainScopeOwnerEntry?.release()
-        lifecycleRetainScopeOwnerEntry = null
+        lifecycleRetainedValuesStoreOwnerEntry?.release()
+        lifecycleRetainedValuesStoreOwnerEntry = null
 
         if (SDK_INT >= S) AndroidComposeViewTranslationCallbackS.clearViewTranslationCallback(this)
         _autofillManager?.let {
@@ -2378,17 +2367,17 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 }
             else -> {
                 if (motionEvent.isFromSource(SOURCE_TOUCH_NAVIGATION)) {
-                    val indirectTouchEvent =
-                        motionEventAdapter.convertToIndirectTouchEvent(
+                    val indirectPointerEvent =
+                        motionEventAdapter.convertToIndirectPointerEvent(
                             motionEvent,
                             primaryDirectionalMotionAxisOverride,
                         )
-                    if (indirectTouchEvent != null) {
-                        if (handleIndirectTouchEvent(indirectTouchEvent)) {
+                    if (indirectPointerEvent != null) {
+                        if (handleIndirectPointerEvent(indirectPointerEvent)) {
                             return true
                         }
                     } else {
-                        focusOwner.dispatchIndirectTouchCancel()
+                        focusOwner.dispatchIndirectPointerCancel()
                         return true
                     }
                 }
@@ -2399,38 +2388,20 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
-    private fun handleIndirectTouchEvent(indirectTouchEvent: IndirectTouchEvent): Boolean {
-        val motionEvent = indirectTouchEvent.nativeEvent
+    private fun handleIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean {
+        val isConsumed = focusOwner.dispatchIndirectPointerEvent(indirectPointerEvent)
 
-        val handled = focusOwner.dispatchIndirectTouchEvent(indirectTouchEvent)
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (isIndirectPointerNavigationGestureDetectorEnabled) {
+            indirectPointerNavigationGestureDetector.onIndirectPointerEvent(
+                indirectPointerEvent = indirectPointerEvent,
+                isConsumed = isConsumed,
+            )
 
-        if (handled) {
-            // Turns off all navigation gestures for this event stream since an app is
-            // handling the event stream and also resets the preferred Axis.
-            indirectTouchNavigationGestureDetectorActiveForEventStream = false
-            indirectTouchNavigationGestureDetector.primaryDirectionalMotionAxis =
-                IndirectTouchEventPrimaryDirectionalMotionAxis.None
             return true
-        } else {
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (isIndirectTouchNavigationGestureDetectorEnabled) { // Flag for feature
-                if (motionEvent.action == ACTION_DOWN) {
-                    // Starts tracking only with ACTION_DOWN (start of event stream).
-                    indirectTouchNavigationGestureDetectorActiveForEventStream = true
-                    indirectTouchNavigationGestureDetector.primaryDirectionalMotionAxis =
-                        indirectTouchEvent.primaryDirectionalMotionAxis
-                }
-
-                if (indirectTouchNavigationGestureDetectorActiveForEventStream) {
-                    indirectTouchNavigationGestureDetector.onTouchEvent(motionEvent)
-                }
-                // If the isIndirectTouchNavigationGestureDetectorEnabled flag is
-                // enabled, it means that we don't want to pass the event up to the
-                // platform's handler for SOURCE_TOUCH_NAVIGATION, so we return true.
-                return true
-            }
         }
-        return false
+
+        return isConsumed
     }
 
     // TODO(shepshapard): Test this method.
@@ -2881,13 +2852,55 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        density = Density(context)
-        updateWindowMetrics()
-        if (newConfig.fontWeightAdjustmentCompat != currentFontWeightAdjustment) {
-            currentFontWeightAdjustment = newConfig.fontWeightAdjustmentCompat
+        updateConfiguration(newConfig)
+    }
+
+    /**
+     * There is a known platform bug where a size-based configuration change can occur that won't
+     * call View.onConfigurationChanged. Since this is the mechanism that Compose uses to drive
+     * configuration logic, this results in LocalConfiguration.current becoming out-of-sync with the
+     * underlying configuration: https://issuetracker.google.com/issues/247013643 As a workaround,
+     * we call the onConfigurationChanged callback directly after a global layout, in case we are
+     * falling into one of the cases with a bug on the impacted API versions. If we aren't falling
+     * into one of these cases, this extra call should be a no-op as we've already seen the updated
+     * configuration. This isn't an ideal workaround, as the global layout listener will result in a
+     * temporary inconsistency for the initial composition after the configuration changed, but this
+     * is better than remaining out of sync for an indeterminate amount of time, and there doesn't
+     * appear to be a better signal to use.
+     */
+    private fun dispatchConfigurationChangeIfNeeded() {
+        if (SDK_INT in 32..33) {
+            updateConfiguration(resources.configuration)
+        }
+    }
+
+    /** Updates this [AndroidComposeView] with properties from the updated [Configuration]. */
+    private fun updateConfiguration(newConfig: Configuration) {
+        // Keep track of the old configuration for checking if components have updated
+        val oldConfig = configuration
+        if (oldConfig != newConfig) {
+            // Create a deep copy for comparison - both here in the future, and to allow
+            // consumers to properly use LocalConfiguration as a proper key.
+            configuration = Configuration(newConfig)
+        } else {
+            // Nothing changed at all, short circuit
+            return
+        }
+        // Density can only change if the densityDpi changed or if the fontScale changed.
+        // Otherwise, don't create a new Density object.
+        if (
+            oldConfig.fontScale != newConfig.fontScale ||
+                oldConfig.densityDpi != newConfig.densityDpi
+        ) {
+            density = Density(context)
+        }
+        if (oldConfig.diffForWindowMetricsChanged(newConfig)) {
+            updateWindowMetrics()
+        }
+        // Update the font family resolver if the font weight adjustment changed
+        if (oldConfig.fontWeightAdjustmentCompat != newConfig.fontWeightAdjustmentCompat) {
             fontFamilyResolver = createFontFamilyResolver(context)
         }
-        configurationChangeObserver(newConfig)
     }
 
     override fun onRtlPropertiesChanged(layoutDirection: Int) {
@@ -3133,11 +3146,16 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         get() = if (isAttachedToWindow) this else null
 
     override fun schedule(block: () -> Unit) {
-        val handler =
-            requireNotNull(handler) {
-                "schedule is called when outOfFrameExecutor is not available (view is detached)"
-            }
-        handler.postAtFrontOfQueue { trace("AndroidOwner:outOfFrameExecutor", block) }
+        val shouldSchedule = outOfFrameQueue.isEmpty()
+        outOfFrameQueue.addLast(block)
+
+        if (shouldSchedule) {
+            val handler =
+                requireNotNull(handler) {
+                    "schedule is called when outOfFrameExecutor is not available (view is detached)"
+                }
+            handler.postAtFrontOfQueue(outOfFrameRunnable)
+        }
     }
 
     @RequiresApi(VANILLA_ICE_CREAM)
@@ -3172,6 +3190,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // make sure that we use an updated window position and matrix
         lastMatrixRecalculationAnimationTime = 0
         updatePositionCacheAndDispatch()
+        dispatchConfigurationChangeIfNeeded()
     }
 
     // executed when a scrolling container like ScrollView of RecyclerView performed the
@@ -3770,11 +3789,15 @@ private object Api35Impl {
     }
 }
 
-internal class IndirectTouchNavigationGestureDetector(
+internal class IndirectPointerNavigationGestureDetector(
     context: Context,
     private val onMoveFocus: (FocusDirection) -> Unit,
 ) {
-    var primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.None
+    var primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None
+
+    // If true, subsequent events in the current gesture stream are ignored.
+    // This is set if a move event is consumed by another component.
+    private var ignoreCurrentGestureStream = false
 
     private val gestureDetector: GestureDetector =
         GestureDetector(
@@ -3801,9 +3824,11 @@ internal class IndirectTouchNavigationGestureDetector(
                     velocityX: Float,
                     velocityY: Float,
                 ): Boolean {
+                    if (ignoreCurrentGestureStream) return true
+
                     if (
                         primaryDirectionalMotionAxis ==
-                            IndirectTouchEventPrimaryDirectionalMotionAxis.X
+                            IndirectPointerEventPrimaryDirectionalMotionAxis.X
                     ) {
                         if (abs(velocityX) > abs(velocityY)) {
                             val direction =
@@ -3812,7 +3837,7 @@ internal class IndirectTouchNavigationGestureDetector(
                         }
                     } else if (
                         primaryDirectionalMotionAxis ==
-                            IndirectTouchEventPrimaryDirectionalMotionAxis.Y
+                            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
                     ) {
                         if (abs(velocityY) > abs(velocityX)) {
                             val direction =
@@ -3828,7 +3853,72 @@ internal class IndirectTouchNavigationGestureDetector(
             },
         )
 
-    fun onTouchEvent(event: MotionEvent): Boolean {
-        return gestureDetector.onTouchEvent(event)
+    fun onIndirectPointerEvent(
+        indirectPointerEvent: IndirectPointerEvent,
+        isConsumed: Boolean,
+    ): Boolean {
+        val motionEvent = indirectPointerEvent.nativeEvent
+        when (motionEvent.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Reset state at the start of a new gesture stream.
+                primaryDirectionalMotionAxis = indirectPointerEvent.primaryDirectionalMotionAxis
+                ignoreCurrentGestureStream = false
+            }
+            MotionEvent.ACTION_MOVE,
+            MotionEvent.ACTION_UP -> {
+                // If another component consumes a move or up event, we should ignore the
+                // rest of the gesture to prevent conflicting actions on the final fling.
+                if (isConsumed) {
+                    ignoreCurrentGestureStream = true
+                }
+            }
+        }
+
+        return gestureDetector.onTouchEvent(motionEvent)
     }
 }
+
+/**
+ * A combined mask of all known configuration changes that do not affect the window metrics.
+ *
+ * For optimization purposes, any new configuration changes that don't result in the window metrics
+ * changes should be added to this list.
+ *
+ * Order is copied from `ActivityInfo.Config` with the config change types that can affect the
+ * window metrics excluded
+ */
+private const val maskForNonWindowMetricsChanges =
+    ActivityInfo.CONFIG_MCC or
+        ActivityInfo.CONFIG_MNC or
+        ActivityInfo.CONFIG_LOCALE or
+        ActivityInfo.CONFIG_TOUCHSCREEN or
+        ActivityInfo.CONFIG_KEYBOARD or
+        ActivityInfo.CONFIG_KEYBOARD_HIDDEN or
+        ActivityInfo.CONFIG_NAVIGATION or
+        ActivityInfo.CONFIG_UI_MODE or
+        ActivityInfo.CONFIG_LAYOUT_DIRECTION or
+        ActivityInfo.CONFIG_COLOR_MODE or
+        ActivityInfo.CONFIG_FONT_SCALE or
+        ActivityInfo.CONFIG_GRAMMATICAL_GENDER or
+        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT // or
+
+// TODO(b/450557132): Add when compileSdk is bumped to 36
+//   ActivityInfo.CONFIG_ASSETS_PATHS
+
+/**
+ * Diffs this [Configuration] with the [other] to determine if there were any configuration changes
+ * that could result in the window metrics being changed.
+ *
+ * We also can't just look at [Configuration.screenWidthDp] and [Configuration.screenHeightDp]:
+ * Those are represented by integer coordinates, which means that there is necessary rounding.
+ * Therefore, small window size changes that are 1 dp or less, may not change the rounded value of
+ * [Configuration.screenWidthDp] and [Configuration.screenHeightDp], but this does indeed cause a
+ * configuration change that is captured by a change in the non-public window configuration.
+ *
+ * Because the window configuration is not-public, and to guard against future configuration changes
+ * that may change the window metrics, the implementation for this is inverted: We assume that the
+ * window metrics may have changed if there were any changes in the configuration other than those
+ * defined by [maskForNonWindowMetricsChanges], which we know will not.
+ */
+private fun Configuration.diffForWindowMetricsChanged(other: Configuration): Boolean =
+    (diff(other) and maskForNonWindowMetricsChanges.inv()) != 0

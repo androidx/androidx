@@ -34,7 +34,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ComponentValue extends Operation implements SerializableToString, Serializable {
+public class ComponentValue extends Operation implements SerializableToString, Serializable,
+        ComponentData {
     private static final int OP_CODE = Operations.COMPONENT_VALUE;
     private static final String CLASS_NAME = "ComponentValue";
 
@@ -82,6 +83,10 @@ public class ComponentValue extends Operation implements SerializableToString, S
         return mValueId;
     }
 
+    public void setComponentId(int componentId) {
+        mComponentID = componentId;
+    }
+
     @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(buffer, mType, mComponentID, mValueId);
@@ -95,7 +100,7 @@ public class ComponentValue extends Operation implements SerializableToString, S
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -135,10 +140,10 @@ public class ComponentValue extends Operation implements SerializableToString, S
     /**
      * Writes out the ComponentValue to the buffer
      *
-     * @param buffer buffer to write to
-     * @param type type of value (WIDTH or HEIGHT)
+     * @param buffer      buffer to write to
+     * @param type        type of value (WIDTH or HEIGHT)
      * @param componentId component id to reference
-     * @param valueId remote float used to represent the component value
+     * @param valueId     remote float used to represent the component value
      */
     public static void apply(@NonNull WireBuffer buffer, int type, int componentId, int valueId) {
         buffer.start(OP_CODE);

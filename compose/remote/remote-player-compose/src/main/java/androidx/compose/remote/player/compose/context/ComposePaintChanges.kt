@@ -230,6 +230,10 @@ internal class ComposePaintChanges(
         // Todo cache shader once created limit cache to 10 shaders
     }
 
+    override fun setPathEffect(pathEffect: FloatArray?) {
+        TODO("Not yet implemented")
+    }
+
     override fun setStrokeWidth(width: Float) {
         getPaint().strokeWidth = width
     }

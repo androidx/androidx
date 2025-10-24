@@ -197,8 +197,6 @@ RemovedFromKotlin: androidx.compose.runtime.LongState#getLongValue():
     Source breaking change: method androidx.compose.runtime.LongState.getLongValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.runtime.LongState#getValue():
     Source breaking change: method androidx.compose.runtime.LongState.getValue() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.MonotonicFrameClock#getKey():
-    Source breaking change: method androidx.compose.runtime.MonotonicFrameClock.getKey() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.runtime.MutableDoubleState#setDoubleValue(double):
     Source breaking change: method androidx.compose.runtime.MutableDoubleState.setDoubleValue(double) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.runtime.MutableDoubleState#setValue(double):

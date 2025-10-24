@@ -6,6 +6,7 @@ package androidx.compose.animation.tooling {
     method public String component1();
     method public Object component2();
     method public androidx.compose.animation.tooling.ComposeAnimatedProperty copy(optional String label, optional Object value);
+    method @BytecodeOnly public static androidx.compose.animation.tooling.ComposeAnimatedProperty! copy$default(androidx.compose.animation.tooling.ComposeAnimatedProperty!, String!, Object!, int, Object!);
     method @InaccessibleFromKotlin public String getLabel();
     method @InaccessibleFromKotlin public Object getValue();
     property public String label;

@@ -23,7 +23,7 @@ import org.jspecify.annotations.NonNull;
 
 /** Interface to represent operations that can handle click events */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface ClickHandler {
+public interface ClickHandler extends TouchOperation {
 
     /**
      * callback for a click event

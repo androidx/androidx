@@ -123,6 +123,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
@@ -132,6 +133,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOpera
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
@@ -1553,6 +1555,27 @@ public class RemoteComposeBuffer {
         BackgroundModifierOperation.apply(mBuffer, 0f, 0f, 0f, 0f, r, g, b, a, shape);
     }
 
+
+    /**
+     * Add a background modifier of provided color
+     *
+     * @param r the red value, possibly a remote float
+     * @param g the green value, possibly a remote float
+     * @param b the blue value, possibly a remote float
+     * @param a the alpha value, possibly a remote float
+     * @param shape the background shape -- SHAPE_RECTANGLE, SHAPE_CIRCLE
+     */
+    public void addModifierBackground(float r, float g, float b, float a, int shape) {
+        BackgroundModifierOperation.apply(mBuffer, 0f, 0f, 0f, 0f, r, g, b, a, shape);
+    }
+
+    /**
+     * Add an align modifier
+     */
+    public void addModifierAlignBy(float line) {
+        AlignByModifierOperation.apply(mBuffer, line, 0);
+    }
+
     /**
      * Add a border modifier
      *
@@ -1868,6 +1891,7 @@ public class RemoteComposeBuffer {
      * @param fontStyle font style (0 : Normal, 1 : Italic)
      * @param fontWeight font weight (1 to 1000, normal is 400)
      * @param fontFamilyId font family or null
+     * @param flags flags for configuration, only use by color (0: Static color, 1: Color Id)
      * @param textAlign text alignment (0 : Center, 1 : Left, 2 : Right)
      * @param overflow
      * @param maxLines
@@ -1881,10 +1905,13 @@ public class RemoteComposeBuffer {
             int fontStyle,
             float fontWeight,
             int fontFamilyId,
-            int textAlign,
+            short flags,
+            short textAlign,
             int overflow,
             int maxLines) {
         mLastComponentId = getComponentId(componentId);
+        int flagsAndTextAlign = (flags << 16) | (textAlign & 0xFFFF);
+
         TextLayout.apply(
                 mBuffer,
                 mLastComponentId,
@@ -1895,7 +1922,7 @@ public class RemoteComposeBuffer {
                 fontStyle,
                 fontWeight,
                 fontFamilyId,
-                textAlign,
+                flagsAndTextAlign,
                 overflow,
                 maxLines);
     }
@@ -2379,6 +2406,21 @@ public class RemoteComposeBuffer {
      */
     public void addDrawContentOperation() {
         DrawContentOperation.apply(mBuffer);
+    }
+
+    /**
+     * Add a layout compute modifier (either computePosition or computeMeasure modifier)
+     * @param type TYPE_POSITION or TYPE_MEASURE
+     * @param boundsId the id of the array that will contain the x/y/width/height of the component
+     * @param animateChanges true to animate when changes in the measure happen.
+     */
+    public void startLayoutCompute(int type, int boundsId, boolean animateChanges) {
+        LayoutComputeOperation.apply(mBuffer, type, boundsId, animateChanges);
+    }
+
+    /** end the definition of a layout compute modifier */
+    public void endLayoutCompute() {
+        ContainerEnd.apply(mBuffer);
     }
 
     /**

@@ -17,6 +17,7 @@ package androidx.compose.remote.creation.compose.state
 
 import android.graphics.BlendMode
 import android.graphics.Color
+import androidx.compose.remote.core.RemoteContext
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -65,10 +66,24 @@ class RemotePaintTest {
         val remotePaint = RemotePaint()
         val remoteColor = RemoteColor(Color.valueOf(Color.RED))
         remotePaint.remoteColor = remoteColor
-        assertThat(remotePaint.color).isEqualTo(Color.TRANSPARENT)
+        assertThat(remotePaint.color).isEqualTo(Color.RED)
 
         remotePaint.setColor(Color.BLUE)
         assertThat(remotePaint.remoteColor).isNull()
+    }
+
+    @Test
+    fun remoteColorNonConstantTest() {
+        val remotePaint = RemotePaint()
+        val remoteColor =
+            RemoteColor.fromARGB(
+                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                RemoteFloat(1f),
+                RemoteFloat(1f),
+                RemoteFloat(1f),
+            )
+        remotePaint.remoteColor = remoteColor
+        assertThat(remotePaint.color).isEqualTo(Color.TRANSPARENT)
     }
 
     @Test
@@ -85,9 +100,24 @@ class RemotePaintTest {
         val remoteColor = RemoteColor(Color.valueOf(Color.RED))
         val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, BlendMode.MULTIPLY)
         remotePaint.remoteColorFilter = remoteColorFilter
-        assertThat(remotePaint.colorFilter).isNull()
+        assertThat(remotePaint.colorFilter).isNotNull()
 
         remotePaint.colorFilter = remotePaint.colorFilter
         assertThat(remotePaint.remoteColorFilter).isNull()
+    }
+
+    @Test
+    fun remoteColorFilterNonConstantTest() {
+        val remotePaint = RemotePaint()
+        val remoteColor =
+            RemoteColor.fromARGB(
+                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                RemoteFloat(1f),
+                RemoteFloat(1f),
+                RemoteFloat(1f),
+            )
+        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, BlendMode.MULTIPLY)
+        remotePaint.remoteColorFilter = remoteColorFilter
+        assertThat(remotePaint.colorFilter).isNull()
     }
 }

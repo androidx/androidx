@@ -19,16 +19,14 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Platform
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
@@ -38,8 +36,7 @@ import androidx.compose.ui.geometry.Size
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteComposeCreationState {
 
-    public val platform: Platform
-    public var density: Float
+    public val platform: RcPlatformServices
     public val size: Size
     public val apiLevel: Int
     public val profiles: Int
@@ -59,24 +56,16 @@ public open class RemoteComposeCreationState {
 
     public val time: MutableState<Long> = mutableStateOf(0L)
 
-    public constructor(platform: Platform, density: Float, size: Size) {
+    public constructor(platform: RcPlatformServices, size: Size) {
         this.platform = platform
-        this.density = density
         this.size = size
         this.apiLevel = CoreDocument.DOCUMENT_API_LEVEL
         this.profiles = 0
         document = RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
     }
 
-    public constructor(
-        platform: Platform,
-        density: Float,
-        size: Size,
-        apiLevel: Int,
-        profiles: Int,
-    ) {
+    public constructor(platform: RcPlatformServices, size: Size, apiLevel: Int, profiles: Int) {
         this.platform = platform
-        this.density = density
         this.size = size
         this.apiLevel = apiLevel
         this.profiles = profiles
@@ -96,9 +85,8 @@ public open class RemoteComposeCreationState {
         }
     }
 
-    public constructor(density: Float, size: Size, profile: Profile) {
+    public constructor(size: Size, profile: Profile) {
         this.platform = profile.platform
-        this.density = density
         this.size = size
         this.apiLevel = profile.apiLevel
         this.profiles = profile.operationsProfiles
@@ -118,7 +106,7 @@ public open class RemoteComposeCreationState {
 // Density and Size should be taken from Compose in this mode
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NoRemoteCompose :
-    RemoteComposeCreationState(platform = Platform.None, density = 1f, Size(1000f, 1000f)) {
+    RemoteComposeCreationState(platform = RcPlatformServices.None, Size(1000f, 1000f)) {
     override fun <T : BaseRemoteState> getOrCreateNamedState(
         type: Class<T>,
         name: String,
@@ -132,18 +120,3 @@ public class NoRemoteCompose :
 
 public val LocalRemoteComposeCreationState: ProvidableCompositionLocal<RemoteComposeCreationState> =
     compositionLocalOf<RemoteComposeCreationState> { NoRemoteCompose() }
-
-@RemoteComposable
-@Composable
-public inline fun <reified T : BaseRemoteState> rememberNamedState(
-    name: String,
-    domain: String,
-    noinline function: () -> T,
-): T {
-    return LocalRemoteComposeCreationState.current.getOrCreateNamedState(
-        T::class.java,
-        name,
-        domain,
-        function,
-    )
-}

@@ -19,7 +19,7 @@ package androidx.compose.ui.focus
 import androidx.collection.MutableObjectList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 
@@ -169,11 +169,11 @@ internal interface FocusOwner : FocusManager {
         onFocusedItem: () -> Boolean = { false },
     ): Boolean
 
-    /** Dispatches an indirect touch event through the compose hierarchy. */
-    fun dispatchIndirectTouchEvent(event: IndirectTouchEvent): Boolean
+    /** Dispatches an indirect pointer event through the compose hierarchy. */
+    fun dispatchIndirectPointerEvent(event: IndirectPointerEvent): Boolean
 
-    /** Dispatches an indirect touch cancel event through the compose hierarchy. */
-    fun dispatchIndirectTouchCancel()
+    /** Dispatches an indirect pointer cancel event through the compose hierarchy. */
+    fun dispatchIndirectPointerCancel()
 
     /** Lets the FocusOwner know that a focus target is placed. */
     fun focusTargetAvailable()

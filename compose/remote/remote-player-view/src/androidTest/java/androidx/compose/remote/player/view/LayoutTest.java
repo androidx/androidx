@@ -23,7 +23,7 @@ import android.graphics.Color;
 
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
-import androidx.compose.remote.core.Platform;
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
@@ -46,8 +46,8 @@ import androidx.compose.remote.creation.actions.HostAction;
 import androidx.compose.remote.creation.actions.ValueIntegerChange;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.modifiers.RoundedRectShape;
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Rule;
@@ -75,7 +75,7 @@ public class LayoutTest {
     int mTw = 1000;
     int mTh = 1000;
 
-    Platform mPlatform = new AndroidxPlatformServices();
+    RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
 
     class SnapShot {
         float mTime = 0f;
@@ -138,8 +138,8 @@ public class LayoutTest {
     void baseTest(RemoteComposeWriter writer, int tw, int th) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteComposeDocument doc =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.mWidth = tw;
@@ -177,8 +177,8 @@ public class LayoutTest {
     void baseTestResize(RemoteComposeWriter writer, int tw1, int th1, int tw2, int th2) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteComposeDocument doc =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(false);
@@ -573,8 +573,8 @@ public class LayoutTest {
             boolean forceRepaint) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteComposeDocument doc =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(false);
@@ -628,8 +628,8 @@ public class LayoutTest {
             boolean forceRepaint) {
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteComposeDocument doc =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(false);
@@ -720,8 +720,8 @@ public class LayoutTest {
 
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteComposeDocument doc =
-                new RemoteComposeDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc =
+                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setAnimationEnabled(animationEnabled);

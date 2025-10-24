@@ -314,4 +314,49 @@ internal class DeleteSurroundingTextCommandTest : ImeEditCommandTest() {
         assertThat(state.selection.start).isEqualTo(0)
         assertThat(state.selection.end).isEqualTo(0)
     }
+
+    @Test
+    fun test_delete_withOutputTransformation_deletesBeforeCursor() {
+        initialize(
+            text = "abc 123 def",
+            selection = TextRange(7),
+            outputTransformation = {
+                val deleteIndex = toString().indexOf("123")
+                if (deleteIndex != -1) {
+                    replace(deleteIndex, deleteIndex + 3, "x")
+                }
+            },
+        )
+
+        // What IME sees => abc x| def
+        imeScope.deleteSurroundingText(5, 0)
+
+        // The character to be deleted is 'A' in the original text.
+        assertThat(state.text.toString()).isEqualTo(" def")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNull()
+    }
+
+    @Test
+    fun test_delete_withOutputTransformation_deletesAfterCursor() {
+        initialize(
+            text = "abc 123 def",
+            selection = TextRange(0),
+            outputTransformation = {
+                val deleteIndex = toString().indexOf("123")
+                if (deleteIndex != -1) {
+                    replace(deleteIndex, deleteIndex + 3, "x")
+                }
+            },
+        )
+
+        // What IME sees => |abc x def
+        imeScope.deleteSurroundingText(0, 6)
+
+        assertThat(state.text.toString()).isEqualTo("def")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNull()
+    }
 }

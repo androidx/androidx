@@ -36,7 +36,7 @@ import android.util.Log;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.creation.Painter;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -57,7 +57,7 @@ public class DrawCmdMatrixTest {
         int th = 600;
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
-        RemoteComposeDocument doc = createDocument(debugContext, run);
+        RemoteDocument doc = createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -69,7 +69,7 @@ public class DrawCmdMatrixTest {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, run);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return doc.toString();
@@ -99,7 +99,7 @@ public class DrawCmdMatrixTest {
                     rdoc.drawPath(v);
                 };
         TestUtils.Callback use = cb == null ? basic : cb;
-        RemoteComposeDocument doc = createDocument(debugContext, use);
+        RemoteDocument doc = createDocument(debugContext, use);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         String result = debugContext.getTestResults();
@@ -217,7 +217,7 @@ public class DrawCmdMatrixTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         TestUtils.captureGold("MatrixSkew", doc, appContext);
 
@@ -307,7 +307,7 @@ public class DrawCmdMatrixTest {
             dumpDifference(expected, result);
         }
         assertEquals("not equals", expected, result);
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
         TestUtils.captureGold("MatrixScale1", doc, appContext);
         Bitmap remoteBitmap = TestUtils.docToBitmap(tw, th, appContext, doc);
         Bitmap blankBitmap = blank(tw, th);
@@ -396,7 +396,7 @@ public class DrawCmdMatrixTest {
             dumpDifference(expected, result);
         }
         assertEquals("not equals", expected, result);
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
         TestUtils.captureGold("MatrixScale2", doc, appContext);
         Bitmap remoteBitmap = TestUtils.docToBitmap(tw, th, appContext, doc);
         Bitmap blankBitmap = blank(tw, th);
@@ -483,7 +483,7 @@ public class DrawCmdMatrixTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         TestUtils.captureGold("MatrixTranslate", doc, appContext);
 
@@ -574,7 +574,7 @@ public class DrawCmdMatrixTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         TestUtils.captureGold("MatrixRotate1", doc, appContext);
 
@@ -665,7 +665,7 @@ public class DrawCmdMatrixTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = createDocument(debugContext, cb);
+        RemoteDocument doc = createDocument(debugContext, cb);
 
         TestUtils.captureGold("MatrixRotate2", doc, appContext);
 

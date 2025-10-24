@@ -188,7 +188,7 @@ public class BitmapData extends Operation implements SerializableToString, Seria
     }
 
     /**
-     * Add the image to the document (using the ehanced encoding)
+     * Add the image to the document (using the enhanced encoding)
      *
      * @param buffer document to write to
      * @param imageId the id the image will be stored under

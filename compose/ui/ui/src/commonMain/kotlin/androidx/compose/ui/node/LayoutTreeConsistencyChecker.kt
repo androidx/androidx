@@ -84,7 +84,8 @@ internal class LayoutTreeConsistencyChecker(
                     parentLayoutState == LayoutNode.LayoutState.Measuring ||
                     parentLayoutState == LayoutNode.LayoutState.LayingOut ||
                     postponedMeasureRequests.fastAny { it.node == this } ||
-                    layoutState == LayoutNode.LayoutState.Measuring
+                    layoutState == LayoutNode.LayoutState.Measuring ||
+                    layoutState == LayoutNode.LayoutState.LayingOut
             }
         }
         if (isPlacedInLookahead == true) {

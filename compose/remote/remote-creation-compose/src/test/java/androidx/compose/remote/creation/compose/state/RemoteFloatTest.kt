@@ -21,7 +21,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.test.filters.SdkSuppress
@@ -39,8 +39,7 @@ class RemoteFloatTest {
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
-    val creationState =
-        RemoteComposeCreationState(AndroidxPlatformServices(), density = 1f, Size(1f, 1f))
+    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
 
     val JUN_06_2025_UTC =
         RemoteLong(
@@ -362,7 +361,6 @@ class RemoteFloatTest {
                 RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC).toRemoteString(2).hasConstantValue
             )
             .isFalse()
-        assertThat(RemoteFloat(20.5f).dp.hasConstantValue).isFalse()
     }
 
     @Test
@@ -539,33 +537,6 @@ class RemoteFloatTest {
         val resultDpId = remoteFloatDp.value.getIdForCreationState(creationState)
 
         assertThat(resultId).isEqualTo(resultDpId)
-    }
-
-    @Test
-    fun remoteFloatDp_hasSameFloatValueAsOriginalRemoteFloat() {
-        val floatValue = 10.5f
-        val remoteFloat = floatValue.rf
-        val remoteFloatDp = remoteFloat.dp
-
-        val resultId = remoteFloat.getIdForCreationState(creationState)
-        val resultDpId = remoteFloatDp.getIdForCreationState(creationState)
-
-        makeAndPaintCoreDocument()
-
-        assertThat(context.getFloat(resultId)).isEqualTo(floatValue)
-        assertThat(context.getFloat(resultDpId)).isEqualTo(floatValue)
-    }
-
-    @Test
-    fun remoteFloatDp_hasDifferentIdFromOriginalRemoteFloat() {
-        val floatValue = 10.5f
-        val remoteFloat = floatValue.rf
-        val remoteFloatDp = remoteFloat.dp
-
-        val resultId = remoteFloat.getIdForCreationState(creationState)
-        val resultDpId = remoteFloatDp.getIdForCreationState(creationState)
-
-        assertThat(resultId).isNotEqualTo(resultDpId)
     }
 
     private fun makeAndPaintCoreDocument() =

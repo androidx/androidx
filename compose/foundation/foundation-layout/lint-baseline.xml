@@ -7,7 +7,7 @@
         errorLine1="        assertThat(insets.isConsumed)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/layout/WindowInsetsSizeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/layout/WindowInsetsSizeTest.kt"/>
     </issue>
 
 </issues>

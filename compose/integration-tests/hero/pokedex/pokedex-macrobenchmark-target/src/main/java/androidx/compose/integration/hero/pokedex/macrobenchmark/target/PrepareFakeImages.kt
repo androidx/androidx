@@ -27,6 +27,36 @@ import java.io.File
 import kotlin.math.sqrt
 
 /**
+ * Find the Pokemon names we do not have images for in the [filesDir] by iterating over
+ * [AllPokemonNames] until the [limit] is hit. This can be used to determine what the cache should
+ * be filled with.
+ *
+ * @param filesDir The directory to search for the existing files in
+ * @param limit The max amount of names to return. Limiting this size can be helpful if you don't
+ *   need to walk over all 300-or-so names.
+ * @return The subset of [AllPokemonNames]'s names that don't have a cached image in the [filesDir].
+ */
+fun findPokemonNamesWithoutCachedImage(filesDir: File, limit: Int = 150): List<String> =
+    trace("findPokemonNamesWithoutCachedImage") {
+        val pokemonToCreateImagesFor = mutableListOf<String>()
+        val alreadyStoredPokemon = findPokemonNamesWithCachedImages(filesDir)
+        var index = 0
+        while (index < AllPokemonNames.size && pokemonToCreateImagesFor.size < limit) {
+            val pokemonName = AllPokemonNames[index]
+            if (pokemonName !in alreadyStoredPokemon) {
+                pokemonToCreateImagesFor.add(pokemonName)
+            }
+            index++
+        }
+        return@trace pokemonToCreateImagesFor
+    }
+
+private fun findPokemonNamesWithCachedImages(filesDir: File): List<String> {
+    val alreadyStoredPngs = filesDir.listFiles { dir, name -> name.endsWith(".png") }.orEmpty()
+    return alreadyStoredPngs.map { it.nameWithoutExtension }
+}
+
+/**
  * Creates and stores gradient bitmaps for each element in [pokemonNames], under
  * '[directory]/${pokemonName}.png'.
  *
@@ -56,8 +86,9 @@ fun createAndStoreGradientImages(
                 }
             trace("Store Bitmap for $pokemonName") {
                 val outFile = File(directory, "$pokemonName.png")
-                val outputStream = outFile.outputStream()
-                image.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outFile.outputStream().use { outputStream ->
+                    image.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                }
             }
         }
     }

@@ -16,41 +16,31 @@
 
 package androidx.compose.ui.benchmark.contentcapture
 
-import android.os.Build
-import android.view.View
 import android.view.ViewStructure
 import android.view.autofill.AutofillId
-import androidx.annotation.RequiresApi
-import androidx.compose.ui.benchmark.autofill.FakeViewStructure
 import androidx.compose.ui.contentcapture.ContentCaptureSessionWrapper
 import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 
 /** A fake implementation of [ContentCaptureSession] for use in tests. */
-internal class FakeContentCaptureSession : ContentCaptureSessionWrapper {
+class FakeContentCaptureSession : ContentCaptureSessionWrapper {
+    var lastAutofillId: AutofillId? = null
     var lastViewStructure: ViewStructure? = null
     var lastDisappearedId: AutofillId? = null
     var lastTextChangeId: AutofillId? = null
     var lastTextChange: CharSequence? = null
     var flushCount = 0
-    var lastAppearedNodes: List<ViewStructure> = emptyList()
+    var lastAppearedNodes: List<ViewStructure>? = null
     var lastDisappearedIds: LongArray? = null
-    val hostView: View
 
-    constructor(view: View) {
-        hostView = view
-    }
-
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun newAutofillId(virtualChildId: Long): AutofillId? {
-        return AutofillId.create(hostView, 0)
+        return null
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun newVirtualViewStructure(
         parentId: AutofillId,
         virtualId: Long,
     ): ViewStructureCompat? {
-        return ViewStructureCompat.toViewStructureCompat(FakeViewStructure())
+        return null
     }
 
     override fun notifyViewAppeared(node: ViewStructure) {

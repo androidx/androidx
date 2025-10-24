@@ -351,21 +351,6 @@ public abstract class RemoteFloat : Number(), RemoteState<Float> {
     }
 
     /**
-     * Property to convert this [RemoteFloat] to a density-independent pixel value. It multiplies
-     * the current float value by the screen\'s density.
-     */
-    public val dp: RemoteFloat
-        get() {
-            return RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    *arrayForCreationState(creationState),
-                    RemoteContext.FLOAT_DENSITY,
-                    AnimatedFloatExpression.MUL,
-                )
-            }
-        }
-
-    /**
      * Returns a [RemoteBoolean] that evaluates to `true` if [b] is equal to the value of this
      * [RemoteFloat] or `false` otherwise.
      */

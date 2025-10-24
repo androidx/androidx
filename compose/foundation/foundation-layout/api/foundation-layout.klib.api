@@ -59,8 +59,6 @@ abstract interface androidx.compose.foundation.layout/PaddingValues { // android
     abstract fun calculateLeftPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateLeftPadding|calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
     abstract fun calculateRightPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateRightPadding|calculateRightPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
     abstract fun calculateTopPadding(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateTopPadding|calculateTopPadding(){}[0]
-    open fun minus(androidx.compose.foundation.layout/PaddingValues): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues.minus|minus(androidx.compose.foundation.layout.PaddingValues){}[0]
-    open fun plus(androidx.compose.foundation.layout/PaddingValues): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues.plus|plus(androidx.compose.foundation.layout.PaddingValues){}[0]
 
     final class Absolute : androidx.compose.foundation.layout/PaddingValues { // androidx.compose.foundation.layout/PaddingValues.Absolute|null[0]
         constructor <init>(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.foundation.layout/PaddingValues.Absolute.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
@@ -185,6 +183,26 @@ final object androidx.compose.foundation.layout/Arrangement { // androidx.compos
         final fun spacedBy(androidx.compose.ui.unit/Dp, androidx.compose.ui/Alignment.Horizontal): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.spacedBy|spacedBy(androidx.compose.ui.unit.Dp;androidx.compose.ui.Alignment.Horizontal){}[0]
         final fun spacedBy(androidx.compose.ui.unit/Dp, androidx.compose.ui/Alignment.Vertical): androidx.compose.foundation.layout/Arrangement.Vertical // androidx.compose.foundation.layout/Arrangement.Absolute.spacedBy|spacedBy(androidx.compose.ui.unit.Dp;androidx.compose.ui.Alignment.Vertical){}[0]
     }
+}
+
+final object androidx.compose.foundation.layout/BoxScopeInstance : androidx.compose.foundation.layout/BoxScope { // androidx.compose.foundation.layout/BoxScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/BoxScopeInstance.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment){}[0]
+    final fun (androidx.compose.ui/Modifier).matchParentSize(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/BoxScopeInstance.matchParentSize|matchParentSize@androidx.compose.ui.Modifier(){}[0]
+}
+
+final object androidx.compose.foundation.layout/ColumnScopeInstance : androidx.compose.foundation.layout/ColumnScope { // androidx.compose.foundation.layout/ColumnScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment.Horizontal): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Horizontal){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(androidx.compose.ui.layout/VerticalAlignmentLine): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(androidx.compose.ui.layout.VerticalAlignmentLine){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    final fun (androidx.compose.ui/Modifier).weight(kotlin/Float, kotlin/Boolean): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.weight|weight@androidx.compose.ui.Modifier(kotlin.Float;kotlin.Boolean){}[0]
+}
+
+final object androidx.compose.foundation.layout/RowScopeInstance : androidx.compose.foundation.layout/RowScope { // androidx.compose.foundation.layout/RowScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment.Vertical): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Vertical){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(androidx.compose.ui.layout/HorizontalAlignmentLine): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(androidx.compose.ui.layout.HorizontalAlignmentLine){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    final fun (androidx.compose.ui/Modifier).alignByBaseline(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.alignByBaseline|alignByBaseline@androidx.compose.ui.Modifier(){}[0]
+    final fun (androidx.compose.ui/Modifier).weight(kotlin/Float, kotlin/Boolean): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.weight|weight@androidx.compose.ui.Modifier(kotlin.Float;kotlin.Boolean){}[0]
 }
 
 final val androidx.compose.foundation.layout/DefaultColumnMeasurePolicy // androidx.compose.foundation.layout/DefaultColumnMeasurePolicy|{}DefaultColumnMeasurePolicy[0]

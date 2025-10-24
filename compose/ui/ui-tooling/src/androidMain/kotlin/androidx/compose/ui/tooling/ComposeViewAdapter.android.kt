@@ -260,7 +260,12 @@ internal class ComposeViewAdapter : FrameLayout {
 
     /** Processes the recorded slot table and re-generates the [viewInfos] attribute. */
     private fun processViewInfos() {
-        viewInfos = slotTableRecord.store.makeTree(::toViewInfoFactory)
+        viewInfos =
+            slotTableRecord.store.makeTree(
+                prepareResult = {},
+                createNode = ::toViewInfoFactory,
+                createResult = { _, out, _ -> out },
+            )
 
         if (debugViewInfos) {
             val debugString = viewInfos.toDebugString()

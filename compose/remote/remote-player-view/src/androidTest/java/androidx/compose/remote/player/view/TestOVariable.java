@@ -28,7 +28,7 @@ import android.util.Log;
 
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator;
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -89,7 +89,7 @@ public class TestOVariable {
         DebugPlayerContext debugContext = new DebugPlayerContext();
         debugContext.setHideString(false);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, run);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, run);
         doc.paint(debugContext, Theme.UNSPECIFIED);
 
         return debugContext.getTestResults();
@@ -122,7 +122,7 @@ public class TestOVariable {
                     rdoc.drawOval(0, fid, tw, th);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         doc.initializeContext(debugContext);
         String result = doc.toString();
         String expected =
@@ -179,7 +179,7 @@ public class TestOVariable {
                     rdoc.drawOval(0, fid, rdoc.asFloatId(id), th);
                 };
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         doc.initializeContext(debugContext);
         String result = doc.toString();
         String expected =

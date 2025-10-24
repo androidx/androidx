@@ -782,6 +782,12 @@ public abstract class RemoteContext {
     /** The YEAR e.g. 2026 */
     public static final int ID_YEAR = 35;
 
+    /** First baseline (for alignment) */
+    public static final int ID_FIRST_BASELINE = 36;
+
+    /** last baseline (for alignment) */
+    public static final int ID_LAST_BASELINE = 37;
+
     public static final float FLOAT_DENSITY = Utils.asNan(ID_DENSITY);
 
     /** CONTINUOUS_SEC is seconds from midnight looping every hour 0-3600 */
@@ -878,6 +884,12 @@ public abstract class RemoteContext {
 
     /** The time in seconds since the epoch. */
     public static final long INT_EPOCH_SECOND = ((long) ID_EPOCH_SECOND) + 0x100000000L;
+
+    /** First Baseline */
+    public static final float FIRST_BASELINE = Utils.asNan(ID_FIRST_BASELINE);
+
+    /** Last Baseline */
+    public static final float LAST_BASELINE = Utils.asNan(ID_LAST_BASELINE);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Click handling

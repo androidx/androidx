@@ -43,6 +43,9 @@ public class PaintChangeAdapter implements PaintChanges {
             int bitmapId, short tileX, short tileY, short filterMode, short maxAnisotropy) {}
 
     @Override
+    public void setPathEffect(float @Nullable [] pathEffect) {}
+
+    @Override
     public void setStrokeWidth(float width) {}
 
     @Override

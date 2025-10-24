@@ -17,10 +17,15 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastJoinToString
 
-/** Defines a horizontal line to be drawn on the text. */
+/**
+ * Defines a horizontal line to be drawn on the text.
+ *
+ * @property mask The integer representation of the TextDecoration.
+ */
 @Immutable
 class TextDecoration internal constructor(val mask: Int) {
 
@@ -56,8 +61,16 @@ class TextDecoration internal constructor(val mask: Int) {
          * Construct a TextDecoration instance from the underlying [TextDecoration.mask]. This
          * method will attempt to avoid allocations in cases of well known decorations, but is not
          * guaranteed to not allocate.
+         *
+         * @param mask The integer representation of the TextDecoration.
+         * @throws IllegalArgumentException if the [mask] is not recognized.
+         * @see androidx.compose.ui.text.style.TextDecoration.mask
          */
         fun valueOf(mask: Int): TextDecoration {
+            // Prevent creating an invalid TextDecoration combination.
+            requirePrecondition((mask or 0b11) == 0b11) {
+                "The given mask=$mask is not recognized by TextDecoration."
+            }
             return when (mask) {
                 0 -> None
                 1 -> Underline

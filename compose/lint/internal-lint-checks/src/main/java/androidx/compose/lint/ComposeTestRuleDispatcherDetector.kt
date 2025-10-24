@@ -39,15 +39,16 @@ import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.skipParenthesizedExprDown
 
 /**
- * A lint detector that enforces the use of `StandardTestDispatcher` when using `createComposeRule`,
- * `createAndroidComposeRule` or `createEmptyComposeRule()`.
+ * A lint detector that enforces the use of `StandardTestDispatcher` when using `runComposeUiTest`,
+ * `runAndroidComposeUiTest`, `createComposeRule`, `createAndroidComposeRule` or
+ * `createEmptyComposeRule()`.
  *
  * This rule ensure that UI tests involving coroutines are predictable and reliable. It checks for
  * two primary scenarios:
- * 1. The test rule is created without a coroutine dispatcher argument, which is required for
+ * 1. The test API is called without a coroutine dispatcher argument, which is required for
  *    controlling the execution of coroutines in tests.
- * 2. The test rule is created with an `UnconfinedTestDispatcher`, which is discouraged as it can
- *    lead to non-deterministic behavior and hide potential race conditions.
+ * 2. The test API is called with an `UnconfinedTestDispatcher`, which is discouraged as it can lead
+ *    to non-deterministic behavior and hide potential race conditions.
  *
  * The detector provides quick fixes to automatically correct both of these issues by either adding
  * a `StandardTestDispatcher()` argument or replacing the incorrect dispatcher.
@@ -63,12 +64,22 @@ class ComposeTestRuleDispatcherDetector : Detector(), SourceCodeScanner {
             CreateComposeRule.shortName,
             CreateAndroidComposeRule.shortName,
             CreateEmptyComposeRule.shortName,
+            RunComposeUiTest.shortName,
+            RunAndroidComposeUiTest.shortName,
         )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         val dispatcherArgument =
             node.valueArguments.find {
-                node.getParameterForArgument(it)?.type?.inheritsFrom(CoroutineContext) == true
+                val param = node.getParameterForArgument(it)
+                if (
+                    method.name == RunComposeUiTest.shortName ||
+                        method.name == RunAndroidComposeUiTest.shortName
+                ) {
+                    param?.name == "effectContext"
+                } else {
+                    param?.type?.inheritsFrom(CoroutineContext) == true
+                }
             }
 
         if (dispatcherArgument == null) {
@@ -76,7 +87,7 @@ class ComposeTestRuleDispatcherDetector : Detector(), SourceCodeScanner {
                 issue = ISSUE,
                 location = context.getLocation(node),
                 message =
-                    "`TestDispatcher` is required. Add `${StandardTestDispatcher.shortName}()` to control coroutine execution.",
+                    "`TestDispatcher` is required. Add `effectContext = ${StandardTestDispatcher.shortName}()` to control coroutine execution.",
                 quickfixData = buildMissingDispatcherQuickFix(node),
             )
             return
@@ -158,7 +169,8 @@ class ComposeTestRuleDispatcherDetector : Detector(), SourceCodeScanner {
      * Builds a [LintFix] for cases where the `TestDispatcher` argument is missing.
      *
      * This adds `StandardTestDispatcher()` to the method call's argument list, handling both cases
-     * where other arguments are present and where there are none.
+     * where other arguments are present and where there are none. It also correctly handles calls
+     * that use trailing lambda syntax without parentheses.
      *
      * @param node The [UCallExpression] representing the method call.
      * @return A [LintFix] that adds the required dispatcher argument, or null if the source text
@@ -166,20 +178,45 @@ class ComposeTestRuleDispatcherDetector : Detector(), SourceCodeScanner {
      */
     private fun buildMissingDispatcherQuickFix(node: UCallExpression): LintFix? {
         val source = node.sourcePsi as? KtCallExpression ?: return null
-        val closeParen = source.valueArgumentList?.rightParenthesis ?: return null
-
         val originalText = source.text
-        val nodeStartOffset = source.textRange?.startOffset ?: return null
-        val parenStartOffset = closeParen.textRange.startOffset
-        val cutOffIndex = parenStartOffset - nodeStartOffset
-        val textUntilParen = originalText.substring(0, cutOffIndex)
 
-        val arg = "${StandardTestDispatcher.javaFqn}()"
-        val textToInsert = if (node.valueArgumentCount > 0) ", $arg" else arg
+        val arg = "effectContext = ${StandardTestDispatcher.javaFqn}()"
 
-        val replacementText = "$textUntilParen$textToInsert)"
+        // Call has parentheses, e.g., createComposeRule() or runComposeUiTest().
+        if (source.valueArgumentList != null) {
+            val closeParen = source.valueArgumentList?.rightParenthesis ?: return null
+            val nodeStartOffset = source.textRange?.startOffset ?: return null
+            val parenStartOffset = closeParen.textRange.startOffset
+            val cutOffIndex = parenStartOffset - nodeStartOffset
+            val textUntilParen = originalText.take(cutOffIndex)
+            val textToInsert = if (node.valueArgumentCount > 0) ", $arg" else arg
+            val textToReplace = originalText.take(cutOffIndex + closeParen.textLength)
+            val replacementText = "$textUntilParen$textToInsert)"
+            return fix()
+                .name("Add effectContext = ${StandardTestDispatcher.shortName}()")
+                .replace()
+                .text(textToReplace)
+                .with(replacementText)
+                .shortenNames()
+                .autoFix()
+                .build()
+        }
 
-        return fix().replace().text(originalText).with(replacementText).shortenNames().build()
+        // Trailing lambda with no parentheses, e.g., runComposeUiTest { ... }
+        if (source.lambdaArguments.isNotEmpty()) {
+            val methodName = source.calleeExpression?.text ?: return null
+            val replacementText = "$methodName($arg) ${source.lambdaArguments.first().text}"
+            return fix()
+                .name("Add effectContext = ${StandardTestDispatcher.shortName}()")
+                .replace()
+                .text(originalText)
+                .with(replacementText)
+                .shortenNames()
+                .autoFix()
+                .build()
+        }
+
+        return null
     }
 
     /**
@@ -194,6 +231,7 @@ class ComposeTestRuleDispatcherDetector : Detector(), SourceCodeScanner {
      */
     private fun buildWrongTestDispatcherQuickFix(location: Location): LintFix {
         return fix()
+            .name("Replace with ${StandardTestDispatcher.shortName}()")
             .replace()
             .range(location)
             .with(newText = "${StandardTestDispatcher.javaFqn}()")
@@ -207,9 +245,10 @@ class ComposeTestRuleDispatcherDetector : Detector(), SourceCodeScanner {
                 id = "ComposeTestRuleDispatcher",
                 briefDescription = "Compose test rule must use StandardTestDispatcher",
                 explanation =
-                    "`UnconfinedTestDispatcher `is disallowed because it can hide race conditions. " +
-                        "This dispatcher is used by default if one is not specified in the test rule. " +
-                        "For reliable tests, please provide a `StandardTestDispatcher` instead.",
+                    "Running Compose UI tests requires a `TestDispatcher` to control " +
+                        "coroutine execution. `UnconfinedTestDispatcher` is disallowed " +
+                        "because it can hide race conditions. For reliable and " +
+                        "predictable tests, please provide a `StandardTestDispatcher`.",
                 category = Category.CORRECTNESS,
                 priority = 5,
                 severity = Severity.ERROR,
@@ -232,3 +271,5 @@ private val ComposeTestPackage = Package("androidx.compose.ui.test")
 private val CreateComposeRule = Name(ComposeTestPackage, "createComposeRule")
 private val CreateAndroidComposeRule = Name(ComposeTestPackage, "createAndroidComposeRule")
 private val CreateEmptyComposeRule = Name(ComposeTestPackage, "createEmptyComposeRule")
+private val RunComposeUiTest = Name(ComposeTestPackage, "runComposeUiTest")
+private val RunAndroidComposeUiTest = Name(ComposeTestPackage, "runAndroidComposeUiTest")

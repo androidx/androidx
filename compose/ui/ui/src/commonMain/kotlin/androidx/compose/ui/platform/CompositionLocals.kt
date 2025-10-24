@@ -24,7 +24,7 @@ import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.retain.LocalRetainScope
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
@@ -229,7 +229,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalHapticFeedback provides owner.hapticFeedBack,
         LocalInputModeManager provides owner.inputModeManager,
         LocalLayoutDirection provides owner.layoutDirection,
-        LocalRetainScope provides owner.retainScope,
+        LocalRetainedValuesStore provides owner.retainedValuesStore,
         LocalTextInputService provides owner.textInputService,
         LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
         LocalTextToolbar provides owner.textToolbar,

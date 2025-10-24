@@ -160,6 +160,22 @@ internal class LookaheadPassDelegate(
 
     private val _childDelegates = MutableVector<LookaheadPassDelegate>()
 
+    internal fun onApproachPlacement() {
+        if (_placedState == PlacedState.IsNotPlaced) {
+            // The node has not been placed *by parent* in the lookahead pass before approach
+            // placement.
+            if (layoutNode.isOutMostLookaheadRoot) {
+                // The above behavior is expected for lookahead roots.
+                return
+            } else {
+                // Not placed in lookahead && this node is not completely detached
+                // from parent's lookahead pass (i.e. properly measured during parent's
+                // lookahead), mark only placement detached from lookahead.
+                layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement = true
+            }
+        }
+    }
+
     /**
      * This property indicates whether the lookahead pass delegate needs to be placed in the
      * approach pass. In the vast majority cases LookaheadPassDelegate is placed in the lookahead
@@ -171,23 +187,7 @@ internal class LookaheadPassDelegate(
      *    measuring it.
      */
     val needsToBePlacedInApproach: Boolean
-        get() =
-            if (layoutNode.isOutMostLookaheadRoot) {
-                true
-            } else {
-                if (
-                    _placedState == PlacedState.IsNotPlaced &&
-                        !layoutNodeLayoutDelegate.detachedFromParentLookaheadPass
-                ) {
-                    // Never placed in lookahead. Since this node is not completely detached
-                    // from
-                    // parent's lookahead pass (i.e. properly measured during parent's
-                    // lookahead),
-                    // mark only placement detached from lookahead.
-                    layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement = true
-                }
-                detachedFromParentLookaheadPlacement
-            }
+        get() = layoutNode.isOutMostLookaheadRoot || detachedFromParentLookaheadPlacement
 
     internal var childDelegatesDirty: Boolean = true
 
@@ -301,8 +301,8 @@ internal class LookaheadPassDelegate(
      */
     internal fun markNodeAndSubtreeAsNotPlaced(inLookahead: Boolean) {
         if (
-            (inLookahead && detachedFromParentLookaheadPlacement) ||
-                (!inLookahead && !detachedFromParentLookaheadPlacement)
+            (inLookahead && needsToBePlacedInApproach) ||
+                (!inLookahead && !needsToBePlacedInApproach)
         ) {
             // Not in the right pass. No-op
             return

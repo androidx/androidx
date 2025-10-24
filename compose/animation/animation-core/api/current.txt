@@ -3,9 +3,13 @@ package androidx.compose.animation.core {
 
   public final class Animatable<T, V extends androidx.compose.animation.core.AnimationVector> {
     ctor @BytecodeOnly @Deprecated public Animatable(Object!, androidx.compose.animation.core.TwoWayConverter!, Object!);
+    ctor @BytecodeOnly @Deprecated public Animatable(Object!, androidx.compose.animation.core.TwoWayConverter!, Object!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public Animatable(Object!, androidx.compose.animation.core.TwoWayConverter!, Object!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public Animatable(T initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional T? visibilityThreshold, optional String label);
     method public suspend Object? animateDecay(T initialVelocity, androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
+    method @BytecodeOnly public static Object! animateDecay$default(androidx.compose.animation.core.Animatable!, Object!, androidx.compose.animation.core.DecayAnimationSpec!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
     method public suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T initialVelocity, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
+    method @BytecodeOnly public static Object! animateTo$default(androidx.compose.animation.core.Animatable!, Object!, androidx.compose.animation.core.AnimationSpec!, Object!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
     method public androidx.compose.runtime.State<T> asState();
     method @InaccessibleFromKotlin public String getLabel();
     method @InaccessibleFromKotlin public T? getLowerBound();
@@ -19,6 +23,7 @@ package androidx.compose.animation.core {
     method public suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? stop(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void updateBounds(optional T? lowerBound, optional T? upperBound);
+    method @BytecodeOnly public static void updateBounds$default(androidx.compose.animation.core.Animatable!, Object!, Object!, int, Object!);
     property public boolean isRunning;
     property public String label;
     property public T? lowerBound;
@@ -32,6 +37,7 @@ package androidx.compose.animation.core {
 
   public final class AnimatableKt {
     method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.animation.core.Animatable<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> Animatable(float initialValue, optional float visibilityThreshold);
+    method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.animation.core.Animatable! Animatable$default(float, float, int, Object!);
   }
 
   public final class AnimateAsStateKt {
@@ -93,6 +99,7 @@ package androidx.compose.animation.core {
 
   public final class AnimationKt {
     method public static androidx.compose.animation.core.DecayAnimation<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> DecayAnimation(androidx.compose.animation.core.FloatDecayAnimationSpec animationSpec, float initialValue, optional float initialVelocity);
+    method @BytecodeOnly public static androidx.compose.animation.core.DecayAnimation! DecayAnimation$default(androidx.compose.animation.core.FloatDecayAnimationSpec!, float, float, int, Object!);
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.TargetBasedAnimation<T,V> TargetBasedAnimation(androidx.compose.animation.core.AnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T targetValue, T initialVelocity);
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> T getVelocityFromNanos(androidx.compose.animation.core.Animation<T,V>, long playTimeNanos);
   }
@@ -135,19 +142,27 @@ package androidx.compose.animation.core {
   public final class AnimationSpecKt {
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.animation.core.InfiniteRepeatableSpec! infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.animation.core.InfiniteRepeatableSpec! infiniteRepeatable$default(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T!> infiniteRepeatable-9IiC70o(androidx.compose.animation.core.DurationBasedAnimationSpec<T!>, androidx.compose.animation.core.RepeatMode, long);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.InfiniteRepeatableSpec! infiniteRepeatable-9IiC70o$default(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, int, Object!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesSpec<T> keyframes(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T>,kotlin.Unit> init);
     method public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(@FloatRange(from=0.0, to=1.0) float periodicBias, kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
     method public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.animation.core.RepeatableSpec! repeatable(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.animation.core.RepeatableSpec! repeatable$default(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T!> repeatable-91I0pcU(int, androidx.compose.animation.core.DurationBasedAnimationSpec<T!>, androidx.compose.animation.core.RepeatMode, long);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.RepeatableSpec! repeatable-91I0pcU$default(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, int, Object!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SnapSpec<T> snap(optional int delayMillis);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.SnapSpec! snap$default(int, int, Object!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SpringSpec<T> spring(optional float dampingRatio, optional float stiffness, optional T? visibilityThreshold);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.SpringSpec! spring$default(float, float, Object!, int, Object!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.TweenSpec<T> tween(optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.TweenSpec! tween$default(int, int, androidx.compose.animation.core.Easing!, int, Object!);
   }
 
   public final class AnimationState<T, V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.runtime.State<T> {
+    ctor @BytecodeOnly public AnimationState(androidx.compose.animation.core.TwoWayConverter!, Object!, androidx.compose.animation.core.AnimationVector!, long, long, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AnimationState(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, optional V? initialVelocityVector, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
     method @InaccessibleFromKotlin public long getFinishedTimeNanos();
     method @InaccessibleFromKotlin public long getLastFrameTimeNanos();
@@ -168,8 +183,12 @@ package androidx.compose.animation.core {
   public final class AnimationStateKt {
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimationState<T,V> AnimationState(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T initialVelocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
     method public static androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> AnimationState(float initialValue, optional float initialVelocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
+    method @BytecodeOnly public static androidx.compose.animation.core.AnimationState! AnimationState$default(androidx.compose.animation.core.TwoWayConverter!, Object!, Object!, long, long, boolean, int, Object!);
+    method @BytecodeOnly public static androidx.compose.animation.core.AnimationState! AnimationState$default(float, float, long, long, boolean, int, Object!);
     method public static androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> copy(androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D>, optional float value, optional float velocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimationState<T,V> copy(androidx.compose.animation.core.AnimationState<T,V>, optional T value, optional V? velocityVector, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
+    method @BytecodeOnly public static androidx.compose.animation.core.AnimationState! copy$default(androidx.compose.animation.core.AnimationState!, float, float, long, long, boolean, int, Object!);
+    method @BytecodeOnly public static androidx.compose.animation.core.AnimationState! copy$default(androidx.compose.animation.core.AnimationState!, Object!, androidx.compose.animation.core.AnimationVector!, long, long, boolean, int, Object!);
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> V createZeroVectorFrom(androidx.compose.animation.core.TwoWayConverter<T,V>, T value);
     method @InaccessibleFromKotlin public static boolean isFinished(androidx.compose.animation.core.AnimationState<? extends java.lang.Object?,? extends java.lang.Object?>);
     property public static boolean androidx.compose.animation.core.AnimationState<? extends java.lang.Object?,? extends java.lang.Object?>.isFinished;
@@ -224,6 +243,7 @@ package androidx.compose.animation.core {
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class ArcAnimationSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public ArcAnimationSpec();
     ctor @KotlinOnly public <T> ArcAnimationSpec(optional androidx.compose.animation.core.ArcMode mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
+    ctor @BytecodeOnly public ArcAnimationSpec(int, int, int, androidx.compose.animation.core.Easing!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ArcAnimationSpec(int, int, int, androidx.compose.animation.core.Easing!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDelayMillis();
     method @InaccessibleFromKotlin public int getDurationMillis();
@@ -284,6 +304,7 @@ package androidx.compose.animation.core {
     method public static float calculateTargetValue(androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>, float initialValue, float initialVelocity);
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> T calculateTargetValue(androidx.compose.animation.core.DecayAnimationSpec<T>, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T initialVelocity);
     method public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> exponentialDecay(optional @FloatRange(from=0.0, fromInclusive=false) float frictionMultiplier, optional @FloatRange(from=0.0, fromInclusive=false) float absVelocityThreshold);
+    method @BytecodeOnly public static androidx.compose.animation.core.DecayAnimationSpec! exponentialDecay$default(float, float, int, Object!);
     method public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> generateDecayAnimationSpec(androidx.compose.animation.core.FloatDecayAnimationSpec);
   }
 
@@ -292,6 +313,7 @@ package androidx.compose.animation.core {
     method @InaccessibleFromKotlin public T? getPendingTarget();
     method @InaccessibleFromKotlin public boolean isIdle();
     method public T updateTarget(T target, kotlinx.coroutines.CoroutineScope coroutineScope, optional androidx.compose.animation.core.FiniteAnimationSpec<T> animationSpec);
+    method @BytecodeOnly public static Object! updateTarget$default(androidx.compose.animation.core.DeferredTargetAnimation!, Object!, kotlinx.coroutines.CoroutineScope!, androidx.compose.animation.core.FiniteAnimationSpec!, int, Object!);
     property public boolean isIdle;
     property public T? pendingTarget;
   }
@@ -419,6 +441,7 @@ package androidx.compose.animation.core {
   public final class FloatExponentialDecaySpec implements androidx.compose.animation.core.FloatDecayAnimationSpec {
     ctor public FloatExponentialDecaySpec();
     ctor public FloatExponentialDecaySpec(optional @FloatRange(from=0.0, fromInclusive=false) float frictionMultiplier, optional @FloatRange(from=0.0, fromInclusive=false) float absVelocityThreshold);
+    ctor @BytecodeOnly public FloatExponentialDecaySpec(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getAbsVelocityThreshold();
     method public long getDurationNanos(float initialValue, float initialVelocity);
     method public float getTargetValue(float initialValue, float initialVelocity);
@@ -430,6 +453,7 @@ package androidx.compose.animation.core {
   public final class FloatSpringSpec implements androidx.compose.animation.core.FloatAnimationSpec {
     ctor public FloatSpringSpec();
     ctor public FloatSpringSpec(optional float dampingRatio, optional float stiffness, optional float visibilityThreshold);
+    ctor @BytecodeOnly public FloatSpringSpec(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getDampingRatio();
     method public long getDurationNanos(float initialValue, float targetValue, float initialVelocity);
     method @InaccessibleFromKotlin public float getStiffness();
@@ -442,6 +466,7 @@ package androidx.compose.animation.core {
   public final class FloatTweenSpec implements androidx.compose.animation.core.FloatAnimationSpec {
     ctor public FloatTweenSpec();
     ctor public FloatTweenSpec(optional int duration, optional int delay, optional androidx.compose.animation.core.Easing easing);
+    ctor @BytecodeOnly public FloatTweenSpec(int, int, androidx.compose.animation.core.Easing!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDelay();
     method @InaccessibleFromKotlin public int getDuration();
     method public long getDurationNanos(float initialValue, float targetValue, float initialVelocity);
@@ -458,6 +483,8 @@ package androidx.compose.animation.core {
 
   public final class InfiniteRepeatableSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
     ctor @BytecodeOnly @Deprecated public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly @Deprecated public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @KotlinOnly public <T> InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method @InaccessibleFromKotlin public androidx.compose.animation.core.DurationBasedAnimationSpec<T> getAnimation();
@@ -515,6 +542,7 @@ package androidx.compose.animation.core {
   }
 
   public static final class KeyframesSpec.KeyframeEntity<T> extends androidx.compose.animation.core.KeyframeBaseEntity<T> {
+    ctor @BytecodeOnly public KeyframesSpec.KeyframeEntity(Object!, androidx.compose.animation.core.Easing!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public static final class KeyframesSpec.KeyframesSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
@@ -573,6 +601,8 @@ package androidx.compose.animation.core {
 
   @androidx.compose.runtime.Immutable public final class RepeatableSpec<T> implements androidx.compose.animation.core.FiniteAnimationSpec<T> {
     ctor @BytecodeOnly @Deprecated public RepeatableSpec(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly @Deprecated public RepeatableSpec(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public RepeatableSpec(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RepeatableSpec(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @KotlinOnly public <T> RepeatableSpec(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method @InaccessibleFromKotlin public androidx.compose.animation.core.DurationBasedAnimationSpec<T> getAnimation();
@@ -589,10 +619,12 @@ package androidx.compose.animation.core {
   public final class SeekableTransitionState<S> extends androidx.compose.animation.core.TransitionState<S> {
     ctor public SeekableTransitionState(S initialState);
     method public suspend Object? animateTo(optional S targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateTo$default(androidx.compose.animation.core.SeekableTransitionState!, Object!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
     method @InaccessibleFromKotlin public S getCurrentState();
     method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getFraction();
     method @InaccessibleFromKotlin public S getTargetState();
     method public suspend Object? seekTo(@FloatRange(from=0.0, to=1.0) float fraction, optional S targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! seekTo$default(androidx.compose.animation.core.SeekableTransitionState!, float, Object!, kotlin.coroutines.Continuation!, int, Object!);
     method public suspend Object? snapTo(S targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public S currentState;
     property @FloatRange(from=0.0, to=1.0) public float fraction;
@@ -602,6 +634,7 @@ package androidx.compose.animation.core {
   @androidx.compose.runtime.Immutable public final class SnapSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public SnapSpec();
     ctor public SnapSpec(optional int delay);
+    ctor @BytecodeOnly public SnapSpec(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDelay();
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
     property public int delay;
@@ -633,6 +666,7 @@ package androidx.compose.animation.core {
 
   @androidx.compose.runtime.Immutable public final class SpringSpec<T> implements androidx.compose.animation.core.FiniteAnimationSpec<T> {
     ctor public SpringSpec();
+    ctor @BytecodeOnly public SpringSpec(float, float, Object!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SpringSpec(optional float dampingRatio, optional float stiffness, optional T? visibilityThreshold);
     method @InaccessibleFromKotlin public float getDampingRatio();
     method @InaccessibleFromKotlin public float getStiffness();
@@ -647,6 +681,7 @@ package androidx.compose.animation.core {
     ctor @KotlinOnly public StartOffset(int offsetMillis, optional androidx.compose.animation.core.StartOffsetType offsetType);
     method @BytecodeOnly public static androidx.compose.animation.core.StartOffset! box-impl(long);
     method @BytecodeOnly public static long constructor-impl(int, int);
+    method @BytecodeOnly public static long constructor-impl$default(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public static int getOffsetMillis-impl(long);
     method @BytecodeOnly public static int getOffsetType-Eo1U57Q(long);
     method @BytecodeOnly public long unbox-impl();
@@ -670,12 +705,17 @@ package androidx.compose.animation.core {
   public final class SuspendAnimationKt {
     method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animate(androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T targetValue, optional T? initialVelocity, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, kotlin.jvm.functions.Function2<? super T,? super T,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend Object? animate(float initialValue, float targetValue, optional float initialVelocity, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animate$default(androidx.compose.animation.core.TwoWayConverter!, Object!, Object!, Object!, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! animate$default(float, float, float, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
     method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animateDecay(androidx.compose.animation.core.AnimationState<T,V>, androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, optional boolean sequentialAnimation, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.AnimationScope<T,V>,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend Object? animateDecay(float initialValue, float initialVelocity, androidx.compose.animation.core.FloatDecayAnimationSpec animationSpec, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateDecay$default(androidx.compose.animation.core.AnimationState!, androidx.compose.animation.core.DecayAnimationSpec!, boolean, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
     method public static suspend <T, V extends androidx.compose.animation.core.AnimationVector> Object? animateTo(androidx.compose.animation.core.AnimationState<T,V>, T targetValue, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional boolean sequentialAnimation, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.AnimationScope<T,V>,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateTo$default(androidx.compose.animation.core.AnimationState!, Object!, androidx.compose.animation.core.AnimationSpec!, boolean, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
   public final class TargetBasedAnimation<T, V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.Animation<T,V> {
+    ctor @BytecodeOnly public TargetBasedAnimation(androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.TwoWayConverter!, Object!, Object!, androidx.compose.animation.core.AnimationVector!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public TargetBasedAnimation(androidx.compose.animation.core.AnimationSpec<T> animationSpec, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, T initialValue, T targetValue, optional V? initialVelocityVector);
     method @InaccessibleFromKotlin public long getDurationNanos();
     method @InaccessibleFromKotlin public T getInitialValue();
@@ -772,6 +812,7 @@ package androidx.compose.animation.core {
   @androidx.compose.runtime.Immutable public final class TweenSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public TweenSpec();
     ctor public TweenSpec(optional int durationMillis, optional int delay, optional androidx.compose.animation.core.Easing easing);
+    ctor @BytecodeOnly public TweenSpec(int, int, androidx.compose.animation.core.Easing!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDelay();
     method @InaccessibleFromKotlin public int getDurationMillis();
     method @InaccessibleFromKotlin public androidx.compose.animation.core.Easing getEasing();
@@ -850,6 +891,8 @@ package androidx.compose.animation.core {
 
   public final class VectorizedInfiniteRepeatableSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedAnimationSpec<V> {
     ctor @BytecodeOnly @Deprecated public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly @Deprecated public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @KotlinOnly public <V extends androidx.compose.animation.core.AnimationVector> VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method public long getDurationNanos(V initialValue, V targetValue, V initialVelocity);
@@ -860,6 +903,7 @@ package androidx.compose.animation.core {
   }
 
   public final class VectorizedKeyframesSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> {
+    ctor @BytecodeOnly public VectorizedKeyframesSpec(java.util.Map!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public VectorizedKeyframesSpec(java.util.Map<java.lang.Integer,? extends kotlin.Pair<? extends V,? extends androidx.compose.animation.core.Easing>> keyframes, int durationMillis, optional int delayMillis);
     method @InaccessibleFromKotlin public int getDelayMillis();
     method @InaccessibleFromKotlin public int getDurationMillis();
@@ -871,6 +915,8 @@ package androidx.compose.animation.core {
 
   public final class VectorizedRepeatableSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedFiniteAnimationSpec<V> {
     ctor @BytecodeOnly @Deprecated public VectorizedRepeatableSpec(int, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly @Deprecated public VectorizedRepeatableSpec(int, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public VectorizedRepeatableSpec(int, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public VectorizedRepeatableSpec(int, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @KotlinOnly public <V extends androidx.compose.animation.core.AnimationVector> VectorizedRepeatableSpec(int iterations, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method public long getDurationNanos(V initialValue, V targetValue, V initialVelocity);
@@ -881,6 +927,7 @@ package androidx.compose.animation.core {
   public final class VectorizedSnapSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> {
     ctor public VectorizedSnapSpec();
     ctor public VectorizedSnapSpec(optional int delayMillis);
+    ctor @BytecodeOnly public VectorizedSnapSpec(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDelayMillis();
     method @InaccessibleFromKotlin public int getDurationMillis();
     method public V getValueFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
@@ -890,6 +937,7 @@ package androidx.compose.animation.core {
   }
 
   public final class VectorizedSpringSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedFiniteAnimationSpec<V> {
+    ctor @BytecodeOnly public VectorizedSpringSpec(float, float, androidx.compose.animation.core.AnimationVector!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public VectorizedSpringSpec(optional float dampingRatio, optional float stiffness, optional V? visibilityThreshold);
     method @InaccessibleFromKotlin public float getDampingRatio();
     method public long getDurationNanos(V initialValue, V targetValue, V initialVelocity);
@@ -904,6 +952,7 @@ package androidx.compose.animation.core {
   public final class VectorizedTweenSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> {
     ctor public VectorizedTweenSpec();
     ctor public VectorizedTweenSpec(optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
+    ctor @BytecodeOnly public VectorizedTweenSpec(int, int, androidx.compose.animation.core.Easing!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDelayMillis();
     method @InaccessibleFromKotlin public int getDurationMillis();
     method @InaccessibleFromKotlin public androidx.compose.animation.core.Easing getEasing();

@@ -88,6 +88,7 @@ public class RemoteComposeDocumentModifier(public val content: (RemoteComposeWri
 public fun Document(content: (RemoteComposeWriter) -> Unit) {
     val captureMode = LocalRemoteComposeCreationState.current
     if (captureMode !is NoRemoteCompose) {
-        Box(modifier = Modifier.remoteDocument(content))
+        // b/446706254
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") Box(modifier = Modifier.remoteDocument(content))
     }
 }

@@ -91,7 +91,7 @@ internal class BoundsAnimation(
                 // Only invoke bounds transform when animation is initialized. This means
                 // boundsTransform will not participate in interruption-handling animations.
                 animationSpec =
-                    (forcedBoundsTransform ?: boundsTransform).transform(
+                    (forcedBoundsTransform ?: boundsTransform).createAnimationSpec(
                         currentBounds,
                         targetBounds,
                     )

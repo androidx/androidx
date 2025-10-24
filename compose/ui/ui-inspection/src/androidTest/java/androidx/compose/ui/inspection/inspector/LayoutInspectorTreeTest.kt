@@ -103,6 +103,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.Collections
 import java.util.WeakHashMap
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -121,7 +122,7 @@ private const val MAX_ITERABLE_SIZE = 5
 class LayoutInspectorTreeTest {
     private lateinit var density: Density
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     private val fontFamily = Font(androidx.testutils.fonts.R.font.sample_font).toFontFamily()
 

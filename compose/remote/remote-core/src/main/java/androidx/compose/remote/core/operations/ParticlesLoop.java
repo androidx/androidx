@@ -248,7 +248,7 @@ public class ParticlesLoop extends PaintOperation implements VariableSupport, Co
                 .field(
                         INT,
                         "recycleLen",
-                        "the number of floats in restart equeation if 0 no restart")
+                        "the number of floats in restart equation if 0 no restart")
                 .field(FLOAT_ARRAY, "values", "recycleLen", "array of floats")
                 .field(INT, "varLen", "the number of equations to follow")
                 .field(INT, "equLen", "the number of equations to follow")

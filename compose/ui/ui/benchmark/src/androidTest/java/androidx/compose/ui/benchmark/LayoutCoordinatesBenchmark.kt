@@ -118,6 +118,18 @@ class LayoutCoordinatesBenchmark {
         benchmarkRule.toggleStateBenchmark(MovingGrandParentTestCase(Modifier))
     }
 
+    @Test
+    fun positionInRoot() {
+        benchmarkRule.runBenchmarkFor({ LayoutCoordinatesTestCase(false) }) {
+            benchmarkRule.runOnUiThread { doFramesUntilNoChangesPending() }
+
+            benchmarkRule.measureRepeatedOnUiThread {
+                val testCase = getTestCase()
+                testCase.coordinates1.positionInRoot()
+            }
+        }
+    }
+
     private class LayoutCoordinatesTestCase(val useLayer: Boolean) : ComposeTestCase {
         lateinit var coordinates1: LayoutCoordinates
         lateinit var coordinates2: LayoutCoordinates

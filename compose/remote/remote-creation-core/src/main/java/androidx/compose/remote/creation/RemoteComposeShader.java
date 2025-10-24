@@ -173,6 +173,18 @@ public class RemoteComposeShader {
         return mySetFloatUniform(name, v1);
     }
 
+    /**
+     * Sets a uniform of an array of floats
+     *
+     * @param name The name of the uniform
+     * @param values The floats
+     * @return this
+     */
+    public @NonNull RemoteComposeShader setFloatUniform(@NonNull String name,
+            float @NonNull [] values) {
+        return mySetFloatUniform(name, values);
+    }
+
     private @NonNull RemoteComposeShader mySetFloatUniform(
             @NonNull String name, float @NonNull ... value) {
         HashMap<@NonNull String, float @NonNull []> map =

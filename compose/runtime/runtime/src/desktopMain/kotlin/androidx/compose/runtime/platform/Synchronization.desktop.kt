@@ -22,5 +22,6 @@ internal actual typealias SynchronizedObject = androidx.compose.runtime.Synchron
 internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
 
 @PublishedApi
+@Suppress("LESS_VISIBLE_TYPE_ACCESS_IN_INLINE_WARNING") // b/446705238
 internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R =
     kotlin.synchronized(lock, block)

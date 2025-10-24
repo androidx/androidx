@@ -1,41 +1,81 @@
 // Baseline format: 1.0
-[linuxX64]: Removed declaration (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/asPaddingValues() from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/Box(androidx.compose.ui/Modifier) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/BoxWithConstraints(androidx.compose.ui/Modifier, androidx.compose.ui/Alignment, kotlin/Boolean, kotlin/Function1<androidx.compose.foundation.layout/BoxWithConstraintsScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlowColumn(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.ui/Alignment.Horizontal, kotlin/Int, kotlin/Int, kotlin/Function1<androidx.compose.foundation.layout/FlowColumnScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlowRow(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.ui/Alignment.Vertical, kotlin/Int, kotlin/Int, kotlin/Function1<androidx.compose.foundation.layout/FlowRowScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/Spacer(androidx.compose.ui/Modifier) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/columnMeasurePolicy(androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.ui/Alignment.Horizontal) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/columnMeasurementHelper(androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.foundation.layout/Arrangement.Horizontal, kotlin/Int) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/rememberBoxMeasurePolicy(androidx.compose.ui/Alignment, kotlin/Boolean) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/rowMeasurePolicy(androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.ui/Alignment.Vertical) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/rowMeasurementHelper(androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.foundation.layout/Arrangement.Vertical, kotlin/Int) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/Box(androidx.compose.ui/Modifier, androidx.compose.ui/Alignment, kotlin/Boolean, kotlin/Function1<androidx.compose.foundation.layout/BoxScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/Column(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.ui/Alignment.Horizontal, kotlin/Function1<androidx.compose.foundation.layout/ColumnScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Removed declaration androidx.compose.foundation.layout/Row(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.ui/Alignment.Vertical, kotlin/Function1<androidx.compose.foundation.layout/RowScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/captionBar.<get-captionBar>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/captionBar.<get-captionBar>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/displayCutout.<get-displayCutout>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/displayCutout.<get-displayCutout>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/ime.<get-ime>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/ime.<get-ime>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/mandatorySystemGestures.<get-mandatorySystemGestures>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/mandatorySystemGestures.<get-mandatorySystemGestures>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/navigationBars.<get-navigationBars>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/navigationBars.<get-navigationBars>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/safeContent.<get-safeContent>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/safeContent.<get-safeContent>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/safeDrawing.<get-safeDrawing>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/safeDrawing.<get-safeDrawing>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/safeGestures.<get-safeGestures>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/safeGestures.<get-safeGestures>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/statusBars.<get-statusBars>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/statusBars.<get-statusBars>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/systemBars.<get-systemBars>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/systemBars.<get-systemBars>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/systemGestures.<get-systemGestures>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/systemGestures.<get-systemGestures>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/tappableElement.<get-tappableElement>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/tappableElement.<get-tappableElement>
-[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/waterfall.<get-waterfall>
-[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/waterfall.<get-waterfall>
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement_SpacedAligned$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_BoxScopeInstance$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ColumnMeasurePolicy$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ColumnScopeInstance$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnOverflowScopeImpl$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnScopeImpl$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowItemIterator$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowOverflowScopeImpl$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowScopeImpl$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_CrossAxisAlignment$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FillCrossAxisSizeElement$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FillCrossAxisSizeNode$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnOverflowScopeImpl$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnScopeInstance$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutData$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutOverflowState$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLineInfo$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowOverflowScopeImpl$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowScopeInstance$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_HorizontalAlignElement$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_HorizontalAlignNode$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_InsetsPaddingModifier$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_InsetsValues$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_IntrinsicMeasureBlocks$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_LayoutWeightElement$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_LayoutWeightNode$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_PaddingValuesImpl$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_RowColumnParentData$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_RowMeasurePolicy$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_RowScopeInstance$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_SiblingsAlignedNode$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_SiblingsAlignedNode_WithAlignmentLineBlockNode$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_SiblingsAlignedNode_WithAlignmentLineNode$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ValueInsets$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_VerticalAlignElement$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_VerticalAlignNode$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineBlockElement$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineElement$stableprop from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement_SpacedAligned$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_BoxScopeInstance$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ColumnMeasurePolicy$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ColumnScopeInstance$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnOverflowScopeImpl$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnScopeImpl$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowItemIterator$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowOverflowScopeImpl$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowScopeImpl$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_CrossAxisAlignment$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FillCrossAxisSizeElement$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FillCrossAxisSizeNode$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnOverflowScopeImpl$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnScopeInstance$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutData$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutOverflowState$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLineInfo$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowOverflowScopeImpl$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowScopeInstance$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_HorizontalAlignElement$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_HorizontalAlignNode$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_InsetsPaddingModifier$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_InsetsValues$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_IntrinsicMeasureBlocks$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_LayoutWeightElement$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_LayoutWeightNode$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_PaddingValuesImpl$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_RowColumnParentData$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_RowMeasurePolicy$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_RowScopeInstance$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_SiblingsAlignedNode$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_SiblingsAlignedNode_WithAlignmentLineBlockNode$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_SiblingsAlignedNode_WithAlignmentLineNode$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_ValueInsets$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_VerticalAlignElement$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_VerticalAlignNode$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineBlockElement$stableprop_getter() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineElement$stableprop_getter() from androidx.compose.foundation:foundation-layout

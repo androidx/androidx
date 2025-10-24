@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.retain
 
+import androidx.compose.runtime.retain.impl.SafeMultiValueMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

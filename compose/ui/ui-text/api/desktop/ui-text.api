@@ -1590,8 +1590,6 @@ public final class androidx/compose/ui/text/style/BaselineShift {
 	public final fun getMultiplier ()F
 	public fun hashCode ()I
 	public static fun hashCode-impl (F)I
-	public static final fun isSpecified-impl (F)Z
-	public static final fun takeOrElse-IkE-C00 (FLkotlin/jvm/functions/Function0;)F
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (F)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()F
@@ -1605,7 +1603,9 @@ public final class androidx/compose/ui/text/style/BaselineShift$Companion {
 }
 
 public final class androidx/compose/ui/text/style/BaselineShiftKt {
+	public static final fun isSpecified-4Dl_Bck (F)Z
 	public static final fun lerp-jWV1Mfo (FFF)F
+	public static final fun takeOrElse-JpAxnlU (FLkotlin/jvm/functions/Function0;)F
 }
 
 public final class androidx/compose/ui/text/style/Hyphens {
@@ -1617,7 +1617,6 @@ public final class androidx/compose/ui/text/style/Hyphens {
 	public final fun getValue ()I
 	public fun hashCode ()I
 	public static fun hashCode-impl (I)I
-	public static final fun isSpecified-impl (I)Z
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (I)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()I
@@ -1628,6 +1627,11 @@ public final class androidx/compose/ui/text/style/Hyphens$Companion {
 	public final fun getNone-vmbZdU8 ()I
 	public final fun getUnspecified-vmbZdU8 ()I
 	public final fun valueOf-kPa1_AA (I)I
+}
+
+public final class androidx/compose/ui/text/style/HyphensKt {
+	public static final fun isSpecified--3fSNIE (I)Z
+	public static final fun takeOrElse-Kk21toE (ILkotlin/jvm/functions/Function0;)I
 }
 
 public final class androidx/compose/ui/text/style/LineBreak {
@@ -1750,7 +1754,6 @@ public final class androidx/compose/ui/text/style/TextAlign {
 	public final fun getValue ()I
 	public fun hashCode ()I
 	public static fun hashCode-impl (I)I
-	public static final fun isSpecified-impl (I)Z
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (I)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()I
@@ -1766,6 +1769,11 @@ public final class androidx/compose/ui/text/style/TextAlign$Companion {
 	public final fun getUnspecified-e0LSkKk ()I
 	public final fun valueOf-IgVj0fw (I)I
 	public final fun values ()Ljava/util/List;
+}
+
+public final class androidx/compose/ui/text/style/TextAlignKt {
+	public static final fun isSpecified-aXe7zB0 (I)Z
+	public static final fun takeOrElse-BvjSTJw (ILkotlin/jvm/functions/Function0;)I
 }
 
 public final class androidx/compose/ui/text/style/TextDecoration {
@@ -1796,7 +1804,6 @@ public final class androidx/compose/ui/text/style/TextDirection {
 	public final fun getValue ()I
 	public fun hashCode ()I
 	public static fun hashCode-impl (I)I
-	public static final fun isSpecified-impl (I)Z
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (I)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()I
@@ -1810,6 +1817,11 @@ public final class androidx/compose/ui/text/style/TextDirection$Companion {
 	public final fun getRtl-s_7X-co ()I
 	public final fun getUnspecified-s_7X-co ()I
 	public final fun valueOf-E8nx0Ws (I)I
+}
+
+public final class androidx/compose/ui/text/style/TextDirectionKt {
+	public static final fun isSpecified-Hejc4pk (I)Z
+	public static final fun takeOrElse-HklW4sA (ILkotlin/jvm/functions/Function0;)I
 }
 
 public final class androidx/compose/ui/text/style/TextGeometricTransform {

@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.text.style
 
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.text.internal.requirePrecondition
 import kotlin.jvm.JvmInline
 
 /**
@@ -37,6 +39,8 @@ import kotlin.jvm.JvmInline
  *   place where the word can be broken if hyphenation is necessary.
  *
  * The default configuration for [Hyphens] = [Hyphens.None]
+ *
+ * @property value The integer representation of the Hyphens.
  */
 @JvmInline
 value class Hyphens internal constructor(val value: Int) {
@@ -81,20 +85,16 @@ value class Hyphens internal constructor(val value: Int) {
          * serialize/deserialize Hyphens values.
          *
          * @param value The integer representation of the Hyphens.
-         * @see [Hyphens.value]
+         * @throws IllegalArgumentException if the given [value] is not recognized.
+         * @see androidx.compose.ui.text.style.Hyphens.value
          */
         fun valueOf(value: Int): Hyphens {
+            requirePrecondition(value in 0..2) {
+                "The given value=$value is not recognized by Hyphens."
+            }
             return Hyphens(value)
         }
     }
-
-    /**
-     * Returns `true` if it is not [Hyphens.Unspecified].
-     *
-     * @see Hyphens.Unspecified
-     */
-    val isSpecified: Boolean
-        get() = value != 0
 
     override fun toString() =
         when (this) {
@@ -103,4 +103,20 @@ value class Hyphens internal constructor(val value: Int) {
             Unspecified -> "Hyphens.Unspecified"
             else -> "Invalid"
         }
+}
+
+/**
+ * Returns `true` if it is not [Hyphens.Unspecified].
+ *
+ * @see Hyphens.Unspecified
+ */
+inline val Hyphens.isSpecified: Boolean
+    get() = value != 0
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun Hyphens.takeOrElse(block: () -> Hyphens): Hyphens {
+    return if (isSpecified) this else block()
 }

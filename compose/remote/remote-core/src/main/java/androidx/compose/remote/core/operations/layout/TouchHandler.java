@@ -23,7 +23,7 @@ import org.jspecify.annotations.NonNull;
 
 /** Interface to represent operations that can handle touch events */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface TouchHandler {
+public interface TouchHandler extends TouchOperation {
 
     /**
      * callback for a touch down event

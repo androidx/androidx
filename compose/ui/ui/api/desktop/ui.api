@@ -1523,6 +1523,51 @@ public abstract interface class androidx/compose/ui/input/InputModeManager {
 	public abstract fun requestInputMode-iuPiT84 (I)Z
 }
 
+public abstract interface class androidx/compose/ui/input/indirect/IndirectPointerEvent {
+	public abstract fun getChanges ()Ljava/util/List;
+	public abstract fun getPrimaryDirectionalMotionAxis-nZO2Niw ()I
+	public abstract fun getType-4ZHQPSE ()I
+}
+
+public final class androidx/compose/ui/input/indirect/IndirectPointerEventPrimaryDirectionalMotionAxis {
+	public static final field Companion Landroidx/compose/ui/input/indirect/IndirectPointerEventPrimaryDirectionalMotionAxis$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/input/indirect/IndirectPointerEventPrimaryDirectionalMotionAxis;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/input/indirect/IndirectPointerEventPrimaryDirectionalMotionAxis$Companion {
+	public final fun getNone-nZO2Niw ()I
+	public final fun getX-nZO2Niw ()I
+	public final fun getY-nZO2Niw ()I
+}
+
+public final class androidx/compose/ui/input/indirect/IndirectPointerEventType {
+	public static final field Companion Landroidx/compose/ui/input/indirect/IndirectPointerEventType$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/input/indirect/IndirectPointerEventType;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/input/indirect/IndirectPointerEventType$Companion {
+	public final fun getMove-4ZHQPSE ()I
+	public final fun getPress-4ZHQPSE ()I
+	public final fun getRelease-4ZHQPSE ()I
+	public final fun getUnknown-4ZHQPSE ()I
+}
+
 public final class androidx/compose/ui/input/indirect/IndirectPointerInputChange {
 	public static final field $stable I
 	public synthetic fun <init> (JJJZFJJZLkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1539,54 +1584,9 @@ public final class androidx/compose/ui/input/indirect/IndirectPointerInputChange
 	public fun toString ()Ljava/lang/String;
 }
 
-public abstract interface class androidx/compose/ui/input/indirect/IndirectTouchEvent {
-	public abstract fun getChanges ()Ljava/util/List;
-	public abstract fun getPrimaryDirectionalMotionAxis-ifgRr6E ()I
-	public abstract fun getType-LxEHWp8 ()I
-}
-
-public final class androidx/compose/ui/input/indirect/IndirectTouchEventPrimaryDirectionalMotionAxis {
-	public static final field Companion Landroidx/compose/ui/input/indirect/IndirectTouchEventPrimaryDirectionalMotionAxis$Companion;
-	public static final synthetic fun box-impl (I)Landroidx/compose/ui/input/indirect/IndirectTouchEventPrimaryDirectionalMotionAxis;
-	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (ILjava/lang/Object;)Z
-	public static final fun equals-impl0 (II)Z
-	public fun hashCode ()I
-	public static fun hashCode-impl (I)I
-	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (I)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()I
-}
-
-public final class androidx/compose/ui/input/indirect/IndirectTouchEventPrimaryDirectionalMotionAxis$Companion {
-	public final fun getNone-ifgRr6E ()I
-	public final fun getX-ifgRr6E ()I
-	public final fun getY-ifgRr6E ()I
-}
-
-public final class androidx/compose/ui/input/indirect/IndirectTouchEventType {
-	public static final field Companion Landroidx/compose/ui/input/indirect/IndirectTouchEventType$Companion;
-	public static final synthetic fun box-impl (I)Landroidx/compose/ui/input/indirect/IndirectTouchEventType;
-	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (ILjava/lang/Object;)Z
-	public static final fun equals-impl0 (II)Z
-	public fun hashCode ()I
-	public static fun hashCode-impl (I)I
-	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (I)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()I
-}
-
-public final class androidx/compose/ui/input/indirect/IndirectTouchEventType$Companion {
-	public final fun getMove-LxEHWp8 ()I
-	public final fun getPress-LxEHWp8 ()I
-	public final fun getRelease-LxEHWp8 ()I
-	public final fun getUnknown-LxEHWp8 ()I
-}
-
-public abstract interface class androidx/compose/ui/input/indirect/IndirectTouchInputModifierNode : androidx/compose/ui/node/DelegatableNode {
-	public abstract fun onCancelIndirectTouchInput ()V
-	public abstract fun onIndirectTouchEvent (Landroidx/compose/ui/input/indirect/IndirectTouchEvent;Landroidx/compose/ui/input/pointer/PointerEventPass;)V
+public abstract interface class androidx/compose/ui/input/indirect/IndirectPointerInputModifierNode : androidx/compose/ui/node/DelegatableNode {
+	public abstract fun onCancelIndirectPointerInput ()V
+	public abstract fun onIndirectPointerEvent (Landroidx/compose/ui/input/indirect/IndirectPointerEvent;Landroidx/compose/ui/input/pointer/PointerEventPass;)V
 }
 
 public final class androidx/compose/ui/input/key/Key {
@@ -2763,7 +2763,7 @@ public final class androidx/compose/ui/layout/LookaheadScopeKt {
 	public static final fun LookaheadScope (Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;I)V
 	public static final fun approachLayout (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun approachLayout$default (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
-	public static final fun lookaheadScopeCoordinates (Landroidx/compose/ui/layout/LayoutCoordinates;Landroidx/compose/ui/layout/LookaheadScope;)Landroidx/compose/ui/layout/LayoutCoordinates;
+	public static final fun lookaheadScopeCoordinates (Landroidx/compose/ui/layout/LookaheadScope;Landroidx/compose/ui/layout/LayoutCoordinates;)Landroidx/compose/ui/layout/LayoutCoordinates;
 }
 
 public abstract interface class androidx/compose/ui/layout/Measurable : androidx/compose/ui/layout/IntrinsicMeasurable {
@@ -3470,7 +3470,7 @@ public abstract interface class androidx/compose/ui/node/RootForTest {
 	public abstract fun getSemanticsOwner ()Landroidx/compose/ui/semantics/SemanticsOwner;
 	public abstract fun getTextInputService ()Landroidx/compose/ui/text/input/TextInputService;
 	public fun measureAndLayoutForTest ()V
-	public fun sendIndirectTouchEvent (Landroidx/compose/ui/input/indirect/IndirectTouchEvent;)Z
+	public fun sendIndirectPointerEvent (Landroidx/compose/ui/input/indirect/IndirectPointerEvent;)Z
 	public abstract fun sendKeyEvent-ZmokQxo (Ljava/lang/Object;)Z
 	public fun setAccessibilityEventBatchIntervalMillis (J)V
 	public fun setUncaughtExceptionHandler (Landroidx/compose/ui/node/RootForTest$UncaughtExceptionHandler;)V
@@ -3550,7 +3550,7 @@ public final class androidx/compose/ui/node/TraversableNodeKt {
 	public static final fun traverseDescendants (Landroidx/compose/ui/node/TraversableNode;Lkotlin/jvm/functions/Function1;)V
 }
 
-public abstract interface class androidx/compose/ui/node/UnplacedStateAwareModifierNode : androidx/compose/ui/node/DelegatableNode {
+public abstract interface class androidx/compose/ui/node/UnplacedAwareModifierNode : androidx/compose/ui/node/DelegatableNode {
 	public abstract fun onUnplaced ()V
 }
 

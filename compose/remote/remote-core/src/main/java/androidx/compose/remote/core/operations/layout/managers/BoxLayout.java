@@ -16,6 +16,8 @@
 package androidx.compose.remote.core.operations.layout.managers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+import static androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation.TYPE_MEASURE;
+import static androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation.TYPE_POSITION;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
@@ -114,9 +116,15 @@ public class BoxLayout extends LayoutManager {
             boolean verticalWrap,
             @NonNull MeasurePass measure,
             @NonNull Size size) {
+        ComponentMeasure parent = measure.get(this);
         for (Component c : mChildrenComponents) {
             c.measure(context, 0f, maxWidth, 0f, maxHeight, measure);
             ComponentMeasure m = measure.get(c);
+            if (c.hasComputedLayout()) {
+                if (c.applyComputedLayout(TYPE_MEASURE, context, m, parent)) {
+                    c.measure(context, m.getW(), m.getW(), m.getH(), m.getH(), measure);
+                }
+            }
             if (!m.isGone()) {
                 size.setWidth(Math.max(size.getWidth(), m.getW()));
                 size.setHeight(Math.max(size.getHeight(), m.getH()));
@@ -132,8 +140,15 @@ public class BoxLayout extends LayoutManager {
             float minHeight,
             float maxHeight,
             @NonNull MeasurePass measure) {
+        ComponentMeasure parent = measure.get(this);
         for (Component child : mChildrenComponents) {
             child.measure(context, minWidth, maxWidth, minHeight, maxHeight, measure);
+            if (child.hasComputedLayout()) {
+                ComponentMeasure m = measure.get(child);
+                if (child.applyComputedLayout(TYPE_MEASURE, context, m, parent)) {
+                    child.measure(context, m.getW(), m.getW(), m.getH(), m.getH(), measure);
+                }
+            }
         }
     }
 
@@ -170,6 +185,9 @@ public class BoxLayout extends LayoutManager {
             }
             m.setX(tx);
             m.setY(ty);
+            if (child.hasComputedLayout()) {
+                child.applyComputedLayout(TYPE_POSITION, context, m, selfMeasure);
+            }
         }
     }
 

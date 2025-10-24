@@ -26,6 +26,7 @@ import android.view.KeyEvent.KEYCODE_DPAD_UP
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
+import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -116,7 +117,7 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
         if (
             event.type == KeyDown &&
                 event.nativeKeyEvent.isFromSource(InputDevice.SOURCE_KEYBOARD) &&
-                !event.isFromSoftKeyboard
+                (!event.isFromSoftKeyboard || !event.isTypedEvent)
         ) {
             textFieldSelectionState.isInTouchMode = false
         }

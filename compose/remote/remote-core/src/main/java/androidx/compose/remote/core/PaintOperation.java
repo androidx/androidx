@@ -16,6 +16,7 @@
 package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.Container;
 import androidx.compose.remote.core.serialize.Serializable;
 
 import org.jspecify.annotations.NonNull;
@@ -33,6 +34,17 @@ public abstract class PaintOperation extends Operation implements Serializable {
             PaintContext paintContext = context.getPaintContext();
             if (paintContext != null) {
                 paint(paintContext);
+            }
+        } else {
+            if (this instanceof Container) {
+                for (Operation op : ((Container) this).getList()) {
+                    if (op.isDirty()) {
+                        if (op instanceof VariableSupport) {
+                            ((VariableSupport) op).updateVariables(context);
+                        }
+                        op.apply(context);
+                    }
+                }
             }
         }
     }

@@ -78,6 +78,7 @@ class CfWA11YTest : OnCanvasTests {
         }
     }
 
+    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun changesAreApplied() = runApplicationTest {
         var clickCounter1 = 0
@@ -446,6 +447,7 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals("DIV", appContainer.children[1]!!.tagName) // interop container
     }
 
+    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun modifierTestTagIsSetToId() = runApplicationTest {
         var showButton by mutableStateOf(true)
@@ -479,6 +481,7 @@ class CfWA11YTest : OnCanvasTests {
         assertNull(getShadowRoot().getElementById("buttonTag"))
     }
 
+    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun textFieldHasTextBoxRole() = runApplicationTest {
         var text by mutableStateOf("Hello, World!")

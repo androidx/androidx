@@ -54,33 +54,6 @@ fun <T, R> Set<CompositionData>.makeTree(
     cache: ContextCache = ContextCache(),
 ): List<R> = CompositionDataTree(this, prepareResult, createNode, createResult, cache).build()
 
-/**
- * Processes a set of [CompositionData] instances and constructs a list of trees of custom nodes.
- *
- * This function builds a hierarchy from the provided compositions and then uses the `mapTree` to
- * transform each root composition into a custom tree structure defined by the [factory]. Results
- * from `mapTree` that are `null` will be excluded from the final list.
- *
- * The processing involves:
- * 1. Building a lookup map from [CompositionInstance] to [CompositionData].
- * 2. Constructing a parent-to-children hierarchy of [CompositionInstance]s.
- * 3. Recursively traversing the hierarchy to map each composition using the provided [factory],
- *    potentially stitching children processed from sub-compositions.
- *
- * @param factory A function that takes a [CompositionGroup], its [SourceContext], a list of already
- *   processed children of type [T] from the current composition, and an optional list of children
- *   of type [T] from stitched sub-compositions. It returns a custom node of type [T] or `null`.
- * @param cache An optional [ContextCache] to optimize [SourceContext] creation.
- * @return A list of root nodes of type [T] representing the successfully processed trees.
- * @receiver A set of [CompositionData] to be processed into trees.
- */
-@UiToolingDataApi
-@OptIn(UiToolingDataApi::class)
-fun <T> Set<CompositionData>.makeTree(
-    factory: (CompositionGroup, SourceContext, List<T>, List<T>) -> T?,
-    cache: ContextCache = ContextCache(),
-): List<T> = makeTree({}, factory, { _, out, _ -> out }, cache)
-
 @OptIn(UiToolingDataApi::class)
 private class CompositionDataTree<T, R>(
     private val compositions: Set<CompositionData>,

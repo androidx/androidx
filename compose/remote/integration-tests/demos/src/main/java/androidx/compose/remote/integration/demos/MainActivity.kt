@@ -32,7 +32,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.integration.demos.preview.RemoteComposePreview
 import androidx.compose.remote.integration.demos.ui.theme.RemoteComposeDemosTheme
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,16 +58,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun Main(modifier: Modifier = Modifier) {
-    var documentState by remember { mutableStateOf<RemoteComposeDocument?>(null) }
+    var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         RememberRemoteDocumentInline(
             onDocument = { doc ->
                 println("Document generated: $doc")
                 if (documentState == null) {
                     // Generate seems to get called again with a partial document
                     // Essentially re-recording but with existing state, so document is incomplete
-                    documentState = RemoteComposeDocument(doc)
+                    documentState = RemoteDocument(doc)
                 }
             }
         ) {

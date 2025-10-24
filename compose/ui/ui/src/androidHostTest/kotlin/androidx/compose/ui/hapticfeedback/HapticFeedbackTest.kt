@@ -16,12 +16,14 @@
 
 package androidx.compose.ui.hapticfeedback
 
+import android.os.Build
 import android.view.HapticFeedbackConstants
 import android.view.View
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -35,7 +37,12 @@ class HapticFeedbackTest {
 
         hapticFeedBack.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
-        verify(view, times(1)).performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+        if (Build.VERSION.SDK_INT >= 27) {
+            verify(view, times(1)).performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+        } else {
+            // Feedback constant not applied in versions where it's not available in the platform.
+            verify(view, never()).performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+        }
     }
 
     @Test

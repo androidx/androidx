@@ -207,7 +207,7 @@ public class MatrixOperations {
     }
 
     /**
-     * Convert an expression encoded as an array of floats int ot a string
+     * Convert an expression encoded as an array of floats int to a string
      *
      * @param exp
      * @param labels

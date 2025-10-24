@@ -27,7 +27,7 @@ import androidx.compose.ui.inspection.inspector.NodeParameterReference
 import androidx.compose.ui.inspection.inspector.ParameterKind
 import androidx.compose.ui.inspection.inspector.ParameterType
 import androidx.compose.ui.inspection.inspector.systemPackages
-import androidx.compose.ui.inspection.recompositions.ObservedStateReads
+import androidx.compose.ui.inspection.recompositions.ObservedReadResult
 import androidx.compose.ui.inspection.recompositions.StateReadRecord
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Bounds
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
@@ -36,10 +36,10 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.LambdaV
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Parameter
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterReference
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Quad
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.RecompositionStateRead
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Rect
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StackTraceLine
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateRead
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadGroup
 
 internal fun InspectorNode.toComposableNode(context: ConversionContext): ComposableNode {
     return toNodeBuilder(context).build()
@@ -318,12 +318,11 @@ private fun StateReadRecord.convert(
     return builder.build()
 }
 
-fun ObservedStateReads.convert(
-    recomposition: Int,
+fun ObservedReadResult.convert(
     stringTable: StringTable,
     layoutInspectorTree: LayoutInspectorTree,
-): RecompositionStateRead {
-    val builder = RecompositionStateRead.newBuilder()
+): StateReadGroup {
+    val builder = StateReadGroup.newBuilder()
     builder.recompositionNumber = recomposition
 
     // Collapse state reads that are identical:

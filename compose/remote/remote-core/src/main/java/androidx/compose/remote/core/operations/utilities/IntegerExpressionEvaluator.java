@@ -355,7 +355,7 @@ public class IntegerExpressionEvaluator {
     }
 
     /**
-     * Convert an expression encoded as an array of ints int ot a string
+     * Convert an expression encoded as an array of ints int to a string
      *
      * @param opMask bit mask of operators vs commands
      * @param exp rpn sequence of values and operators

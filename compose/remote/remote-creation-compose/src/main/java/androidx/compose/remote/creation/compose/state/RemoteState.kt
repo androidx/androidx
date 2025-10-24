@@ -20,8 +20,12 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.player.core.state.RemoteDomains
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -46,6 +50,8 @@ public interface BaseRemoteState {
     public val hasConstantValue: Boolean
 
     /**
+     * Returns a new or cached id for this [RemoteState] within the RemoteComposeCreationState.
+     *
      * @param creationState The [RemoteComposeCreationState] for which the ID will be generated
      * @return The ID of this remote value, for the given [creationState]
      */
@@ -115,3 +121,35 @@ public interface RemoteState<T> : State<T>, BaseRemoteState {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public interface MutableRemoteState<T> : RemoteState<T>, MutableState<T>
+
+/**
+ * Remembers a named state value.
+ *
+ * This function retrieves a named state from the current [RemoteComposeCreationState]. If the state
+ * does not already exist, it is created using the provided `function`. This ensures that the same
+ * named state instance is reused across all compositions of the document, identified by its `name`
+ * and `domain`.
+ *
+ * This method only caches the instance of the RemoteState. Avoiding writing the same value to the
+ * document multiple times, is handled by [BaseRemoteState.getIdForCreationState]
+ *
+ * @param T The type of the state object, which must extend [BaseRemoteState].
+ * @param name A unique name to identify this state object within its domain.
+ * @param domain The domain to which this named state belongs. See [RemoteDomains].
+ * @param function A lambda that creates the state object if it doesn't already exist.
+ * @return The existing or newly created state object of type [T].
+ */
+@RemoteComposable
+@Composable
+public inline fun <reified T : BaseRemoteState> rememberNamedState(
+    name: String,
+    domain: RemoteDomains,
+    noinline function: () -> T,
+): T {
+    return LocalRemoteComposeCreationState.current.getOrCreateNamedState(
+        T::class.java,
+        name,
+        domain.name,
+        function,
+    )
+}

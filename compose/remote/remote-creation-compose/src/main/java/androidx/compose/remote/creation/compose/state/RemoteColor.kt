@@ -25,8 +25,8 @@ import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.toArgb
 
 /**
@@ -79,7 +79,7 @@ internal constructor(
      * Constructor for creating a [RemoteColor] from a [Color] value. This creates a constant remote
      * color that is added to the remote document.
      *
-     * @param color The ARGB integer representation of the color.
+     * @param color The color value.
      */
     public constructor(
         color: Color
@@ -89,6 +89,23 @@ internal constructor(
         RemoteFloat(color.red()),
         RemoteFloat(color.green()),
         RemoteFloat(color.blue()),
+        { creationState -> creationState.document.addColor(color.toArgb()) },
+    )
+
+    /**
+     * Constructor for creating a [RemoteColor] from a [androidx.compose.ui.graphics.Color] value.
+     * This creates a constant remote color that is added to the remote document.
+     *
+     * @param color The [androidx.compose.ui.graphics.Color] value
+     */
+    public constructor(
+        color: androidx.compose.ui.graphics.Color
+    ) : this(
+        Color.valueOf(color.toArgb()),
+        RemoteFloat(color.alpha),
+        RemoteFloat(color.red),
+        RemoteFloat(color.green),
+        RemoteFloat(color.blue),
         { creationState -> creationState.document.addColor(color.toArgb()) },
     )
 
@@ -407,10 +424,10 @@ internal constructor(
 @RequiresApi(26)
 public fun rememberRemoteColor(
     name: String,
-    domain: String = "USER",
+    domain: RemoteDomains = RemoteDomains.USER,
     value: () -> androidx.compose.ui.graphics.Color,
 ): RemoteColor {
-    return remember(name) {
+    return rememberNamedState(name, domain) {
         val color = value().toArgb()
         RemoteColor(
             constantValue = null,

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextForegroundStyle
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.lerp
+import androidx.compose.ui.text.style.takeOrElse
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.isUnspecified

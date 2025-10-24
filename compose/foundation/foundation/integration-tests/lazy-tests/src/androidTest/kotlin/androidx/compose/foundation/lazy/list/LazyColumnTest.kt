@@ -38,6 +38,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -621,6 +622,23 @@ class LazyColumnTest(val useLookaheadScope: Boolean) {
             assertEquals(true, job1.isCompleted)
             assertEquals(true, job3.isCompleted)
         }
+    }
+
+    @Test
+    fun awaitFirstLayoutMultipleInvocations() {
+        val itemSize = 10f
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+        val state = LazyListState()
+
+        rule.setContent {
+            LazyColumn(Modifier.size(itemSizeDp), state) {
+                items(0) { Box(Modifier.size(itemSizeDp)) }
+            }
+            LaunchedEffect(Unit) { state.animateScrollToItem(0) }
+            LaunchedEffect(Unit) { state.animateScrollToItem(0) }
+        }
+
+        rule.runOnIdle { assertEquals(0, state.firstVisibleItemIndex) }
     }
 
     @Composable

@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 import org.junit.runner.notification.RunListener
 
 // KEEP THIS FILE UP TO DATE WITH
-// compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/contextmenu/test/ContextMenuFlagFlipperRunnerTest.kt
+// compose/foundation/foundation/src/androidDeviceTest/kotlin/androidx/compose/foundation/text/contextmenu/test/ContextMenuFlagFlipperRunnerTest.kt
 
 @RunWith(ContextMenuFlagFlipperRunner::class)
 class ContextMenuFlagFlipperRunnerTest {

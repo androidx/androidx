@@ -37,15 +37,13 @@ import java.util.Map;
 /** Paint Bundle represents a delta of changes to a paint object */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PaintBundle implements Serializable {
+    private static final int MAX_PATH_EFFECT_LENGTH = 2028;
     int @NonNull [] mArray = new int[200];
     int @Nullable [] mOutArray = null;
     int mPos = 0;
 
     /**
      * Apply changes to a PaintChanges interface
-     *
-     * @param paintContext
-     * @param p
      */
     public void applyPaintChange(@NonNull PaintContext paintContext, @NonNull PaintChanges p) {
         int i = 0;
@@ -140,6 +138,18 @@ public class PaintBundle implements Serializable {
                     short filterMode = (short) (filter & 0xF);
                     short maxAnisotropy = (short) (filter >> 16);
                     p.setTextureShader(bitmapId, tileX, tileY, filterMode, maxAnisotropy);
+                    break;
+                case PATH_EFFECT:
+                    int pathEffectCount = cmd >> 16;
+                    float[] pathEffect = null;
+                    if (pathEffectCount > 0) {
+                        pathEffect = new float[pathEffectCount];
+                        for (int j = 0; j < pathEffectCount; j++) {
+                            pathEffect[j] = Float.intBitsToFloat(mOutArray[i++]);
+                        }
+                    }
+                    p.setPathEffect(pathEffect);
+
                     break;
                 default:
                     System.err.println("error unknown Paint Type " + (cmd & 0xFFFF));
@@ -624,6 +634,7 @@ public class PaintBundle implements Serializable {
     public static final int SHADER_MATRIX = 22;
     public static final int FONT_AXIS = 23;
     public static final int TEXTURE = 24;
+    public static final int PATH_EFFECT = 25;
 
     public static final int BLEND_MODE_CLEAR = 0;
     public static final int BLEND_MODE_SRC = 1;
@@ -680,14 +691,15 @@ public class PaintBundle implements Serializable {
     /**
      * sets a shader that draws a linear gradient along a line.
      *
-     * @param colors The sRGB colors to be distributed along the gradient line
-     * @param idMask The id mask for the shader
-     * @param stops May be null. The relative positions [0..1] of each corresponding color in the
-     *     colors array. If this is null, the colors are distributed evenly along the gradient line.
-     * @param startX The x-coordinate for the start of the gradient line
-     * @param startY The y-coordinate for the start of the gradient line
-     * @param endX The x-coordinate for the end of the gradient line
-     * @param endY The y-coordinate for the end of the gradient line
+     * @param colors   The sRGB colors to be distributed along the gradient line
+     * @param idMask   The id mask for the shader
+     * @param stops    May be null. The relative positions [0..1] of each corresponding color in the
+     *                 colors array. If this is null, the colors are distributed evenly along the
+     *                 gradient line.
+     * @param startX   The x-coordinate for the start of the gradient line
+     * @param startY   The y-coordinate for the start of the gradient line
+     * @param endX     The x-coordinate for the end of the gradient line
+     * @param endY     The y-coordinate for the end of the gradient line
      * @param tileMode The Shader tiling mode
      */
     public void setLinearGradient(
@@ -721,13 +733,15 @@ public class PaintBundle implements Serializable {
     /**
      * Set a shader that draws a sweep gradient around a center point.
      *
-     * @param colors The sRGB colors to be distributed around the center. There must be at least 2
-     *     colors in the array.
-     * @param idMask The id mask for the shader
-     * @param stops May be NULL. The relative position of each corresponding color in the colors
-     *     array, beginning with 0 and ending with 1.0. If the values are not monotonic, the drawing
-     *     may produce unexpected results. If positions is NULL, then the colors are automatically
-     *     spaced evenly.
+     * @param colors  The sRGB colors to be distributed around the center. There must be at least 2
+     *                colors in the array.
+     * @param idMask  The id mask for the shader
+     * @param stops   May be NULL. The relative position of each corresponding color in the colors
+     *                array, beginning with 0 and ending with 1.0. If the values are not
+     *                monotonic, the drawing
+     *                may produce unexpected results. If positions is NULL, then the colors are
+     *                automatically
+     *                spaced evenly.
      * @param centerX The x-coordinate of the center
      * @param centerY The y-coordinate of the center
      */
@@ -756,15 +770,18 @@ public class PaintBundle implements Serializable {
     /**
      * Sets a shader that draws a radial gradient given the center and radius.
      *
-     * @param colors The sRGB colors distributed between the center and edge
-     * @param idMask The id mask for the shader
-     * @param stops May be <code>null</code>. Valid values are between <code>0.0f</code> and <code>
-     *     1.0f</code>. The relative position of each corresponding color in the colors array. If
-     *     <code>null</code>, colors are distributed evenly between the center and edge of the
-     *     circle.
-     * @param centerX The x-coordinate of the center of the radius
-     * @param centerY The y-coordinate of the center of the radius
-     * @param radius Must be positive. The radius of the gradient.
+     * @param colors   The sRGB colors distributed between the center and edge
+     * @param idMask   The id mask for the shader
+     * @param stops    May be <code>null</code>. Valid values are between <code>0.0f</code> and
+     *                 <code>
+     *                 1.0f</code>. The relative position of each corresponding color in the
+     *                 colors array. If
+     *                 <code>null</code>, colors are distributed evenly between the center and
+     *                 edge of the
+     *                 circle.
+     * @param centerX  The x-coordinate of the center of the radius
+     * @param centerY  The y-coordinate of the center of the radius
+     * @param radius   Must be positive. The radius of the gradient.
      * @param tileMode The Shader tiling mode
      */
     public void setRadialGradient(
@@ -797,7 +814,7 @@ public class PaintBundle implements Serializable {
      * Create a color filter that uses the specified color and Porter-Duff mode.
      *
      * @param color The ARGB source color used with the Porter-Duff mode
-     * @param mode The porter-duff mode that is applied
+     * @param mode  The porter-duff mode that is applied
      */
     public void setColorFilter(int color, int mode) {
         mArray[mPos] = COLOR_FILTER | (mode << 16);
@@ -809,7 +826,7 @@ public class PaintBundle implements Serializable {
      * Create a color filter that uses the specified color and Porter-Duff mode.
      *
      * @param color The id source color used with the Porter-Duff mode
-     * @param mode The porter-duff mode that is applied
+     * @param mode  The porter-duff mode that is applied
      */
     public void setColorFilterId(int color, int mode) {
         mArray[mPos] = COLOR_FILTER_ID | (mode << 16);
@@ -841,9 +858,9 @@ public class PaintBundle implements Serializable {
      * Set the paint's font 0,1,2 are built else ttf or string based system fonts
      *
      * @param fontType 0 = default 1 = sans serif 2 = serif 3 = monospace
-     * @param weight 100-1000
-     * @param italic tur
-     * @param ttf true if ttf font
+     * @param weight   100-1000
+     * @param italic   tur
+     * @param ttf      true if ttf font
      */
     public void setTextStyle(int fontType, int weight, boolean italic, boolean ttf) {
         int style =
@@ -856,8 +873,8 @@ public class PaintBundle implements Serializable {
 
     /**
      * @param fontType 0 = default 1 = sans serif 2 = serif 3 = monospace
-     * @param weight 100-1000
-     * @param italic tur
+     * @param weight   100-1000
+     * @param italic   tur
      */
     public void setTextStyle(int fontType, int weight, boolean italic) {
         int style = (weight & 0x3FF) | (italic ? 2048 : 0); // pack the weight and italic
@@ -868,7 +885,7 @@ public class PaintBundle implements Serializable {
     /**
      * Set the TextAxis for the text
      *
-     * @param tags id of axis strings
+     * @param tags   id of axis strings
      * @param values values for the axis
      */
     public void setTextAxis(int @NonNull [] tags, float @NonNull [] values) {
@@ -891,7 +908,7 @@ public class PaintBundle implements Serializable {
      * single pixel independent of the canvas's matrix.
      *
      * @param width set the paint's stroke width, used whenever the paint's style is Stroke or
-     *     StrokeAndFill.
+     *              StrokeAndFill.
      */
     public void setStrokeWidth(float width) {
         mArray[mPos] = STROKE_WIDTH;
@@ -902,8 +919,6 @@ public class PaintBundle implements Serializable {
 
     /**
      * Set the Color based on Color
-     *
-     * @param color
      */
     public void setColor(int color) {
         mArray[mPos] = COLOR;
@@ -939,8 +954,6 @@ public class PaintBundle implements Serializable {
 
     /**
      * Set the Color based on ID
-     *
-     * @param color
      */
     public void setColorId(int color) {
         mArray[mPos] = COLOR_ID;
@@ -953,7 +966,7 @@ public class PaintBundle implements Serializable {
      * Set the paint's Cap.
      *
      * @param cap set the paint's line cap style, used whenever the paint's style is Stroke or
-     *     StrokeAndFill.
+     *            StrokeAndFill.
      */
     public void setStrokeCap(int cap) {
         mArray[mPos] = STROKE_CAP | (cap << 16);
@@ -962,8 +975,6 @@ public class PaintBundle implements Serializable {
 
     /**
      * Set the style STROKE and/or FILL
-     *
-     * @param style
      */
     public void setStyle(int style) {
         mArray[mPos] = STYLE | (style << 16);
@@ -972,8 +983,6 @@ public class PaintBundle implements Serializable {
 
     /**
      * Set the shader id to use
-     *
-     * @param shaderId
      */
     public void setShader(int shaderId) {
         mLastShaderSet = shaderId;
@@ -1004,7 +1013,7 @@ public class PaintBundle implements Serializable {
      * the joins angle is sharp. This value must be >= 0.
      *
      * @param miter set the miter limit on the paint, used whenever the paint's style is Stroke or
-     *     StrokeAndFill.
+     *              StrokeAndFill.
      */
     public void setStrokeMiter(float miter) {
         mArray[mPos] = STROKE_MITER;
@@ -1058,12 +1067,6 @@ public class PaintBundle implements Serializable {
 
     /**
      * Set the texture shader
-     *
-     * @param texture
-     * @param tileModeX
-     * @param tileModeY
-     * @param filterMode
-     * @param maxAnisotropy
      */
     public void setTextureShader(
             int texture, short tileModeX, short tileModeY, short filterMode, short maxAnisotropy) {
@@ -1075,6 +1078,27 @@ public class PaintBundle implements Serializable {
         mPos++;
         mArray[mPos] = filterMode | (maxAnisotropy << 16);
         mPos++;
+    }
+
+    /**
+     * Set the path effect
+     *
+     * @param pathEffect The path effect to be installed in the paint
+     */
+    public void setPathEffect(float @Nullable [] pathEffect) {
+        if (pathEffect == null) {
+            mArray[mPos] = PATH_EFFECT;
+            mPos++;
+            return;
+        }
+        if (pathEffect.length > MAX_PATH_EFFECT_LENGTH) {
+            throw new RuntimeException("pathEffect to long " + pathEffect.length);
+        }
+        mArray[mPos] = PATH_EFFECT | (pathEffect.length << 16);
+        mPos++;
+        for (int i = 0; i < pathEffect.length; i++) {
+            mArray[mPos++] = Float.floatToRawIntBits(pathEffect[i]);
+        }
     }
 
     /**
@@ -1172,9 +1196,6 @@ public class PaintBundle implements Serializable {
 
     /**
      * Check all the floats for Nan(id) floats and call listenTo
-     *
-     * @param context
-     * @param support
      */
     public void registerVars(@NonNull RemoteContext context, @NonNull VariableSupport support) {
         int i = 0;
@@ -1227,14 +1248,27 @@ public class PaintBundle implements Serializable {
                     break;
                 case GRADIENT:
                     i = callRegisterGradient(cmd, mArray, i, context, support);
+                    break;
+                case PATH_EFFECT:
+                    count = cmd >> 16;
+                    if (count > 0) {
+                        i = PaintPathEffects.getIds(mArray, i, off -> {
+                                    if (Float.isNaN(Float.intBitsToFloat(mArray[off]))) {
+                                        context.listensTo(
+                                                Utils.idFromNan(Float.intBitsToFloat(mArray[off])),
+                                                support);
+                                    }
+                                }
+                        );
+                    }
+                    break;
+
             }
         }
     }
 
     /**
      * Update variables if any are float ids
-     *
-     * @param context
      */
     public void updateVariables(@NonNull RemoteContext context) {
         if (mOutArray == null) {
@@ -1288,6 +1322,17 @@ public class PaintBundle implements Serializable {
                 case GRADIENT:
                     // TODO gradients should be handled correctly
                     i = updateFloatsInGradient(cmd, mOutArray, mArray, i, context);
+                    break;
+                case PATH_EFFECT:
+                    count = cmd >> 16;
+                    if (count > 0) {
+                        i = PaintPathEffects.getIds(mArray, i, off -> {
+                                    mOutArray[off] = fixFloatVar(mArray[off], context);
+                                }
+                        );
+                    }
+
+
             }
         }
     }

@@ -411,17 +411,15 @@ internal class GraphicsLayerOwnerLayer(
                     }
 
                 matrixCache.resetToPivotedTransform(
-                    x,
-                    y,
-                    translationX,
-                    translationY,
-                    1.0f,
-                    rotationX,
-                    rotationY,
-                    rotationZ,
-                    scaleX,
-                    scaleY,
-                    1.0f,
+                    pivotX = x,
+                    pivotY = y,
+                    translationX = translationX,
+                    translationY = translationY,
+                    rotationX = rotationX,
+                    rotationY = rotationY,
+                    rotationZ = rotationZ,
+                    scaleX = scaleX,
+                    scaleY = scaleY,
                 )
             }
             isMatrixDirty = false

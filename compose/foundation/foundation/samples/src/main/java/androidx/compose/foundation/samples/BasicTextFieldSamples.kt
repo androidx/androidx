@@ -70,6 +70,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -457,6 +458,31 @@ fun BasicTextFieldInputTransformationChainingSample() {
 
     // Returns a filter that prints the number of e's before the first one is removed.
     printECountFilter.then(removeFirstEFilter)
+}
+
+@Sampled
+@Composable
+fun BasicTextFieldInputTransformationMaxLengthCustom() {
+    val state = remember { TextFieldState() }
+    BasicTextField(
+        state,
+        inputTransformation =
+            object : InputTransformation {
+                override fun SemanticsPropertyReceiver.applySemantics() {
+                    maxLength(14)
+                }
+
+                override fun TextFieldBuffer.transformInput() {
+                    if (length > 10) revertAllChanges()
+                }
+            },
+        outputTransformation =
+            OutputTransformation {
+                if (length > 0) insert(0, "(")
+                if (length > 4) insert(4, ") ")
+                if (length > 9) insert(9, "-")
+            },
+    )
 }
 
 @Sampled

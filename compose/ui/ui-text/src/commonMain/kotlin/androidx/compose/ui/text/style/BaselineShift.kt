@@ -18,6 +18,7 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.util.lerp
 
 /**
@@ -31,22 +32,6 @@ import androidx.compose.ui.util.lerp
 @Immutable
 @kotlin.jvm.JvmInline
 value class BaselineShift(val multiplier: Float) {
-    /**
-     * Returns this [BaselineShift] if it is specified or [default] if it is
-     * [BaselineShift.Unspecified].
-     */
-    inline fun takeOrElse(default: () -> BaselineShift): BaselineShift {
-        return if (multiplier.isNaN()) default() else this
-    }
-
-    /**
-     * Returns `true` if this baseline shift is not [BaselineShift.Unspecified].
-     *
-     * @see BaselineShift.Unspecified
-     */
-    val isSpecified: Boolean
-        get() = !multiplier.isNaN()
-
     companion object {
         /** Default baseline shift for superscript. */
         @Stable val Superscript = BaselineShift(0.5f)
@@ -60,6 +45,22 @@ value class BaselineShift(val multiplier: Float) {
         /** Constant for an unset baseline shift. */
         @Stable val Unspecified = BaselineShift(Float.NaN)
     }
+}
+
+/**
+ * Returns `true` if this baseline shift is not [BaselineShift.Unspecified].
+ *
+ * @see BaselineShift.Unspecified
+ */
+inline val BaselineShift.isSpecified: Boolean
+    get() = !multiplier.isNaN()
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun BaselineShift.takeOrElse(block: () -> BaselineShift): BaselineShift {
+    return if (multiplier.isNaN()) block() else this
 }
 
 /** Linearly interpolate two [BaselineShift]s. */

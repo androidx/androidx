@@ -15,13 +15,11 @@
  */
 package androidx.compose.remote.wear.material3
 
-import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rememberRemoteColor
-import androidx.compose.remote.test.screenshot.TargetPlayer
-import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
-import androidx.compose.remote.wear.material3.icons.RemoteImageVector
+import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -49,7 +47,7 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon() {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
-            RemoteIcon(imageVector = VolumeUp, contentDescription = null)
+            RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
         }
     }
 
@@ -57,7 +55,11 @@ class RemoteIconTest {
     fun volumeUpRemoteIcon_tintedRed() {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
             val color = rememberRemoteColor("testColor") { Color.Red }
-            RemoteIcon(imageVector = VolumeUp, contentDescription = null, tint = color)
+            RemoteIcon(
+                imageVector = TestImageVectors.VolumeUp,
+                contentDescription = null,
+                tint = color,
+            )
         }
     }
 
@@ -66,7 +68,7 @@ class RemoteIconTest {
         remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
             val layoutDirection = LayoutDirection.Rtl
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                RemoteIcon(imageVector = VolumeUp, contentDescription = null)
+                RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
             }
         }
     }
@@ -78,7 +80,7 @@ class RemoteIconTest {
             backgroundColor = Color.Black,
         ) {
             RemoteIcon(
-                imageVector = VolumeUp,
+                imageVector = TestImageVectors.VolumeUp,
                 contentDescription = null,
                 modifier = RemoteModifier.size(48.dp),
             )
@@ -87,31 +89,5 @@ class RemoteIconTest {
 
     companion object {
         val size = Size(24.dp.value, 24.dp.value)
-        val VolumeUp =
-            object : RemoteImageVector(autoMirror = true) {
-                override fun RemotePath.buildPath() {
-                    moveTo(3.0f, 9.0f)
-                    verticalLineToRelative(6.0f)
-                    horizontalLineToRelative(4.0f)
-                    lineToRelative(5.0f, 5.0f)
-                    lineTo(12.0f, 4.0f)
-                    lineTo(7.0f, 9.0f)
-                    lineTo(3.0f, 9.0f)
-                    close()
-                    moveTo(16.5f, 12.0f)
-                    curveToRelative(0.0f, -1.77f, -1.02f, -3.29f, -2.5f, -4.03f)
-                    verticalLineToRelative(8.05f)
-                    curveToRelative(1.48f, -0.73f, 2.5f, -2.25f, 2.5f, -4.02f)
-                    close()
-                    moveTo(14.0f, 3.23f)
-                    verticalLineToRelative(2.06f)
-                    curveToRelative(2.89f, 0.86f, 5.0f, 3.54f, 5.0f, 6.71f)
-                    reflectiveCurveToRelative(-2.11f, 5.85f, -5.0f, 6.71f)
-                    verticalLineToRelative(2.06f)
-                    curveToRelative(4.01f, -0.91f, 7.0f, -4.49f, 7.0f, -8.77f)
-                    reflectiveCurveToRelative(-2.99f, -7.86f, -7.0f, -8.77f)
-                    close()
-                }
-            }
     }
 }

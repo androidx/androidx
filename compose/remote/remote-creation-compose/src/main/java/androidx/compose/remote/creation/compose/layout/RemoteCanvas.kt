@@ -111,6 +111,7 @@ public fun RemoteCanvas(
         }
         //    androidx.compose.foundation.Canvas(modifier = modifier.toComposeUi()) { content() }
         val observer = remember { SnapshotStateObserver { it() } }
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Spacer(
             modifier =
                 modifier.toComposeUi().drawBehind {
@@ -118,6 +119,7 @@ public fun RemoteCanvas(
                 }
         )
     } else {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Spacer(
             modifier =
                 RemoteComposeCanvasModifier(modifier.toRemoteCompose())

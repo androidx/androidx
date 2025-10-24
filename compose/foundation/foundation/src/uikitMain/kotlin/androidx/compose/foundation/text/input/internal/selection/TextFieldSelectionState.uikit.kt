@@ -328,7 +328,7 @@ private class UIKitTextFieldTextDragObserver(
 
     override fun onCancel() = onDragStop()
 
-    override fun onStart(startPoint: Offset) {
+    override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
         if (!textFieldSelectionState.enabled) return
 
         textFieldSelectionState.directDragGestureInitiator = InputType.Touch

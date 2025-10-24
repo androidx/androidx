@@ -24,16 +24,20 @@ import androidx.compose.remote.core.TouchListener;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.ComponentData;
+import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixSave;
 import androidx.compose.remote.core.operations.MatrixTranslate;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
+import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
@@ -53,10 +57,14 @@ import java.util.HashMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LayoutComponent extends Component {
 
-    @Nullable protected WidthModifierOperation mWidthModifier = null;
-    @Nullable protected HeightModifierOperation mHeightModifier = null;
-    @Nullable protected ZIndexModifierOperation mZIndexModifier = null;
-    @Nullable protected GraphicsLayerModifierOperation mGraphicsLayerModifier = null;
+    @Nullable
+    protected WidthModifierOperation mWidthModifier = null;
+    @Nullable
+    protected HeightModifierOperation mHeightModifier = null;
+    @Nullable
+    protected ZIndexModifierOperation mZIndexModifier = null;
+    @Nullable
+    protected GraphicsLayerModifierOperation mGraphicsLayerModifier = null;
 
     protected float mPaddingLeft = 0f;
     protected float mPaddingRight = 0f;
@@ -66,10 +74,13 @@ public class LayoutComponent extends Component {
     float mScrollX = 0f;
     float mScrollY = 0f;
 
-    @Nullable protected ScrollDelegate mHorizontalScrollDelegate = null;
-    @Nullable protected ScrollDelegate mVerticalScrollDelegate = null;
+    @Nullable
+    protected ScrollDelegate mHorizontalScrollDelegate = null;
+    @Nullable
+    protected ScrollDelegate mVerticalScrollDelegate = null;
 
-    @NonNull protected ComponentModifiers mComponentModifiers = new ComponentModifiers();
+    @NonNull
+    protected ComponentModifiers mComponentModifiers = new ComponentModifiers();
 
     @NonNull
     protected ArrayList<Component> mChildrenComponents = new ArrayList<>(); // members are not null
@@ -105,6 +116,29 @@ public class LayoutComponent extends Component {
     }
 
     @Nullable
+    ArrayList<LayoutComputeOperation> mComputedLayoutModifiers = null;
+
+    @Override
+    public boolean hasComputedLayout() {
+        return mComputedLayoutModifiers != null;
+    }
+
+    @Override
+    public boolean applyComputedLayout(int type, @NonNull PaintContext context,
+            @NonNull ComponentMeasure m, @NonNull ComponentMeasure parent) {
+        if (mComputedLayoutModifiers != null) {
+            boolean needsMeasure = false;
+            for (LayoutComputeOperation modifier : mComputedLayoutModifiers) {
+                if (modifier.getType() == type) {
+                    needsMeasure |= modifier.applyToMeasure(context, m, parent);
+                }
+            }
+            return needsMeasure;
+        }
+        return false;
+    }
+
+    @Nullable
     public WidthModifierOperation getWidthModifier() {
         return mWidthModifier;
     }
@@ -122,15 +156,14 @@ public class LayoutComponent extends Component {
         return mZIndex;
     }
 
-    @Nullable protected LayoutComponentContent mContent = null;
+    @Nullable
+    protected LayoutComponentContent mContent = null;
 
     // Should be removed after ImageLayout is in
     private static final boolean USE_IMAGE_TEMP_FIX = true;
 
     /**
      * Set canvas operations op on this component
-     *
-     * @param operations
      */
     public void setCanvasOperations(@Nullable CanvasOperations operations) {
         mDrawContentOperations = operations;
@@ -179,8 +212,20 @@ public class LayoutComponent extends Component {
                     content.getData(data);
                 }
             } else if (op instanceof ModifierOperation) {
+                // TODO: refactor to introduce a common interface
+                // for the setParent() calls
                 if (op instanceof ComponentVisibilityOperation) {
                     ((ComponentVisibilityOperation) op).setParent(this);
+                }
+                if (op instanceof AlignByModifierOperation) {
+                    ((AlignByModifierOperation) op).setParent(this);
+                }
+                if (op instanceof LayoutComputeOperation) {
+                    if (mComputedLayoutModifiers == null) {
+                        mComputedLayoutModifiers = new ArrayList<>();
+                    }
+                    ((LayoutComputeOperation) op).setParent(this);
+                    mComputedLayoutModifiers.add((LayoutComputeOperation) op);
                 }
                 if (op instanceof ScrollModifierOperation) {
                     ((ScrollModifierOperation) op).inflate(this);
@@ -191,6 +236,9 @@ public class LayoutComponent extends Component {
                 if (op instanceof TouchListener) {
                     ((TouchListener) op).setComponent(this);
                 }
+                if (op instanceof LayoutComputeOperation) {
+                    ((LayoutComputeOperation) op).setParent(this);
+                }
             } else {
                 // nothing
             }
@@ -199,6 +247,13 @@ public class LayoutComponent extends Component {
         mList.clear();
         mList.addAll(data);
         mList.addAll(supportedOperations);
+        for (Operation op : mList) {
+            // TODO: this probably should be moved to a setParent call
+            if (op instanceof ComponentValue) {
+                ComponentValue componentValue = (ComponentValue) op;
+                componentValue.setComponentId(getComponentId());
+            }
+        }
         mList.add(mComponentModifiers);
         for (Component c : mChildrenComponents) {
             c.mParent = this;
@@ -534,6 +589,17 @@ public class LayoutComponent extends Component {
     public void registerVariables(@NonNull RemoteContext context) {
         if (mDrawContentOperations != null) {
             mDrawContentOperations.registerListening(context);
+        }
+
+        for (Operation operation : mList) {
+            if (operation instanceof VariableSupport) {
+                VariableSupport variableSupport = (VariableSupport) operation;
+                variableSupport.registerListening(context);
+            }
+            if (operation instanceof ComponentValue) {
+                ComponentValue v = (ComponentValue) operation;
+                this.addComponentValue(v);
+            }
         }
     }
 }

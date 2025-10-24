@@ -53,6 +53,7 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
     public static final int ANCHOR_TEXT_RTL = 1;
     public static final int ANCHOR_MONOSPACE_MEASURE = 2;
     public static final int MEASURE_EVERY_TIME = 4;
+    public static final int BASELINE_RELATIVE = 8;
 
     public DrawTextAnchored(int textId, float x, float y, float panX, float panY, int flags) {
         mTextID = textId;
@@ -121,7 +122,7 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -161,11 +162,11 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      *
      * @param buffer The buffer to write to
      * @param textId The id of the text data
-     * @param x The x-position of the anchor point
-     * @param y The y-position of the anchor point
-     * @param panX The pan from left(-1) to right(1) 0 being centered
-     * @param panY The pan from top(-1) to bottom(1) 0 being centered
-     * @param flags Change the behaviour
+     * @param x      The x-position of the anchor point
+     * @param y      The y-position of the anchor point
+     * @param panX   The pan from left(-1) to right(1) 0 being centered
+     * @param panY   The pan from top(-1) to bottom(1) 0 being centered
+     * @param flags  Change the behaviour
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -217,12 +218,13 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
         return (boxWidth - textWidth) * (1 + mOutPanX) / 2.f - (scale * mBounds[0]);
     }
 
-    private float getVerticalOffset() {
+    private float getVerticalOffset(boolean baseline) {
         // TODO scale TextSize / BaseTextSize;
         float scale = 1.0f;
         float boxHeight = 0;
         float textHeight = scale * (mBounds[3] - mBounds[1]);
-        return (boxHeight - textHeight) * (1 - mOutPanY) / 2 - (scale * mBounds[1]);
+        return (boxHeight - textHeight) * (1 - mOutPanY) / 2
+                + (baseline ? textHeight / 2 : (-scale * mBounds[1]));
     }
 
     @Override
@@ -239,9 +241,10 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
             mLastString = str;
             context.getTextBounds(mTextID, 0, -1, flags, mBounds);
         }
-
+        boolean baseline = (mFlags & BASELINE_RELATIVE) != 0;
         float x = mOutX + getHorizontalOffset();
-        float y = Float.isNaN(mOutPanY) ? mOutY : mOutY + getVerticalOffset();
+        float y = Float.isNaN(mOutPanY) ? mOutY : mOutY + getVerticalOffset(baseline);
+
         context.drawTextRun(mTextID, 0, -1, 0, 1, x, y, (mFlags & ANCHOR_TEXT_RTL) == 1);
     }
 

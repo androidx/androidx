@@ -85,6 +85,13 @@ public abstract interface class androidx/compose/foundation/layout/BoxScope {
 	public abstract fun matchParentSize (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
 }
 
+public final class androidx/compose/foundation/layout/BoxScopeInstance : androidx/compose/foundation/layout/BoxScope {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/foundation/layout/BoxScopeInstance;
+	public fun align (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+	public fun matchParentSize (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+}
+
 public final class androidx/compose/foundation/layout/BoxWithConstraintsKt {
 	public static final fun BoxWithConstraints (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
@@ -113,6 +120,15 @@ public abstract interface class androidx/compose/foundation/layout/ColumnScope {
 
 public final class androidx/compose/foundation/layout/ColumnScope$DefaultImpls {
 	public static synthetic fun weight$default (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/ColumnScopeInstance : androidx/compose/foundation/layout/ColumnScope {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/foundation/layout/ColumnScopeInstance;
+	public fun align (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Horizontal;)Landroidx/compose/ui/Modifier;
+	public fun alignBy (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/VerticalAlignmentLine;)Landroidx/compose/ui/Modifier;
+	public fun alignBy (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public fun weight (Landroidx/compose/ui/Modifier;FZ)Landroidx/compose/ui/Modifier;
 }
 
 public abstract interface annotation class androidx/compose/foundation/layout/ExperimentalLayoutApi : java/lang/annotation/Annotation {
@@ -185,8 +201,6 @@ public abstract interface class androidx/compose/foundation/layout/PaddingValues
 	public abstract fun calculateLeftPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
 	public abstract fun calculateRightPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
 	public abstract fun calculateTopPadding-D9Ej5fM ()F
-	public fun minus (Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/foundation/layout/PaddingValues;
-	public fun plus (Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/foundation/layout/PaddingValues;
 }
 
 public final class androidx/compose/foundation/layout/PaddingValues$Absolute : androidx/compose/foundation/layout/PaddingValues {
@@ -223,6 +237,16 @@ public abstract interface class androidx/compose/foundation/layout/RowScope {
 
 public final class androidx/compose/foundation/layout/RowScope$DefaultImpls {
 	public static synthetic fun weight$default (Landroidx/compose/foundation/layout/RowScope;Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/RowScopeInstance : androidx/compose/foundation/layout/RowScope {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/foundation/layout/RowScopeInstance;
+	public fun align (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Vertical;)Landroidx/compose/ui/Modifier;
+	public fun alignBy (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/HorizontalAlignmentLine;)Landroidx/compose/ui/Modifier;
+	public fun alignBy (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public fun alignByBaseline (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public fun weight (Landroidx/compose/ui/Modifier;FZ)Landroidx/compose/ui/Modifier;
 }
 
 public final class androidx/compose/foundation/layout/RulerAlignmentKt {

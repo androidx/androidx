@@ -18,17 +18,16 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Profiles.PROFILE_ANDROIDX
+import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
-import kotlin.text.substring
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -42,8 +41,7 @@ class RemoteStringTest {
         }
     val creationState =
         RemoteComposeCreationState(
-            AndroidxPlatformServices(),
-            density = 1f,
+            AndroidxRcPlatformServices(),
             Size(1f, 1f),
             CoreDocument.DOCUMENT_API_LEVEL,
             PROFILE_ANDROIDX,

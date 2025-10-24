@@ -17,6 +17,7 @@
 package androidx.compose.integration.hero.pokedex.macrobenchmark
 
 import android.content.Intent
+import android.util.DisplayMetrics
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
@@ -35,6 +36,7 @@ import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.tracing.Trace
+import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -105,16 +107,14 @@ class PokedexScrollBenchmark(
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {
-                // Start by setting up the images on disk
-                trace("Set up images") {
-                    val setupIntent = Intent()
-                    setupIntent.action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_SETUP_ACTIVITY"
-                    startActivityAndWait(setupIntent)
-                    device.waitForIdle()
-                    killProcess()
-                }
-
+                // Start off by killing the existing process. After previous iterations, the
+                // activity might be running, and we wouldn't launch our setup activity as the
+                // process is already active.
+                killProcess()
+                setupPokedexBenchmarkTarget()
                 databaseCleanupRule.deleteDatabaseFiles()
+                // We kill the process after setup is complete to ensure startup happens cleanly
+                killProcess()
 
                 val intent = Intent()
                 intent.action = action
@@ -130,17 +130,43 @@ class PokedexScrollBenchmark(
         )
 
     private fun MacrobenchmarkScope.scrollActions(content: UiObject2) {
-        content.fling(Direction.DOWN)
+        // Important: We perform up flings with the default fling speed, and down flings with a
+        // slightly lower speed. Injected input event velocity can be slightly varied, so the up
+        // fling could result in a gesture that hits the bounds and shows overscroll. We
+        // specifically only want to measure scroll here.
+        val upSpeed = (FLING_SPEED_DP_PER_SECOND * targetDisplayDensity).roundToInt()
+        val downSpeed = (upSpeed * OPPOSING_DIRECTION_FLING_FACTOR).roundToInt()
+        content.fling(Direction.DOWN, upSpeed)
         device.waitForIdle()
-        content.fling(Direction.UP)
+        content.fling(Direction.UP, downSpeed)
         device.waitForIdle()
-        content.fling(Direction.DOWN)
+        content.fling(Direction.DOWN, upSpeed)
         device.waitForIdle()
-        content.fling(Direction.UP)
+        content.fling(Direction.UP, downSpeed)
         device.waitForIdle()
     }
 
+    /** Density of the instrumentation's target context, in DP. */
+    private val MacrobenchmarkScope.targetDisplayDensity: Float
+        get() {
+            val uiContext = instrumentation.targetContext
+            val densityDpi = uiContext.resources.configuration.densityDpi
+            return densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+        }
+
     companion object {
+        /** The fling speed used for flings, in dp per second. Copied from [UiObject2]. */
+        private const val FLING_SPEED_DP_PER_SECOND = 7_500
+
+        /**
+         * The factor to be applied to a [UiObject2.fling]s in an opposing direction. For example,
+         * after a DOWN fling with 7500f, we want to perform an UP fling with 7000f to work around
+         * UiAutomator/ADB issues with velocity from injected input events.
+         *
+         * The value of 0.92 has been found through rigorous estimation and tests on this benchmark.
+         */
+        private const val OPPOSING_DIRECTION_FLING_FACTOR = 0.92f
+
         /**
          * Parameters for the benchmark. Uses abbreviations because of file length limit for
          * results. We use CompilationMode.Full() in CI to reduce the amount of benchmark
@@ -159,7 +185,7 @@ class PokedexScrollBenchmark(
     }
 }
 
-private fun <R> trace(sectionName: String, block: () -> R): R =
+internal fun <R> trace(sectionName: String, block: () -> R): R =
     try {
         Trace.beginSection(sectionName)
         block()

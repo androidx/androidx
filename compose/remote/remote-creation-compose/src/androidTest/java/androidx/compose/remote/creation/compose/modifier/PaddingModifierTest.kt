@@ -20,7 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -40,8 +40,7 @@ class PaddingModifierTest {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
 
-    val creationState =
-        RemoteComposeCreationState(AndroidxPlatformServices(), density = 1f, Size(1f, 1f))
+    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
 
     @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 

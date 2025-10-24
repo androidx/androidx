@@ -15,11 +15,11 @@
  */
 package androidx.compose.remote.core;
 
-import static androidx.compose.remote.core.Profiles.PROFILE_ANDROIDX;
-import static androidx.compose.remote.core.Profiles.PROFILE_ANDROID_NATIVE;
-import static androidx.compose.remote.core.Profiles.PROFILE_DEPRECATED;
-import static androidx.compose.remote.core.Profiles.PROFILE_EXPERIMENTAL;
-import static androidx.compose.remote.core.Profiles.PROFILE_WIDGETS;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_ANDROID_NATIVE;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_DEPRECATED;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_EXPERIMENTAL;
+import static androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.BitmapData;
@@ -129,6 +129,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
@@ -141,6 +142,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetadataOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
@@ -337,6 +339,7 @@ public class Operations {
     public static final int MODIFIER_SCROLL = 226;
     public static final int MODIFIER_MARQUEE = 228;
     public static final int MODIFIER_RIPPLE = 229;
+    public static final int MODIFIER_ALIGN_BY = 237;
 
     public static final int LOOP_START = 215;
 
@@ -345,6 +348,7 @@ public class Operations {
     public static final int HOST_METADATA_ACTION = 216;
     public static final int HOST_NAMED_ACTION = 210;
     public static final int RUN_ACTION = 236;
+    public static final int LAYOUT_COMPUTE = 238;
 
     public static final int VALUE_INTEGER_CHANGE_ACTION = 212;
     public static final int VALUE_STRING_CHANGE_ACTION = 213;
@@ -457,6 +461,8 @@ public class Operations {
         if (sMapV7AndroidXExperimental == null) {
             sMapV7AndroidXExperimental = new UniqueIntMap<>();
             // add experimental operations for this profile here
+            sMapV7AndroidXExperimental.put(MODIFIER_ALIGN_BY, AlignByModifierOperation::read);
+            sMapV7AndroidXExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -484,7 +490,6 @@ public class Operations {
             sMapV7Widgets.put(PARTICLE_COMPARE, ParticlesCompare::read);
             sMapV7Widgets.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
             sMapV7Widgets.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
-
         }
         return sMapV7Widgets;
     }
@@ -493,6 +498,8 @@ public class Operations {
         if (sMapV7WidgetsExperimental == null) {
             sMapV7WidgetsExperimental = new UniqueIntMap<>();
             // add experimental operations for this profile here
+            sMapV7WidgetsExperimental.put(MODIFIER_ALIGN_BY, AlignByModifierOperation::read);
+            sMapV7WidgetsExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
         }
         return sMapV7WidgetsExperimental;
     }
