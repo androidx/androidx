@@ -21,7 +21,7 @@
     "vite": "^7.1.12"
   },
   "dependencies": {
-    "chart.js": "^4.4.7",
+    "chart.js": "^4.5.1",
     "comlink": "4.4.2"
   }
 }
