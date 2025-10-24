@@ -1,0 +1,38 @@
+{
+  // VS Code launch configurations for this repository
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch main class (prompt)",
+      "request": "launch",
+      "mainClass": "${command:java.resolveMainClass}",
+      "projectName": "${workspaceFolderBasename}",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "vmArgs": "-Dfile.encoding=UTF-8"
+    },
+    {
+      "type": "java",
+      "name": "Attach to JVM on 5005",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 5005
+    },
+    {
+      "type": "java",
+      "name": "Attach to JVM (enter port)",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": "${input:debugPort}"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "debugPort",
+      "type": "promptString",
+      "description": "Port where the target JVM is listening (e.g., 5005)",
+      "default": "5005"
+    }
+  ]
+}
