@@ -1,0 +1,3 @@
+[[IgnoredVulns]]
+id = "GHSA-pxg6-pf52-xh8x"
+reason = "Cookie is only used by Express in dev tooling, not shipped; upgrade blocked by upstream constraints in offline lock store. Will revisit when upstream updates."

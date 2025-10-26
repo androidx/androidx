@@ -1,0 +1,3 @@
+[[IgnoredVulns]]
+id = "GHSA-pxg6-pf52-xh8x"
+reason = "Cookie pinned by upstream tooling; not part of any shipped artifact."
