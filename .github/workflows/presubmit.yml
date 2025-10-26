@@ -124,8 +124,8 @@ jobs:
             caches/jars-9
             caches/transforms-3
 
-          # Use a known Gradle version since we won't rely on a wrapper
-          gradle-version: 9.1
+          # Use wrapper-distributed Gradle to match repo's pinned version
+          gradle-version: wrapper
 
       - name: "ktfmt"
         if: ${{ steps.ktfmt-file-args.outputs.ktfmt-file-args != '' }}
