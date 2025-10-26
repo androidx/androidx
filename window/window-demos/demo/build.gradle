@@ -40,17 +40,23 @@ android {
         viewBinding = true
     }
     namespace = "androidx.window.demo"
-    signingConfigs {
-        config {
-            keyAlias 'key'
-            keyPassword 'password'
-            storeFile file('keystore.jks')
-            storePassword 'password'
+    // Only configure signing if the local demo keystore exists
+    def hasDemoKeystore = file('keystore.jks').exists()
+    if (hasDemoKeystore) {
+        signingConfigs {
+            config {
+                keyAlias 'key'
+                keyPassword 'password'
+                storeFile file('keystore.jks')
+                storePassword 'password'
+            }
         }
     }
     buildTypes {
-        configureEach {
-            signingConfig = signingConfigs.config
+        if (hasDemoKeystore) {
+            configureEach {
+                signingConfig = signingConfigs.config
+            }
         }
         release {
             minifyEnabled = true

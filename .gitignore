@@ -56,3 +56,10 @@ __pycache__
 *.class
 *.pyc
 *.pyo
+
+# Keystores and signing materials (should never be committed)
+*.keystore
+*.jks
+*.p12
+*.pfx
+**/debug.keystore
