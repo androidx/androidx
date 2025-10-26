@@ -3,6 +3,6 @@
   <component name="KtfmtSettings">
     <option name="enableKtfmt" value="Enabled" />
     <option name="enabled" value="true" />
-    <option name="uiFormatterStyle" value="Kotlinlang" />
+    <option name="uiFormatterStyle" value="Google" />
   </component>
 </project>
