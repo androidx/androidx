@@ -152,6 +152,12 @@ async function handleLicenseRequest(url: string, enableLocalDebugging: boolean =
   if (!isAllowedHost(transformed)) {
     throw new Error('Transformed URL host not allowed.');
   }
+  // Defensive: Extract hostname again after transformation and validate strictly
+  const finalHostname = new URL(transformed).hostname.toLowerCase();
+  const allowed = ALLOWED_HOSTNAMES.some(h => h.toLowerCase() === finalHostname);
+  if (!allowed) {
+    throw new Error('Transformed URL host not in allowlist (final check).');
+  }
   const browser = await puppeteer.launch({
     args: CHROME_LAUNCH_ARGS,
     devtools: enableLocalDebugging,
