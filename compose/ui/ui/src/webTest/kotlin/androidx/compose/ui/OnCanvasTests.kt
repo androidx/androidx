@@ -76,7 +76,7 @@ internal interface OnCanvasTests {
 
     private fun getContainer() = document.getElementById(containerId) ?: error("failed to get canvas with id ${containerId}")
 
-    private fun getAppRoot() = getShadowRoot().children[0] as HTMLElement
+    private fun getAppRoot() = getShadowRoot().children[1] as HTMLElement
 
     fun getA11YContainer(): HTMLElement? {
         return if (getAppRoot().children.length < 3) {

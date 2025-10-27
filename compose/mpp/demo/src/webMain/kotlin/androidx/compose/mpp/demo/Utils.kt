@@ -30,10 +30,6 @@ internal fun setupBackingTextAreaDebugHints() {
     shadowRootStyle.textContent = """
         :host {
             --input-mode-indicator: transparent;
-                
-            -webkit-touch-callout: none; 
-            -webkit-user-select: none; 
-            user-select: none;
         }
         
         :host:has(input, textarea) {

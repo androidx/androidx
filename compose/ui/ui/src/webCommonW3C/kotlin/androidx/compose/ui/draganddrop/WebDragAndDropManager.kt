@@ -21,8 +21,9 @@ import org.w3c.dom.DragEvent
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.ImageData
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.Node
 
-internal abstract class WebDragAndDropManager(eventListener: EventTargetListener, globalEventsListener: EventTargetListener, private val density: Density) :
+internal abstract class WebDragAndDropManager(private val rootNode: Node, eventListener: EventTargetListener, globalEventsListener: EventTargetListener, private val density: Density) :
     PlatformDragAndDropManager {
     override val isRequestDragAndDropTransferRequired: Boolean
         get() = false
@@ -42,12 +43,14 @@ internal abstract class WebDragAndDropManager(eventListener: EventTargetListener
             top = "0"
             left = "0"
 
+
             setProperty("pointer-events", "none")
+            setProperty("z-index", "-1")
         }
 
-        // non-image elements passed to setDragImage should be present on document
+        // non-image elements passed to setDragImage should be present in the document
         // the only browser the only browser not burdened with this limitation is Firefox
-        document.body?.appendChild(ghostImage)
+        rootNode.appendChild(ghostImage)
 
         dataTransfer?.setDragImage(ghostImage, 0, 0)
 
@@ -218,7 +221,7 @@ private class InternalStartTransferScope(
         return ImageData(uint8ClampedArray, imageBitmap.width, imageBitmap.height)
     }
 
-    fun ImageData.asHtmlCanvas(): HTMLCanvasElement {
+    private fun ImageData.asHtmlCanvas(): HTMLCanvasElement {
         val canvasConverter = document.createElement("canvas") as HTMLCanvasElement
 
         canvasConverter.width = width
