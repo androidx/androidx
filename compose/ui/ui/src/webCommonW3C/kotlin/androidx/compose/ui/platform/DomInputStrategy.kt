@@ -98,7 +98,6 @@ private fun ImeOptions.createDomElement(): HTMLElement {
     ) as HTMLElement
 
     htmlElement.setAttribute("autocorrect", "off")
-    htmlElement.setAttribute("autocomplete", "off")
     htmlElement.setAttribute("autocapitalize", "off")
     htmlElement.setAttribute("spellcheck", "false")
 
