@@ -102,4 +102,10 @@ class InlineClassHelperTest {
     }
 
     fun multZero(value: Float) = value * 0f
+
+    @Test
+    fun fastRoundNaNToInt() {
+        assertEquals(0, Float.NaN.fastRoundToInt())
+        assertEquals(0, Double.NaN.fastRoundToInt())
+    }
 }

@@ -24,6 +24,6 @@ actual inline fun floatFromBits(bits: Int): Float = Float.fromBits(bits)
 
 actual inline fun doubleFromBits(bits: Long): Double = Double.fromBits(bits)
 
-actual inline fun Float.fastRoundToInt(): Int = roundToInt()
+actual inline fun Float.fastRoundToInt(): Int = if (isNaN()) 0 else roundToInt()
 
-actual inline fun Double.fastRoundToInt(): Int = roundToInt()
+actual inline fun Double.fastRoundToInt(): Int = if (isNaN()) 0 else roundToInt()
