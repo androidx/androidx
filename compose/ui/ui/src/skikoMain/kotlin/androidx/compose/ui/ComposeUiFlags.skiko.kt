@@ -17,12 +17,15 @@
 package androidx.compose.ui
 
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmName
 
 internal object SkikoComposeUiFlags {
     @Suppress("MutableBareField")
     @JvmField
     var useLegacyRenderNodeLayers: Boolean = false
+
+    @Suppress("MutableBareField")
+    @JvmField
+    var isDialogAnimationEnabled: Boolean = true
 }
 
 /**
@@ -33,3 +36,11 @@ internal object SkikoComposeUiFlags {
  */
 @ExperimentalComposeUiApi
 var ComposeUiFlags.useLegacyRenderNodeLayers by SkikoComposeUiFlags::useLegacyRenderNodeLayers
+
+/**
+ * When enabled the [androidx.compose.ui.window.Dialog] appear and disappear with animation.
+ *
+ * Note that it's a temporary flag, it will be removed in the future.
+ */
+@ExperimentalComposeUiApi
+var ComposeUiFlags.isDialogAnimationEnabled by SkikoComposeUiFlags::isDialogAnimationEnabled

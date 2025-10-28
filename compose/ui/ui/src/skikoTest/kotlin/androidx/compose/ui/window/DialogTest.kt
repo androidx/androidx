@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.DialogState
 import androidx.compose.ui.FillBox
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.assertReceived
 import androidx.compose.ui.assertReceivedLast
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -307,5 +309,25 @@ class DialogTest {
 
         navEventInput.backCompleted()
         assertContentEquals(listOf(1, 1, 2, 1), eventList)
+    }
+
+    @Test
+    fun testDialogScrimColorChange() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val scrimColor = mutableStateOf(Color.Red)
+        setContent {
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(scrimColor = scrimColor.value)
+            ) {}
+        }
+
+        captureToImage().assertPixels { Color.Red }
+
+        scrimColor.value = Color.Blue
+        waitForIdle()
+
+        captureToImage().assertPixels { Color.Blue }
     }
 }
