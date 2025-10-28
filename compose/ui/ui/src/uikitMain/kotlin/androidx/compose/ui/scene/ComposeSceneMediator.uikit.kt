@@ -210,7 +210,7 @@ internal class ComposeSceneMediator(
     private val viewConfiguration: ViewConfiguration =
         object : ViewConfiguration by EmptyViewConfiguration {
             override val touchSlop: Float
-                get() = with(density) {
+                get() = with(screenDensity) {
                     // this value is originating from iOS 16 drag behavior reverse engineering
                     CUPERTINO_TOUCH_SLOP.dp.toPx()
                 }
@@ -234,13 +234,28 @@ internal class ComposeSceneMediator(
             }
         }
 
-    var density: Density
+    /**
+     * Density used by the Compose scene for dp/px conversions within Compose.
+     *
+     * This value is intentionally separate from [screenDensity] so we can support setting custom
+     * composeSceneDensity without regressions (merging [screenDensity] and [composeSceneDensity]
+     * into one causes rendering and interaction issues because they are semantically different).
+     */
+    var composeSceneDensity: Density
         get() = scene.density
         set(value) {
             if (!disposed) {
                 scene.density = value
             }
         }
+
+    /**
+     * Density of the hosting UIKit screen.
+     *
+     * This value is intentionally separate from [composeSceneDensity] so we can support setting
+     * composeSceneDensity without regressions.
+     */
+    val screenDensity: Density get() = _overlayView.density
 
     var layoutDirection: LayoutDirection
         get() = scene.layoutDirection
@@ -340,7 +355,7 @@ internal class ComposeSceneMediator(
         ComposeSceneKeyboardOffsetManager(
             view = _overlayView,
             keyboardOverlapHeightChanged = { height ->
-                val heightPx = with(density) { height.roundToPx() }
+                val heightPx = with(screenDensity) { height.roundToPx() }
                 if (windowInsetsManager.keyboardOverlapHeight.value != heightPx) {
                     animateKeyboardOffsetChanges = false
                     windowInsetsManager.keyboardOverlapHeight.value = heightPx
@@ -377,7 +392,7 @@ internal class ComposeSceneMediator(
 
     private fun hitTestInteropView(point: CValue<CGPoint>): UIView? =
         point.useContents {
-            val position = asDpOffset().toOffset(density)
+            val position = asDpOffset().toOffset(composeSceneDensity)
             val interopView = scene.hitTestInteropView(position)
 
             // Find a group of a holder associated with a given interop view or view controller
@@ -403,12 +418,12 @@ internal class ComposeSceneMediator(
             pointers = listOf(
                 ComposeScenePointer(
                     id = PointerId(0),
-                    position = position.toOffset(density),
+                    position = position.toOffset(composeSceneDensity),
                     pressed = false,
                     type = PointerType.Mouse,
                 )
             ),
-            scrollDelta = delta.toOffset(density) * SCROLL_DELTA_MULTIPLIER,
+            scrollDelta = delta.toOffset(composeSceneDensity) * SCROLL_DELTA_MULTIPLIER,
             timeMillis = event.timeMillis,
             nativeEvent = event,
             keyboardModifiers = PointerKeyboardModifiers(event.modifierFlagsOrZero)
@@ -431,7 +446,7 @@ internal class ComposeSceneMediator(
             pointers = listOf(
                 ComposeScenePointer(
                     id = PointerId(0),
-                    position = position.toOffset(density),
+                    position = position.toOffset(composeSceneDensity),
                     pressed = false,
                     type = PointerType.Mouse,
                 )
@@ -471,7 +486,7 @@ internal class ComposeSceneMediator(
 
         val pointers = touches.mapIndexed { index, touch ->
             touch as UITouch
-            val position = touch.offsetInView(_backgroundView, density.density)
+            val position = touch.offsetInView(_backgroundView, screenDensity.density)
             val pointerType = when (touch.type) {
                 UITouchTypeDirect -> PointerType.Touch
                 UITouchTypeIndirect, UITouchTypeIndirectPointer -> PointerType.Mouse
@@ -490,7 +505,7 @@ internal class ComposeSceneMediator(
                 historical = event?.historicalChangesForTouch(
                     touch,
                     _overlayView,
-                    density.density
+                    screenDensity.density
                 ) ?: emptyList()
             )
         }
@@ -552,12 +567,12 @@ internal class ComposeSceneMediator(
                     withAnimationProgress(duration) { progress ->
                         windowInsetsManager.layoutMargins.value = lerp(
                             start = initialLayoutMargins,
-                            stop = _overlayView.layoutMargins.toPlatformInsets(density),
+                            stop = _overlayView.layoutMargins.toPlatformInsets(screenDensity),
                             fraction = progress
                         )
                         windowInsetsManager.safeAreaInsets.value = lerp(
                                 start = initialSafeAreaInsets,
-                                stop = _overlayView.safeAreaInsets.toPlatformInsets(density),
+                                stop = _overlayView.safeAreaInsets.toPlatformInsets(screenDensity),
                                 fraction = progress
                         )
                         size = lerp(
@@ -634,18 +649,16 @@ internal class ComposeSceneMediator(
      * Updates the [ComposeScene] with the properties derived from the [_overlayView].
      */
     private fun updateLayout() {
-        density = _overlayView.density
-
         if (isLayoutTransitionAnimating) {
             return
         }
-        windowInsetsManager.layoutMargins.value = _overlayView.layoutMargins.toPlatformInsets(density)
-        windowInsetsManager.safeAreaInsets.value = _overlayView.safeAreaInsets.toPlatformInsets(density)
+        windowInsetsManager.layoutMargins.value = _overlayView.layoutMargins.toPlatformInsets(_overlayView.density)
+        windowInsetsManager.safeAreaInsets.value = _overlayView.safeAreaInsets.toPlatformInsets(_overlayView.density)
         size = currentViewSize.roundToIntSize()
     }
 
     private val currentViewSize: Size get() {
-        return with(density) {
+        return with(_overlayView.density) {
             _overlayView.frame.useContents { size.asDpSize() }.toSize()
         }
     }

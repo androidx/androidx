@@ -49,7 +49,7 @@ class ComposeSceneMediatorTest {
         mediator.setContent {}
         mediator.dispose()
 
-        mediator.density = Density(2f)
+        mediator.composeSceneDensity = Density(2f)
         mediator.layoutDirection = LayoutDirection.Rtl
         mediator.compositionLocalContext = null
         mediator.interactionBounds = IntRect.Zero

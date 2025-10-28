@@ -42,6 +42,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.findNodeWithTag
@@ -61,6 +62,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -113,6 +116,53 @@ internal class ScrollTest {
         assertEquals(initialBoxRect, boxRect)
     }
 
+    @Test
+    fun testExactTouchSlopDragWithCustomDensityInDialog() = runUIKitInstrumentedTest {
+        val state = ScrollState(0)
+        var boxRect = DpRectZero()
+
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(0.5f)) {
+                Dialog(
+                    onDismissRequest = { },
+                    properties = DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        usePlatformInsets = false,
+                        useSoftwareKeyboardInset = false,
+                    )
+                ) {
+                    Column(modifier = Modifier.fillMaxSize().verticalScroll(state)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .background(Color.Red)
+                                .onGloballyPositioned {
+                                    boxRect = it.boundsInWindow().toDpRect(density)
+                                }
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(screenSize.height)
+                                .background(Color.Blue)
+                        )
+                    }
+                }
+            }
+        }
+
+        val initialBoxRect = boxRect.copy()
+        val dyExact = CUPERTINO_TOUCH_SLOP.dp
+
+        touchDown(screenSize.center)
+            .dragBy(dy = dyExact)
+
+        waitForIdle()
+
+        assertEquals(initialBoxRect, boxRect)
+    }
+
     /**
      * Tests that a drag just over the touch slop threshold will trigger overscroll behavior
      * in a vertically scrollable Column.
@@ -135,6 +185,54 @@ internal class ScrollTest {
                     .height(screenSize.height)
                     .background(Color.White)
                 )
+            }
+        }
+
+        val dyJustOver = CUPERTINO_TOUCH_SLOP.dp + 1.dp
+
+        touchDown(screenSize.center)
+            .dragBy(dy = dyJustOver)
+
+        waitForIdle()
+
+        assertTrue(boxRect.top > 0.dp)
+        // Scroll state remains at 0 despite visual overscroll
+        assertEquals(0 * density.density, state.value.toFloat())
+    }
+
+    @Test
+    fun testJustOverTouchSlopDragWithCustomDensityInDialog() = runUIKitInstrumentedTest {
+        val state = ScrollState(0)
+        var boxRect = DpRectZero()
+
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(0.5f)) {
+                Dialog(
+                    onDismissRequest = { },
+                    properties = DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        usePlatformInsets = false,
+                        useSoftwareKeyboardInset = false,
+                    )
+                ) {
+                    Column(modifier = Modifier.fillMaxSize().verticalScroll(state)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .background(Color.Red)
+                                .onGloballyPositioned {
+                                    boxRect = it.boundsInWindow().toDpRect(density)
+                                }
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(screenSize.height)
+                                .background(Color.White)
+                        )
+                    }
+                }
             }
         }
 
