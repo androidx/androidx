@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.EditingBuffer
 import androidx.compose.ui.text.input.SetComposingTextCommand
+import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -173,16 +174,17 @@ class NativeInputEventsProcessorTest {
 
         processor.registerEvent(
             (beforeInput("insertText", "a") as InputEvent).apply {
-                deleteContentBackwardSize = 1
+                textRangeStart = 3
+                textRangeEnd = 4
             }
         )
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
 
         assertEquals(2, communicator.editCommands.size)
         val command1 = communicator.editCommands[0]
-        assertTrue(command1 is DeleteSurroundingTextCommand)
-        assertEquals(1, command1.lengthBeforeCursor)
-        assertEquals(0, command1.lengthAfterCursor)
+        assertTrue(command1 is SetSelectionCommand)
+        assertEquals(3, command1.start)
+        assertEquals(4, command1.end)
 
         val command2 = communicator.editCommands[1]
         assertTrue(command2 is CommitTextCommand)
@@ -200,16 +202,17 @@ class NativeInputEventsProcessorTest {
 
         processor.registerEvent(
             (beforeInput("deleteContentBackward", "") as InputEvent).apply {
-                deleteContentBackwardSize = 1
+                textRangeStart = 3
+                textRangeEnd = 4
             }
         )
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
 
-        assertEquals(1, communicator.editCommands.size)
+        assertEquals(2, communicator.editCommands.size)
         val command = communicator.editCommands[0]
-        assertTrue(command is DeleteSurroundingTextCommand)
-        assertEquals(1, command.lengthBeforeCursor)
-        assertEquals(0, command.lengthAfterCursor)
+        assertTrue(command is SetSelectionCommand)
+        assertEquals(3, command.start)
+        assertEquals(4, command.end)
 
         assertEquals("tes", communicator.currentTextFieldValue().text)
     }
@@ -245,7 +248,10 @@ class NativeInputEventsProcessorTest {
 
         // Add deleteContentBackward event
         processor.registerEvent(
-            (beforeInput("deleteContentBackward", null) as InputEvent).apply { deleteContentBackwardSize = 1 }
+            (beforeInput("deleteContentBackward", null) as InputEvent).apply {
+                textRangeStart = 3
+                textRangeEnd = 4
+             }
         )
         processor.manuallyRunCheckpoint(TextFieldValue("test"))
 
@@ -267,16 +273,20 @@ class NativeInputEventsProcessorTest {
         val processor = TestNativeInputEventsProcessor(communicator)
 
         processor.registerEvent(
-            (beforeInput("insertReplacementText", "replacement") as InputEvent).apply { deleteContentBackwardSize = 4 },
+            (beforeInput("insertReplacementText", "replacement") as InputEvent).apply {
+
+                textRangeStart = 5
+                textRangeEnd = 9
+             },
         )
 
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
         assertEquals(2, communicator.editCommands.size)
 
         val deleteCommand = communicator.editCommands[0]
-        assertTrue(deleteCommand is DeleteSurroundingTextCommand)
-        assertEquals(4, deleteCommand.lengthBeforeCursor)
-        assertEquals(0, deleteCommand.lengthAfterCursor)
+        assertTrue(deleteCommand is SetSelectionCommand)
+        assertEquals(5, deleteCommand.start)
+        assertEquals(9, deleteCommand.end)
 
         val commitCommand = communicator.editCommands[1]
         assertTrue(commitCommand is CommitTextCommand)
@@ -325,7 +335,8 @@ class NativeInputEventsProcessorTest {
         // 3. Simulate the input event for the accented character
         processor.registerEvent(
             (beforeInput("insertText", "é") as InputEvent).apply {
-                deleteContentBackwardSize = 1 // to replace `e`
+                textRangeStart = 0
+                textRangeEnd = 1
             }
         )
 
@@ -342,9 +353,9 @@ class NativeInputEventsProcessorTest {
         assertEquals("e", commitCommand1.text)
 
         val deleteCommand = communicator.editCommands[1]
-        assertTrue(deleteCommand is DeleteSurroundingTextCommand)
-        assertEquals(1, deleteCommand.lengthBeforeCursor)
-        assertEquals(0, deleteCommand.lengthAfterCursor)
+        assertTrue(deleteCommand is SetSelectionCommand)
+        assertEquals(0, deleteCommand.start)
+        assertEquals(1, deleteCommand.end)
 
         val commitCommand2 = communicator.editCommands[2]
         assertTrue(commitCommand2 is CommitTextCommand)
@@ -390,7 +401,11 @@ class NativeInputEventsProcessorTest {
 
         // 2. Simulate choosing 'é' from the accent dialogues using a mouse, so no keydown events here
         processor.registerEvent(
-            (beforeInput("insertText", "è") as InputEvent).apply { deleteContentBackwardSize = 1 /* to replace `e` */ },
+            (beforeInput("insertText", "è") as InputEvent).apply {
+                // to replace `e`
+                textRangeStart = 0
+                textRangeEnd = 1
+             },
         )
 
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
@@ -403,9 +418,9 @@ class NativeInputEventsProcessorTest {
         assertEquals("e", commitCommand1.text)
 
         val deleteCommand = communicator.editCommands[1]
-        assertTrue(deleteCommand is DeleteSurroundingTextCommand)
-        assertEquals(1, deleteCommand.lengthBeforeCursor)
-        assertEquals(0, deleteCommand.lengthAfterCursor)
+        assertTrue(deleteCommand is SetSelectionCommand)
+        assertEquals(0, deleteCommand.start)
+        assertEquals(1, deleteCommand.end)
 
         val commitCommand2 = communicator.editCommands[2]
         assertTrue(commitCommand2 is CommitTextCommand)
@@ -454,7 +469,8 @@ class NativeInputEventsProcessorTest {
         processor.registerEvent(compositionStart())
         processor.registerEvent(
             (beforeInput("insertText", "è") as InputEvent).apply {
-                deleteContentBackwardSize = 1
+                textRangeStart = 0
+                textRangeEnd = 1
             }
         )
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
@@ -464,7 +480,8 @@ class NativeInputEventsProcessorTest {
         processor.registerEvent(keyEvent(key = "ArrowRight", code = "ArrowRight", isComposing = true))
         processor.registerEvent(
             (beforeInput("insertCompositionText", "é") as InputEvent).apply {
-                deleteContentBackwardSize = 1
+                textRangeStart = 0
+                textRangeEnd = 1
             }
         )
 
@@ -475,7 +492,8 @@ class NativeInputEventsProcessorTest {
         processor.registerEvent(keyEvent(key = "ArrowRight", code = "ArrowRight", isComposing = true))
         processor.registerEvent(
             (beforeInput("insertCompositionText", "ê") as InputEvent).apply {
-                deleteContentBackwardSize = 1
+                textRangeStart = 0
+                textRangeEnd = 1
             }
         )
 
@@ -493,7 +511,8 @@ class NativeInputEventsProcessorTest {
 
         processor.registerEvent(
             (beforeInput("insertCompositionText", "é") as InputEvent).apply {
-                deleteContentBackwardSize = 1
+                textRangeStart = 0
+                textRangeEnd = 1
             }
         )
 
@@ -506,7 +525,10 @@ class NativeInputEventsProcessorTest {
 
         // 4. Simulate the input event for the selected accented character
         processor.registerEvent(
-            (beforeInput("insertCompositionText", "é") as InputEvent).apply { deleteContentBackwardSize = 1 }
+            (beforeInput("insertCompositionText", "é") as InputEvent).apply {
+                textRangeStart = 0
+                textRangeEnd = 1
+             }
         )
 
         processor.registerEvent(compositionEnd("é"))
@@ -559,17 +581,20 @@ class NativeInputEventsProcessorTest {
 
         // Add deleteContentBackward event
         processor.registerEvent(
-            (beforeInput("deleteContentBackward", "") as InputEvent).apply { deleteContentBackwardSize = 2 },
+            (beforeInput("deleteContentBackward", "") as InputEvent).apply {
+                textRangeStart = 3
+                textRangeEnd = 5
+             },
         )
 
         // Process the event with a collapsed selection
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
 
-        assertEquals(1, communicator.editCommands.size)
+        assertEquals(2, communicator.editCommands.size)
         val command = communicator.editCommands[0]
-        assertTrue(command is DeleteSurroundingTextCommand)
-        assertEquals(2, (command as DeleteSurroundingTextCommand).lengthBeforeCursor)
-        assertEquals(0, command.lengthAfterCursor)
+        assertTrue(command is SetSelectionCommand)
+        assertEquals(3, command.start)
+        assertEquals(5, command.end)
 
         assertEquals("exale text", communicator.currentTextFieldValue().text)
     }
@@ -589,7 +614,10 @@ class NativeInputEventsProcessorTest {
 
         // Then add a deleteContentBackward event
         processor.registerEvent(
-            (beforeInput("deleteContentBackward", "") as InputEvent).apply { deleteContentBackwardSize = 1 },
+            (beforeInput("deleteContentBackward", "") as InputEvent).apply {
+                textRangeStart = 0
+                textRangeEnd = 1
+             },
         )
 
         // With a non-collapsed selection
@@ -628,7 +656,10 @@ class NativeInputEventsProcessorTest {
 
         // Then add a deleteContentBackward event
         processor.registerEvent(
-            (beforeInput("deleteContentBackward", "") as InputEvent).apply { deleteContentBackwardSize = 1 },
+            (beforeInput("deleteContentBackward", "") as InputEvent).apply {
+                textRangeStart = 0
+                textRangeEnd = 1
+            },
         )
 
         processor.manuallyRunCheckpoint(textFieldValue)

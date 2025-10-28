@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.BackspaceCommand
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
+import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
@@ -134,10 +135,13 @@ internal abstract class NativeInputEventsProcessor(
                     // This happens when an autocorrection is applied on mobile:
                     // The system first tells us to delete the old text,
                     // and then it would send the "insertText" event.
-                    val deleteSize = deleteContentBackwardSize
-                    if (deleteSize > 0) {
-                        add(DeleteSurroundingTextCommand(deleteSize, 0))
-                    } else if (deleteSize == 0) {
+                    if (textRangeSize > 0) {
+                        // deleteContentBackward can happen under very non-trivial circumstances,
+                        // for instance; when an input suggestion on Android Chrome is accepted,
+                        // the browser then deletes space after the word just to add space again
+                        add(SetSelectionCommand(textRangeStart, textRangeEnd))
+                        add(BackspaceCommand())
+                    } else if (textRangeSize == 0) {
                         // under specific circumstance previous symbol can be deleted while inputing new one
                         // see https://youtrack.jetbrains.com/issue/CMP-8773
                         add(BackspaceCommand())
@@ -147,9 +151,8 @@ internal abstract class NativeInputEventsProcessor(
 
             "insertReplacementText" -> buildList {
                 if (data == null) return@buildList
-                val deleteSize = deleteContentBackwardSize
-                if (deleteSize > 0) {
-                    add(DeleteSurroundingTextCommand(deleteSize, 0))
+                if (textRangeSize > 0) {
+                    add(SetSelectionCommand(textRangeStart, textRangeEnd))
                 }
 
                 add(CommitTextCommand(data, 1))
@@ -157,9 +160,8 @@ internal abstract class NativeInputEventsProcessor(
 
             "insertText" -> buildList {
                 if (data == null) return@buildList
-                val deleteSize = deleteContentBackwardSize
-                if (deleteSize > 0 && currentTextFieldValue.selection.collapsed) {
-                    add(DeleteSurroundingTextCommand(deleteSize, 0))
+                if (textRangeSize > 0 && currentTextFieldValue.selection.collapsed) {
+                    add(SetSelectionCommand(textRangeStart, textRangeEnd))
                 }
 
                 add(CommitTextCommand(data, 1))
@@ -167,9 +169,8 @@ internal abstract class NativeInputEventsProcessor(
 
             "insertCompositionText" -> buildList {
                 if (data == null) return@buildList
-                val deleteSize = deleteContentBackwardSize
-                if (deleteSize > 0) {
-                    add(DeleteSurroundingTextCommand(deleteSize, 0))
+                if (textRangeSize > 0) {
+                    add(SetSelectionCommand(textRangeStart, textRangeEnd))
                 }
                 add(SetComposingTextCommand(data, 1))
             }

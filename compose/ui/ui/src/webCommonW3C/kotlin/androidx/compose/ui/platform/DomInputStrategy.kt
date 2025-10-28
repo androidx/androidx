@@ -68,9 +68,10 @@ internal class DomInputStrategy(
         htmlInput.addEventListener("beforeinput", { evt ->
             if (evt is InputEvent) {
                 htmlInput as HTMLElementWithValue
-                val deleteContentBackwardSize = htmlInput.selectionEnd - htmlInput.selectionStart
 
-                evt.deleteContentBackwardSize = deleteContentBackwardSize
+                evt.textRangeStart = htmlInput.selectionStart
+                evt.textRangeEnd = htmlInput.selectionEnd
+
                 nativeInputEventsProcessor.registerEvent(evt)
             }
         })
@@ -89,8 +90,12 @@ internal external class InputEvent : UIEvent {
     val inputType: String
     val data: String?
     val isComposing: Boolean
-    var deleteContentBackwardSize: Int
+    var textRangeStart: Int
+    var textRangeEnd: Int
 }
+
+internal val InputEvent.textRangeSize: Int
+    get() = textRangeEnd - textRangeStart
 
 private fun ImeOptions.createDomElement(): HTMLElement {
     val htmlElement = document.createElement(

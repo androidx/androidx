@@ -26,12 +26,11 @@ import androidx.compose.ui.events.keyEvent
 import kotlin.test.Test
 import kotlin.test.assertIs
 import org.w3c.dom.HTMLTextAreaElement
-import androidx.compose.ui.platform.InputEvent as InputEventDetailed
 
 internal interface СompositeInputTestSpec : TextFieldTestSpec {
 
     fun triggerComposingSequence(inputKey: String, compositionInput: String, typedKey: String): EventsSequence
-    fun compositionStart(inputKey: String, compositionKey: String = inputKey): EventsSequence
+    fun compositionStartFromInput(inputKey: String, compositionKey: String = inputKey): EventsSequence
 
     fun String.toProcessKeyDownEvent() = keyEvent("Process", code = eventKeyCode())
     fun String.toProcessKeyUpEvent() = keyEvent("Process", code = eventKeyCode(), type = "keyup")
@@ -54,7 +53,7 @@ internal interface СompositeInputTestSpec : TextFieldTestSpec {
 
 
 internal interface ChromeCompositeInput : СompositeInputTestSpec {
-    override fun compositionStart(
+    override fun compositionStartFromInput(
         inputKey: String,
         compositionKey: String
     ): EventsSequence {
@@ -71,7 +70,7 @@ internal interface ChromeCompositeInput : СompositeInputTestSpec {
         compositionInput: String,
         typedKey: String
     ): EventsSequence {
-        return compositionStart(inputKey, compositionInput).addAll(
+        return compositionStartFromInput(inputKey, compositionInput).addAll(
             keyEvent(compositionInput),
             beforeInput("insertCompositionText", compositionInput, isComposing = true),
             compositionEnd(typedKey),
@@ -101,7 +100,7 @@ internal interface ChromeCompositeInput : СompositeInputTestSpec {
 }
 
 internal interface FirefoxCompositeInput : СompositeInputTestSpec {
-    override fun compositionStart(
+    override fun compositionStartFromInput(
         inputKey: String,
         compositionKey: String
     ): EventsSequence {
@@ -119,7 +118,7 @@ internal interface FirefoxCompositeInput : СompositeInputTestSpec {
         compositionInput: String,
         typedKey: String
     ): EventsSequence {
-        return compositionStart(inputKey, compositionInput).addAll(
+        return compositionStartFromInput(inputKey, compositionInput).addAll(
             keyEvent( "Process", code  = compositionInput.eventKeyCode()),
             beforeInput("insertCompositionText", typedKey, isComposing = true),
             compositionEnd(typedKey),
@@ -148,7 +147,7 @@ internal interface WinCompositeInput : СompositeInputTestSpec {
         )
     }
 
-    override fun compositionStart(inputKey: String, compositionKey: String): EventsSequence {
+    override fun compositionStartFromInput(inputKey: String, compositionKey: String): EventsSequence {
         return eventsSequence(
             inputKey.toProcessKeyDownEvent(),
             compositionStart(),
@@ -170,7 +169,7 @@ internal interface WinCompositeInput : СompositeInputTestSpec {
     @Test
     fun `input hangul-hol`() = runApplicationTest {
         val textFieldValue = createApplicationWithHolder()
-        compositionStart("g", "ㅎ")
+        compositionStartFromInput("g", "ㅎ")
             .compositionUpdate("h", "호")
             .compositionUpdate("f", "홀")
             .add(compositionEnd("홀"))
@@ -181,7 +180,7 @@ internal interface WinCompositeInput : СompositeInputTestSpec {
 }
 
 internal interface SafariCompositeInput : СompositeInputTestSpec {
-    override fun compositionStart(
+    override fun compositionStartFromInput(
         inputKey: String,
         compositionKey: String
     ): EventsSequence {
@@ -198,7 +197,7 @@ internal interface SafariCompositeInput : СompositeInputTestSpec {
         compositionInput: String,
         typedKey: String
     ): EventsSequence {
-        return compositionStart(inputKey, compositionInput).addAll(
+        return compositionStartFromInput(inputKey, compositionInput).addAll(
             compositionStart(),
             beforeInput("insertCompositionText", inputKey, isComposing = true),
             keyEvent(inputKey),
@@ -213,7 +212,7 @@ internal interface SafariCompositeInput : СompositeInputTestSpec {
 }
 
 internal interface IosCompositeInput : СompositeInputTestSpec {
-    override fun compositionStart(
+    override fun compositionStartFromInput(
         inputKey: String,
         compositionKey: String
     ): EventsSequence {
@@ -230,7 +229,7 @@ internal interface IosCompositeInput : СompositeInputTestSpec {
         compositionInput: String,
         typedKey: String
     ): EventsSequence {
-        return compositionStart(inputKey, compositionInput).addAll(
+        return compositionStartFromInput(inputKey, compositionInput).addAll(
             beforeInput("insertCompositionText", typedKey, isComposing = true),
             beforeInput("deleteCompositionText", null, isComposing = true),
             beforeInput("insertFromComposition", typedKey, isComposing = true),
@@ -275,7 +274,7 @@ internal interface AndroidCompositeInput : СompositeInputTestSpec {
         )
     }
 
-    override fun compositionStart(inputKey: String, compositionKey: String): EventsSequence {
+    override fun compositionStartFromInput(inputKey: String, compositionKey: String): EventsSequence {
         return eventsSequence(
             inputKey.toUnidentifiedKeyDownEvent(),
             compositionStart(),
@@ -295,7 +294,7 @@ internal interface AndroidCompositeInput : СompositeInputTestSpec {
     @Test
     fun `input hangul-hol`() = runApplicationTest {
         val textFieldValue = createApplicationWithHolder()
-        compositionStart("g", "ㅎ")
+        compositionStartFromInput("g", "ㅎ")
             .compositionUpdate("h", "호")
             .compositionUpdate("f", "홀")
             .add(compositionEnd("홀"))

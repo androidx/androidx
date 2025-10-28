@@ -23,6 +23,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.TestInputState
+import androidx.compose.ui.events.beforeInput
+import androidx.compose.ui.events.compositionEnd
+import androidx.compose.ui.events.compositionStart
+import androidx.compose.ui.events.keyEvent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.specs.AccentDialogTestSpec
@@ -37,6 +41,7 @@ import androidx.compose.ui.input.specs.TextFieldTestSpec
 import androidx.compose.ui.input.specs.WinCompositeInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import kotlin.test.Test
 
 
 private class TextFieldValueHolder(private val textFieldValue: MutableState<TextFieldValue>) :
@@ -115,4 +120,44 @@ internal class WinCompositeInputWithValueTests : WinCompositeInput, BasicTextFie
 internal class WinCompositeInputWithStateTests : WinCompositeInput, BasicTextFieldWithState
 
 internal class AndroidCompositeInputWithValueTests : AndroidCompositeInput, BasicTextFieldWithValue
-internal class AndroidCompositeInputWithStateTests : AndroidCompositeInput, BasicTextFieldWithState
+internal class AndroidCompositeInputWithStateTests : AndroidCompositeInput, BasicTextFieldWithState {
+    @Test
+    fun `suggestion at the end` () = runApplicationTest {
+        // https://youtrack.jetbrains.com/issue/CMP-8809
+        val textFieldValue = createApplicationWithHolder()
+
+        sendToHtmlInput(
+            keyEvent("Unidentified", code=""),
+            compositionStart(""),
+            beforeInput("insertCompositionText", "h", isComposing = true),
+            keyEvent("Unidentified", code="", type = "keyup"),
+            keyEvent("Unidentified", code=""),
+            beforeInput("insertCompositionText", "he", isComposing = true),
+            keyEvent("Unidentified", code="", type = "keyup"),
+            keyEvent("Unidentified", code=""),
+            beforeInput("insertCompositionText", "her", isComposing = true),
+            keyEvent("Unidentified", code="", type = "keyup"),
+            keyEvent("Unidentified", code=""),
+            beforeInput("insertCompositionText", "here", isComposing = true),
+            keyEvent("Unidentified", code="", type = "keyup"),
+        )
+
+        textFieldValue.awaitAndAssertTextEquals(
+            "here"
+        )
+
+        sendToHtmlInput(
+            beforeInput("insertCompositionText", "where", isComposing = true),
+            compositionEnd("where"),
+            keyEvent("Unidentified", code="", type = "keyup"),
+            keyEvent("Unidentified", code=""),
+            beforeInput("insertCompositionText", " ", isComposing = true),
+            keyEvent("Unidentified", code="", type = "keyup"),
+        )
+
+        textFieldValue.awaitAndAssertTextEquals(
+            "where "
+        )
+    }
+
+}
