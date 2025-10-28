@@ -97,7 +97,10 @@ private fun ImeOptions.createDomElement(): HTMLElement {
         if (singleLine) "input" else "textarea"
     ) as HTMLElement
 
-    htmlElement.setAttribute("autocorrect", "off")
+    // without autocorrect set "on" iOS virtual keyboard won't suggest
+    // see https://youtrack.jetbrains.com/issue/CMP-8807
+    htmlElement.setAttribute("autocorrect", "on")
+    htmlElement.setAttribute("autocomplete", "off")
     htmlElement.setAttribute("autocapitalize", "off")
     htmlElement.setAttribute("spellcheck", "false")
 
