@@ -35,9 +35,8 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.changedToDown
-import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -54,7 +53,6 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
-import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
@@ -476,9 +474,9 @@ private class CupertinoOverscrollNode(
     ) {
         if (pass == PointerEventPass.Initial) {
             pointerEvent.changes.forEach { change ->
-                if (change.changedToDown()) {
+                if (change.changedToDownIgnoreConsumed()) {
                     pointersDown++
-                } else if (change.changedToUp()) {
+                } else if (change.changedToUpIgnoreConsumed()) {
                     pointersDown--
                 }
             }
