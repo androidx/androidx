@@ -415,6 +415,9 @@ internal class ComposeSceneMediator(
             addKeyListener(keyListener)
             subscribeToMouseEvents(mouseListener)
         }
+        // For mouse wheel events we subscribe on the container because otherwise we would not
+        // receive mouse wheel events performed over an interop view (`SwingPanel`).
+        container.addMouseWheelListener(mouseListener)
     }
 
     private fun unsubscribeFromInputEvents() {
@@ -424,6 +427,7 @@ internal class ComposeSceneMediator(
             removeKeyListener(keyListener)
             unsubscribeFromMouseEvents(mouseListener)
         }
+        container.removeMouseWheelListener(mouseListener)
     }
 
     private var isMouseEventProcessing = false
@@ -955,13 +959,11 @@ private val MouseEvent.keyboardModifiers get() = PointerKeyboardModifiers(
 private fun Component.subscribeToMouseEvents(mouseAdapter: MouseAdapter) {
     addMouseListener(mouseAdapter)
     addMouseMotionListener(mouseAdapter)
-    addMouseWheelListener(mouseAdapter)
 }
 
 private fun Component.unsubscribeFromMouseEvents(mouseAdapter: MouseAdapter) {
     removeMouseListener(mouseAdapter)
     removeMouseMotionListener(mouseAdapter)
-    removeMouseWheelListener(mouseAdapter)
 }
 
 private fun getLockingKeyStateSafe(

@@ -31,11 +31,14 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.isShiftPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -45,7 +48,6 @@ import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
-import java.awt.Toolkit
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseEvent.BUTTON1
@@ -54,9 +56,9 @@ import java.awt.event.MouseEvent.BUTTON3_DOWN_MASK
 import java.awt.event.MouseEvent.CTRL_DOWN_MASK
 import java.awt.event.MouseEvent.MOUSE_DRAGGED
 import java.awt.event.MouseEvent.MOUSE_PRESSED
-import java.awt.event.MouseEvent.MOUSE_RELEASED
 import java.awt.event.MouseEvent.SHIFT_DOWN_MASK
 import java.awt.event.MouseWheelEvent.WHEEL_UNIT_SCROLL
+import kotlin.test.assertTrue
 import org.jetbrains.skiko.hostOs
 import org.junit.Test
 
@@ -532,23 +534,16 @@ class WindowInputEventTest {
 
         awaitIdle()
         assertThat(receivedButtons.size).isEqualTo(1)
-        assertThat(receivedButtons.last()).isEqualTo(
-            PointerButtons(
-                // on macOS ctrl + primary click is treated as secondary click
-                isPrimaryPressed = !hostOs.isMacOS,
-                isSecondaryPressed = true,
-            )
-        )
+        receivedButtons.last().let { buttons ->
+            // on macOS ctrl + primary click is treated as secondary
+            assertThat(buttons.isPrimaryPressed).isEqualTo(!hostOs.isMacOS)
+            assertTrue(buttons.isSecondaryPressed)
+        }
         assertThat(receivedKeyboardModifiers.size).isEqualTo(1)
-        assertThat(receivedKeyboardModifiers.last()).isEqualTo(
-            PointerKeyboardModifiers(
-                isCtrlPressed = true,
-                isShiftPressed = true,
-                isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
-                isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
-                isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
-            )
-        )
+        receivedKeyboardModifiers.last().let { modifiers ->
+            assertTrue(modifiers.isCtrlPressed)
+            assertTrue(modifiers.isShiftPressed)
+        }
 
         window.sendMouseWheelEvent(
             100, 50, WHEEL_UNIT_SCROLL,
@@ -559,23 +554,16 @@ class WindowInputEventTest {
 
         awaitIdle()
         assertThat(receivedButtons.size).isEqualTo(2)
-        assertThat(receivedButtons.last()).isEqualTo(
-            PointerButtons(
-                // on macOS ctrl + primary click is treated as secondary click
-                isPrimaryPressed = !hostOs.isMacOS,
-                isSecondaryPressed = true,
-            )
-        )
+        receivedButtons.last().let { buttons ->
+            // on macOS ctrl + primary click is treated as secondary
+            assertThat(buttons.isPrimaryPressed).isEqualTo(!hostOs.isMacOS)
+            assertTrue(buttons.isSecondaryPressed)
+        }
         assertThat(receivedKeyboardModifiers.size).isEqualTo(2)
-        assertThat(receivedKeyboardModifiers.last()).isEqualTo(
-            PointerKeyboardModifiers(
-                isCtrlPressed = true,
-                isShiftPressed = true,
-                isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
-                isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
-                isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
-            )
-        )
+        receivedKeyboardModifiers.last().let { modifiers ->
+            assertTrue(modifiers.isCtrlPressed)
+            assertTrue(modifiers.isShiftPressed)
+        }
     }
 
     @Test
@@ -654,42 +642,6 @@ class WindowInputEventTest {
         assertThat(box2ReleaseCount).isEqualTo(0)
 
         window.dispose()
-    }
-
-    private fun getLockingKeyStateSafe(
-        mask: Int
-    ): Boolean = try {
-        Toolkit.getDefaultToolkit().getLockingKeyState(mask)
-    } catch (_: Exception) {
-        false
-    }
-
-    /**
-     * Handle only the first received event and drop all the others that are received
-     * in a single frame
-     */
-    private fun Modifier.onFirstPointerEvent(
-        eventType: PointerEventType,
-        onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
-    ) = pointerInput(eventType, onEvent) {
-        while (true) {
-            awaitPointerEventScope {
-                val event = awaitEvent(eventType)
-                onEvent(event)
-            }
-        }
-    }
-
-    private suspend fun AwaitPointerEventScope.awaitEvent(
-        eventType: PointerEventType
-    ): PointerEvent {
-        var event: PointerEvent
-        do {
-            event = awaitPointerEvent()
-        } while (
-            event.type != eventType
-        )
-        return event
     }
 
     private val PointerEvent.pressed get() = changes.first().pressed

@@ -32,7 +32,6 @@ import java.awt.FocusTraversalPolicy
 import java.awt.Window
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
-import java.awt.event.MouseWheelListener
 import org.jetbrains.skiko.SkiaLayerAnalytics
 
 /**
@@ -190,13 +189,5 @@ internal class ComposeWindowPanel(
 
     override fun removeMouseMotionListener(listener: MouseMotionListener) {
         contentComponent.removeMouseMotionListener(listener)
-    }
-
-    override fun addMouseWheelListener(listener: MouseWheelListener) {
-        contentComponent.addMouseWheelListener(listener)
-    }
-
-    override fun removeMouseWheelListener(listener: MouseWheelListener) {
-        contentComponent.removeMouseWheelListener(listener)
     }
 }

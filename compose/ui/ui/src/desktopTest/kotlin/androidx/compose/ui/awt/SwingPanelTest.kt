@@ -16,9 +16,16 @@
 
 package androidx.compose.ui.awt
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutBoundsHolder
 import androidx.compose.ui.layout.layoutBounds
 import androidx.compose.ui.platform.LocalDensity
@@ -27,20 +34,25 @@ import androidx.compose.ui.sendMousePress
 import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.sendMouseWheelEvent
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.runApplicationTest
+import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Point
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
+import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class SwingPanelTest {
     /**
@@ -162,5 +174,39 @@ class SwingPanelTest {
         panel.invalidate()
         awaitIdle()
         assertPanelSizeIsItsPreferredSize()
+    }
+
+    @Test
+    fun swingPanelPropagatesMouseWheelEvents() = runApplicationTest {
+        val scrollState = ScrollState(0)
+        launchTestWindowApplication(
+            state = WindowState(size = DpSize(500.dp, 500.dp))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
+                Box(Modifier.fillMaxWidth().height(2000.dp)) {
+                    SwingPanel(
+                        background = Color.Red,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp),
+                        factory = {
+                            JPanel(BorderLayout()).also {
+                                it.add(JLabel("Swing content"))
+                            }
+                        },
+                    )
+                }
+            }
+        }
+        awaitIdle()
+
+        assertEquals(scrollState.value, 0)
+        window.sendMouseWheelEvent(x = 200, y = 200, wheelRotation = 50.0)
+        awaitIdle()
+        assertTrue(scrollState.value > 0, "Compose did not scroll; SwingPanel blocked the event")
     }
 }
