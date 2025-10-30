@@ -18,6 +18,8 @@ package androidx.compose.ui.window
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +35,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.scene.Content
+import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -308,4 +313,36 @@ class DialogTest {
         navEventInput.backCompleted()
         assertContentEquals(listOf(1, 1, 2, 1), eventList)
     }
+
+    @Test
+    fun testComposeSceneLayerSetContent() = runSkikoComposeUiTest {
+        var useContent2 by mutableStateOf(false)
+
+        setContent {
+            val content1 = @Composable {
+                Box(Modifier.size(200.dp).testTag("content1"))
+            }
+            val content2 = @Composable {
+                Box(Modifier.size(200.dp).testTag("content2"))
+            }
+
+            val layer = rememberComposeSceneLayer()
+            layer.Content(if (useContent2) content2 else content1)
+            DisposableEffect(Unit) {
+                onDispose {
+                    layer.close()
+                }
+            }
+        }
+
+        onNodeWithTag("content1").assertIsDisplayed()
+        onNodeWithTag("content2").assertDoesNotExist()
+
+        useContent2 = true
+        waitForIdle()
+
+        onNodeWithTag("content1").assertDoesNotExist()
+        onNodeWithTag("content2").assertIsDisplayed()
+    }
+
 }
