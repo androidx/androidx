@@ -196,6 +196,11 @@ internal fun rememberComposeSceneLayer(
     layer.density = density
     layer.layoutDirection = layoutDirection
 
+    DisposableEffect(Unit) {
+        onDispose {
+            layer.close()
+        }
+    }
     return layer
 }
 

@@ -472,12 +472,6 @@ private fun PopupLayout(
             )
         }
     }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            layer.close()
-        }
-    }
 }
 
 private val PopupProperties.platformInsets: PlatformInsets
