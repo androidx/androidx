@@ -21,7 +21,7 @@ import androidx.compose.ui.geometry.Offset
 /**
  * A representation of an event sent by the platform during a drag and drop operation.
  */
-actual class DragAndDropEvent
+actual class DragAndDropEvent private constructor()
 
 /**
  * Returns the position of this [DragAndDropEvent] relative to the root Compose View in the
@@ -34,4 +34,4 @@ internal actual val DragAndDropEvent.positionInRoot: Offset
  * Definition for a type representing transferable data. It could be a remote URI,
  * rich text data on the clip board, a local file, or more.
  */
-actual class DragAndDropTransferData
+actual class DragAndDropTransferData private constructor()

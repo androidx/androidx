@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package androidx.compose.foundation.internal
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.NativeClipboard
+import androidx.compose.ui.platform.asAwtTransferable
 import androidx.compose.ui.text.AnnotatedString
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.ClipboardOwner
@@ -38,7 +42,7 @@ private val annotatedStringFlavor: DataFlavor =
 internal actual suspend fun ClipEntry.readText(): String? {
     if (!hasText()) return null
 
-    val transferable = nativeClipEntry as? Transferable
+    val transferable = asAwtTransferable
     return withContext(Dispatchers.IO) {
         try {
             transferable?.getTransferData(DataFlavor.stringFlavor) as? String
@@ -55,7 +59,7 @@ internal actual suspend fun ClipEntry.readAnnotatedString(): AnnotatedString? {
         return readText()?.let { AnnotatedString(it) }
     }
 
-    val transferable = nativeClipEntry as? Transferable
+    val transferable = asAwtTransferable
     return withContext(Dispatchers.IO) {
         try {
             transferable?.getTransferData(annotatedStringFlavor) as? AnnotatedString
@@ -74,13 +78,13 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 
 internal fun ClipEntry?.hasAnnotatedString(): Boolean {
     if (this == null) return false
-    val transferable = nativeClipEntry as? Transferable ?: return false
+    val transferable = asAwtTransferable ?: return false
     return transferable.isDataFlavorSupported(annotatedStringFlavor)
 }
 
 internal actual fun ClipEntry?.hasText(): Boolean {
     if (this == null) return false
-    val transferable = nativeClipEntry as? Transferable ?: return false
+    val transferable = asAwtTransferable ?: return false
     return transferable.isDataFlavorSupported(DataFlavor.stringFlavor)
 }
 

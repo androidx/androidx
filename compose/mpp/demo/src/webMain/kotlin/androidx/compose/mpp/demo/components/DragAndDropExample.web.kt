@@ -209,6 +209,7 @@ actual fun DragAndDropExample() {
 }
 
 @Composable
+@OptIn(ExperimentalComposeUiApi::class)
 private fun DraggableColorSource(color: Color) {
     Box(
         Modifier

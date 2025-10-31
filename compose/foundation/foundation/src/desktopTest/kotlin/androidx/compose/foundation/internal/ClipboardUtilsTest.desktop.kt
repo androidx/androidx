@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.internal
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.text.AnnotatedString
@@ -34,6 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
 class ClipboardUtilsTest {
 

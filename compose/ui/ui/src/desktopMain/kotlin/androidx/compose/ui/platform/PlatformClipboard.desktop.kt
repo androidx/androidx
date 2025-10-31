@@ -44,7 +44,7 @@ internal class AwtPlatformClipboard internal constructor() : Clipboard {
     }
 
     override suspend fun setClipEntry(clipEntry: ClipEntry?) {
-        val transferable = clipEntry?.nativeClipEntry as? Transferable
+        val transferable = clipEntry?.asAwtTransferable
         systemClipboard?.setContents(
             /* contents = */ transferable ?: EmptyTransferable,
             /* owner = */ transferable as? ClipboardOwner,
@@ -76,7 +76,12 @@ val Clipboard.awtClipboard: java.awt.datatransfer.Clipboard?
  *
  * See [asAwtTransferable] to access [Transferable].
  */
-actual class ClipEntry(val nativeClipEntry: Any) {
+actual class ClipEntry
+@ExperimentalComposeUiApi
+constructor(
+    @property:ExperimentalComposeUiApi
+    val nativeClipEntry: Any
+) {
     // TODO https://youtrack.jetbrains.com/issue/CMP-1260/ClipboardManager.-Implement-getClip-getClipMetadata-setClip
     actual val clipMetadata: ClipMetadata
         get() = TODO("ClipMetadata is not implemented. Consider using nativeClipboard")

@@ -26,8 +26,7 @@ import java.awt.dnd.DropTargetDropEvent
 /**
  * Encapsulates the information needed to start a drag-and-drop session from Compose on the desktop.
  */
-@OptIn(ExperimentalComposeUiApi::class)
-actual class DragAndDropTransferData(
+actual class DragAndDropTransferData @ExperimentalComposeUiApi constructor(
     /**
      * The object being transferred during a drag-and-drop gesture.
      */
@@ -55,11 +54,9 @@ actual class DragAndDropTransferData(
     @property:ExperimentalComposeUiApi
     val onTransferCompleted: ((userAction: DragAndDropTransferAction?) -> Unit)? = null,
 ) {
-
     init {
         require(supportedActions.firstOrNull() != null) { "supportedActions may not be empty" }
     }
-
 }
 
 /**
@@ -98,7 +95,7 @@ class DragAndDropTransferAction private constructor(private val name: String) {
 /**
  * The event dispatched to [DragAndDropTarget] implementations during a drag-and-drop session.
  */
-actual class DragAndDropEvent(
+actual class DragAndDropEvent @ExperimentalComposeUiApi constructor(
     /**
      * The action currently selected by the user.
      */
@@ -117,7 +114,6 @@ actual class DragAndDropEvent(
     internal val positionInRootImpl: Offset
 )
 
-
 /**
  * The base class for [DragAndDropTransferable] for AWT that simply wraps an AWT [Transferable]
  * instance.
@@ -125,7 +121,6 @@ actual class DragAndDropEvent(
 internal interface AwtDragAndDropTransferable : DragAndDropTransferable {
     fun toAwtTransferable(): Transferable
 }
-
 
 /**
  * Returns a [DragAndDropTransferable] that simply wraps an AWT [Transferable] instance.
@@ -136,7 +131,6 @@ fun DragAndDropTransferable(transferable: Transferable): DragAndDropTransferable
         override fun toAwtTransferable() = transferable
     }
 }
-
 
 /**
  * Returns the AWT [Transferable] associated with the [DragAndDropEvent].
@@ -198,4 +192,3 @@ interface DragData {
 
 internal actual val DragAndDropEvent.positionInRoot: Offset
     get() = positionInRootImpl
-

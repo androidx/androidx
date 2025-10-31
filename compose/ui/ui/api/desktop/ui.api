@@ -564,7 +564,6 @@ public final class androidx/compose/ui/awt/SwingWindow_desktopKt {
 
 public final class androidx/compose/ui/draganddrop/DragAndDropEvent {
 	public static final field $stable I
-	public synthetic fun <init> (Landroidx/compose/ui/draganddrop/DragAndDropTransferAction;Ljava/lang/Object;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
 public abstract interface class androidx/compose/ui/draganddrop/DragAndDropModifierNode : androidx/compose/ui/draganddrop/DragAndDropTarget, androidx/compose/ui/node/DelegatableNode {
@@ -610,7 +609,6 @@ public final class androidx/compose/ui/draganddrop/DragAndDropTransferAction$Com
 public final class androidx/compose/ui/draganddrop/DragAndDropTransferData {
 	public static final field $stable I
 	public synthetic fun <init> (Landroidx/compose/ui/draganddrop/DragAndDropTransferable;Ljava/lang/Iterable;JLkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Landroidx/compose/ui/draganddrop/DragAndDropTransferable;Ljava/lang/Iterable;JLkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
 public abstract interface class androidx/compose/ui/draganddrop/DragData$FilesList : androidx/compose/ui/draganddrop/DragData {
@@ -3565,9 +3563,7 @@ public final class androidx/compose/ui/platform/AccessibilityManager$DefaultImpl
 
 public final class androidx/compose/ui/platform/ClipEntry {
 	public static final field $stable I
-	public fun <init> (Ljava/lang/Object;)V
 	public final fun getClipMetadata ()Landroidx/compose/ui/platform/ClipMetadata;
-	public final fun getNativeClipEntry ()Ljava/lang/Object;
 }
 
 public final class androidx/compose/ui/platform/ClipMetadata {

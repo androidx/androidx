@@ -1540,6 +1540,10 @@ final class androidx.compose.ui.autofill/AutofillTree { // androidx.compose.ui.a
     final fun plusAssign(androidx.compose.ui.autofill/AutofillNode) // androidx.compose.ui.autofill/AutofillTree.plusAssign|plusAssign(androidx.compose.ui.autofill.AutofillNode){}[0]
 }
 
+final class androidx.compose.ui.draganddrop/DragAndDropEvent // androidx.compose.ui.draganddrop/DragAndDropEvent|null[0]
+
+final class androidx.compose.ui.draganddrop/DragAndDropTransferData // androidx.compose.ui.draganddrop/DragAndDropTransferData|null[0]
+
 final class androidx.compose.ui.draw/CacheDrawScope : androidx.compose.ui.unit/Density { // androidx.compose.ui.draw/CacheDrawScope|null[0]
     final val density // androidx.compose.ui.draw/CacheDrawScope.density|{}density[0]
         final fun <get-density>(): kotlin/Float // androidx.compose.ui.draw/CacheDrawScope.density.<get-density>|<get-density>(){}[0]
@@ -2036,14 +2040,6 @@ final class androidx.compose.ui.platform/ClipEntry { // androidx.compose.ui.plat
 
     // Targets: [apple]
     final object Companion // androidx.compose.ui.platform/ClipEntry.Companion|null[0]
-
-    // Targets: [js, wasmJs]
-    final val clipboardItems // androidx.compose.ui.platform/ClipEntry.clipboardItems|{}clipboardItems[0]
-        // Targets: [js]
-        final fun <get-clipboardItems>(): kotlin/Array<androidx.compose.ui.platform/ClipboardItem> // androidx.compose.ui.platform/ClipEntry.clipboardItems.<get-clipboardItems>|<get-clipboardItems>(){}[0]
-
-        // Targets: [wasmJs]
-        final fun <get-clipboardItems>(): kotlin.js/JsArray<androidx.compose.ui.platform/ClipboardItem> // androidx.compose.ui.platform/ClipEntry.clipboardItems.<get-clipboardItems>|<get-clipboardItems>(){}[0]
 
     // Targets: [js, wasmJs]
     final object Companion { // androidx.compose.ui.platform/ClipEntry.Companion|null[0]
@@ -4414,18 +4410,6 @@ final inline fun androidx.compose.ui.platform/debugInspectorInfo(crossinline kot
 final suspend fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.relocation/bringIntoView(kotlin/Function0<androidx.compose.ui.geometry/Rect?>? = ...) // androidx.compose.ui.relocation/bringIntoView|bringIntoView@androidx.compose.ui.node.DelegatableNode(kotlin.Function0<androidx.compose.ui.geometry.Rect?>?){}[0]
 final suspend fun (androidx.compose.ui.platform/PlatformTextInputModifierNode).androidx.compose.ui.platform/establishTextInputSession(kotlin.coroutines/SuspendFunction1<androidx.compose.ui.platform/PlatformTextInputSessionScope, kotlin/Nothing>): kotlin/Nothing // androidx.compose.ui.platform/establishTextInputSession|establishTextInputSession@androidx.compose.ui.platform.PlatformTextInputModifierNode(kotlin.coroutines.SuspendFunction1<androidx.compose.ui.platform.PlatformTextInputSessionScope,kotlin.Nothing>){}[0]
 
-// Targets: [ios, js, wasmJs]
-final class androidx.compose.ui.draganddrop/DragAndDropEvent // androidx.compose.ui.draganddrop/DragAndDropEvent|null[0]
-
-// Targets: [js, macos, wasmJs]
-final class androidx.compose.ui.draganddrop/DragAndDropTransferData { // androidx.compose.ui.draganddrop/DragAndDropTransferData|null[0]
-    // Targets: [js, wasmJs]
-    constructor <init>(org.w3c.dom/DataTransfer? = ...) // androidx.compose.ui.draganddrop/DragAndDropTransferData.<init>|<init>(org.w3c.dom.DataTransfer?){}[0]
-
-    // Targets: [macos]
-    constructor <init>() // androidx.compose.ui.draganddrop/DragAndDropTransferData.<init>|<init>(){}[0]
-}
-
 // Targets: [ios]
 abstract interface androidx.compose.ui.uikit/ComposeUIViewControllerDelegate { // androidx.compose.ui.uikit/ComposeUIViewControllerDelegate|null[0]
     open val preferredStatusBarStyle // androidx.compose.ui.uikit/ComposeUIViewControllerDelegate.preferredStatusBarStyle|{}preferredStatusBarStyle[0]
@@ -4480,9 +4464,6 @@ sealed interface androidx.compose.ui.viewinterop/UIKitInteropInteractionMode { /
         final fun toString(): kotlin/String // androidx.compose.ui.viewinterop/UIKitInteropInteractionMode.NonCooperative.toString|toString(){}[0]
     }
 }
-
-// Targets: [ios]
-final class androidx.compose.ui.draganddrop/DragAndDropTransferData // androidx.compose.ui.draganddrop/DragAndDropTransferData|null[0]
 
 // Targets: [ios]
 final class androidx.compose.ui.main/DefaultIOSAppDelegate : platform.UIKit/UIApplicationDelegateProtocol, platform.UIKit/UIResponder { // androidx.compose.ui.main/DefaultIOSAppDelegate|null[0]
@@ -4916,11 +4897,6 @@ final fun androidx.compose.ui.window/androidx_compose_ui_window_KeyboardModeStat
 abstract interface androidx.compose.ui.window/WindowScope { // androidx.compose.ui.window/WindowScope|null[0]
     abstract val window // androidx.compose.ui.window/WindowScope.window|{}window[0]
         abstract fun <get-window>(): platform.AppKit/NSWindow // androidx.compose.ui.window/WindowScope.window.<get-window>|<get-window>(){}[0]
-}
-
-// Targets: [macos]
-final class androidx.compose.ui.draganddrop/DragAndDropEvent { // androidx.compose.ui.draganddrop/DragAndDropEvent|null[0]
-    constructor <init>() // androidx.compose.ui.draganddrop/DragAndDropEvent.<init>|<init>(){}[0]
 }
 
 // Targets: [macos]

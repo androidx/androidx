@@ -98,7 +98,10 @@ internal actual fun createPlatformClipboard(): Clipboard = wasmPlatformClipboard
 
 actual class ClipEntry
 @ExperimentalComposeUiApi
-constructor(val clipboardItems: JsArray<ClipboardItem>) {
+constructor(
+    @property:ExperimentalComposeUiApi
+    val clipboardItems: JsArray<ClipboardItem>
+) {
 
     // TODO https://youtrack.jetbrains.com/issue/CMP-1260/ClipboardManager.-Implement-getClip-getClipMetadata-setClip
     actual val clipMetadata: ClipMetadata
