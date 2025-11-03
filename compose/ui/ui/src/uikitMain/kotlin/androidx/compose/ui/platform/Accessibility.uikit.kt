@@ -554,7 +554,9 @@ private class AccessibilityElement(
         isAlive = false
         setAccessibilityContainer(null)
         setAccessibilityElements(emptyList<Any>())
-        setAutomationElements(null)
+        if (available(OS.Ios to OSVersion(major = 17))) {
+            setAutomationElements(null)
+        }
         cachedProperties.clear()
     }
 
