@@ -128,18 +128,6 @@ internal fun SemanticsConfiguration.accessibilityTraits(): UIAccessibilityTraits
     return result
 }
 
-internal fun SemanticsConfiguration.accessibilityLabel(): String? {
-    val contentDescription = getOrNull(SemanticsProperties.ContentDescription)
-        ?.joinToString("\n")
-        ?.takeIf { it.isNotBlank() }
-
-    return contentDescription ?: if (contains(SemanticsProperties.EditableText)) {
-        null
-    } else {
-        getOrNull(SemanticsProperties.Text)?.joinToString("\n") { it.text }
-    }
-}
-
 internal fun SemanticsConfiguration.accessibilityValue(): String? {
     getOrNull(SemanticsProperties.StateDescription)?.takeIf { it.isNotBlank() }?.let {
         return it

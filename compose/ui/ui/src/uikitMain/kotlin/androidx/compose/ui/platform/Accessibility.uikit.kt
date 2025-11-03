@@ -16,18 +16,19 @@
 
 package androidx.compose.ui.platform
 
+import androidx.collection.MutableIntSet
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.accessibility.AccessibilityScrollEventResult
 import androidx.compose.ui.platform.accessibility.accessibilityCustomActions
-import androidx.compose.ui.platform.accessibility.accessibilityLabel
 import androidx.compose.ui.platform.accessibility.accessibilityTraits
 import androidx.compose.ui.platform.accessibility.accessibilityValue
 import androidx.compose.ui.platform.accessibility.allScrollableParentNodeIds
 import androidx.compose.ui.platform.accessibility.canBeAccessibilityElement
 import androidx.compose.ui.platform.accessibility.canScroll
+import androidx.compose.ui.platform.accessibility.contentDescription
 import androidx.compose.ui.platform.accessibility.isRTL
 import androidx.compose.ui.platform.accessibility.isScreenReaderFocusable
 import androidx.compose.ui.platform.accessibility.scrollIfPossible
@@ -154,7 +155,8 @@ private sealed interface AccessibilityNode {
     val isAccessibilityElement: Boolean
     val semanticsNode: SemanticsNode
 
-    val accessibilityLabel: String? get() = null
+    val contentDescription: String? get() = null
+    val shouldMergeDescription: Boolean get() = false
     val accessibilityHint: String? get() = null
     val accessibilityValue: String? get() = null
     val accessibilityTraits: UIAccessibilityTraits get() = UIAccessibilityTraitNone
@@ -194,7 +196,7 @@ private sealed interface AccessibilityNode {
         private val mediator: AccessibilityMediator,
         private val isBeyondBounds: Boolean
     ) : AccessibilityNode {
-        private val cachedConfig = semanticsNode.copyWithMergingEnabled().config
+        private val cachedConfig = semanticsNode.config
         private val scrollableParentNodeIds by lazy { semanticsNode.allScrollableParentNodeIds }
 
         override val key: AccessibilityElementKey get() = semanticsNode.semanticsKey
@@ -212,8 +214,12 @@ private sealed interface AccessibilityNode {
                 it.isAccessibilityFocusable = ::isBeyondBoundsOrFocusable
             }
 
-        override val accessibilityLabel: String?
-            get() = cachedConfig.accessibilityLabel()
+        override val contentDescription: String?
+            get() = semanticsNode.contentDescription
+
+        override val shouldMergeDescription: Boolean
+            get() = semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants &&
+                semanticsNode.canBeAccessibilityElement()
 
         override val accessibilityIdentifier: String?
             get() = cachedConfig.getOrNull(SemanticsProperties.TestTag)
@@ -572,7 +578,7 @@ private class AccessibilityElement(
 
     override fun accessibilityLabel(): String? =
         getOrElse(CachedAccessibilityPropertyKeys.accessibilityLabel) {
-            node.accessibilityLabel
+            makeAccessibilityLabel()
         }
 
     override fun accessibilityElementDidBecomeFocused() {
@@ -1369,8 +1375,8 @@ internal class AccessibilityMediator(
     private fun traverseSemanticsTree(
         rootNode: SemanticsNode
     ): Pair<AccessibilityElement, AccessibilityElementKey?> {
-        val presentIds = mutableSetOf<AccessibilityElementKey>()
-
+        val presentIds = MutableIntSet()
+        presentIds.add(rootNode.id)
         val nodes = owner.getAllUncoveredSemanticsNodesToIntObjectMap(rootNode.id) {
             it.config.contains(SemanticsProperties.LinkTestMarker)
         }
@@ -1383,21 +1389,29 @@ internal class AccessibilityMediator(
         }
         var focusedKey: AccessibilityElementKey? = null
 
-        // 1. Get children except nodes inside traversal. Flattening is used to:
+        // 1. Get accessibility elements and traversal groups.
+        // Flattening of accessibility elements is used to:
         // - have the same traversal order as on Android
         // - allow navigation between semantic containers on iOS
         // 2. Split non-visible children beyond bounds to be located go before and after the group
         // of visible semantic children in the accessibility elements tree.
         // See [isBeforeBeyondBoundsItem] for more details.
-        fun SemanticsNode.getChildrenInsideTraversalGroup(
+        fun SemanticsNode.flattenAccessibilityChildren(
             node: SemanticsNode,
             semanticsChildren: ArrayList<SemanticsNode>,
             beforeBeyondBoundsChildren: ArrayList<SemanticsNode>,
             afterBeyondBoundsChildren: ArrayList<SemanticsNode>,
+            collectOnlyAccessibilityElements: Boolean = false,
             flatten: Boolean
         ) {
             node.replacedChildren.fastForEach { child ->
-                if (child.isValid) {
+                if (presentIds.contains(child.id)) {
+                    return@fastForEach
+                }
+
+                val canBeAccessibilityElement = child.canBeAccessibilityElement()
+                if (child.isValid && (!collectOnlyAccessibilityElements || canBeAccessibilityElement)) {
+                    presentIds.add(child.id)
                     if (nodes.contains(child.id)) {
                         semanticsChildren.add(child)
                     } else if (child.size != IntSize.Zero && (child.isScreenReaderFocusable() ||
@@ -1410,12 +1424,13 @@ internal class AccessibilityMediator(
                         }
                     }
                 }
-                if (!child.isTraversalGroup && flatten && !child.canBeAccessibilityElement()) {
-                    getChildrenInsideTraversalGroup(
+                if (!child.isTraversalGroup && flatten) {
+                    flattenAccessibilityChildren(
                         child,
                         semanticsChildren,
                         beforeBeyondBoundsChildren,
                         afterBeyondBoundsChildren,
+                        collectOnlyAccessibilityElements || canBeAccessibilityElement,
                         flatten
                     )
                 }
@@ -1428,8 +1443,6 @@ internal class AccessibilityMediator(
             isBeyondBounds: Boolean,
             flatten: Boolean
         ): AccessibilityElement {
-            presentIds.add(node.semanticsKey)
-
             val frame = nodes[node.id]?.adjustedBounds?.toRect() ?: node.unclippedBoundsInWindow
 
             if (node.unmergedConfig.getOrNull(SemanticsProperties.Focused) == true) {
@@ -1454,7 +1467,7 @@ internal class AccessibilityMediator(
                 val beforeChildren = ArrayList<SemanticsNode>()
                 val afterChildren = ArrayList<SemanticsNode>()
 
-                node.getChildrenInsideTraversalGroup(
+                node.flattenAccessibilityChildren(
                     node = node,
                     semanticsChildren = visibleChildren,
                     beforeBeyondBoundsChildren = beforeChildren,
@@ -1485,7 +1498,6 @@ internal class AccessibilityMediator(
                         emptyList()
                     }
 
-                    presentIds.add(node.containerKey)
                     createOrUpdateAccessibilityElement(
                         node = AccessibilityNode.Container(semanticsNode = node),
                         container = container,
@@ -1509,7 +1521,7 @@ internal class AccessibilityMediator(
 
         // Filter out [AccessibilityElement] in [accessibilityElementsMap] that are not present in the tree anymore
         accessibilityElementsMap.keys.retainAll {
-            val isPresent = it in presentIds
+            val isPresent = it.id in presentIds
 
             if (!isPresent) {
                 accessibilityDebugLogger?.log("$it removed")
@@ -1849,4 +1861,64 @@ private class AccessibilityFocusedElementObserver(
     fun dispose() {
         NSNotificationCenter.defaultCenter.removeObserver(this)
     }
+}
+
+private fun AccessibilityElement.makeAccessibilityLabel(): String? {
+    val contentDescription = if (node.shouldMergeDescription) {
+        val collector = NodeDescriptionCollector()
+        collectContentDescription(collector)
+        collector.getText().takeIf { it.isNotBlank() }
+    } else {
+        null
+    }
+
+    return contentDescription ?: node.contentDescription
+}
+
+/**
+ * Mimics the behavior of the 'NodeDescription' and 'LeafTextCollector' of the TalkBack application.
+ * Rather than using merged node semantics, TalkBack navigates through the node hierarchy and
+ * generates a description of the child nodes independently.
+ */
+private class NodeDescriptionCollector {
+    companion object {
+        private const val MAX_TEXT_COLLECT_NODES = 5
+    }
+    private val text = StringBuilder()
+    private var numNodes = 0
+
+    fun collect(node: AccessibilityElement): Boolean {
+        if (numNodes >= MAX_TEXT_COLLECT_NODES) {
+            return false
+        }
+        node.node.contentDescription
+            ?.takeIf { it.isNotBlank() }
+            ?.let {
+                numNodes++
+                if (text.isNotEmpty()) {
+                    text.append(", ")
+                }
+                text.append(it)
+            }
+
+        return true
+    }
+
+    fun getText(): String {
+        return text.toString()
+    }
+}
+
+private fun AccessibilityElement.collectContentDescription(collector: NodeDescriptionCollector): Boolean {
+    if (!collector.collect(this)) {
+        return false
+    }
+    for (element in accessibilityElements ?: emptyList<AccessibilityElement>()) {
+        if (element is AccessibilityElement) {
+            if (!element.collectContentDescription(collector)) {
+                return false
+            }
+        }
+    }
+    return true
 }

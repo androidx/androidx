@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.HideFromAccessibility
 import androidx.compose.ui.semantics.SemanticsProperties.InvisibleToUser
 import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
@@ -238,8 +239,13 @@ internal fun SemanticsNode.isScreenReaderFocusable(): Boolean {
 internal fun SemanticsNode.canBeAccessibilityElement(): Boolean {
     return !isHiddenFromAccessibility &&
         (unmergedConfig.isMergingSemanticsOfDescendants ||
-            isUnmergedLeafNode && isSpeakingNode)
+            isUnmergedNode && isSpeakingNode)
 }
+
+private val SemanticsNode.isUnmergedNode get() =
+    !isFake && layoutNode.findClosestParentNode {
+        it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
+    } == null
 
 private val SemanticsNode.isSpeakingNode: Boolean get() {
     return unmergedConfig.contains(SemanticsProperties.ContentDescription) ||
@@ -275,4 +281,16 @@ internal val SemanticsNode.allScrollableParentNodeIds: Set<Int> get() {
     }
 
     return result
+}
+
+internal val SemanticsNode.contentDescription: String? get() {
+    val contentDescription = config.getOrNull(SemanticsProperties.ContentDescription)
+        ?.joinToString(", ")
+        ?.takeIf { it.isNotBlank() }
+
+    return contentDescription ?: if (config.contains(SemanticsProperties.EditableText)) {
+        null
+    } else {
+        config.getOrNull(SemanticsProperties.Text)?.joinToString(", ") { it.text }
+    }
 }

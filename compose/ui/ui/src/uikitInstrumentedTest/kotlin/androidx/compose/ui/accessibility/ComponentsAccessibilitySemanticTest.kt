@@ -18,6 +18,7 @@ package androidx.compose.ui.accessibility
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -46,15 +47,18 @@ import androidx.compose.ui.interop.runUIKitInstrumentedTestWithInterop
 import androidx.compose.ui.platform.accessibility.CMPAccessibilityTraitTextView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.assertAccessibilityTree
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
@@ -718,7 +722,7 @@ class ComponentsAccessibilitySemanticTest {
         }
 
         assertAccessibilityTree {
-            label = "Foo\nBar"
+            label = "Foo, Bar"
             identifier = "row"
             isAccessibilityElement = true
             traits(UIAccessibilityTraitButton)
@@ -749,7 +753,7 @@ class ComponentsAccessibilitySemanticTest {
         }
 
         assertAccessibilityTree {
-            value = "Label"
+            label = "Label"
             isAccessibilityElement = true
             traits(CMPAccessibilityTraitTextView)
         }
@@ -766,7 +770,7 @@ class ComponentsAccessibilitySemanticTest {
         }
 
         assertAccessibilityTree {
-            value = "Placeholder"
+            label = "Placeholder"
             isAccessibilityElement = true
             traits(CMPAccessibilityTraitTextView)
         }
@@ -787,6 +791,220 @@ class ComponentsAccessibilitySemanticTest {
             value = "Text"
             isAccessibilityElement = true
             traits(CMPAccessibilityTraitTextView)
+        }
+    }
+
+    @Test
+    fun testNodeHierarchyInsideAccessibilityElementShouldNotFlatten() = runUIKitInstrumentedTest {
+        setContent {
+            Column(modifier = Modifier.clickable {}) {
+                Text("Title 1")
+                Row(modifier = Modifier.testTag("Tag 1")) {
+                    Text("Description 1")
+                    Text("Details 1")
+                }
+            }
+        }
+
+        assertAccessibilityTree {
+            isAccessibilityElement = true
+            label = "Title 1, Description 1, Details 1"
+            node {
+                label = "Title 1"
+                isAccessibilityElement = false
+            }
+            node {
+                identifier = "Tag 1"
+                isAccessibilityElement = false
+                node {
+                    label = "Description 1"
+                    isAccessibilityElement = false
+                }
+                node {
+                    label = "Details 1"
+                    isAccessibilityElement = false
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testNodeHierarchyInsideTraversalGroupShouldFlatten() = runUIKitInstrumentedTest {
+        setContent {
+            Column {
+                Column(modifier = Modifier.semantics { isTraversalGroup = true }) {
+                    Text("Title 1")
+                    Row(modifier = Modifier.testTag("Tag 1")) {
+                        Text("Description 1")
+                        Text("Details 1")
+                    }
+                }
+                Column(modifier = Modifier.semantics { isTraversalGroup = true }) {
+                    Text("Title 2")
+                }
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                node {
+                    label = "Title 1"
+                    isAccessibilityElement = true
+                }
+                node {
+                    label = "Description 1"
+                    isAccessibilityElement = true
+                }
+                node {
+                    identifier = "Tag 1"
+                    isAccessibilityElement = false
+                }
+                node {
+                    label = "Details 1"
+                    isAccessibilityElement = true
+                }
+            }
+            node {
+                label = "Title 2"
+                isAccessibilityElement = true
+            }
+        }
+    }
+
+    @Test
+    fun testReplacedTextContent() = runUIKitInstrumentedTest {
+        setContent {
+            Text("Text", modifier = Modifier.semantics {
+                text = AnnotatedString("Replaced")
+            })
+        }
+
+        assertAccessibilityTree {
+            label = "Replaced"
+        }
+    }
+
+    @Test
+    fun testReplacedContentWithMergedSemantics() = runUIKitInstrumentedTest {
+        setContent {
+            Box(modifier = Modifier.size(50.dp).semantics(mergeDescendants = true) {
+                text = AnnotatedString("Text")
+                contentDescription = "Description"
+            }) {
+                Text("Text")
+            }
+        }
+
+        assertAccessibilityTree {
+            label = "Description, Text"
+            isAccessibilityElement = true
+            node {
+                label = "Text"
+                isAccessibilityElement = false
+            }
+        }
+    }
+
+    @Test
+    fun testReplacedContentWithoutMergedSemantics() = runUIKitInstrumentedTest {
+        setContent {
+            Box(modifier = Modifier.size(50.dp).semantics {
+                contentDescription = "Description"
+            }) {
+                Text("Text")
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                label = "Text"
+                isAccessibilityElement = true
+            }
+            node {
+                label = "Description"
+                isAccessibilityElement = true
+            }
+        }
+    }
+
+    @Test
+    fun testContentReplacedSemanticsWithChildElement() = runUIKitInstrumentedTest {
+        setContent {
+            Box(modifier = Modifier.semantics(mergeDescendants = true) {
+                text = AnnotatedString("Text")
+                contentDescription = "Description"
+            }) {
+                Box(modifier = Modifier.size(50.dp).testTag("Child"))
+            }
+        }
+
+        assertAccessibilityTree {
+            label = "Description"
+            isAccessibilityElement = true
+            node {
+                identifier = "Child"
+            }
+        }
+    }
+
+    @Test
+    fun testEnclosedComplexContentWithMergedSemantics() = runUIKitInstrumentedTest {
+        setContent {
+            Column(modifier = Modifier.semantics(mergeDescendants = true) {
+                text = AnnotatedString("Text")
+                contentDescription = "Description"
+            }) {
+                Box(modifier = Modifier.size(50.dp).semantics {
+                    contentDescription = "Inner"
+                }) {
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        label = { Text("Label") },
+                        placeholder = { Text("Placeholder") }
+                    )
+                }
+                Column(modifier = Modifier.semantics(mergeDescendants = true) {}) {
+                    Text(text = "First Text")
+                    Text(text = "Second Text")
+                }
+                Text(text = "Text")
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = true
+                label = "Label"
+                node {
+                    label = "Label"
+                    isAccessibilityElement = false
+                }
+            }
+            node {
+                label = "Description, Inner, Text"
+                isAccessibilityElement = true
+                node {
+                    label = "Inner"
+                    isAccessibilityElement = false
+                }
+                node {
+                    label = "Text"
+                    isAccessibilityElement = false
+                }
+            }
+            node {
+                label = "First Text, Second Text"
+                isAccessibilityElement = true
+                node {
+                    label = "First Text"
+                    isAccessibilityElement = false
+                }
+                node {
+                    label = "Second Text"
+                    isAccessibilityElement = false
+                }
+            }
         }
     }
 }
