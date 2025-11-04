@@ -3698,10 +3698,6 @@ public final class androidx/compose/ui/platform/JvmActuals_jvmKt {
 	public static final synthetic fun synchronized (Landroidx/compose/ui/platform/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
 
-public final class androidx/compose/ui/platform/PlatformContext$Companion {
-	public final fun getEmpty ()Landroidx/compose/ui/platform/PlatformContext;
-}
-
 public abstract interface class androidx/compose/ui/platform/PlatformContext$RootForTestListener {
 	public abstract fun onRootForTestCreated (Landroidx/compose/ui/platform/PlatformRootForTest;)V
 	public abstract fun onRootForTestDisposed (Landroidx/compose/ui/platform/PlatformRootForTest;)V
@@ -3866,10 +3862,6 @@ public final class androidx/compose/ui/res/PainterResources_desktopKt {
 public final class androidx/compose/ui/res/Resources_desktopKt {
 	public static final fun openResource (Ljava/lang/String;)Ljava/io/InputStream;
 	public static final fun useResource (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-}
-
-public final class androidx/compose/ui/scene/ComposeSceneContext$Companion {
-	public final fun getEmpty ()Landroidx/compose/ui/scene/ComposeSceneContext;
 }
 
 public final class androidx/compose/ui/semantics/AccessibilityAction {

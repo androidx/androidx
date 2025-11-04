@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.DelegateRootForTestListener
 import androidx.compose.ui.platform.DesktopTextInputService
 import androidx.compose.ui.platform.DesktopTextInputService2
-import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.platform.PlatformContext
@@ -707,7 +706,7 @@ internal class ComposeSceneMediator(
         keyboardModifiersRequireUpdate = true
     }
 
-    private inner class DesktopViewConfiguration : ViewConfiguration by EmptyViewConfiguration {
+    private inner class DesktopViewConfiguration : ViewConfiguration by PlatformContext.DefaultViewConfiguration {
         override val touchSlop: Float get() = with(platformComponent.density) { 18.dp.toPx() }
     }
 

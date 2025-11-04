@@ -96,7 +96,7 @@ private class ComposeWindow(
     }
     private val archComponentsOwner = DefaultArchitectureComponentsOwner()
     private val platformContext: PlatformContext =
-        object : PlatformContext by PlatformContext.Empty {
+        object : PlatformContext by PlatformContext.Empty() {
             override val windowInfo get() = _windowInfo
             override val architectureComponentsOwner get() = archComponentsOwner
             override val textInputService get() = macosTextInputService
@@ -109,7 +109,7 @@ private class ComposeWindow(
     private val scene = CanvasLayersComposeScene(
         coroutineContext = Dispatchers.Main,
         platformContext = platformContext,
-        invalidate = skiaLayer::needRedraw,
+        invalidate = skiaLayer::needRender,
     )
     private val renderDelegate = object : SkikoRenderDelegate {
         override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {

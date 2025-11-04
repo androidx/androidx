@@ -18,7 +18,6 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.Offset
@@ -511,7 +510,7 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         }
     }
 
-    private inner class TestContext : PlatformContext by PlatformContext.Empty {
+    private inner class TestContext : PlatformContext by PlatformContext.Empty() {
         override val windowInfo: WindowInfo = TestWindowInfo()
         override val architectureComponentsOwner get() = this@SkikoComposeUiTest.architectureComponentsOwner
         override val rootForTestListener: PlatformContext.RootForTestListener

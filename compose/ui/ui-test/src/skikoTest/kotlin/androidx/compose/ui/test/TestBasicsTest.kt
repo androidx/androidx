@@ -29,12 +29,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -272,4 +276,55 @@ class TestBasicsTest {
             }
         }
     }
+
+    // The two tests below work together to make sure that the initial input is reset between tests
+    @Test
+    fun inputModeResetBetweenTests1() = runComposeUiTest {
+        var initialInputMode: InputMode? = null
+        var inputModeAfterwards: InputMode? = null
+        setContent {
+            initialInputMode = LocalInputModeManager.current.inputMode
+            LocalInputModeManager.current.apply {
+                requestInputMode(
+                    if (initialInputMode == InputMode.Touch) InputMode.Keyboard else InputMode.Touch
+                )
+                inputModeAfterwards = inputMode
+            }
+        }
+
+        assertNotNull(initialInputMode)
+        assertNotNull(inputModeAfterwards)
+        assertNotSame(initialInputMode, inputModeAfterwards)
+        if (initialInputModeFromOtherTest != null) {
+            assertEquals(initialInputModeFromOtherTest, initialInputMode)
+        } else {
+            initialInputModeFromOtherTest = initialInputMode
+        }
+    }
+
+    @Test
+    fun inputModeResetBetweenTests2() = runComposeUiTest {
+        var initialInputMode: InputMode? = null
+        var inputModeAfterwards: InputMode? = null
+        setContent {
+            initialInputMode = LocalInputModeManager.current.inputMode
+            LocalInputModeManager.current.apply {
+                requestInputMode(
+                    if (initialInputMode == InputMode.Touch) InputMode.Keyboard else InputMode.Touch
+                )
+                inputModeAfterwards = inputMode
+            }
+        }
+
+        assertNotNull(initialInputMode)
+        assertNotNull(inputModeAfterwards)
+        assertNotSame(initialInputMode, inputModeAfterwards)
+        if (initialInputModeFromOtherTest != null) {
+            assertEquals(initialInputModeFromOtherTest, initialInputMode)
+        } else {
+            initialInputModeFromOtherTest = initialInputMode
+        }
+    }
 }
+
+private var initialInputModeFromOtherTest: InputMode? = null

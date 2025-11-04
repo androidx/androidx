@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
     level = DeprecationLevel.ERROR
 )
 class DefaultViewConfiguration(private val density: Density) : ViewConfiguration {
-    private val emptyViewConfiguration = PlatformContext.Empty.viewConfiguration
+    private val emptyViewConfiguration = PlatformContext.DefaultViewConfiguration
 
     override val longPressTimeoutMillis: Long
         get() = emptyViewConfiguration.longPressTimeoutMillis

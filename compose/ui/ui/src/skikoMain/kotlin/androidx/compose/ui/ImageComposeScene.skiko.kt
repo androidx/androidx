@@ -158,7 +158,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
         containerDpSize = imageSize.toSize().toDpSize(density)
     }
 
-    private val _platformContext = object : PlatformContext by PlatformContext.Empty,
+    private val _platformContext = object : PlatformContext by PlatformContext.Empty(),
         PlatformContext.SemanticsOwnerListener {
 
         val semanticsOwners = mutableStateSetOf<SemanticsOwner>()

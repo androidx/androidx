@@ -67,7 +67,7 @@ fun PlatformLayersComposeScene(
     size: IntSize? = null,
     // TODO: Remove `Dispatchers.Unconfined` as a default
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
-    composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty,
+    composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty(),
     invalidate: () -> Unit = {},
 ): ComposeScene = PlatformLayersComposeSceneImpl(
     density = density,

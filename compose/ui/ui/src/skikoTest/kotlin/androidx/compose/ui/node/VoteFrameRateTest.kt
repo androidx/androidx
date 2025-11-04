@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertTrue
+import kotlin.test.fail
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.skia.Surface
 
@@ -37,9 +37,9 @@ class VoteFrameRateTest {
     fun testNoVotedFrameRate() = runTest {
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
-                    assertFails { "voteFrameRate should not be called" }
+                    fail("voteFrameRate should not be called")
                 }
             }
         )
@@ -55,7 +55,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     voteFrameRateCount++
                     votedFrameRate = frameRate
@@ -86,7 +86,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     voteFrameRateCount++
                     votedFrameRate = frameRate
@@ -116,7 +116,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -139,7 +139,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -162,7 +162,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -185,7 +185,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -208,7 +208,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -231,7 +231,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -254,7 +254,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -282,7 +282,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -310,7 +310,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -332,7 +332,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -364,7 +364,7 @@ class VoteFrameRateTest {
 
         val surface = Surface.makeRasterN32Premul(100, 100)
         val owner = RootNodeOwner(
-            platformContext = object : PlatformContext by PlatformContext.Empty {
+            platformContext = object : PlatformContext.Empty() {
                 override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
                     votedFrameRate = frameRate
                     votedFrameRateCategory = frameRateCategory
@@ -381,7 +381,7 @@ class VoteFrameRateTest {
 }
 
 private fun RootNodeOwner(
-    platformContext: PlatformContext = PlatformContext.Empty
+    platformContext: PlatformContext = PlatformContext.Empty()
 ) = RootNodeOwner(
     density = Density(1f),
     layoutDirection = LayoutDirection.Ltr,

@@ -87,7 +87,7 @@ fun CanvasLayersComposeScene(
     size: IntSize? = null,
     // TODO: Remove `Dispatchers.Unconfined` as a default
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
-    platformContext: PlatformContext = PlatformContext.Empty,
+    platformContext: PlatformContext = PlatformContext.Empty(),
     invalidate: () -> Unit = {},
 ): ComposeScene = CanvasLayersComposeSceneImpl(
     density = density,
@@ -500,7 +500,7 @@ private class CanvasLayersComposeSceneImpl(
                  * Popup/Dialog shouldn't delegate focus to the parent.
                  */
                 override val parentFocusManager: FocusManager
-                    get() = PlatformContext.Empty.parentFocusManager
+                    get() = PlatformContext.EmptyFocusManager
 
                 // TODO: Figure out why real requestFocus is required
                 //  even with empty parentFocusManager

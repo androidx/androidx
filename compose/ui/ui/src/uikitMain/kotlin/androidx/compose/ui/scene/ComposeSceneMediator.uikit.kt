@@ -48,7 +48,6 @@ import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.platform.DefaultInputModeManager
-import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
@@ -208,7 +207,7 @@ internal class ComposeSceneMediator(
     private var disposed = false
 
     private val viewConfiguration: ViewConfiguration =
-        object : ViewConfiguration by EmptyViewConfiguration {
+        object : ViewConfiguration by PlatformContext.DefaultViewConfiguration {
             override val touchSlop: Float
                 get() = with(screenDensity) {
                     // this value is originating from iOS 16 drag behavior reverse engineering

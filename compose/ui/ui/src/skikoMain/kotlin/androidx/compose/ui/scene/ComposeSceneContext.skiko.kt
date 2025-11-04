@@ -50,7 +50,7 @@ interface ComposeSceneContext {
     /**
      * Represents the platform-specific context used for platform interaction in a [ComposeScene].
      */
-    val platformContext: PlatformContext get() = PlatformContext.Empty
+    val platformContext: PlatformContext
 
     /**
      * Creates a scene layer to display content as a new [LayoutNode] tree.
@@ -72,12 +72,8 @@ interface ComposeSceneContext {
         throw IllegalStateException()
     }
 
-    companion object {
-        /**
-         * Represents an empty implementation of [ComposeSceneContext] and used to provide
-         * a default value.
-         */
-        val Empty = object : ComposeSceneContext {
-        }
+    @InternalComposeUiApi
+    class Empty : ComposeSceneContext {
+        override val platformContext: PlatformContext = PlatformContext.Empty()
     }
 }
