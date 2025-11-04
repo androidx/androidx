@@ -50,9 +50,9 @@ androidXMultiplatform {
 
                 // Keep direct references to fork versions to correctly resolve
                 // New redirections to Google's artifacts
-                implementation("org.jetbrains.androidx.savedstate:savedstate:1.3.5")
+                api("org.jetbrains.androidx.savedstate:savedstate:1.3.5")
                 implementation(project(":lifecycle:lifecycle-common"))
-                implementation(project(":lifecycle:lifecycle-viewmodel"))
+                api(project(":lifecycle:lifecycle-viewmodel"))
             }
         }
     }
