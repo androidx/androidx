@@ -112,10 +112,14 @@ internal class ComposeAccessible(
 
     val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
 
-    var removed = false
+    private var disposed = false
+
+    fun dispose() {
+        disposed = true
+    }
 
     override fun getAccessibleContext(): AccessibleContext? {
-        if (removed) {
+        if (disposed) {
             // The accessibility system keeps calling functions on the context even after the node
             // has been removed. We return null so it doesn't do that.
             return null
@@ -179,10 +183,10 @@ internal class ComposeAccessible(
         val auxiliaryChildren
             get() = buildList {
                 horizontalScroll?.let {
-                    add(makeScrollbarChild(false))
+                    add(makeScrollbarChild(vertical = false))
                 }
                 verticalScroll?.let {
-                    add(makeScrollbarChild(true))
+                    add(makeScrollbarChild(vertical = true))
                 }
             }
 
@@ -419,8 +423,8 @@ internal class ComposeAccessible(
             return when {
                 fromSemanticRole != null -> fromSemanticRole
                 isPassword -> AccessibleRole.PASSWORD_TEXT
-                scrollBy != null -> AccessibleRole.SCROLL_PANE
                 setText != null -> AccessibleRole.TEXT
+                scrollBy != null -> AccessibleRole.SCROLL_PANE
                 text != null -> AccessibleRole.LABEL
                 progressBarRangeInfo != null -> {
                     if (semanticsConfig.getOrNull(SemanticsActions.SetProgress) != null)
@@ -442,6 +446,8 @@ internal class ComposeAccessible(
 
                 if (isEnabled)
                     add(AccessibleState.ENABLED)
+                if (semanticsConfig.getOrNull(SemanticsProperties.IsEditable) == true)
+                    add(AccessibleState.EDITABLE)
                 if (isShowing)
                     add(AccessibleState.SHOWING)
                 if (isVisible)
@@ -588,18 +594,19 @@ internal class ComposeAccessible(
             }
 
             override fun getSelectionStart(): Int {
-                return textSelectionRange?.start ?: 0
+                return textSelectionRange?.min ?: 0
             }
 
             override fun getSelectionEnd(): Int {
-                return textSelectionRange?.end ?: 0
+                return textSelectionRange?.max ?: 0
             }
 
-            override fun getSelectedText(): String {
-                return textSelectionRange?.let { selection ->
-                    // could be end less than start here?
-                    text!!.subSequence(selection.start, selection.end).toString()
-                } ?: ""
+            override fun getSelectedText(): String? {
+                val selection = textSelectionRange ?: return null
+                val start = selection.min
+                val end = selection.max
+                return if (start == end) null
+                else text!!.subSequence(start, end).toString()
             }
 
             override fun getTextRange(startIndex: Int, endIndex: Int): String {
@@ -688,16 +695,11 @@ internal class ComposeAccessible(
         }
 
         private val accessibleText by lazy {
+            // Technically it's wrong to cache this because `setText` or `text` may change
             when {
-                setText != null -> {
-                    ComposeAccessibleEditableText()
-                }
-                text != null -> {
-                    ComposeAccessibleText()
-                }
-                else -> {
-                    null
-                }
+                setText != null -> ComposeAccessibleEditableText()
+                text != null -> ComposeAccessibleText()
+                else -> null
             }
         }
 

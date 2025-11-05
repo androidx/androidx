@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Tab
@@ -48,7 +50,9 @@ import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SkikoComposeUiTest
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.runInternalSkikoComposeUiTest
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.toDpSize
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -324,6 +328,83 @@ class AccessibilityTest {
         }
     }
 
+    private fun ComposeA11yTestScope.verifyTextFieldA11y(node: SemanticsNodeInteraction) {
+        fun AccessibleText.asString() = buildString {
+            for (i in 0 until charCount) {
+                append(getAtIndex(AccessibleText.CHARACTER, i))
+            }
+        }
+
+        fun SemanticsNodeInteraction.accessibleText() =
+            fetchAccessible().accessibleContext?.accessibleText
+
+        with(node) {
+            // Check role and states
+            assertHasAccessibleRole(AccessibleRole.TEXT)
+            assertHasAccessibleState(AccessibleState.EDITABLE)
+
+            // Check text
+            accessibleText().let { accessibleText ->
+                assertNotNull(accessibleText, "AccessibleText is null")
+                assertThat(accessibleText.asString()).isEqualTo("Hello world")
+                assertThat(accessibleText.getAtIndex(AccessibleText.WORD, 0)).isEqualTo("Hello")
+                assertThat(accessibleText.getAtIndex(AccessibleText.WORD, 6)).isEqualTo("world")
+                assertThat(accessibleText.selectedText).isEqualTo(null)
+            }
+
+            // Check selection change events
+            var caretChanged = false
+            var selectionChanged = false
+            fetchAccessible().accessibleContext!!.addPropertyChangeListener { evt ->
+                when (evt.propertyName) {
+                    AccessibleContext.ACCESSIBLE_CARET_PROPERTY -> caretChanged = true
+                    AccessibleContext.ACCESSIBLE_SELECTION_PROPERTY -> selectionChanged = true
+                }
+            }
+            performTextInputSelection(TextRange(5, 0))
+            test.waitForIdle()
+            assertTrue(caretChanged)
+            assertTrue(selectionChanged)
+            // Check new selection
+            accessibleText().let { accessibleText ->
+                assertNotNull(accessibleText, "AccessibleText is null")
+                assertThat(accessibleText.selectedText).isEqualTo("Hello")
+            }
+
+            // Check empty selection
+            performTextInputSelection(TextRange(3, 3))
+            test.waitForIdle()
+            accessibleText().let { accessibleText ->
+                assertNotNull(accessibleText, "AccessibleText is null")
+                assertThat(accessibleText.selectedText).isEqualTo(null)
+            }
+        }
+    }
+
+    @Test
+    fun verifyTextField1A11y() = runDesktopA11yTest {
+        test.setContent {
+            BasicTextField(
+                value = "Hello world",
+                onValueChange = { },
+                modifier = Modifier.testTag("textField")
+            )
+        }
+
+        verifyTextFieldA11y(test.onNodeWithTag("textField"))
+    }
+
+    @Test
+    fun verifyTextField2A11y() = runDesktopA11yTest {
+        test.setContent {
+            BasicTextField(
+                state = rememberTextFieldState("Hello world"),
+                modifier = Modifier.testTag("textField")
+            )
+        }
+
+        verifyTextFieldA11y(test.onNodeWithTag("textField"))
+    }
 }
 
 

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.TextRange
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleComponent
 import javax.accessibility.AccessibleContext.ACCESSIBLE_CARET_PROPERTY
+import javax.accessibility.AccessibleContext.ACCESSIBLE_SELECTION_PROPERTY
 import javax.accessibility.AccessibleContext.ACCESSIBLE_STATE_PROPERTY
 import javax.accessibility.AccessibleContext.ACCESSIBLE_TEXT_PROPERTY
 import javax.accessibility.AccessibleContext.ACCESSIBLE_VALUE_PROPERTY
@@ -87,7 +88,7 @@ internal class AccessibilityController(
      * Invoked when a [ComposeAccessible] is removed.
      */
     private fun onNodeRemoved(accessible: ComposeAccessible) {
-        accessible.removed = true
+        accessible.dispose()
     }
 
     /**
@@ -98,29 +99,52 @@ internal class AccessibilityController(
         previousSemanticsNode: SemanticsNode,
         newSemanticsNode: SemanticsNode
     ) {
+        val accessibleContext by lazy { component.composeAccessibleContext }
         for (entry in newSemanticsNode.config) {
             val prev = previousSemanticsNode.config.getOrNull(entry.key)
             if (entry.value != prev) {
                 when (entry.key) {
                     SemanticsProperties.Text -> {
-                        component.composeAccessibleContext.firePropertyChange(
+                        accessibleContext.firePropertyChange(
                             ACCESSIBLE_TEXT_PROPERTY,
                             prev, entry.value
                         )
                     }
 
                     SemanticsProperties.EditableText -> {
-                        component.composeAccessibleContext.firePropertyChange(
+                        // The docs on ACCESSIBLE_TEXT_PROPERTY say that the value should be
+                        // an AccessibleTextSequence, but in reality, AccessibleJTextComponent
+                        // sends the position of the start of the change
+                        accessibleContext.firePropertyChange(
                             ACCESSIBLE_TEXT_PROPERTY,
-                            prev, entry.value
+                            null,
+                            0  // Ideally, we should track the position of the change; 0 means everything changed
                         )
                     }
 
                     SemanticsProperties.TextSelectionRange -> {
-                        component.composeAccessibleContext.firePropertyChange(
-                            ACCESSIBLE_CARET_PROPERTY,
-                            (prev as? TextRange)?.start, (entry.value as TextRange).start
-                        )
+                        val prevTextSelectionRange = prev as? TextRange
+                        val newTextSelectionRange = entry.value as TextRange
+
+                        val prevCaretPosition = prevTextSelectionRange?.end
+                        val newCaretPosition = newTextSelectionRange.end
+                        if (prevCaretPosition != newCaretPosition) {
+                            accessibleContext.firePropertyChange(
+                                ACCESSIBLE_CARET_PROPERTY,
+                                prevCaretPosition, newCaretPosition
+                            )
+                        }
+
+                        val text = newSemanticsNode.config.getOrNull(SemanticsProperties.EditableText)
+                        val prevHasSelection = prevTextSelectionRange?.collapsed == false
+                        val nowHasSelection = !newTextSelectionRange.collapsed
+                        if (prevHasSelection != nowHasSelection) {
+                            accessibleContext.firePropertyChange(
+                                ACCESSIBLE_SELECTION_PROPERTY,
+                                null,  // AccessibleJTextComponent also sends oldValue = null
+                                text?.subSequence(newTextSelectionRange)
+                            )
+                        }
                     }
 
                     SemanticsProperties.Focused ->
