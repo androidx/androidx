@@ -323,21 +323,21 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleIndexInParent(): Int {
-            val parentChildren = semanticsNode.parent?.replacedChildren
-            return parentChildren?.indexOfFirst { it.id == semanticsNode.id } ?: -1
+            val parentChildren = semanticsNode.parent?.traversalOrderedChildren()
+            return (parentChildren?.indexOfFirst { it.id == semanticsNode.id } ?: -1)
         }
 
         override fun getAccessibleChildrenCount(): Int {
             return semanticsNode.replacedChildren.size + auxiliaryChildren.size
         }
 
-        override fun getAccessibleChild(i: Int): Accessible? {
-            val replacedChildren = semanticsNode.replacedChildren
-            val replacedChildrenSize = replacedChildren.size
-            return if (i < replacedChildrenSize) {
-                controller.accessibleByNodeId(replacedChildren[i].id)
+        override fun getAccessibleChild(index: Int): Accessible? {
+            val regularChildren = semanticsNode.traversalOrderedChildren()
+            val childrenSize = regularChildren.size
+            return if (index < childrenSize) {
+                controller.accessibleByNodeId(regularChildren[index].id)
             } else {
-                auxiliaryChildren[i - replacedChildrenSize]
+                auxiliaryChildren[index - childrenSize]
             }
         }
 
@@ -373,12 +373,23 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleAt(p: Point): Accessible? {
-            for (i in 0 until accessibleChildrenCount) {
-                val child = (getAccessibleChild(i)?.accessibleContext as? AccessibleComponent)
-                child?.getAccessibleAt(p)?.let {
+            val accessibleChildren = semanticsNode.traversalOrderedChildren()
+            for (child in accessibleChildren) {
+                val accessible = controller.accessibleByNodeId(child.id) as? Accessible ?: continue
+                val accessibleComponent = (accessible.accessibleContext as? AccessibleComponent) ?: continue
+                accessibleComponent.getAccessibleAt(p)?.let {
                     return it
                 }
             }
+
+            for (accessibleChild in auxiliaryChildren) {
+                val accessibleComponent =
+                    accessibleChild.accessibleContext as? AccessibleComponent ?: continue
+                accessibleComponent.getAccessibleAt(p)?.let {
+                    return it
+                }
+            }
+
             if (contains(p)) {
                 return this@ComposeAccessible
             }
@@ -934,5 +945,13 @@ private class ProgressBarAccessibleValue(
 
     override fun getMaximumAccessibleValue(): Number {
         return rangeInfo?.range?.endInclusive ?: 1f
+    }
+}
+
+private fun SemanticsNode.traversalOrderedChildren(): List<SemanticsNode> {
+    val children = replacedChildren
+    return if (config.getOrNull(SemanticsProperties.IsTraversalGroup) != true) children
+    else children.sortedBy {
+        it.config.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
     }
 }

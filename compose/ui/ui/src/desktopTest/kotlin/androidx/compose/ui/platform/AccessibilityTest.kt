@@ -40,11 +40,13 @@ import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.isContainer
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -404,6 +406,65 @@ class AccessibilityTest {
         }
 
         verifyTextFieldA11y(test.onNodeWithTag("textField"))
+    }
+
+    @Test
+    fun traversalIndexIsRespected() = runDesktopA11yTest {
+        test.setContent {
+            Column(Modifier
+                .testTag("container")
+                .semantics {
+                    isTraversalGroup = true
+                }
+            ) {
+                Text("Item 1",
+                    Modifier
+                        .semantics {
+                            traversalIndex = 0f
+                            contentDescription = "Item 1"
+                        }
+                        .testTag("item1")
+                )
+                Text("Item 2",
+                    Modifier
+                        .semantics {
+                            traversalIndex = 2f
+                            contentDescription = "Item 2"
+                        }
+                        .testTag("item2")
+                )
+                Text("Item 3",
+                    Modifier
+                        .semantics {
+                            traversalIndex = 1f
+                            contentDescription = "Item 3"
+                        }
+                        .testTag("item3")
+                )
+            }
+        }
+
+        test.onNodeWithTag("container").fetchAccessible().accessibleContext.let { context ->
+            assertNotNull(context)
+
+            fun assertDescriptionAtIndexIs(index: Int, expectedDescription: String) {
+                assertThat(context.getAccessibleChild(index).accessibleContext.accessibleDescription)
+                    .isEqualTo(expectedDescription)
+            }
+
+            assertThat(context.accessibleChildrenCount).isEqualTo(3)
+            assertDescriptionAtIndexIs(0, "Item 1")
+            assertDescriptionAtIndexIs(1, "Item 3")
+            assertDescriptionAtIndexIs(2, "Item 2")
+        }
+
+        fun assertNodeWithTagIndexInParentIs(tag: String, expectedIndex: Int) {
+            assertThat(test.onNodeWithTag(tag).fetchAccessible().accessibleContext?.accessibleIndexInParent)
+                .isEqualTo(expectedIndex)
+        }
+        assertNodeWithTagIndexInParentIs("item1", 0)
+        assertNodeWithTagIndexInParentIs("item2", 2)
+        assertNodeWithTagIndexInParentIs("item3", 1)
     }
 }
 
