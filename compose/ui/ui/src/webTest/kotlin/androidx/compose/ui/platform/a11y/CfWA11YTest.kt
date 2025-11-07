@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.testTag
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -42,14 +41,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.test.IgnoreJsTarget
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
-// It's flaky on Firefox JS. After ignoring one test it fails on another.
-// FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
-@IgnoreJsTarget
+/**
+ * These tests were flaky in Firefox when running the k/js target:
+ * https://youtrack.jetbrains.com/issue/CMP-9069/CfWA11YTest.-timed-out-in-Firefox
+ *
+ * Here, I'd like to share my findings:
+ * - `awaitIdle` can take an undefined amount of time, that's why I removed it in tests checking the timing of A11Y updates.
+ *   Then the tests use `awaitA11YChanges` - awaiting the HTML mutations.
+ * - In some tests I used a Boolean state switching it back and forth.
+ *   Even though the state changes caused the invalidation, the A11Y tree didn't change if an update produced the same A11Y tree (for the same state).
+ *   It led to awaitA11YChanges hanging forever or to a timeout.
+ *   That's why it's better to use an Int state in such tests, so the change in HTML will be noticed 100%.
+ * - Note: running the k/js tests in FF takes 15% longer than in Chrome. K/Wasm is fast in both cases.
+ */
 class CfWA11YTest : OnCanvasTests {
 
     @Test
@@ -64,10 +72,9 @@ class CfWA11YTest : OnCanvasTests {
             }
         }
 
-        awaitIdle()
-
         val a11yContainer = getA11YContainer()
         assertNotNull(a11yContainer)
+        assertEquals("", a11yContainer.innerHTML, "No A11Y tree expected yet")
 
         awaitA11YChanges()
 
@@ -106,13 +113,11 @@ class CfWA11YTest : OnCanvasTests {
             }
         }
 
-        awaitIdle()
-
         val a11yContainer = getA11YContainer()
         assertNotNull(a11yContainer)
+        assertEquals("", a11yContainer.innerHTML, "No A11Y tree expected yet")
 
         awaitA11YChanges()
-
         val buttonsContainer = a11yContainer.children[0] as HTMLDivElement
         assertEquals(1, buttonsContainer.children.length)
 
@@ -121,7 +126,6 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals("Button1", button1.innerText)
 
         showButton2 = true
-        awaitIdle()
         awaitA11YChanges()
 
         assertEquals(2, buttonsContainer.children.length)
@@ -141,7 +145,6 @@ class CfWA11YTest : OnCanvasTests {
         }
 
         showButton2 = false
-        awaitIdle()
         awaitA11YChanges()
 
         assertEquals(1, buttonsContainer.children.length)
@@ -172,20 +175,16 @@ class CfWA11YTest : OnCanvasTests {
             }
         }
 
-        awaitIdle()
-
         val a11yContainer = getA11YContainer()
         assertNotNull(a11yContainer)
+        assertEquals("", a11yContainer.innerHTML, "No A11Y tree expected yet")
 
         awaitA11YChanges()
-
         val buttonsContainer = a11yContainer.children[0] as HTMLDivElement
         assertEquals(1, buttonsContainer.children.length)
 
         show2 = true
         show3 = true
-
-        awaitIdle()
         awaitA11YChanges()
 
         assertEquals(3, buttonsContainer.children.length)
@@ -195,7 +194,6 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals("Button3", buttonsContainer.children[2]!!.innerHTML)
 
         show1 = false
-        awaitIdle()
         awaitA11YChanges()
 
         assertEquals(2, buttonsContainer.children.length)
@@ -203,7 +201,6 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals("Button3", buttonsContainer.children[1]!!.innerHTML)
 
         show1 = true
-        awaitIdle()
         awaitA11YChanges()
 
         assertEquals(3, buttonsContainer.children.length)
@@ -212,38 +209,45 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals("Button3", buttonsContainer.children[2]!!.innerHTML)
     }
 
+    /**
+     * The tests use a TestCoroutineScope with delay skipping.
+     * In some cases we need a test to wait for some time, and that's the purpose of this function.
+     */
+    suspend fun realDelay(timeMs: Long) {
+        withContext(Dispatchers.Default) {
+            delay(timeMs)
+        }
+    }
+
     @Test
     fun changesMustBeBatched() = runApplicationTest {
-        var show1 by mutableStateOf(true)
+        var value by mutableStateOf(0)
 
+        var recompositions = 0
         createComposeWindow {
-            if (show1) {
-                Button(onClick = {}) {
-                    Text("Text in Button")
-                }
+            Button(onClick = {}) {
+                Text("Text in Button - $value")
+                recompositions++
             }
         }
 
-        awaitIdle()
         val a11yContainer = getA11YContainer()!!
-
         assertEquals("",a11yContainer.innerHTML)
         assertEquals(0,a11yContainer.childElementCount)
 
-        suspend fun realDelay(timeMs: Long) {
-            withContext(Dispatchers.Default) {
-                delay(timeMs)
-            }
-        }
+        awaitA11YChanges()
+        assertTrue(a11yContainer.innerHTML.contains("Text in Button - 0"), "Expected the button to be added in HTML")
+
+        recompositions = 0 // resetting because we're interested to count them only after this point
 
         repeat(20) {
-            show1 = !show1
-            realDelay(10)
-
+            value++
+            awaitAnimationFrame()
             // No changes expected yet due to debounce
-            assertEquals("",a11yContainer.innerHTML)
-            assertEquals(0,a11yContainer.childElementCount)
+            assertTrue(a11yContainer.innerHTML.contains("Text in Button - 0"), "The state is changing but we expect a debounce and no A11Y tree changes")
         }
+
+        assertTrue(recompositions > 0, "The state has been changing, but no recompositions?")
 
         val startTime = currentTimeMillis()
         awaitA11YChanges()
@@ -254,45 +258,31 @@ class CfWA11YTest : OnCanvasTests {
 
         (buttonsContainer.children[0] as HTMLElement).let { button ->
             assertEquals("button", button.getAttribute("role"))
-            assertEquals("Text in Button", button.innerHTML)
+            assertEquals("Text in Button - 20", button.innerHTML)
         }
 
         // The tolerance is quite large, but it's so to reduce the flakiness.
         // The idea is that the change is not expected to happen immediately, but with debounce.
-        assertTrue(waitedForChangesMs in 50..150, "Changes must be batched, waited for $waitedForChangesMs ms. Allowed tolerance 50ms was exceeded")
+        assertTrue(waitedForChangesMs in 50..250, "Changes must be batched, waited for $waitedForChangesMs ms. Allowed tolerance was exceeded")
     }
 
     @Test
     fun changesMustBeAppliedDespiteConstantDebounceAfter1Second() = runApplicationTest {
-        var show1 by mutableStateOf(true)
-        var startTime = 0L
+        var value by mutableStateOf(0)
 
         createComposeWindow {
-            if (show1) {
-                Button(onClick = {}) {
-                    Text("Text in Button")
-                }
-            }
-
-            DisposableEffect(Unit) {
-                startTime = currentTimeMillis()
-                onDispose {  }
+            Button(onClick = {}) {
+                Text("Text in Button - $value")
             }
         }
-
-        awaitIdle()
-        assertNotEquals(0L, startTime, "The start time must be set")
 
         val a11yContainer = getA11YContainer()!!
 
-        assertEquals("",a11yContainer.innerHTML)
-        assertEquals(0,a11yContainer.childElementCount)
+        assertEquals("",a11yContainer.innerHTML, "No A11Y tree expected yet")
+        assertEquals(0,a11yContainer.childElementCount, "No A11Y tree expected yet")
 
-        suspend fun realDelay(timeMs: Long) {
-            withContext(Dispatchers.Default) {
-                delay(timeMs)
-            }
-        }
+        awaitA11YChanges()
+        assertTrue(a11yContainer.innerHTML.contains("Text in Button - 0"), "Button must be present in the A11Y tree")
 
         var changesAppliedTime = 0L
 
@@ -301,25 +291,28 @@ class CfWA11YTest : OnCanvasTests {
             changesAppliedTime = currentTimeMillis()
         }
 
-        var debounceCounter = 0
+        // Make sure nothing else interferes with the A11Y tree
+        realDelay(1200)
+        assertEquals(0, changesAppliedTime, "There were no state changes! Why did A11Y tree change?")
 
-        repeat(20) {
-            // Change the state every 55ms. Such changes must be "debounced", (time delta is less than 100ms)
-            show1 = !show1
-            realDelay(55)
+        var debounceCounter = 0
+        val startTime = currentTimeMillis()
+
+        while(changesAppliedTime == 0L) {
+            if (currentTimeMillis() - startTime > 2000) {
+                error("Changes must be applied after 1 second, waited for ${currentTimeMillis() - startTime} ms")
+            }
+            // Change the state every frame. Such changes must be "debounced", (time delta is less than 100ms)
+            value += 1
+            awaitAnimationFrame()
 
             if (changesAppliedTime == 0L) {
-                // No changes expected yet due to debounce
-                assertEquals(0, a11yContainer.childElementCount)
                 debounceCounter++
             }
         }
 
         // To avoid flakiness, we make just a sanity check. The expected value is ~18
         assertTrue(debounceCounter > 1)
-
-        // the "debounce" must be ignored when the changes were waiting for 1 second
-        assertEquals(1, a11yContainer.childElementCount)
 
         // Adding a tolerance of 200ms, just to avoid flakiness
         assertTrue(
@@ -332,39 +325,36 @@ class CfWA11YTest : OnCanvasTests {
     fun noChangesFor1SecondTheDebounceShouldWork() = runApplicationTest {
         var show by mutableStateOf(true)
 
+        var recompositions = 0
         createComposeWindow {
             if (show) {
                 Text("Test", modifier = Modifier.testTag("testText"))
             }
+            recompositions++
         }
 
-        awaitIdle()
         awaitA11YChanges()
 
         val textEl = getShadowRoot().getElementById("testText") as HTMLElement
         assertEquals("Test", textEl.innerText)
 
-
-        suspend fun realDelay(timeMs: Long) {
-            withContext(Dispatchers.Default) {
-                delay(timeMs)
-            }
-        }
-
         realDelay(1200)
 
-        assertTrue(textEl.isConnected)
+        assertTrue(textEl.isConnected, "textEl must be connected")
 
+        recompositions = 0
         repeat(10) {
             show = !show
-            realDelay(10)
-            assertTrue(textEl.isConnected)
+            awaitAnimationFrame()
+            assertTrue(textEl.isConnected, "textEl must be connected despite value changes - debounce expected. (Iteration $it)")
         }
+
+        assertTrue(recompositions > 0, "The state has been changing, but no recompositions?")
 
         show = false
         awaitA11YChanges()
 
-        assertFalse(textEl.isConnected)
+        assertFalse(textEl.isConnected, "textEl must be disconnected after debounce ended")
     }
 
     @Test
@@ -385,8 +375,6 @@ class CfWA11YTest : OnCanvasTests {
             }
         }
 
-
-        awaitIdle()
         awaitA11YChanges()
 
         val a11yContainer = getA11YContainer()!!
@@ -426,17 +414,10 @@ class CfWA11YTest : OnCanvasTests {
                 Text("Button1")
             }
         }
-
-        awaitIdle()
         assertNull(getA11YContainer())
 
-        suspend fun realDelay(timeMs: Long) {
-            withContext(Dispatchers.Default) {
-                delay(timeMs)
-            }
-        }
         // Wait a bit and make sure the a11y root didn't appear
-        realDelay(500)
+        realDelay(1200)
         assertNull(getA11YContainer())
 
         assertTrue(getCanvas().isConnected)
@@ -466,7 +447,6 @@ class CfWA11YTest : OnCanvasTests {
             }
         }
 
-        awaitIdle()
         awaitA11YChanges()
 
         val button = getShadowRoot().getElementById("buttonTag") as? HTMLElement
@@ -475,7 +455,6 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals(1, clickCounter)
 
         showButton = false
-        awaitIdle()
         awaitA11YChanges()
 
         assertNull(getShadowRoot().getElementById("buttonTag"))
@@ -493,7 +472,6 @@ class CfWA11YTest : OnCanvasTests {
             )
         }
 
-        awaitIdle()
         awaitA11YChanges()
 
         val textField = getShadowRoot().getElementById("textFieldTag") as? HTMLElement

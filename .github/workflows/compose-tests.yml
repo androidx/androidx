@@ -203,7 +203,7 @@ jobs:
       matrix:
         # FIXME: Even after installation of '119.0', tests still use latest one. Fix and restore.
         firefox: [ 'latest' ]
-        task: [ 'Js', 'Wasm' ]
+        task: [ 'Wasm' ] # excluded Js for Firefox due to high flakiness
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5

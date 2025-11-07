@@ -26,6 +26,8 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
@@ -111,10 +113,14 @@ internal interface OnCanvasTests {
         }
     }
 
-    suspend fun awaitA11YChanges() {
+    suspend fun awaitA11YChanges(timeout: Duration = 2.seconds) {
         val a11yContainer = getA11YContainer() ?: return
+        var prevTime = currentTimeMillis()
 
         fun skipFramesUntil(condition: () -> Boolean, onTrue: () -> Unit) {
+            val currentTime = currentTimeMillis()
+            assertTrue(currentTime - prevTime < timeout.inWholeMilliseconds, "awaitA11YChanges timed out after $timeout")
+            prevTime = currentTime
             window.requestAnimationFrame {
                 if (!condition()) {
                     skipFramesUntil(condition, onTrue)
