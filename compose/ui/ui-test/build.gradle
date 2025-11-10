@@ -155,6 +155,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     // Keep in sync with :ui:ui module
                     implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5")
                     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.5")
+                    implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.5")
 
                     // Use direct dependency to AOSP's artifact instead of using project reference
                     // because this module supports all KMP platforms from the beginning
@@ -182,6 +183,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             skikoTest.dependencies {
                 api(project(":compose:foundation:foundation"))
                 api(project(":compose:material:material"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
                 implementation(libs.kotlinTest)
                 implementation(libs.atomicFu)
                 implementation(project(":kruth:kruth"))

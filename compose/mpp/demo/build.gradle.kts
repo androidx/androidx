@@ -171,6 +171,8 @@ kotlin {
                 implementation(project(":lifecycle:lifecycle-common"))
                 implementation(project(":lifecycle:lifecycle-runtime"))
                 implementation(project(":lifecycle:lifecycle-runtime-compose"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
                 implementation(project(":navigation:navigation-common"))
                 implementation(project(":navigation:navigation-compose"))
                 implementation(project(":navigation:navigation-runtime"))

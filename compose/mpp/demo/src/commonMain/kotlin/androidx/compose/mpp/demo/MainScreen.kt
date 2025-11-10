@@ -39,6 +39,7 @@ val MainScreen = Screen.Selection(
     GraphicsComponents,
     Screen.Example("Example1") { Example1() },
     Screen.Example("ImageViewer") { ImageViewer() },
+    Screen.Example("ViewModelExample") { ViewModelExample() },
     Screen.Example("LottieAnimation") { LottieAnimation() },
     Screen.Fullscreen("ApplicationLayouts") { ApplicationLayouts(it) },
     Screen.Example("InteropOrder") { InteropOrder() },

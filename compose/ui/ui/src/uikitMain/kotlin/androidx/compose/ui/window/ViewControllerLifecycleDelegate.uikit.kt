@@ -16,48 +16,86 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.platform.UIKitArchitectureComponentsOwner
 import androidx.compose.ui.uikit.utils.CMPViewControllerLifecycleDelegateProtocol
+import androidx.lifecycle.Lifecycle
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIWindowScene
 import platform.darwin.NSObject
 
 internal class ViewControllerLifecycleDelegate(
-    private val componentsOwner: UIKitArchitectureComponentsOwner,
-    private val notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter,
+    private val notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter
 ): NSObject(), CMPViewControllerLifecycleDelegateProtocol {
+    private var isViewAppeared = false
+        set(value) {
+            field = value
+            updateLifecycleState()
+        }
+    private var isSceneInForeground = false
+        set(value) {
+            field = value
+            updateLifecycleState()
+        }
+    private var isSceneActive = false
+        set(value) {
+            field = value
+            updateLifecycleState()
+        }
+
+    private var isDisposed = false
+        set(value) {
+            field = value
+            updateLifecycleState()
+        }
+
+    var onLifecycleStateUpdated: ((Lifecycle.State) -> Unit)? = null
+        set(value) {
+            field = value
+            updateLifecycleState()
+        }
+    
     private val activeStateListener = SceneActiveStateListener(
         notificationCenter = notificationCenter,
         getScene = ::windowScene
     ) { isSceneActive ->
-        componentsOwner.isSceneActive = isSceneActive
+        this.isSceneActive = isSceneActive
     }
     private val foregroundStateListener = SceneForegroundStateListener(
         notificationCenter = notificationCenter,
         getScene = ::windowScene
     ) { isSceneInForeground ->
-        componentsOwner.isSceneInForeground = isSceneInForeground
+        this.isSceneInForeground = isSceneInForeground
     }
 
     var windowScene: UIWindowScene? = null
         set(value) {
             field = value
-            componentsOwner.isSceneInForeground = foregroundStateListener.isSceneInForeground
-            componentsOwner.isSceneActive = activeStateListener.isSceneActive
+            this.isSceneInForeground = foregroundStateListener.isSceneInForeground
+            this.isSceneActive = activeStateListener.isSceneActive
         }
 
     override fun viewControllerWillDealloc() {
-        componentsOwner.dispose()
+        this.isDisposed = true
         activeStateListener.dispose()
         foregroundStateListener.dispose()
         windowScene = null
     }
 
     override fun viewControllerWillAppear() {
-        componentsOwner.isViewAppeared = true
+        this.isViewAppeared = true
     }
 
     override fun viewControllerDidDisappear() {
-        componentsOwner.isViewAppeared = false
+        this.isViewAppeared = false
+    }
+
+    private fun updateLifecycleState() {
+        onLifecycleStateUpdated?.invoke(
+            when {
+                isDisposed -> Lifecycle.State.DESTROYED
+                isViewAppeared && isSceneInForeground && isSceneActive -> Lifecycle.State.RESUMED
+                isViewAppeared && isSceneInForeground && !isSceneActive -> Lifecycle.State.STARTED
+                else -> Lifecycle.State.CREATED
+            }
+        )
     }
 }

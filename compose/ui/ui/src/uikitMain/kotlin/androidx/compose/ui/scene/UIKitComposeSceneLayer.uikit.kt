@@ -69,7 +69,6 @@ internal class UIKitComposeSceneLayer(
     private val ownerProvider: PlatformArchitectureComponentsOwner,
     private val coroutineContext: CoroutineContext,
     private val interfaceOrientationState: State<InterfaceOrientation>,
-    private val navigationEventDispatcher: NavigationEventDispatcher,
 ) : ComposeSceneLayer {
 
     override var focusable: Boolean = focusedViewsList != null
@@ -87,6 +86,9 @@ internal class UIKitComposeSceneLayer(
     )
 
     val overlayView: UIView get() = mediator.overlayView
+
+    private val navigationEventDispatcher: NavigationEventDispatcher
+        get() = ownerProvider.navigationEventDispatcherOwner.navigationEventDispatcher
 
     private val navigationEventInput = UIKitNavigationEventInput(
         density = interactionView.density,
@@ -110,7 +112,7 @@ internal class UIKitComposeSceneLayer(
 
     private fun isInsideInteractionBounds(point: CValue<CGPoint>): Boolean =
         boundsInWindow.contains(point.asDpOffset().toOffset(interactionView.density).round())
-    
+
     private fun createComposeScene(
         invalidate: () -> Unit,
         platformContext: PlatformContext

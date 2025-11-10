@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.platform.UIKitArchitectureComponentsOwner
+import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
 import androidx.lifecycle.Lifecycle
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,8 +31,9 @@ class ViewControllerBasedLifecycleOwnerTest {
     @Test
     fun allEvents() {
         val notificationCenter = NSNotificationCenter()
-        val lifecycleOwner = UIKitArchitectureComponentsOwner()
-        val lifecycleDelegate = ViewControllerLifecycleDelegate(lifecycleOwner, notificationCenter)
+        val lifecycleOwner = DefaultArchitectureComponentsOwner()
+        val lifecycleDelegate = ViewControllerLifecycleDelegate(notificationCenter)
+        lifecycleDelegate.onLifecycleStateUpdated = lifecycleOwner::setLifecycleState
         val scene = UIWindowScene()
         lifecycleDelegate.windowScene = scene
         assertEquals(Lifecycle.State.CREATED, lifecycleOwner.lifecycle.currentState)
@@ -70,8 +71,9 @@ class ViewControllerBasedLifecycleOwnerTest {
     @Test
     fun foregroundThenViewWillAppear() {
         val notificationCenter = NSNotificationCenter()
-        val lifecycleOwner = UIKitArchitectureComponentsOwner()
-        val lifecycleDelegate = ViewControllerLifecycleDelegate(lifecycleOwner, notificationCenter)
+        val lifecycleOwner = DefaultArchitectureComponentsOwner()
+        val lifecycleDelegate = ViewControllerLifecycleDelegate(notificationCenter)
+        lifecycleDelegate.onLifecycleStateUpdated = lifecycleOwner::setLifecycleState
         val scene = UIWindowScene()
         lifecycleDelegate.windowScene = scene
 
@@ -86,8 +88,9 @@ class ViewControllerBasedLifecycleOwnerTest {
     @Test
     fun viewDidDisappearThenBackground() {
         val notificationCenter = NSNotificationCenter()
-        val lifecycleOwner = UIKitArchitectureComponentsOwner()
-        val lifecycleDelegate = ViewControllerLifecycleDelegate(lifecycleOwner, notificationCenter)
+        val lifecycleOwner = DefaultArchitectureComponentsOwner()
+        val lifecycleDelegate = ViewControllerLifecycleDelegate(notificationCenter)
+        lifecycleDelegate.onLifecycleStateUpdated = lifecycleOwner::setLifecycleState
         val scene = UIWindowScene()
         lifecycleDelegate.windowScene = scene
         lifecycleDelegate.viewControllerWillAppear()

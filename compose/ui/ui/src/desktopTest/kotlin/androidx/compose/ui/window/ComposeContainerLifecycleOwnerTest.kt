@@ -143,7 +143,7 @@ class ComposeContainerLifecycleOwnerTest {
                 skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
                 window = window,
             )
-            container.lifecycle.addObserver(allEvents)
+            container.architectureComponentsOwner.lifecycle.addObserver(allEvents)
             window.contentPane.add(pane)
 
             // initial state
@@ -169,7 +169,7 @@ class ComposeContainerLifecycleOwnerTest {
                 skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
                 window = window,
             )
-            container.lifecycle.addObserver(allEvents)
+            container.architectureComponentsOwner.lifecycle.addObserver(allEvents)
             window.contentPane.add(pane)
 
             // initial state
@@ -194,7 +194,7 @@ class ComposeContainerLifecycleOwnerTest {
             skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
             window = window,
         )
-        container.lifecycle.addObserver(allEvents)
+        container.architectureComponentsOwner.lifecycle.addObserver(allEvents)
         window.contentPane.add(pane)
 
         // initial state
@@ -234,7 +234,7 @@ class ComposeContainerLifecycleOwnerTest {
         )
 
         init {
-            container.lifecycle.addObserver(observer)
+            container.architectureComponentsOwner.lifecycle.addObserver(observer)
             isFocusable = true
         }
 

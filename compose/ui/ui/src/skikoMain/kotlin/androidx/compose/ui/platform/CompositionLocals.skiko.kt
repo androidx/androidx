@@ -18,11 +18,15 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ProvidedValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.lifecycle.LifecycleOwner
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
@@ -57,6 +61,7 @@ private val PlatformArchitectureComponentsOwner.values: Array<ProvidedValue<*>>
             androidx.lifecycle.compose.LocalLifecycleOwner provides lifecycleOwner,
             LocalInternalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
             LocalCompatNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
+            LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
         )
         viewModelStoreOwner?.let { providedValues.add(LocalInternalViewModelStoreOwner provides it) }
         return providedValues.toTypedArray()
@@ -68,13 +73,20 @@ internal fun ProvidePlatformCompositionLocals(
     platformContext: PlatformContext,
     content: @Composable () -> Unit,
 ) {
-    // TODO: Provide LocalSavedStateRegistryOwner and LocalSaveableStateRegistry
+    val saveableStateRegistry = remember {
+        DisposableSaveableStateRegistry(
+            id = "ComposeContainer",
+            savedStateRegistryOwner = platformContext.architectureComponentsOwner.savedStateRegistryOwner
+        )
+    }
+    DisposableEffect(Unit) { onDispose { saveableStateRegistry.dispose() } }
 
     CompositionLocalProvider(
         *values,
         LocalPlatformScreenReader provides platformContext.screenReader,
         LocalPlatformWindowInsets provides platformContext.windowInsets,
         *platformContext.architectureComponentsOwner.values,
+        LocalSaveableStateRegistry provides saveableStateRegistry,
         content = content,
     )
 }

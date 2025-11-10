@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.enableSavedStateHandles
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
@@ -220,6 +221,7 @@ private class ComposeWindow(
             content()
         }
 
+        archComponentsOwner.enableSavedStateHandles()
         // TODO: Properly handle lifecycle events
         archComponentsOwner.lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }

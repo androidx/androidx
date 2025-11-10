@@ -72,6 +72,7 @@ import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
 import androidx.compose.ui.viewinterop.WebInteropContainer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.enableSavedStateHandles
 import kotlin.coroutines.coroutineContext
 import kotlin.math.absoluteValue
 import kotlinx.browser.document
@@ -442,6 +443,7 @@ internal class ComposeWindow(
             )
         }
 
+        archComponentsOwner.enableSavedStateHandles()
         archComponentsOwner.lifecycle.handleLifecycleEvent(
             if (document.hasFocus()) Lifecycle.Event.ON_RESUME
             else Lifecycle.Event.ON_START
