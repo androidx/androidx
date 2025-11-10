@@ -18,8 +18,6 @@ package androidx.lifecycle.viewmodel.testing {
   public final class ViewModelScenarioKt {
     method @KotlinOnly public static inline <reified VM extends androidx.lifecycle.ViewModel> androidx.lifecycle.viewmodel.testing.ViewModelScenario<VM> viewModelScenario(optional androidx.lifecycle.viewmodel.CreationExtras creationExtras, kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM> initializer);
     method @KotlinOnly public static inline <reified VM extends androidx.lifecycle.ViewModel> androidx.lifecycle.viewmodel.testing.ViewModelScenario<VM> viewModelScenario(androidx.lifecycle.ViewModelProvider.Factory factory, optional androidx.lifecycle.viewmodel.CreationExtras creationExtras);
-    method @BytecodeOnly public static androidx.lifecycle.viewmodel.testing.ViewModelScenario! viewModelScenario$default(androidx.lifecycle.viewmodel.CreationExtras!, kotlin.jvm.functions.Function1!, int, Object!);
-    method @BytecodeOnly public static androidx.lifecycle.viewmodel.testing.ViewModelScenario! viewModelScenario$default(androidx.lifecycle.ViewModelProvider.Factory!, androidx.lifecycle.viewmodel.CreationExtras!, int, Object!);
   }
 
 }
