@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.compose.material3.adaptive.layout.LevitatedPaneScrimKt:
+    Removed class androidx.compose.material3.adaptive.layout.LevitatedPaneScrimKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldKt:
+    Removed class androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneExpansionDraggableModifierKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneExpansionDraggableModifierKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneExpansionStateKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneExpansionStateKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneMotionKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneMotionKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt:
+    Removed class androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldKt:
+    Removed class androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldKt:
+    Removed class androidx.compose.material3.adaptive.layout.ThreePaneScaffoldKt from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValueKt:
+    Removed class androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValueKt from compatibility checked API surface
