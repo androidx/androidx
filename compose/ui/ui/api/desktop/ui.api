@@ -3877,8 +3877,11 @@ public final class androidx/compose/ui/semantics/AccessibilityAction {
 public final class androidx/compose/ui/semantics/CollectionInfo {
 	public static final field $stable I
 	public fun <init> (II)V
+	public fun equals (Ljava/lang/Object;)Z
 	public final fun getColumnCount ()I
 	public final fun getRowCount ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class androidx/compose/ui/semantics/CollectionItemInfo {
