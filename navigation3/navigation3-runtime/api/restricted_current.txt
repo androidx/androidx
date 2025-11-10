@@ -29,7 +29,6 @@ package androidx.navigation3.runtime {
     method @BytecodeOnly public <K extends T> void entry(androidx.navigation3.runtime.EntryProviderScope<T!>, K, Object, java.util.Map<java.lang.String!,? extends java.lang.Object!>, kotlin.jvm.functions.Function3<? super K!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method @KotlinOnly public inline <reified K extends T> void entry(optional kotlin.jvm.functions.Function1<K,java.lang.Object> clazzContentKey, optional java.util.Map<java.lang.String,java.lang.Object> metadata, kotlin.jvm.functions.Function1<K,kotlin.Unit> content);
     method @BytecodeOnly public static void entry$default(androidx.navigation3.runtime.EntryProviderScope!, androidx.navigation3.runtime.EntryProviderScope!, Object!, Object!, java.util.Map!, kotlin.jvm.functions.Function3!, int, Object!);
-    method @BytecodeOnly public static void entry$default(androidx.navigation3.runtime.EntryProviderScope!, kotlin.jvm.functions.Function1!, java.util.Map!, kotlin.jvm.functions.Function3!, int, Object!);
   }
 
   @kotlinx.serialization.Serializable(with=NavBackStackSerializer::class) public final class NavBackStack<T extends androidx.navigation3.runtime.NavKey> implements kotlin.jvm.internal.markers.KMutableList java.util.List<T> java.util.RandomAccess androidx.compose.runtime.snapshots.StateObject {
