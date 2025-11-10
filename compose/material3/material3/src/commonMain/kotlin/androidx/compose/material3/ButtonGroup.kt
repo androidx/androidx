@@ -159,6 +159,7 @@ fun ButtonGroup(
  * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupWithFlowLayoutSample
  * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
  * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
+ * @sample androidx.compose.material3.samples.VerticalButtonGroupSample
  * @param overflowIndicator composable that is displayed at the end of the button group if it needs
  *   to overflow. It receives a [ButtonGroupMenuState].
  * @param modifier the [Modifier] to be applied to the button group.

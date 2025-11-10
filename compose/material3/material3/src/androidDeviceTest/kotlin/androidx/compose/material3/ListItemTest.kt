@@ -70,13 +70,13 @@ class ListItemTest {
     fun listItem_withEmptyHeadline_doesNotCrash() {
         rule
             .setMaterialContentForSizeAssertions { ListItem(headlineContent = {}) }
-            .assertHeightIsEqualTo(ListTokens.ListItemOneLineContainerHeight)
+            .assertHeightIsEqualTo(ListTokens.ItemOneLineContainerHeight)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
     @Test
     fun listItem_oneLine_size() {
-        val expectedHeightNoIcon = ListTokens.ListItemOneLineContainerHeight
+        val expectedHeightNoIcon = ListTokens.ItemOneLineContainerHeight
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(headlineContent = { Text("Primary text") })
@@ -87,7 +87,7 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_withIcon_size() {
-        val expectedHeightSmallIcon = ListTokens.ListItemOneLineContainerHeight
+        val expectedHeightSmallIcon = ListTokens.ItemOneLineContainerHeight
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(
@@ -101,7 +101,7 @@ class ListItemTest {
 
     @Test
     fun listItem_twoLine_size() {
-        val expectedHeightNoIcon = ListTokens.ListItemTwoLineContainerHeight
+        val expectedHeightNoIcon = ListTokens.ItemTwoLineContainerHeight
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(
@@ -115,7 +115,7 @@ class ListItemTest {
 
     @Test
     fun listItem_twoLine_withIcon_size() {
-        val expectedHeightWithIcon = ListTokens.ListItemTwoLineContainerHeight
+        val expectedHeightWithIcon = ListTokens.ItemTwoLineContainerHeight
 
         rule
             .setMaterialContentForSizeAssertions {
@@ -131,7 +131,7 @@ class ListItemTest {
 
     @Test
     fun listItem_threeLine_size() {
-        val expectedHeight = ListTokens.ListItemThreeLineContainerHeight
+        val expectedHeight = ListTokens.ItemThreeLineContainerHeight
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(
@@ -147,7 +147,7 @@ class ListItemTest {
     @Test
     fun listItem_oneLine_intrinsicSize() {
         testIntrinsicMeasurements(
-            expectedHeight = ListTokens.ListItemOneLineContainerHeight,
+            expectedHeight = ListTokens.ItemOneLineContainerHeight,
             verticalPadding = ListItemVerticalPadding,
         ) {
             Column(Modifier.height(IntrinsicSize.Min)) {
@@ -191,7 +191,7 @@ class ListItemTest {
     @Test
     fun listItem_twoLine_intrinsicSize() {
         testIntrinsicMeasurements(
-            expectedHeight = ListTokens.ListItemTwoLineContainerHeight,
+            expectedHeight = ListTokens.ItemTwoLineContainerHeight,
             verticalPadding = ListItemVerticalPadding,
         ) {
             Column(Modifier.height(IntrinsicSize.Min)) {
@@ -209,7 +209,7 @@ class ListItemTest {
     @Test
     fun listItem_threeLine_overline_intrinsicSize() {
         testIntrinsicMeasurements(
-            expectedHeight = ListTokens.ListItemThreeLineContainerHeight,
+            expectedHeight = ListTokens.ItemThreeLineContainerHeight,
             verticalPadding = ListItemThreeLineVerticalPadding,
         ) {
             Column(Modifier.height(IntrinsicSize.Min)) {
@@ -228,7 +228,7 @@ class ListItemTest {
     @Test
     fun listItem_threeLine_noOverline_intrinsicSize() {
         testIntrinsicMeasurements(
-            expectedHeight = ListTokens.ListItemThreeLineContainerHeight,
+            expectedHeight = ListTokens.ItemThreeLineContainerHeight,
             verticalPadding = ListItemThreeLineVerticalPadding,
         ) {
             Column(Modifier.height(IntrinsicSize.Min)) {
@@ -263,7 +263,7 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_positioning_noIcon() {
-        val listItemHeight = ListTokens.ListItemOneLineContainerHeight
+        val listItemHeight = ListTokens.ItemOneLineContainerHeight
         val expectedStartPadding = LeadingContentEndPadding
         val expectedEndPadding = ListItemEndPadding
 
@@ -321,7 +321,7 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_positioning_withIcon() {
-        val listItemHeight = ListTokens.ListItemOneLineContainerHeight
+        val listItemHeight = ListTokens.ItemOneLineContainerHeight
         val expectedStartPadding = ListItemStartPadding
         val expectedTextStartPadding = LeadingContentEndPadding
 
@@ -420,7 +420,7 @@ class ListItemTest {
 
     @Test
     fun listItem_twoLine_positioning_noIcon() {
-        val listItemHeight = ListTokens.ListItemTwoLineContainerHeight
+        val listItemHeight = ListTokens.ItemTwoLineContainerHeight
         val expectedStartPadding = ListItemStartPadding
         val expectedEndPadding = ListItemEndPadding
 
@@ -473,7 +473,7 @@ class ListItemTest {
 
     @Test
     fun listItem_twoLine_positioning_withIcon() {
-        val listItemHeight = ListTokens.ListItemTwoLineContainerHeight
+        val listItemHeight = ListTokens.ItemTwoLineContainerHeight
         val expectedStartPadding = ListItemStartPadding
         val expectedContentStartPadding = LeadingContentEndPadding
 

@@ -173,6 +173,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         assertThat(formatted).isEqualTo("Monday, December 20, 2021")
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452713222
     @Test
     fun formatWithSkeletonProducingEqualPattern() {
         // Format twice to check that the formatter is outputting the right values, and that it's

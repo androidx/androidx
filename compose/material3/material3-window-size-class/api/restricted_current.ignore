@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.compose.material3.windowsizeclass.AndroidWindowSizeClass_androidKt:
+    Removed class androidx.compose.material3.windowsizeclass.AndroidWindowSizeClass_androidKt from compatibility checked API surface
+
+
 RemovedFromBytecode: androidx.compose.material3.windowsizeclass.WindowHeightSizeClass#compareTo(T):
     Binary breaking change: method androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.compareTo(androidx.compose.material3.windowsizeclass.WindowHeightSizeClass) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.material3.windowsizeclass.WindowWidthSizeClass#compareTo(T):

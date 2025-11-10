@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -209,6 +211,184 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
         }
 
         assertAgainstGolden("toggleableListItem_checked_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_oneLine() {
+        val count = 3
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+            ) {
+                repeat(count) { idx ->
+                    SegmentedListItem(
+                        onClick = {},
+                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        content = { Text("Content") },
+                        leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                    )
+                }
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_oneLine_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_twoLines() {
+        val count = 3
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+            ) {
+                repeat(count) { idx ->
+                    SegmentedListItem(
+                        onClick = {},
+                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        content = { Text("Content") },
+                        leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        supportingContent = { Text("Supporting") },
+                    )
+                }
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_twoLines_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_threeLines() {
+        val count = 3
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+            ) {
+                repeat(count) { idx ->
+                    SegmentedListItem(
+                        onClick = {},
+                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        content = { Text("Content") },
+                        leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        supportingContent = { Text("Supporting 1\nSupporting 2") },
+                    )
+                }
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_threeLines_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_firstSelected() {
+        val count = 3
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+            ) {
+                repeat(count) { idx ->
+                    SegmentedListItem(
+                        selected = idx == 0,
+                        onClick = {},
+                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        content = { Text("Content") },
+                        leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        supportingContent = { Text("Supporting") },
+                    )
+                }
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_firstSelected_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_secondSelected() {
+        val count = 3
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+            ) {
+                repeat(count) { idx ->
+                    SegmentedListItem(
+                        selected = idx == 1,
+                        onClick = {},
+                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        content = { Text("Content") },
+                        leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        supportingContent = { Text("Supporting") },
+                    )
+                }
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_secondSelected_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_lastSelected() {
+        val count = 3
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+            ) {
+                repeat(count) { idx ->
+                    SegmentedListItem(
+                        selected = idx == 2,
+                        onClick = {},
+                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        content = { Text("Content") },
+                        leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        supportingContent = { Text("Supporting") },
+                    )
+                }
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_lastSelected_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_allChecked() {
+        val count = 3
+        rule.setMaterialContent(scheme.colorScheme) {
+            Column(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+            ) {
+                repeat(count) { idx ->
+                    SegmentedListItem(
+                        checked = true,
+                        onCheckedChange = {},
+                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        content = { Text("Content") },
+                        leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        supportingContent = { Text("Supporting") },
+                    )
+                }
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_allChecked_${scheme.name}")
     }
 
     companion object {

@@ -100,6 +100,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -110,7 +111,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -615,7 +615,6 @@ fun rememberTimePickerState(
 /** Represents the different configurations for the layout of the Time Picker */
 @Immutable
 @JvmInline
-@ExperimentalMaterial3Api
 value class TimePickerLayoutType internal constructor(internal val value: Int) {
 
     companion object {
@@ -634,13 +633,16 @@ value class TimePickerLayoutType internal constructor(internal val value: Int) {
         }
 }
 
+private const val MaxHourValue = 23
+
+private const val MaxMinuteValue = 59
+
 /**
  * A state object that can be hoisted to observe the time picker state. It holds the current values
  * and allows for directly setting those values.
  *
  * @see rememberTimePickerState to construct the default implementation.
  */
-@ExperimentalMaterial3Api
 interface TimePickerState {
 
     /** The currently selected minute (0-59). */
@@ -648,6 +650,32 @@ interface TimePickerState {
 
     /** The currently selected hour (0-23). */
     @get:IntRange(from = 0, to = 23) @setparam:IntRange(from = 0, to = 23) var hour: Int
+
+    /**
+     * The input for the hour. UI should be bound to this value. The default implementation
+     * validates the new value and updates [hour] if it's valid.
+     */
+    @get:IntRange(from = 0)
+    var hourInput: Int
+        get() = hour
+        set(value) {
+            if (value in 0..MaxHourValue) {
+                hour = value
+            }
+        }
+
+    /**
+     * The raw input for the minute. UI should be bound to this value. The default implementation
+     * validates the new value and updates [minute] if it's valid.
+     */
+    @get:IntRange(from = 0)
+    var minuteInput: Int
+        get() = minute
+        set(value) {
+            if (value in 0..MaxMinuteValue) {
+                minute = value
+            }
+        }
 
     /**
      * Indicates whether the time picker uses 24-hour format (`true`) or 12-hour format with AM/PM
@@ -665,6 +693,18 @@ interface TimePickerState {
  */
 val TimePickerState.isPm
     get() = hour >= 12
+
+/** `true` if the current `hourInput` represents a valid hour (0-23). */
+val TimePickerState.isHourInputValid: Boolean
+    get() = hourInput in 0..MaxHourValue
+
+/** `true` if the current `minuteInput` represents a valid minute (0-59). */
+val TimePickerState.isMinuteInputValid: Boolean
+    get() = minuteInput in 0..MaxMinuteValue
+
+/** `true` if the time input values are valid. */
+val TimePickerState.isInputValid
+    get() = isMinuteInputValid && isHourInputValid
 
 /**
  * Factory function for the default implementation of [TimePickerState] [rememberTimePickerState]
@@ -701,8 +741,8 @@ value class TimePickerSelectionMode private constructor(val value: Int) {
 private class TimePickerStateImpl(initialHour: Int, initialMinute: Int, is24Hour: Boolean) :
     TimePickerState {
     init {
-        require(initialHour in 0..23) { "initialHour should in [0..23] range" }
-        require(initialMinute in 0..59) { "initialMinute should be in [0..59] range" }
+        require(initialHour in 0..MaxHourValue) { "initialHour should in [0..23] range" }
+        require(initialMinute in 0..MaxMinuteValue) { "initialMinute should be in [0..59] range" }
     }
 
     override var is24hour: Boolean = is24Hour
@@ -744,7 +784,7 @@ private class TimePickerStateImpl(initialHour: Int, initialMinute: Int, is24Hour
 internal class AnalogTimePickerState(
     val state: TimePickerState,
     val userOverride: Ref<Boolean> = Ref<Boolean>(),
-) : TimePickerState by state {
+) : TimePickerState by state, RememberObserver {
 
     var currentDiameter by mutableStateOf(0.dp)
 
@@ -827,10 +867,10 @@ internal class AnalogTimePickerState(
         mutex.mutate(MutatePriority.UserInput) {
             if (selection == TimePickerSelectionMode.Hour) {
                 hourAngle = angle.toHour() % 12 * RadiansPerHour
-                state.hour = hourAngle.toHour() % 12 + if (isPm) 12 else 0
+                state.hourInput = hourAngle.toHour() % 12 + if (isPm) 12 else 0
             } else {
                 minuteAngle = angle.toMinute() * RadiansPerMinute
-                state.minute = minuteAngle.toMinute()
+                state.minuteInput = minuteAngle.toMinute()
             }
 
             if (!animate) {
@@ -842,7 +882,7 @@ internal class AnalogTimePickerState(
         }
     }
 
-    override var minute: Int
+    override var minuteInput: Int
         get() = state.minute
         set(value) {
             minuteAngle = RadiansPerMinute * value - FullCircle / 4
@@ -850,12 +890,9 @@ internal class AnalogTimePickerState(
             if (selection == TimePickerSelectionMode.Minute) {
                 anim = Animatable(minuteAngle)
             }
-            updateBaseStateMinute()
         }
 
-    private fun updateBaseStateMinute() = Snapshot.withoutReadObservation { state.minute = minute }
-
-    override var hour: Int
+    override var hourInput: Int
         get() = state.hour
         set(value) {
             hourAngle = RadiansPerHour * (value % 12) - FullCircle / 4
@@ -893,6 +930,19 @@ internal class AnalogTimePickerState(
         val ret = angle + QuarterCircle.toFloat()
         return if (ret < 0) ret + FullCircle else ret
     }
+
+    override fun onRemembered() {
+        hourAngle = RadiansPerHour * (state.hour % 12) - FullCircle / 4
+        minuteAngle = RadiansPerMinute * state.minute - FullCircle / 4
+        anim =
+            Animatable(
+                if (state.selection == TimePickerSelectionMode.Hour) hourAngle else minuteAngle
+            )
+    }
+
+    override fun onForgotten() {}
+
+    override fun onAbandoned() {}
 }
 
 internal val TimePickerState.hourForDisplay: Int
@@ -1069,7 +1119,7 @@ private fun TimeInputImpl(modifier: Modifier, colors: TimePickerColors, state: T
                             state = state,
                             value = newValue,
                             prevValue = hourValue,
-                            max = if (state.is24hour) 23 else 12,
+                            max = if (state.is24hour) MaxHourValue else 12,
                             a11yServicesEnabled = a11yServicesEnabled,
                             userOverride = userOverride,
                         ) {
@@ -1101,7 +1151,7 @@ private fun TimeInputImpl(modifier: Modifier, colors: TimePickerColors, state: T
                             state = state,
                             value = newValue,
                             prevValue = minuteValue,
-                            max = 59,
+                            max = MaxMinuteValue,
                             userOverride = userOverride,
                             a11yServicesEnabled = a11yServicesEnabled,
                         ) {
@@ -1857,9 +1907,9 @@ private fun timeInputOnChange(
 
     if (value.text.isEmpty()) {
         if (selection == TimePickerSelectionMode.Hour) {
-            state.hour = if (state.isPm && !state.is24hour) 12 else 0
+            state.hourInput = if (state.isPm && !state.is24hour) 12 else 0
         } else {
-            state.minute = 0
+            state.minuteInput = 0
         }
         onNewValue(value.copy(text = ""))
         return
@@ -1875,7 +1925,7 @@ private fun timeInputOnChange(
 
         if (newValue <= max) {
             if (selection == TimePickerSelectionMode.Hour) {
-                state.hour =
+                state.hourInput =
                     if (newValue == 12 && state.isPm) {
                         12
                     } else if (newValue == 12 && !state.isPm && !state.is24hour) {
@@ -1887,7 +1937,7 @@ private fun timeInputOnChange(
                     state.selection = TimePickerSelectionMode.Minute
                 }
             } else {
-                state.minute = newValue
+                state.minuteInput = newValue
             }
 
             onNewValue(
