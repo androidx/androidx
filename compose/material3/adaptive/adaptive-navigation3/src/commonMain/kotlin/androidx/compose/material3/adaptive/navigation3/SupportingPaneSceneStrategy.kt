@@ -51,7 +51,7 @@ import androidx.navigation3.scene.SceneStrategyScope
 @Composable
 public fun <T : Any> rememberSupportingPaneSceneStrategy(
     backNavigationBehavior: BackNavigationBehavior =
-        BackNavigationBehavior.PopUntilScaffoldValueChange,
+        BackNavigationBehavior.PopUntilCurrentDestinationChange,
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
@@ -98,10 +98,7 @@ public class SupportingPaneSceneStrategy<T : Any>(
         var idx = entries.lastIndex
         while (idx >= 0) {
             val entry = entries[idx]
-            val paneMetadata = getPaneMetadata(entry)
-            if (paneMetadata == null) {
-                break
-            }
+            val paneMetadata = getPaneMetadata(entry) ?: break
 
             if (paneMetadata.sceneKey == sceneKey) {
                 scaffoldEntryIndices.add(0, idx)
@@ -163,7 +160,7 @@ public class SupportingPaneSceneStrategy<T : Any>(
     }
 
     public companion object {
-        internal const val SupportingPaneRoleKey =
+        internal const val SupportingPaneRoleKey: String =
             "androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole"
 
         /**
