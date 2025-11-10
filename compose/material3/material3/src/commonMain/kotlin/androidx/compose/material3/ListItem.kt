@@ -106,7 +106,7 @@ fun ListItem(
     val decoratedHeadlineContent: @Composable () -> Unit = {
         ProvideTextStyleFromToken(
             colors.headlineColor(enabled = true),
-            ListTokens.ListItemLabelTextFont,
+            ListTokens.ItemLabelTextFont,
             headlineContent,
         )
     }
@@ -115,20 +115,14 @@ fun ListItem(
             {
                 ProvideTextStyleFromToken(
                     colors.supportingColor(),
-                    ListTokens.ListItemSupportingTextFont,
+                    ListTokens.ItemSupportingTextFont,
                     it,
                 )
             }
         }
     val decoratedOverlineContent: @Composable (() -> Unit)? =
         overlineContent?.let {
-            {
-                ProvideTextStyleFromToken(
-                    colors.overlineColor(),
-                    ListTokens.ListItemOverlineFont,
-                    it,
-                )
-            }
+            { ProvideTextStyleFromToken(colors.overlineColor(), ListTokens.ItemOverlineFont, it) }
         }
     val decoratedLeadingContent: @Composable (() -> Unit)? =
         leadingContent?.let {
@@ -147,7 +141,7 @@ fun ListItem(
                 Box(Modifier.padding(start = TrailingContentStartPadding)) {
                     ProvideTextStyleFromToken(
                         colors.trailingIconColor(enabled = true),
-                        ListTokens.ListItemTrailingSupportingTextFont,
+                        ListTokens.ItemTrailingSupportingTextFont,
                         content = it,
                     )
                 }
@@ -460,9 +454,9 @@ private fun IntrinsicMeasureScope.calculateHeight(
 ): Int {
     val defaultMinHeight =
         when (listItemType) {
-            ListItemType.OneLine -> ListTokens.ListItemOneLineContainerHeight
-            ListItemType.TwoLine -> ListTokens.ListItemTwoLineContainerHeight
-            else /* ListItemType.ThreeLine */ -> ListTokens.ListItemThreeLineContainerHeight
+            ListItemType.OneLine -> ListTokens.ItemOneLineContainerHeight
+            ListItemType.TwoLine -> ListTokens.ItemTwoLineContainerHeight
+            else /* ListItemType.ThreeLine */ -> ListTokens.ItemThreeLineContainerHeight
         }
     val minHeight = max(constraints.minHeight, defaultMinHeight.roundToPx())
 
@@ -526,19 +520,19 @@ private fun MeasureScope.place(
 /** Contains the default values used by list items. */
 object ListItemDefaults {
     /** The default elevation of a list item */
-    val Elevation: Dp = ListTokens.ListItemContainerElevation
+    val Elevation: Dp = ListTokens.ItemContainerElevation
 
     /** The default shape of a list item */
     val shape: Shape
-        @Composable @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ItemContainerShape.value
 
     /** The container color of a list item */
     val containerColor: Color
-        @Composable @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ItemContainerColor.value
 
     /** The content color of a list item */
     val contentColor: Color
-        @Composable @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ItemLabelTextColor.value
 
     /**
      * Creates a [ListItemColors] that represents the default container and content colors used in a
@@ -590,21 +584,21 @@ object ListItemDefaults {
         get() {
             return defaultListItemColorsCached
                 ?: ListItemColors(
-                        containerColor = fromToken(ListTokens.ListItemContainerColor),
-                        headlineColor = fromToken(ListTokens.ListItemLabelTextColor),
-                        leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
-                        overlineColor = fromToken(ListTokens.ListItemOverlineColor),
-                        supportingTextColor = fromToken(ListTokens.ListItemSupportingTextColor),
-                        trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
+                        containerColor = fromToken(ListTokens.ItemContainerColor),
+                        headlineColor = fromToken(ListTokens.ItemLabelTextColor),
+                        leadingIconColor = fromToken(ListTokens.ItemLeadingIconColor),
+                        overlineColor = fromToken(ListTokens.ItemOverlineColor),
+                        supportingTextColor = fromToken(ListTokens.ItemSupportingTextColor),
+                        trailingIconColor = fromToken(ListTokens.ItemTrailingIconColor),
                         disabledHeadlineColor =
-                            fromToken(ListTokens.ListItemDisabledLabelTextColor)
-                                .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+                            fromToken(ListTokens.ItemDisabledLabelTextColor)
+                                .copy(alpha = ListTokens.ItemDisabledLabelTextOpacity),
                         disabledLeadingIconColor =
-                            fromToken(ListTokens.ListItemDisabledLeadingIconColor)
-                                .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
+                            fromToken(ListTokens.ItemDisabledLeadingIconColor)
+                                .copy(alpha = ListTokens.ItemDisabledLeadingIconOpacity),
                         disabledTrailingIconColor =
-                            fromToken(ListTokens.ListItemDisabledTrailingIconColor)
-                                .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
+                            fromToken(ListTokens.ItemDisabledTrailingIconColor)
+                                .copy(alpha = ListTokens.ItemDisabledTrailingIconOpacity),
                     )
                     .also { defaultListItemColorsCached = it }
         }

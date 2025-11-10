@@ -686,6 +686,8 @@ class ColorScheme(
     internal var defaultListItemColorsCached: ListItemColors? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultInteractiveListItemColorsCached: InteractiveListItemColors? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultSegmentedInteractiveListItemColorsCached: InteractiveListItemColors? = null
 
     internal var defaultMenuItemColorsCached: MenuItemColors? = null
 

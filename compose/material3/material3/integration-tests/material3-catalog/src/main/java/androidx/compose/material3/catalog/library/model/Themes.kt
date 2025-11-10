@@ -36,7 +36,7 @@ data class Theme(
         colorMode = ColorMode.values()[map.getValue(ColorModeKey).toInt()],
         expressiveThemeMode =
             ExpressiveThemeMode.values()[map.getValue(ExpressiveThemeModeKey).toInt()],
-        fontScale = map.getValue(FontScaleKey).toFloat(),
+        fontScale = map.getValue(FontScaleKey),
         fontScaleMode = FontScaleMode.values()[map.getValue(FontScaleModeKey).toInt()],
         textDirection = TextDirection.values()[map.getValue(TextDirectionKey).toInt()],
         showOnlyExpressiveComponents = map.getValue(ShowOnlyExpressiveComponents).toInt() != 0,

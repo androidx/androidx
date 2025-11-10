@@ -235,18 +235,18 @@ object MenuDefaults {
         get() {
             return defaultMenuItemColorsCached
                 ?: MenuItemColors(
-                        textColor = fromToken(ListTokens.ListItemLabelTextColor),
-                        leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
-                        trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
+                        textColor = fromToken(ListTokens.ItemLabelTextColor),
+                        leadingIconColor = fromToken(ListTokens.ItemLeadingIconColor),
+                        trailingIconColor = fromToken(ListTokens.ItemTrailingIconColor),
                         disabledTextColor =
-                            fromToken(ListTokens.ListItemDisabledLabelTextColor)
-                                .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+                            fromToken(ListTokens.ItemDisabledLabelTextColor)
+                                .copy(alpha = ListTokens.ItemDisabledLabelTextOpacity),
                         disabledLeadingIconColor =
-                            fromToken(ListTokens.ListItemDisabledLeadingIconColor)
-                                .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
+                            fromToken(ListTokens.ItemDisabledLeadingIconColor)
+                                .copy(alpha = ListTokens.ItemDisabledLeadingIconOpacity),
                         disabledTrailingIconColor =
-                            fromToken(ListTokens.ListItemDisabledTrailingIconColor)
-                                .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
+                            fromToken(ListTokens.ItemDisabledTrailingIconColor)
+                                .copy(alpha = ListTokens.ItemDisabledTrailingIconOpacity),
                     )
                     .also { defaultMenuItemColorsCached = it }
         }
@@ -452,7 +452,7 @@ internal fun DropdownMenuItemContent(
                 CompositionLocalProvider(
                     LocalContentColor provides colors.leadingIconColor(enabled)
                 ) {
-                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ListItemLeadingIconSize)) {
+                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ItemLeadingIconSize)) {
                         leadingIcon()
                     }
                 }
@@ -482,7 +482,7 @@ internal fun DropdownMenuItemContent(
                 CompositionLocalProvider(
                     LocalContentColor provides colors.trailingIconColor(enabled)
                 ) {
-                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ListItemTrailingIconSize)) {
+                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ItemTrailingIconSize)) {
                         trailingIcon()
                     }
                 }

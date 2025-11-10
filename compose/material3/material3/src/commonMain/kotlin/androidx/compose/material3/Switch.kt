@@ -239,6 +239,14 @@ private class ThumbNode(
         }
     }
 
+    override fun onReset() {
+        super.onReset()
+        offsetAnim = null
+        sizeAnim = null
+        initialSize = Float.NaN
+        initialOffset = Float.NaN
+    }
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,

@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.tokens.SwitchTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -54,6 +57,7 @@ import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isNotFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -63,6 +67,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -392,4 +397,41 @@ class SwitchTest {
                 .performTouchInput { click(position = Offset(-1f, -1f)) }
                 .assertIsOn()
         }
+
+    @Test
+    fun switch_onReset_resetsState() {
+        var checked by mutableStateOf(false)
+        var reuseKey by mutableStateOf(0)
+        rule.mainClock.autoAdvance = false
+        val thumbTag = "thumb"
+        rule.setMaterialContent(lightColorScheme()) {
+            ReusableContent(reuseKey) {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    onCheckedChange = { checked = it },
+                    thumbContent = {
+                        Box(Modifier.size(10.dp).testTag(thumbTag).background(Color.Blue))
+                    },
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            checked = true
+            reuseKey++
+        }
+
+        // Refresh to the new Switch
+        rule.mainClock.advanceTimeByFrame()
+
+        val onThumb = rule.onNodeWithTag(testTag = thumbTag, useUnmergedTree = true)
+        val origBounds = onThumb.getBoundsInRoot()
+
+        // Advance some frames to see if animation is happening
+        repeat(10) { rule.mainClock.advanceTimeByFrame() }
+
+        // Is not moving or animating
+        assertThat(onThumb.getBoundsInRoot()).isEqualTo(origBounds)
+    }
 }
