@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.navigation3.scene/androidx_navigation3_scene_DialogScene$stableprop from androidx.navigation
+[linuxX64]: Removed declaration androidx.navigation3.scene/androidx_navigation3_scene_SceneSetupNavEntryDecorator$stableprop from androidx.navigation
+[linuxX64]: Removed declaration androidx.navigation3.scene/androidx_navigation3_scene_SinglePaneScene$stableprop from androidx.navigation
+[linuxX64]: Removed declaration androidx.navigation3.scene/androidx_navigation3_scene_DialogScene$stableprop_getter() from androidx.navigation
+[linuxX64]: Removed declaration androidx.navigation3.scene/androidx_navigation3_scene_SceneSetupNavEntryDecorator$stableprop_getter() from androidx.navigation
+[linuxX64]: Removed declaration androidx.navigation3.scene/androidx_navigation3_scene_SinglePaneScene$stableprop_getter() from androidx.navigation

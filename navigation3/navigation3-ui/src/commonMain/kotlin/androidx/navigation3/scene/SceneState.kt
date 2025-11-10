@@ -40,18 +40,22 @@ public fun <T : Any> rememberSceneState(
     onBack: () -> Unit,
 ): SceneState<T> =
     with(SceneStrategyScope<T>(onBack)) {
-        // re-wrap the entries with the SceneSetupNavEntryDecorator to ensure all the ensures are
-        // inside of a moveable content.
+        // Re-wrap the entries with:
+        // - SceneSetupNavEntryDecorator to ensure all the ensures are inside of a moveable content
+        // - BackStackAwareLifecycleNavEntryDecorator to ensure that the Lifecycle of entries that
+        // are no longer on the back stack is capped at CREATED
+        val decoratedEntries =
+            rememberDecoratedNavEntries(
+                entries,
+                listOf(
+                    rememberSceneSetupNavEntryDecorator(),
+                    rememberBackStackAwareLifecycleNavEntryDecorator(entries),
+                ),
+            )
         // Calculate the single scene based on the sceneStrategy and start the list there.
         val allScenes =
             mutableListOf(
-                sceneStrategy.calculateSceneWithSinglePaneFallback(
-                    this,
-                    rememberDecoratedNavEntries(
-                        entries,
-                        listOf(rememberSceneSetupNavEntryDecorator()),
-                    ),
-                )
+                sceneStrategy.calculateSceneWithSinglePaneFallback(this, decoratedEntries)
             )
         // find all of the OverlayScenes
         do {
@@ -95,7 +99,7 @@ public fun <T : Any> rememberSceneState(
         previousScenes.remove(currentScene)
 
         return SceneState(
-            entries = entries,
+            entries = decoratedEntries,
             overlayScenes = overlayScenes,
             currentScene = currentScene,
             previousScenes = previousScenes,
