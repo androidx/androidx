@@ -44,7 +44,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.CompositionLocalProvider
@@ -941,46 +940,51 @@ class FocusViewInteropTest {
     fun removeFocusedView() {
         // Arrange.
         lateinit var buttonView0: Button
-        lateinit var buttonView2: Button
-        lateinit var lazyListState: LazyListState
+        lateinit var buttonView1: Button
         lateinit var inputModeManager: InputModeManager
+        var showFirst by mutableStateOf(true)
         rule.setContent {
             inputModeManager = LocalInputModeManager.current
-            lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 2)
-            with(rule.density) {
-                LazyColumn(Modifier.size(10f.toDp()), lazyListState) {
-                    items(3) { index ->
-                        AndroidView(
-                            modifier = Modifier.size(10f.toDp()),
-                            factory = { context ->
-                                Button(context).apply {
-                                    text = "Android Button"
-                                    isFocusableInTouchMode = true
-                                    when (index) {
-                                        0 -> buttonView0 = this
-                                        2 -> buttonView2 = this
-                                    }
-                                }
-                            },
-                        )
-                    }
+            Box(Modifier.size(10.dp)) {
+                if (showFirst) {
+                    AndroidView(
+                        modifier = Modifier.size(10.dp),
+                        factory = { context ->
+                            Button(context).apply {
+                                text = "Android Button"
+                                isFocusableInTouchMode = true
+                                buttonView0 = this
+                            }
+                        },
+                    )
+                } else {
+                    AndroidView(
+                        modifier = Modifier.size(10.dp),
+                        factory = { context ->
+                            Button(context).apply {
+                                text = "Android Button"
+                                isFocusableInTouchMode = true
+                                buttonView1 = this
+                            }
+                        },
+                    )
                 }
             }
         }
-        rule.runOnIdle { buttonView2.requestFocus() }
+        rule.runOnIdle { buttonView0.requestFocus() }
 
         // Act.
-        rule.runOnIdle { lazyListState.requestScrollToItem(0) }
+        rule.runOnIdle { showFirst = false }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(buttonView2.isFocused).isFalse()
+            assertThat(buttonView0.isFocused).isFalse()
             // We don't reassign focus in touch mode.
             // https://developer.android.com/about/versions/pie/android-9.0-changes-28#focus
             if (inputModeManager.inputMode == Touch && SDK_INT >= 28) {
-                assertThat(buttonView0.isFocused).isFalse()
+                assertThat(buttonView1.isFocused).isFalse()
             } else {
-                assertThat(buttonView0.isFocused).isTrue()
+                assertThat(buttonView1.isFocused).isTrue()
             }
         }
     }

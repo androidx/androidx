@@ -42,7 +42,6 @@ public class BorderModifier(public val width: RemoteFloat, public val color: Col
 
     @Composable
     override fun Modifier.toComposeUi(): Modifier {
-        // TODO how to get the value of a RemoteFloat in preview mode
         return border(width = width.toFloat().dp, color = color)
     }
 }

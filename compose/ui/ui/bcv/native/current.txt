@@ -2073,6 +2073,10 @@ final class androidx.compose.ui.semantics/CollectionInfo { // androidx.compose.u
         final fun <get-columnCount>(): kotlin/Int // androidx.compose.ui.semantics/CollectionInfo.columnCount.<get-columnCount>|<get-columnCount>(){}[0]
     final val rowCount // androidx.compose.ui.semantics/CollectionInfo.rowCount|{}rowCount[0]
         final fun <get-rowCount>(): kotlin/Int // androidx.compose.ui.semantics/CollectionInfo.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.semantics/CollectionInfo.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.semantics/CollectionInfo.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.semantics/CollectionInfo.toString|toString(){}[0]
 }
 
 final class androidx.compose.ui.semantics/CollectionItemInfo { // androidx.compose.ui.semantics/CollectionItemInfo|null[0]

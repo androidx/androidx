@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -58,7 +59,7 @@ class ViewVisibilityRobolectricTest(private val visibility: Int) {
 
     @Test
     fun noTimeout_hostView_visibility() {
-        runComposeUiTest {
+        runComposeUiTest(effectContext = StandardTestDispatcher()) {
             setContent {
                 val hostView = LocalView.current
                 SideEffect { hostView.visibility = visibility }
@@ -74,7 +75,7 @@ class ViewVisibilityRobolectricTest(private val visibility: Int) {
 
     @Test
     fun noTimeout_composeView_visibility() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runAndroidComposeUiTest<ComponentActivity>(effectContext = StandardTestDispatcher()) {
             runOnUiThread {
                 val activity = activity!!
                 val composeView = ComposeView(activity)

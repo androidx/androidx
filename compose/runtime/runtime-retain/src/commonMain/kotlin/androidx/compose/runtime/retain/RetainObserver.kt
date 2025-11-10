@@ -57,6 +57,8 @@ public interface RetainObserver {
      *
      * If the composition is unsuccessful and the associated [RetainedValuesStore] is not retaining
      * exited values, this callback will be skipped and [onUnused] will be called instead.
+     *
+     * This callback is always invoked on the applier thread.
      */
     public fun onRetained()
 
@@ -70,6 +72,10 @@ public interface RetainObserver {
      * relative both to other RetainObservers and other
      * [RememberObserver][androidx.compose.runtime.RememberObserver] instances. This function can be
      * called multiple times and will be invoked only after [onRetained] or [onExitedComposition].
+     *
+     * This callback is always invoked on the _current_ applier thread. If the retained value has
+     * moved to a different composition, this may be a different thread than the one it was
+     * [onRetained] on.
      */
     public fun onEnteredComposition()
 
@@ -84,6 +90,9 @@ public interface RetainObserver {
      * [RememberObserver.onForgotten][androidx.compose.runtime.RememberObserver.onForgotten],
      * relative both to other RetainObservers and other
      * [RememberObserver][androidx.compose.runtime.RememberObserver] instances.
+     *
+     * This callback is always invoked on the current applier thread. It will match the last thread
+     * used by [onEnteredComposition].
      */
     public fun onExitedComposition()
 
@@ -108,6 +117,14 @@ public interface RetainObserver {
      * an arbitrary delay between [onExitedComposition] and when this method is called — anywhere
      * between immediately after exiting the composition, a single frame later, or indefinitely
      * later.
+     *
+     * This callback may execute on any thread. By default in Compose UI, this callback always
+     * executes on the main thread. If a value is retired because it left composition and its scope
+     * is not retaining exited values, the callback will execute on the current applier thread. If a
+     * value is retired because the retaining [RetainedValuesStore] was disposed while orphaned from
+     * a composition (and therefore with no designated applier thread), this callback will execute
+     * on the thread that triggered the disposal. This may be a different applier thread or the main
+     * thread.
      */
     public fun onRetired()
 
@@ -118,6 +135,8 @@ public interface RetainObserver {
      *
      * This method is only called when this value is returned by [retain] and will not receive a
      * call to [onRetained].
+     *
+     * This callback is always invoked on the applier thread.
      */
     public fun onUnused()
 }

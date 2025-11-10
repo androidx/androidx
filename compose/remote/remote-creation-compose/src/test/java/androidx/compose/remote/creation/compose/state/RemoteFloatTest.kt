@@ -539,6 +539,27 @@ class RemoteFloatTest {
         assertThat(resultId).isEqualTo(resultDpId)
     }
 
+    @Test
+    fun longExpression_usesReferences() {
+        // This test checks that when we create a very long expression, we don't just
+        // inline everything. The MAX_SAFE_FLOAT_ARRAY is 30, so we create an expression
+        // that would be much larger than that if inlined.
+        var longExpression = RemoteFloat.createNamedRemoteFloat("test", 1f)
+        for (i in 0..50) {
+            longExpression += RemoteFloat(i.toFloat())
+        }
+
+        // The array should be relatively small, having been split up.
+        val finalArray = longExpression.arrayForCreationState(creationState)
+        assertThat(finalArray.size < 20).isTrue()
+
+        // The initial value is 1, and we add the sum of 0..50.
+        val expected = 1f + (50 * 51) / 2f
+        val longExpressionId = longExpression.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+        assertThat(context.getFloat(longExpressionId)).isEqualTo(expected)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

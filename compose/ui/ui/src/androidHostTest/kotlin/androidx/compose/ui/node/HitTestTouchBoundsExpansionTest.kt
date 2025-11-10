@@ -341,6 +341,7 @@ internal fun LayoutNode(
     val root =
         LayoutNode(left, top, right, bottom, modifier, minimumTouchTargetSize).apply {
             attach(MockOwner())
+            place(0, 0)
         }
 
     block.invoke(root)

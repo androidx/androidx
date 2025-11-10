@@ -37,7 +37,10 @@ val ModifierLocalBeyondBoundsLayout: ProvidableModifierLocal<BeyondBoundsLayout?
 
 /**
  * Provides a [BeyondBoundsLayout] through Modifier.Node APIs. To access the nearest
- * [BeyondBoundsLayout] parent use [DelegatableNode.findNearestBeyondBoundsLayoutAncestor].
+ * [BeyondBoundsLayout] parent use [DelegatableNode.findNearestBeyondBoundsLayoutAncestor]. You
+ * should use this node when implementing Layouts that do not create all items at once (e.g. Lazy
+ * Layouts). The focus system will use the [BeyondBoundsLayout] to create items during focus search
+ * in order to move focus between items that are not yet laid out.
  */
 interface BeyondBoundsLayoutProviderModifierNode : DelegatableNode {
     /** The [BeyondBoundsLayout] that this node will provide. */
@@ -47,11 +50,11 @@ interface BeyondBoundsLayoutProviderModifierNode : DelegatableNode {
 /**
  * Layout extra items in the specified direction.
  *
- * A [BeyondBoundsLayout] instance can be obtained by consuming the
- * [BeyondBoundsLayout modifier local][ModifierLocalBeyondBoundsLayout]. It can be used to send a
- * request to layout more items in a particular [direction][LayoutDirection]. This can be useful
- * when composition or layout is determined lazily, as with a LazyColumn. The request is received by
- * any parent up the hierarchy that provides this modifier local.
+ * A [BeyondBoundsLayout] instance can be obtained by searching the tree using
+ * [DelegatableNode.findNearestBeyondBoundsLayoutAncestor()]. It can be used to send a request to
+ * layout more items in a particular [direction][LayoutDirection]. This can be useful when
+ * composition or layout is determined lazily, as with a LazyColumn. The request is received by any
+ * parent up the hierarchy that provides this modifier local.
  */
 interface BeyondBoundsLayout {
     /**

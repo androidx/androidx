@@ -34,6 +34,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Stable
 class MovableContentTests {
@@ -1854,6 +1858,102 @@ class MovableContentTests {
         c.setContentWithReuse(content)
 
         revalidate()
+    }
+
+    private class ManualClock : MonotonicFrameClock {
+        val awaiters = mutableListOf<Awaiter<*>>()
+
+        private class Awaiter<R>(
+            private val onFrame: (Long) -> R,
+            private val continuation: CancellableContinuation<R>,
+        ) {
+            fun runFrame(frameTimeNanos: Long): () -> Unit {
+                val result = runCatching { onFrame(frameTimeNanos) }
+                return { continuation.resumeWith(result) }
+            }
+        }
+
+        override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
+            suspendCancellableCoroutine { co ->
+                awaiters.add(Awaiter(onFrame, co))
+            }
+
+        fun runFrame(nanos: Long) {
+            awaiters.forEach { it.runFrame(nanos).invoke() }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun movableContentInvalidatedWhileDeleted() {
+        val clock = ManualClock()
+
+        compositionTest(clock) {
+            var value by mutableStateOf(true)
+            var targetScope: RecomposeScope? = null
+            val movableContent = movableContentOf { key: Int ->
+                Linear {
+                    targetScope = currentRecomposeScope
+                    Text(key.toString())
+                }
+            }
+
+            val content: @Composable () -> Unit = {
+                if (value) {
+                    movableContent(20)
+                } else {
+                    Linear { repeat(5) { Text("$it") } }
+                }
+
+                targetScope?.invalidate()
+            }
+
+            compose(content)
+            validate { Linear { Text("20") } }
+
+            value = false
+            Snapshot.sendApplyNotifications()
+
+            while (clock.awaiters.isEmpty()) {
+                testCoroutineScheduler.advanceTimeBy(5.milliseconds)
+            }
+            clock.runFrame(testCoroutineScheduler.currentTime.milliseconds.inWholeNanoseconds)
+
+            // This is before previous content is disposed (e.g. during measure)
+            composition!!.setContent(content)
+            verifyConsistent()
+
+            testCoroutineScheduler.runCurrent()
+
+            validate { Linear { repeat(5) { Text("$it") } } }
+        }
+    }
+
+    @Test
+    fun movableContentRemovedFromWriter() = compositionTest {
+        var value by mutableStateOf(true)
+        val movableContent = movableContentOf { key: Int -> Linear { Text(key.toString()) } }
+        compose {
+            // This group will be removed first, moving the second group over the gap
+            // This will force anchor to be negative during extraction.
+            if (value) {
+                Text("Hello")
+            }
+
+            if (value) {
+                movableContent(0)
+            }
+        }
+
+        validate {
+            Text("Hello")
+            Linear { Text("0") }
+        }
+
+        value = false
+        advance()
+
+        validate {}
     }
 }
 

@@ -430,11 +430,11 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             layoutNode.owner?.onLayoutChange(layoutNode)
         }
         this.zIndex = zIndex
-        if (!isPlacingForAlignment) {
-            captureRulersIfNeeded(measureResult)
-        }
         if (this === layoutNode.outerCoordinator) {
             layoutNode.requireOwner().rectManager.onLayoutPositionChanged(layoutNode)
+        }
+        if (!isPlacingForAlignment) {
+            captureRulersIfNeeded(measureResult)
         }
     }
 
@@ -1174,9 +1174,13 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                 val layoutNode = coordinator.layoutNode
                 if (
                     coordinator === layoutNode.outerCoordinator &&
-                        layoutNode.offsetFromRoot != IntOffset.Max
+                        !layoutNode.hasPositionalLayerTransformationsInOffsetFromRoot
                 ) {
-                    return position + layoutNode.offsetFromRoot
+                    val offsetFromRectList =
+                        layoutNode.requireOwner().rectManager.getOffsetFromRectListFor(layoutNode)
+                    if (offsetFromRectList != IntOffset.Max) {
+                        return position + offsetFromRectList
+                    }
                 }
             }
             position = coordinator.toParentPosition(position)

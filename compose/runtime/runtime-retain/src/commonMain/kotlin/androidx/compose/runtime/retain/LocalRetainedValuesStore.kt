@@ -16,9 +16,17 @@
 
 package androidx.compose.runtime.retain
 
+import androidx.compose.runtime.CancellationHandle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composer
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.currentCompositeKeyHashCode
+import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
@@ -34,14 +42,86 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * If this CompositionLocal is updated, all values previously returned by [retain] will be adopted
  * to the new store and will follow the new store's retention lifecycle.
  *
- * RetainedValuesStores should be installed so that their tracked transiently removed content is
- * always removed from composition in the same frame (and by extension, all retained values leave
- * composition in the same frame). If the RetainedValuesStore starts retaining exited values and its
- * tracked content is removed in an arbitrary order across several recompositions, it may cause
- * retained values to be restored incorrectly if the retained values from different regions in the
- * composition have the same [currentCompositeKeyHashCode].
+ * Always prefer [LocalRetainedValuesStoreProvider] to setting this local directly. This local is
+ * local is exposed providable as an escape hatch for installing a platform- or library-specific
+ * [LocalRetainedValuesStore] at the root of the hierarchy and for testing custom
+ * [RetainedValuesStore] implementations. Stores installed through this local directly will NOT
+ * receive the default calls into [RetainedValuesStore.onContentEnteredComposition] and
+ * [RetainedValuesStore.onContentExitComposition] provided by [LocalRetainedValuesStoreProvider].
+ *
+ * @see LocalRetainedValuesStoreProvider
  */
 public val LocalRetainedValuesStore: ProvidableCompositionLocal<RetainedValuesStore> =
     staticCompositionLocalOf {
         ForgetfulRetainedValuesStore
     }
+
+/**
+ * Installs the given [RetainedValuesStore] over the provided [content] such that all values
+ * retained in the [content] lambda are owned by [store]. When this provider is removed from
+ * composition (and the content is therefore removed with it), the store will be notified to start
+ * retaining exited values so that it can persist all retained values at the time the content exits
+ * composition.
+ *
+ * Note that most [RetainedValuesStore] implementations can only be provided in one location and
+ * composition at a time. Attempting to install the same store twice may lead to an error.
+ *
+ * @param store The [RetainedValuesStore] to install as the [LocalRetainedValuesStore]
+ * @param content The Composable content that the [store] will be installed for. This content block
+ *   is invoked immediately in-place.
+ * @sample androidx.compose.runtime.retain.samples.retainingCollapsingContentSample
+ */
+@Composable
+public fun LocalRetainedValuesStoreProvider(
+    store: RetainedValuesStore,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(LocalRetainedValuesStore provides store, content)
+
+    // Important: This must come AFTER the content for the underlying RememberObservers to
+    // dispatch in the correct order relative to retained values from the content block.
+    val composer = currentComposer
+    remember(store) { RetainContentPresenceIndicator(store, composer) }
+        .apply {
+            // Composer isn't guaranteed to stay the same between recompositions, make sure to
+            // update the reference just in case
+            this.composer = composer
+        }
+}
+
+private class RetainContentPresenceIndicator(
+    private val store: RetainedValuesStore,
+    composer: Composer,
+) : RememberObserver {
+
+    // Backed by snapshot like rememberUpdatedState to ensure that writes happen at the end
+    // of composition without relying on a SideEffect, which will have the wrong timing.
+    var composer by mutableStateOf(composer)
+
+    private var didEnterComposition = false
+    private var enterCompositionCancellationHandle: CancellationHandle? = null
+        set(value) {
+            field?.cancel()
+            field = value
+        }
+
+    override fun onRemembered() {
+        enterCompositionCancellationHandle =
+            composer.scheduleFrameEndCallback {
+                didEnterComposition = true
+                store.onContentEnteredComposition()
+            }
+    }
+
+    override fun onForgotten() {
+        enterCompositionCancellationHandle?.cancel()
+        if (didEnterComposition) {
+            store.onContentExitComposition()
+            didEnterComposition = false
+        }
+    }
+
+    override fun onAbandoned() {
+        enterCompositionCancellationHandle?.cancel()
+    }
+}

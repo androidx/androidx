@@ -48,7 +48,7 @@ import kotlin.jvm.JvmField
  * paths being completely removed from the artifact, which can often have nontrivial positive
  * performance impact.
  *
- *      -assumevalues class androidx.compose.runtime.ComposeFoundationFlags {
+ *      -assumevalues class androidx.compose.foundation.ComposeFoundationFlags {
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */

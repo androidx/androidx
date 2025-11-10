@@ -160,17 +160,9 @@ public fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteF
     if (constFrom != null && constTo != null && constTween != null) {
         return RemoteFloat(constFrom + (constTo - constFrom) * constTween)
     }
-    return RemoteFloatExpression(
-        constantValue = null,
-        { creationState ->
-            floatArrayOf(
-                *from.arrayProvider(creationState),
-                *to.arrayProvider(creationState),
-                *tween.arrayProvider(creationState),
-                AnimatedFloatExpression.LERP,
-            )
-        },
-    )
+    return RemoteFloatExpression(constantValue = null) { creationState ->
+        combineToFloatArray(creationState, arrayOf(from, to, tween), AnimatedFloatExpression.LERP)
+    }
 }
 
 /**
@@ -231,17 +223,9 @@ public fun clamp(min: RemoteFloat, max: RemoteFloat, value: RemoteFloat): Remote
             value
         }
     }
-    return RemoteFloatExpression(
-        constantValue = null,
-        { creationState ->
-            floatArrayOf(
-                *min.arrayProvider(creationState),
-                *max.arrayProvider(creationState),
-                *value.arrayProvider(creationState),
-                AnimatedFloatExpression.CLAMP,
-            )
-        },
-    )
+    return RemoteFloatExpression(constantValue = null) { creationState ->
+        combineToFloatArray(creationState, arrayOf(min, max, value), AnimatedFloatExpression.CLAMP)
+    }
 }
 
 public fun clamp(min: Float, max: Float, value: RemoteFloat): RemoteFloat {

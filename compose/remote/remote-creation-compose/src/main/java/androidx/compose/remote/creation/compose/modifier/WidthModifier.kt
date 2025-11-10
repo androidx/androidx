@@ -44,7 +44,6 @@ public class WidthModifier(public val type: Type, public val value: RemoteFloat)
     @Composable
     override fun Modifier.toComposeUi(): Modifier {
         return if (type == Type.EXACT) {
-            // TODO how to get the value of a RemoteFloat safely in preview mode
             val valueDp = with(LocalDensity.current) { value.toFloat().toDp() }
             width(valueDp)
         } else if (type == Type.EXACT_DP) {

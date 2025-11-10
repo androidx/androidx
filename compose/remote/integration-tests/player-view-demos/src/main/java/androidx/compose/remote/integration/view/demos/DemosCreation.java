@@ -26,6 +26,8 @@ import androidx.compose.remote.integration.view.demos.examples.DemoAttributedStr
 import androidx.compose.remote.integration.view.demos.examples.DemoMetalClockKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths;
 import androidx.compose.remote.integration.view.demos.examples.ExampleTimerKt;
+import androidx.compose.remote.integration.view.demos.examples.PlotWaveKt;
+import androidx.compose.remote.integration.view.demos.examples.ServerSideKt;
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendarKt;
 import androidx.compose.remote.integration.view.demos.examples.TextKt;
 import androidx.compose.remote.integration.view.demos.utils.RCDoc;
@@ -43,6 +45,8 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos() {
         return new ArrayList<>(Arrays.asList(
+                getp("Procedural/plotWave", PlotWaveKt::plotWave),
+                getp("Server/serverClock", ServerSideKt::serverClock),
                 getp("Java/AttributeString", DemoAttributedString::demo),
                 getp("Java/pathTest", ExampleTimerKt::basicTimer),
                 getp("fancyClock2", DemoMetalClockKt::fancyClock2),

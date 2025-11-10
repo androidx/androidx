@@ -44,6 +44,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
@@ -76,8 +77,12 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.collections.removeLast as removeLastKt
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -639,6 +644,36 @@ class LazyColumnTest(val useLookaheadScope: Boolean) {
         }
 
         rule.runOnIdle { assertEquals(0, state.firstVisibleItemIndex) }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun awaitFirstLayoutWithSnapshot() {
+        val itemSize = 10f
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+
+        var snapshotCollected = false
+
+        @Composable
+        fun customLazyListState(): LazyListState {
+            val state = rememberLazyListState()
+            LaunchedEffect(state) {
+                snapshotFlow { state.isScrollInProgress }
+                    .distinctUntilChanged()
+                    .filter { it }
+                    .collect { snapshotCollected = true }
+            }
+            return state
+        }
+        rule.setContent {
+            val state = customLazyListState()
+            LazyColumn(Modifier.size(itemSizeDp), state) {
+                items(100) { Box(Modifier.size(itemSizeDp)) }
+            }
+            LaunchedEffect(Unit) { state.animateScrollToItem(1) }
+        }
+
+        rule.runOnIdle { assertTrue(snapshotCollected) }
     }
 
     @Composable

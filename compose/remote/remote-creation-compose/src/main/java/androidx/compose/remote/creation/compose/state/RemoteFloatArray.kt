@@ -32,9 +32,6 @@ import androidx.compose.ui.util.fastMap
 public class RemoteFloatArray(public override val constantValue: List<RemoteFloat>?) :
     RemoteState<List<RemoteFloat>> {
 
-    override val value: List<RemoteFloat>
-        get() = constantValue!!
-
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val asFloat = constantValue!!.fastMap { it.toFloat() }.toFloatArray()
         return Utils.idFromNan(creationState.document.addFloatArray(asFloat))

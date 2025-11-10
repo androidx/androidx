@@ -123,10 +123,6 @@ internal constructor(
             return getIdForCreationState(FallbackCreationState.state)
         }
 
-    /** Gets the current value of this [RemoteColor] as an [Int]. */
-    @Deprecated("This will be removed")
-    public override val value: Color = constantValue ?: Color.valueOf(Color.WHITE)
-
     /**
      * Computes the pairwise product of this [RemoteColor] with [other].
      *

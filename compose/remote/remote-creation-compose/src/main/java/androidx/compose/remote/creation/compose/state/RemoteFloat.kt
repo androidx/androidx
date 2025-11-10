@@ -40,6 +40,8 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
+private const val MAX_SAFE_FLOAT_ARRAY = 30
+
 /** An inline value class representing a reference to a remote float. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
@@ -224,8 +226,7 @@ public abstract class RemoteFloat : Number(), RemoteState<Float> {
         }
 
         return RemoteFloatExpression(constantValue = null) { creationState ->
-            val a = arrayForCreationState(creationState)
-            floatArrayOf(*a, opCode)
+            combineToFloatArray(creationState, arrayOf(this), opCode)
         }
     }
 
@@ -478,8 +479,7 @@ internal fun binaryOp(
     }
 
     return RemoteFloatExpression(constantValue = null) { creationState ->
-        val bArray = b.arrayForCreationState(creationState)
-        floatArrayOf(a, *bArray, opCode)
+        combineToFloatArray(creationState, arrayOf(RemoteFloat(a), b), opCode)
     }
 }
 
@@ -505,8 +505,7 @@ internal fun binaryOp(
     }
 
     return RemoteFloatExpression(constantValue = null) { creationState ->
-        val aArray = a.arrayForCreationState(creationState)
-        floatArrayOf(*aArray, b, opCode)
+        combineToFloatArray(creationState, arrayOf(a), b, opCode)
     }
 }
 
@@ -533,9 +532,7 @@ internal fun binaryOp(
     }
 
     return RemoteFloatExpression(constantValue = null) { creationState ->
-        val aArray = a.arrayForCreationState(creationState)
-        val bArray = b.arrayForCreationState(creationState)
-        floatArrayOf(*aArray, *bArray, opCode)
+        combineToFloatArray(creationState, arrayOf(a, b), opCode)
     }
 }
 
@@ -565,7 +562,23 @@ internal fun comparisonOp(
         RemoteIntExpression(constantValue = null) { creationState ->
             val aArray = a.arrayForCreationState(creationState)
             val bArray = b.arrayForCreationState(creationState)
-            val id = creationState.document.floatExpression(*expressionGenerator(aArray, bArray))
+
+            // A comparisonOp adds five op codes
+            val combinedSize = aArray.size + bArray.size + 5
+            val (finalAArray, finalBArray) =
+                if (combinedSize > MAX_SAFE_FLOAT_ARRAY) { // Check if new array would exceed limit
+                    Pair(
+                        floatArrayOf(a.getFloatIdForCreationState(creationState)),
+                        floatArrayOf(b.getFloatIdForCreationState(creationState)),
+                    )
+                } else {
+                    Pair(aArray, bArray)
+                }
+
+            val id =
+                creationState.document.floatExpression(
+                    *expressionGenerator(finalAArray, finalBArray)
+                )
             longArrayOf(0x100000000 + Utils.idFromNan(id).toLong())
         }
     )
@@ -589,14 +602,7 @@ public fun selectIfLT(
     }
 
     return RemoteFloatExpression(constantValue = null) { creationState ->
-        floatArrayOf(
-            *ifFalse.arrayForCreationState(creationState),
-            *ifTrue.arrayForCreationState(creationState),
-            *b.arrayForCreationState(creationState),
-            *a.arrayForCreationState(creationState),
-            SUB,
-            IFELSE,
-        )
+        combineToFloatArray(creationState, arrayOf(ifFalse, ifTrue, b, a), SUB, IFELSE)
     }
 }
 
@@ -618,14 +624,7 @@ public fun selectIfLE(
     }
 
     return RemoteFloatExpression(constantValue = null) { creationState ->
-        floatArrayOf(
-            *ifTrue.arrayForCreationState(creationState),
-            *ifFalse.arrayForCreationState(creationState),
-            *a.arrayForCreationState(creationState),
-            *b.arrayForCreationState(creationState),
-            SUB,
-            IFELSE,
-        )
+        combineToFloatArray(creationState, arrayOf(ifTrue, ifFalse, a, b), SUB, IFELSE)
     }
 }
 
@@ -647,14 +646,7 @@ public fun selectIfGT(
     }
 
     return RemoteFloatExpression(constantValue = null) { creationState ->
-        floatArrayOf(
-            *ifFalse.arrayForCreationState(creationState),
-            *ifTrue.arrayForCreationState(creationState),
-            *a.arrayForCreationState(creationState),
-            *b.arrayForCreationState(creationState),
-            SUB,
-            IFELSE,
-        )
+        combineToFloatArray(creationState, arrayOf(ifFalse, ifTrue, a, b), SUB, IFELSE)
     }
 }
 
@@ -676,14 +668,7 @@ public fun selectIfGE(
     }
 
     return RemoteFloatExpression(constantValue = null) { creationState ->
-        floatArrayOf(
-            *ifTrue.arrayForCreationState(creationState),
-            *ifFalse.arrayForCreationState(creationState),
-            *b.arrayForCreationState(creationState),
-            *a.arrayForCreationState(creationState),
-            SUB,
-            IFELSE,
-        )
+        combineToFloatArray(creationState, arrayOf(ifTrue, ifFalse, b, a), SUB, IFELSE)
     }
 }
 
@@ -897,20 +882,6 @@ public class MutableRemoteFloat(
     public override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
         get() = { creationState -> floatArrayOf(idProvider(creationState)) }
 
-    public override var value: Float
-        get() {
-            return content.floatValue
-        }
-        set(newValue) {
-            content.floatValue = newValue
-        }
-
-    public override operator fun component1(): Float = value
-
-    public override operator fun component2(): (Float) -> Unit = { newValue ->
-        content.floatValue = newValue
-    }
-
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         Utils.idFromNan(idProvider(creationState))
 }
@@ -954,9 +925,6 @@ internal constructor(
             return Utils.idFromNan(creationState.document.floatExpression(*array))
         }
     }
-
-    public override val value: Float
-        get() = TODO("Implement expression evaluation")
 
     public override val id: Float
         get(): Float {
@@ -1012,9 +980,6 @@ public class AnimatedRemoteFloat(public val input: RemoteFloat, public val anim:
             return Utils.idFromNan(creationState.document.floatExpression(array, anim))
         }
     }
-
-    public override val value: Float
-        get() = TODO("Not yet implemented")
 
     public fun getAnimationTime(): Float {
         return (System.nanoTime() - start) * 1E-9f
@@ -1246,4 +1211,49 @@ public fun toString(array: FloatArray): String {
         }
     }
     return AnimatedFloatExpression.toString(array, labels)
+}
+
+/**
+ * Constructs a floatArray that either inlines or references the contents of [remoteFloats] followed
+ * by [extras]. Inlining is preferred as long as the resulting array length is less than
+ * [MAX_SAFE_FLOAT_ARRAY].
+ */
+internal fun combineToFloatArray(
+    creationState: RemoteComposeCreationState,
+    remoteFloats: Array<RemoteFloat>,
+    vararg extras: Float,
+): FloatArray {
+    var totalSizeInline = extras.size
+    val totalSizeReference = extras.size + remoteFloats.size
+    val arrays =
+        Array<FloatArray>(remoteFloats.size) { i ->
+            val array = remoteFloats[i].arrayForCreationState(creationState)
+            totalSizeInline += array.size
+            array
+        }
+
+    val combinedArray: FloatArray
+    var idx = 0
+
+    if (totalSizeInline > MAX_SAFE_FLOAT_ARRAY) {
+        // Add references for the RemoteFloat values.
+        combinedArray = FloatArray(totalSizeReference)
+        for (i in remoteFloats.indices) {
+            combinedArray[i] = remoteFloats[i].getFloatIdForCreationState(creationState)
+        }
+        idx = remoteFloats.size
+    } else {
+        // Inline the RemoteFloat arrays.
+        combinedArray = FloatArray(totalSizeInline)
+        for (array in arrays) {
+            System.arraycopy(array, 0, combinedArray, idx, array.size)
+            idx += array.size
+        }
+    }
+
+    for (extra in extras) {
+        combinedArray[idx++] = extra
+    }
+
+    return combinedArray
 }

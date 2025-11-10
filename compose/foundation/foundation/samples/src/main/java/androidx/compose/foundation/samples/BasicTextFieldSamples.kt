@@ -317,40 +317,41 @@ fun BasicTextFieldCustomInputTransformationSample() {
     val state = remember { TextFieldState() }
     BasicTextField(
         state,
-        inputTransformation = {
-            // A filter that always places newly-input text at the start of the string, after a
-            // prompt character, like a shell.
-            val promptChar = '>'
+        inputTransformation =
+            InputTransformation {
+                // A filter that always places newly-input text at the start of the string, after a
+                // prompt character, like a shell.
+                val promptChar = '>'
 
-            fun CharSequence.countPrefix(char: Char): Int {
-                var i = 0
-                while (i < length && get(i) == char) i++
-                return i
-            }
-
-            // Step one: Figure out the insertion point.
-            val newPromptChars = asCharSequence().countPrefix(promptChar)
-            val insertionPoint = if (newPromptChars == 0) 0 else 1
-
-            // Step two: Ensure text is placed at the insertion point.
-            if (changes.changeCount == 1) {
-                val insertedRange = changes.getRange(0)
-                val replacedRange = changes.getOriginalRange(0)
-                if (!replacedRange.collapsed && insertedRange.collapsed) {
-                    // Text was deleted, delete forwards from insertion point.
-                    delete(insertionPoint, insertionPoint + replacedRange.length)
+                fun CharSequence.countPrefix(char: Char): Int {
+                    var i = 0
+                    while (i < length && get(i) == char) i++
+                    return i
                 }
-            }
-            // Else text was replaced or there were multiple changes - don't handle.
 
-            // Step three: Ensure the prompt character is there.
-            if (newPromptChars == 0) {
-                insert(0, ">")
-            }
+                // Step one: Figure out the insertion point.
+                val newPromptChars = asCharSequence().countPrefix(promptChar)
+                val insertionPoint = if (newPromptChars == 0) 0 else 1
 
-            // Step four: Ensure the cursor is ready for the next input.
-            placeCursorAfterCharAt(0)
-        },
+                // Step two: Ensure text is placed at the insertion point.
+                if (changes.changeCount == 1) {
+                    val insertedRange = changes.getRange(0)
+                    val replacedRange = changes.getOriginalRange(0)
+                    if (!replacedRange.collapsed && insertedRange.collapsed) {
+                        // Text was deleted, delete forwards from insertion point.
+                        delete(insertionPoint, insertionPoint + replacedRange.length)
+                    }
+                }
+                // Else text was replaced or there were multiple changes - don't handle.
+
+                // Step three: Ensure the prompt character is there.
+                if (newPromptChars == 0) {
+                    insert(0, ">")
+                }
+
+                // Step four: Ensure the cursor is ready for the next input.
+                placeCursorAfterCharAt(0)
+            },
     )
 }
 

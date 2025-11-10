@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -58,6 +59,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
+@SuppressLint("ComposeTestRuleDispatcher")
 @ExperimentalTestApi
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
@@ -78,6 +80,7 @@ fun runComposeUiTestNonSuspendingLambda(
     }
 }
 
+@SuppressLint("ComposeTestRuleDispatcher")
 @ExperimentalTestApi
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
@@ -99,6 +102,7 @@ fun <A : ComponentActivity> runAndroidComposeUiTestNonSuspendingLambda(
     }
 }
 
+@SuppressLint("ComposeTestRuleDispatcher")
 @ExperimentalTestApi
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
@@ -149,6 +153,7 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironmentNoSuspendingLa
  *   platform specific timeout exception will be thrown.
  * @param block The suspendable test body.
  */
+@SuppressLint("ComposeTestRuleDispatcher")
 @Suppress("RedundantUnitReturnType")
 @ExperimentalTestApi
 actual fun runComposeUiTest(
@@ -185,6 +190,7 @@ actual fun runComposeUiTest(
  *   platform specific timeout exception will be thrown.
  * @param block The test function.
  */
+@SuppressLint("ComposeTestRuleDispatcher")
 @Suppress("RedundantUnitReturnType")
 @ExperimentalTestApi
 inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(

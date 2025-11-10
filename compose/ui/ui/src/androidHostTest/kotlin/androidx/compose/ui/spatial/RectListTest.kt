@@ -501,6 +501,7 @@ class RectListTest {
                 updated = true,
                 focusable = false,
                 gesturable = true,
+                hasCallbacks = false,
             )
         assertEquals(1, unpackMetaValue(meta))
         assertEquals(2, unpackMetaParentId(meta))
@@ -508,6 +509,7 @@ class RectListTest {
         assertEquals(1, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(1, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
     }
 
     @Test
@@ -520,6 +522,7 @@ class RectListTest {
                 updated = false,
                 focusable = false,
                 gesturable = false,
+                hasCallbacks = false,
             )
         assertEquals(1, unpackMetaValue(meta))
         assertEquals(2, unpackMetaParentId(meta))
@@ -527,6 +530,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         // Check updated
         meta = metaMarkUpdated(meta)
@@ -536,6 +540,7 @@ class RectListTest {
         assertEquals(1, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         meta = metaUnMarkUpdated(meta)
         assertEquals(1, unpackMetaValue(meta))
@@ -544,6 +549,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         // Check focusable
         meta = metaMarkFlags(meta = meta, focusable = true, gesturable = false)
@@ -553,6 +559,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(1, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         meta = metaMarkFlags(meta = meta, focusable = false, gesturable = false)
         assertEquals(1, unpackMetaValue(meta))
@@ -561,6 +568,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         // Check gesturable
         meta = metaMarkFlags(meta = meta, focusable = false, gesturable = true)
@@ -570,6 +578,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(1, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         meta = metaMarkFlags(meta = meta, focusable = false, gesturable = false)
         assertEquals(1, unpackMetaValue(meta))
@@ -578,6 +587,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         // Check both focusable and gesturable
         meta = metaMarkFlags(meta = meta, focusable = true, gesturable = true)
@@ -587,6 +597,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(1, unpackMetaFocusable(meta))
         assertEquals(1, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         meta = metaMarkFlags(meta = meta, focusable = false, gesturable = false)
         assertEquals(1, unpackMetaValue(meta))
@@ -595,6 +606,7 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
 
         // Check too large child offset
         meta = metaWithLastChildOffset(meta, Int.MAX_VALUE)
@@ -604,6 +616,43 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+
+        // Check hasCallbacks
+        meta = metaMarkUpdatedAndHasCallbacks(meta = meta, updated = true, hasCallbacks = true)
+        assertEquals(1, unpackMetaValue(meta))
+        assertEquals(2, unpackMetaParentId(meta))
+        assertEquals(MaxSupportedLastChildOffset, unpackMetaLastChildOffset(meta))
+        assertEquals(1, unpackMetaUpdated(meta))
+        assertEquals(0, unpackMetaFocusable(meta))
+        assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(1, unpackMetaHasCallbacks(meta))
+
+        meta = metaUnMarkUpdated(meta)
+        assertEquals(1, unpackMetaValue(meta))
+        assertEquals(2, unpackMetaParentId(meta))
+        assertEquals(MaxSupportedLastChildOffset, unpackMetaLastChildOffset(meta))
+        assertEquals(0, unpackMetaUpdated(meta))
+        assertEquals(0, unpackMetaFocusable(meta))
+        assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(1, unpackMetaHasCallbacks(meta))
+
+        meta = metaMarkUpdatedIfHasCallbacks(meta)
+        assertEquals(1, unpackMetaValue(meta))
+        assertEquals(2, unpackMetaParentId(meta))
+        assertEquals(MaxSupportedLastChildOffset, unpackMetaLastChildOffset(meta))
+        assertEquals(1, unpackMetaUpdated(meta))
+        assertEquals(0, unpackMetaFocusable(meta))
+        assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(1, unpackMetaHasCallbacks(meta))
+
+        meta = metaMarkUpdatedAndHasCallbacks(meta = meta, updated = false, hasCallbacks = false)
+        assertEquals(1, unpackMetaValue(meta))
+        assertEquals(2, unpackMetaParentId(meta))
+        assertEquals(MaxSupportedLastChildOffset, unpackMetaLastChildOffset(meta))
+        assertEquals(0, unpackMetaUpdated(meta))
+        assertEquals(0, unpackMetaFocusable(meta))
+        assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
     }
 
     @Test
@@ -616,6 +665,7 @@ class RectListTest {
                 updated = true,
                 focusable = true,
                 gesturable = false,
+                hasCallbacks = true,
             )
         assertEquals(1, unpackMetaValue(meta))
         assertEquals(2, unpackMetaParentId(meta))
@@ -623,6 +673,7 @@ class RectListTest {
         assertEquals(1, unpackMetaUpdated(meta))
         assertEquals(1, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(1, unpackMetaHasCallbacks(meta))
     }
 
     @Test
@@ -635,6 +686,7 @@ class RectListTest {
                 updated = true,
                 focusable = true,
                 gesturable = false,
+                hasCallbacks = false,
             )
         assertEquals(10, unpackMetaValue(meta))
         // TODO: this actually returns 268,435,455. Not sure if we need to change this or not.
@@ -642,6 +694,7 @@ class RectListTest {
         assertEquals(1, unpackMetaUpdated(meta))
         assertEquals(1, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+        assertEquals(0, unpackMetaHasCallbacks(meta))
     }
 
     private fun rectIntersectsRect(src: Rect, l: Int, t: Int, r: Int, b: Int): Boolean {

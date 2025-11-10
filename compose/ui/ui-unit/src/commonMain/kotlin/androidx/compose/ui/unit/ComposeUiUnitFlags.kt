@@ -46,7 +46,7 @@ import kotlin.jvm.JvmField
  * paths being completely removed from the artifact, which can often have nontrivial positive
  * performance impact.
  *
- *      -assumevalues class androidx.compose.runtime.ComposeUiUnitFlags {
+ *      -assumevalues class androidx.compose.ui.unit.ComposeUiUnitFlags {
  *          public static int isRectTrackingEnabled return false
  *      }
  */

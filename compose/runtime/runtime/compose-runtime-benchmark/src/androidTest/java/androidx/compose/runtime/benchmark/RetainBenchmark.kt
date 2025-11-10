@@ -16,13 +16,12 @@
 
 package androidx.compose.runtime.benchmark
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.ControlledRetainedValuesStore
-import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.retain.RetainObserver
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
@@ -44,9 +43,9 @@ class RetainBenchmark : ComposeBenchmarkBase() {
     @Test
     fun retain_newValues100() = runBlockingTestWithFrameClock {
         val values = List(100) { ObserverString(it.toString()) }
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore = ManagedRetainedValuesStore()
         measureCompose {
-            CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
+            LocalRetainedValuesStoreProvider(retainedValuesStore) {
                 values.forEach { use(retain { it }) }
             }
         }
@@ -55,46 +54,47 @@ class RetainBenchmark : ComposeBenchmarkBase() {
     @Test
     fun retain_newValues100_withKeys() = runBlockingTestWithFrameClock {
         val values = List(100) { ObserverString(it.toString()) }
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore = ManagedRetainedValuesStore()
         measureCompose {
-            CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
+            LocalRetainedValuesStoreProvider(retainedValuesStore) {
                 values.forEach { use(retain("A", "B") { it }) }
             }
         }
     }
 
     @Test
-    fun retain_exitComposition100() = runBlockingTestWithFrameClock {
+    fun retain_retainExitComposition100() = runBlockingTestWithFrameClock {
         val values = List(100) { ObserverString(it.toString()) }
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore = ManagedRetainedValuesStore()
         var includeContent by mutableStateOf(true)
         measureRecompose {
             compose {
-                CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
-                    if (includeContent) {
+                if (includeContent) {
+                    LocalRetainedValuesStoreProvider(retainedValuesStore) {
                         values.forEach { use(retain { it }) }
                     }
                 }
             }
             update {
                 includeContent = false
-                retainedValuesStore.startRetainingExitedValues()
+                retainedValuesStore.enableRetainingExitedValues()
             }
             reset {
                 includeContent = true
-                retainedValuesStore.stopRetainingExitedValues()
+                retainedValuesStore.disableRetainingExitedValues()
             }
         }
     }
 
     @Test
-    fun retain_abandonedFromComposition100() = runBlockingTestWithFrameClock {
+    fun retain_retireExitComposition100() = runBlockingTestWithFrameClock {
         val values = List(100) { ObserverString(it.toString()) }
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore =
+            ManagedRetainedValuesStore().apply { disableRetainingExitedValues() }
         var includeContent by mutableStateOf(true)
         measureRecompose {
             compose {
-                CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
+                LocalRetainedValuesStoreProvider(retainedValuesStore) {
                     if (includeContent) {
                         values.forEach { use(retain { it }) }
                     }
@@ -108,9 +108,9 @@ class RetainBenchmark : ComposeBenchmarkBase() {
     @Test
     fun remember_newValues100() = runBlockingTestWithFrameClock {
         val values = List(100) { ObserverString(it.toString()) }
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore = ManagedRetainedValuesStore()
         measureCompose {
-            CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
+            LocalRetainedValuesStoreProvider(retainedValuesStore) {
                 values.forEach { use(remember { it }) }
             }
         }
@@ -119,9 +119,9 @@ class RetainBenchmark : ComposeBenchmarkBase() {
     @Test
     fun remember_newValues100_withKeys() = runBlockingTestWithFrameClock {
         val values = List(100) { ObserverString(it.toString()) }
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore = ManagedRetainedValuesStore()
         measureCompose {
-            CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
+            LocalRetainedValuesStoreProvider(retainedValuesStore) {
                 values.forEach { use(remember("A", "B") { it }) }
             }
         }
@@ -130,11 +130,11 @@ class RetainBenchmark : ComposeBenchmarkBase() {
     @Test
     fun remember_forget100() = runBlockingTestWithFrameClock {
         val values = List(100) { ObserverString(it.toString()) }
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore = ManagedRetainedValuesStore()
         var includeContent by mutableStateOf(true)
         measureRecompose {
             compose {
-                CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
+                LocalRetainedValuesStoreProvider(retainedValuesStore) {
                     if (includeContent) {
                         values.forEach { use(remember { it }) }
                     }
@@ -142,11 +142,11 @@ class RetainBenchmark : ComposeBenchmarkBase() {
             }
             update {
                 includeContent = false
-                retainedValuesStore.startRetainingExitedValues()
+                retainedValuesStore.enableRetainingExitedValues()
             }
             reset {
                 includeContent = true
-                retainedValuesStore.stopRetainingExitedValues()
+                retainedValuesStore.disableRetainingExitedValues()
             }
         }
     }

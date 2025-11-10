@@ -637,7 +637,28 @@ class ProgressBarRangeInfo(
  * @param rowCount the number of rows in the collection, or -1 if unknown
  * @param columnCount the number of columns in the collection, or -1 if unknown
  */
-class CollectionInfo(val rowCount: Int, val columnCount: Int)
+class CollectionInfo(val rowCount: Int, val columnCount: Int) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CollectionInfo) return false
+
+        if (rowCount != other.rowCount) return false
+        if (columnCount != other.columnCount) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = rowCount.hashCode()
+        result = 31 * result + columnCount.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "CollectionInfo(rowCount=$rowCount, columnCount=$columnCount)"
+    }
+}
 
 /**
  * Information about the item of a collection.

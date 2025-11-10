@@ -28,25 +28,54 @@ object AndroidStubs {
                 """
 package android.content;
 
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 
 public class Context {
     public Resources getResources() {
         return null;
     }
+
+    public final CharSequence getText(int resId) {
+        return null;
+    }
+
+    public final String getString(int resId) {
+        return null;
+    }
+
+    public final String getString(int resId, Object... formatArgs) {
+        return null;
+    }
+
+    public final int getColor(int id) {
+        return -1;
+    }
+
+    public final Drawable getDrawable(int id) {
+        return null;
+    }
+
+    public final ColorStateList getColorStateList(int id) {
+        return null;
+    }
 }
         """
             ),
-            0xc2b7484b,
+            0x136ce764,
             """
-            android/content/Context.class:
-            H4sIAAAAAAAA/zv1b9c+BgYGRwZ+LgYmBmZ2BhYeBlYGNkYGgazEskT9nMS8
-            dH3/pKzU5BJGBjabzLzMEjtGBmYNzTB2Bg5GBvHEvJSi/MwU/eT8vJLUvBJ9
-            ZxBdAVTL4pyfksrIwO+TmZfqV5qblFoUkpiUAxThSU8tCUotzi8tSk4tZmRQ
-            1ND0QTekKLVYH67EmpGBKxjMdMsE64daoQdyH4MiAzvQ2SDAxMAIcjiQ5ATy
-            ZIE0I5Bm1drOwLgRyACaAiTZwIIgkpuBB6pUCqqUiXEDmjoOIMkLNpoPAIc3
-            ZUAnAQAA
-            """,
+                android/content/Context.class:
+                H4sIAAAAAAAA/4XRy07CQBQG4H+43+SmgGI0wY3FhX0AjInBmJA0mljixtVQ
+                JlCCrU4H9TV8Dxe6MnHhA/hQxtMCCg0JXcy002/+mTPz/fP5BeAM9QwiiCYR
+                yyGOBENxxB+5PubOQL/qjYSlGBIntmOrU4ao1rxJIsVQ405funZft1xHCUfp
+                bb9/Jhtru33BUDBsR1xO7npCdnlvTCO5gVDXwnMn0hIeQ0NrGuEQKTz9j7QY
+                kjSlG6Tuap2m8b+x9pBLUzxMhGMJcmlyppK2M2CoLMvpMBlN69wa4dJaK2mK
+                4tru2JVUDaV1GLI0ci7507SSQ3+J+d4Hkt8PbcvT+7P/+hxSUmmeZCquhGF7
+                KjR7sfJlSLMzZnASF3ZwfLMTPvY3jAaSdGv+kwLz743aNH3tUc+ojx99gL3T
+                C6VQmwgGfZpFbkbrMxphbyGXQQkbyC+4yEqXJ1dAca0r44VcacFFV7oqmTI2
+                w3mR15Crk9tCZe26++SqqK11B9Ru+3+w8wv/BgaFFgMAAA==
+                """,
         )
 
     val Resources =
@@ -98,6 +127,50 @@ public class Configuration {
             0jPro1RhffFCoGvC+JddsdTr0MJk6SomTG5E+bZ5Ltg/2GIbSX7vGl/ypbTm
             8F/0SXsh5sji4YhFGCCPE+Hgr1P7StRhdLPOA/3jd9Bbtx5FTTuYRB13IZMf
             blk3qhEBAAA=
+            """,
+        )
+
+    val Drawable =
+        bytecode(
+            "libs/android.jar",
+            java(
+                """
+package android.graphics.drawable;
+
+public class Drawable {}
+
+        """
+            ),
+            0xb5ee694f,
+            """
+            android/graphics/drawable/Drawable.class:
+            H4sIAAAAAAAA/zv1b9c+BgYGRwZeLgYmBmZ2BhYeBlYGNkYGgazEskT9nMS8
+            dH3/pKzU5BJGBjabzLzMEjtGBmYNzTB2Bg5GBqXEvJSi/MwU/fSixIKMzORi
+            /ZSixPLEpJxUfRcog5GBxTk/BUjx+2TmpfqV5ialFoVAJLiC80uLklPdMkEc
+            XpgGPZDFDIoM7ED3gAAjEAJdBCQ5gTxZMJ+BgVVrOwPjRrA0F5BkAwuyAElu
+            IM3EwAMA4UOwktgAAAA=
+            """,
+        )
+
+    val ColorStateList =
+        bytecode(
+            "libs/android.jar",
+            java(
+                """
+package android.content.res;
+
+public class ColorStateList {}
+
+        """
+            ),
+            0xf625aa4f,
+            """
+            android/content/res/ColorStateList.class:
+            H4sIAAAAAAAA/1VOuwrCQBCci3lojChYW2ilFt4PiCABK9EiYn9JDjmJd3Ce
+            /peVYOEH+FHiJp27MMvMMsx8vq83gDV6MTy0IvgJAoQMg7O4C14JfeL7/CwL
+            xxAulVZuxdCazo4R2gwToUtrVMkLo53Ujlt55ampjM2ccHKrrmTzU1NKhv5W
+            abm7XXJpDyKvSIkzc7OF3KiaDP9tizoeY0TUqh5GS70IO8RGDQeC+RPs0bxj
+            wrARfcIuXQ/JD3ogafXeAAAA
             """,
         )
 }

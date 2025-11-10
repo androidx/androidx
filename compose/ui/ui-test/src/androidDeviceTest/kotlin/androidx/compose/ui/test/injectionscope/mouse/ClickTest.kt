@@ -63,6 +63,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -336,36 +337,37 @@ class ClickTest {
     // check if the events actually lead to the expected outcome.
     @Test
     @OptIn(ExperimentalTestApi::class)
-    fun dragAndDropTest() = runComposeUiTest {
-        val sizeDp = 50.dp
-        val sizePx = with(density) { sizeDp.toPx() }
-        val marginPx = with(density) { 0.5.dp.toPx() }
+    fun dragAndDropTest() =
+        runComposeUiTest(effectContext = StandardTestDispatcher()) {
+            val sizeDp = 50.dp
+            val sizePx = with(density) { sizeDp.toPx() }
+            val marginPx = with(density) { 0.5.dp.toPx() }
 
-        var xOffsetPx by mutableStateOf(0f)
-        var yOffsetPx by mutableStateOf(0f)
+            var xOffsetPx by mutableStateOf(0f)
+            var yOffsetPx by mutableStateOf(0f)
 
-        setContent {
-            Box(Modifier.padding(16.dp).fillMaxSize()) {
-                Box(
-                    Modifier.testTag("draggable-box")
-                        .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
-                        .size(sizeDp)
-                        .background(Color.Red)
-                        .draggable2D(
-                            rememberDraggable2DState {
-                                xOffsetPx += it.x
-                                yOffsetPx += it.y
-                            }
-                        )
-                )
+            setContent {
+                Box(Modifier.padding(16.dp).fillMaxSize()) {
+                    Box(
+                        Modifier.testTag("draggable-box")
+                            .offset { IntOffset(xOffsetPx.roundToInt(), yOffsetPx.roundToInt()) }
+                            .size(sizeDp)
+                            .background(Color.Red)
+                            .draggable2D(
+                                rememberDraggable2DState {
+                                    xOffsetPx += it.x
+                                    yOffsetPx += it.y
+                                }
+                            )
+                    )
+                }
             }
-        }
 
-        onNodeWithTag("draggable-box").performMouseInput {
-            dragAndDrop(center, center + Offset(2f * width, 4f * height))
+            onNodeWithTag("draggable-box").performMouseInput {
+                dragAndDrop(center, center + Offset(2f * width, 4f * height))
+            }
+            waitForIdle()
+            assertWithMessage("xOffset").that(xOffsetPx).isWithin(marginPx).of(2 * sizePx)
+            assertWithMessage("yOffset").that(yOffsetPx).isWithin(marginPx).of(4 * sizePx)
         }
-        waitForIdle()
-        assertWithMessage("xOffset").that(xOffsetPx).isWithin(marginPx).of(2 * sizePx)
-        assertWithMessage("yOffset").that(yOffsetPx).isWithin(marginPx).of(4 * sizePx)
-    }
 }

@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -51,6 +52,8 @@ import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.padding
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
@@ -461,7 +464,7 @@ class OnGlobalRectChangedTest {
     }
 
     @Test
-    fun callbackCalledForChildWhenParentMoved_1000children() {
+    fun callbackCalledForChildWhenParentMoved_1500children() {
         var position by mutableStateOf(0)
         var childGlobalPosition = IntOffset(0, 0)
         rule.setContent {
@@ -471,12 +474,12 @@ class OnGlobalRectChangedTest {
                 },
                 content = {
                     Wrap(minWidth = 10, minHeight = 10) {
-                        repeat(1000) {
+                        repeat(1500) {
                             Wrap(
                                 minWidth = 10,
                                 minHeight = 10,
                                 modifier =
-                                    if (it == 999)
+                                    if (it == 1499)
                                         Modifier.onLayoutRectChanged(0, 0) { rect ->
                                             childGlobalPosition = rect.positionInRoot
                                         }
@@ -2159,5 +2162,95 @@ class OnGlobalRectChangedTest {
 
             rule.runOnIdle { verifyCoordinates() }
         }
+    }
+
+    @Test
+    fun havingTwoCallbacks_removingFirstDuringDispatching() {
+        with(rule.density) {
+            val size = 10
+            var regularModifierCallsCount = 0
+            var calledOnceModifierCallsCount = 0
+            var callbackModifiers: Modifier by mutableStateOf(Modifier)
+            rule.setContent {
+                Box(Modifier.requiredSize(size.toDp(), size.toDp()).then(callbackModifiers))
+            }
+
+            rule.runOnIdle {
+                callbackModifiers =
+                    Modifier.calledOnceOnLayoutRectChanged { calledOnceModifierCallsCount++ }
+                        .onLayoutRectChanged(0, 0) { regularModifierCallsCount++ }
+            }
+
+            rule.runOnIdle {
+                assertThat(regularModifierCallsCount).isEqualTo(1)
+                assertThat(calledOnceModifierCallsCount).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun havingTwoCallbacks_removingMiddleOneDuringDispatching() {
+        with(rule.density) {
+            val size = 10
+            var regularModifierCallsCount = 0
+            var regularModifier2CallsCount = 0
+            var calledOnceModifierCallsCount = 0
+            var callbackModifiers: Modifier by mutableStateOf(Modifier)
+            rule.setContent {
+                Box(Modifier.requiredSize(size.toDp(), size.toDp()).then(callbackModifiers))
+            }
+
+            rule.runOnIdle {
+                callbackModifiers =
+                    Modifier.onLayoutRectChanged(0, 0) { regularModifierCallsCount++ }
+                        .calledOnceOnLayoutRectChanged { calledOnceModifierCallsCount++ }
+                        .onLayoutRectChanged(0, 0) { regularModifier2CallsCount++ }
+            }
+
+            rule.runOnIdle {
+                assertThat(regularModifierCallsCount).isEqualTo(1)
+                assertThat(regularModifier2CallsCount).isEqualTo(1)
+                assertThat(calledOnceModifierCallsCount).isEqualTo(1)
+            }
+        }
+    }
+}
+
+@Stable
+private fun Modifier.calledOnceOnLayoutRectChanged(callback: (RelativeLayoutBounds) -> Unit) =
+    this then CalledOnceOnLayoutRectChangedElement(callback)
+
+private data class CalledOnceOnLayoutRectChangedElement(
+    val callback: (RelativeLayoutBounds) -> Unit
+) : ModifierNodeElement<CalledOnceOnLayoutRectChangedNode>() {
+    override fun create() = CalledOnceOnLayoutRectChangedNode(callback)
+
+    override fun update(node: CalledOnceOnLayoutRectChangedNode) {
+        node.callback = callback
+        node.disposeAndRegister()
+    }
+}
+
+private class CalledOnceOnLayoutRectChangedNode(var callback: (RelativeLayoutBounds) -> Unit) :
+    Modifier.Node() {
+    var handle: RegistrationHandle? = null
+
+    fun disposeAndRegister() {
+        handle?.unregister()
+        handle =
+            registerOnLayoutRectChanged(0, 0) {
+                handle!!.unregister()
+                handle = null
+                callback(it)
+            }
+    }
+
+    override fun onAttach() {
+        disposeAndRegister()
+    }
+
+    override fun onDetach() {
+        handle?.unregister()
+        handle = null
     }
 }

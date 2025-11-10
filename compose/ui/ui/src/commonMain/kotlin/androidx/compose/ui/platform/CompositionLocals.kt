@@ -229,7 +229,6 @@ internal fun ProvideCommonCompositionLocals(
         LocalHapticFeedback provides owner.hapticFeedBack,
         LocalInputModeManager provides owner.inputModeManager,
         LocalLayoutDirection provides owner.layoutDirection,
-        LocalRetainedValuesStore provides owner.retainedValuesStore,
         LocalTextInputService provides owner.textInputService,
         LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
         LocalTextToolbar provides owner.textToolbar,
@@ -238,6 +237,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalWindowInfo provides owner.windowInfo,
         LocalPointerIconService provides owner.pointerIconService,
         LocalGraphicsContext provides owner.graphicsContext,
+        LocalRetainedValuesStore provides owner.retainedValuesStore,
         content = content,
     )
 }

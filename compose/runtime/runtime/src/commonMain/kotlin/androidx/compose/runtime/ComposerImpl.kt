@@ -2398,7 +2398,6 @@ internal class ComposerImpl(
                             val offsetChanges = ChangeList()
                             changeListWriter.withChangeList(offsetChanges) {
                                 changeListWriter.withoutImplicitRootStart {
-                                    from.transferPendingInvalidations()
                                     recomposeMovableContent(
                                         from = from.composition,
                                         to = to.composition,

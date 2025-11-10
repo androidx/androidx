@@ -250,12 +250,6 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
             anchors.search(anchor.location, groupsSize).let { it >= 0 && anchors[it] == anchor }
     }
 
-    fun inGroup(groupAnchor: Anchor, anchor: Anchor): Boolean {
-        val group = groupAnchor.location
-        val groupEnd = group + groups.groupSize(group)
-        return anchor.location in group until groupEnd
-    }
-
     /** Returns true if the [anchor] is for the group at [groupIndex] or one of it child groups. */
     fun groupContainsAnchor(groupIndex: Int, anchor: Anchor): Boolean {
         runtimeCheck(!writer) { "Writer is active" }
@@ -689,11 +683,12 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
  * An [Anchor] tracks a groups as its index changes due to other groups being inserted and removed
  * before it. If the group the [Anchor] is tracking is removed, directly or indirectly, [valid] will
  * return false. The current index of the group can be determined by passing either the [SlotTable]
- * or [SlotWriter] to [toIndexFor]. If a [SlotWriter] is active, it must be used instead of the
- * [SlotTable] as the anchor index could have shifted due to operations performed on the writer.
+ * or [] to [toIndexFor]. If a [SlotWriter] is active, it must be used instead of the [SlotTable] as
+ * the anchor index could have shifted due to operations performed on the writer.
  */
 internal class Anchor(loc: Int) {
     internal var location: Int = loc
+
     val valid
         get() = location != Int.MIN_VALUE
 
@@ -2289,6 +2284,12 @@ internal class SlotWriter(
         if (moveDataLen > 0) {
             removeSlots(dataStart + moveDataLen, moveDataLen, groupToMove + moveLen - 1)
         }
+    }
+
+    fun inGroup(groupAnchor: Anchor, anchor: Anchor): Boolean {
+        val group = anchorIndex(groupAnchor)
+        val groupEnd = group + groups.groupSize(group)
+        return anchor.location in group until groupEnd
     }
 
     companion object {

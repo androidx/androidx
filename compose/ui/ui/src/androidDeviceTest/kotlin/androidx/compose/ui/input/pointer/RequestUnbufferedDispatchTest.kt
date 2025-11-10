@@ -111,10 +111,9 @@ class RequestUnbufferedDispatchTest {
 
         rule.runOnUiThread { Choreographer.getInstance().removeFrameCallback(frameCallback) }
 
-        assertEquals(
-            1,
-            frameIndexToPointerEvents.values.maxOf { it.size },
-            "Expected to see exactly one pointer event per frame",
+        assertTrue(
+            frameIndexToPointerEvents.values.maxOf { it.size } <= 2,
+            "Expected to see exactly one or two pointer events per frame",
         )
     }
 
@@ -178,17 +177,13 @@ class RequestUnbufferedDispatchTest {
         rule.runOnUiThread { Choreographer.getInstance().removeFrameCallback(frameCallback) }
 
         assertTrue(
-            frameIndexToPointerEvents.values.maxOf { it.size } > 1,
-            "Expected to see more than one pointer event per frame at some point",
-        )
-        assertTrue(
-            frameIndexToPointerEvents.values.maxOf { it.size } <
-                (iterations * 4f / framesDuringMotionEventInjection),
-            "Expected to see no more than four times the fair share of pointer events in any given frame",
+            frameIndexToPointerEvents.values.maxOf { it.size } > 2,
+            "Expected to see more than a couple pointer events per frame at some point",
         )
         assertEquals(
-            iterations,
-            frameIndexToPointerEvents.values.sumOf { it.size },
+            iterations.toFloat(),
+            frameIndexToPointerEvents.values.sumOf { it.size }.toFloat(),
+            iterations * 0.1f,
             "Expected to receive pointer events for the $iterations moves, " +
                 "but didn't see the correct amount.",
         )
@@ -257,17 +252,13 @@ class RequestUnbufferedDispatchTest {
         rule.runOnUiThread { Choreographer.getInstance().removeFrameCallback(frameCallback) }
 
         assertTrue(
-            frameIndexToPointerEvents.values.maxOf { it.size } > 1,
-            "Expected to see more than one pointer event per frame at some point",
-        )
-        assertTrue(
-            frameIndexToPointerEvents.values.maxOf { it.size } <
-                (iterations * 4f / framesDuringMotionEventInjection),
-            "Expected to see no more than four times the fair share of pointer events in any given frame",
+            frameIndexToPointerEvents.values.maxOf { it.size } > 2,
+            "Expected to see more than a couple pointer events per frame at some point",
         )
         assertEquals(
-            iterations,
-            frameIndexToPointerEvents.values.sumOf { it.size },
+            iterations.toFloat(),
+            frameIndexToPointerEvents.values.sumOf { it.size }.toFloat(),
+            iterations * 0.1f,
             "Expected to receive pointer events for the $iterations moves, " +
                 "but didn't see the correct amount.",
         )

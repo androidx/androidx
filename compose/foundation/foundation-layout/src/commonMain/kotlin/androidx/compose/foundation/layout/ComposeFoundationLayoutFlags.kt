@@ -44,7 +44,7 @@ package androidx.compose.foundation.layout
  * paths being completely removed from the artifact, which can often have nontrivial positive
  * performance impact.
  *
- *      -assumevalues class androidx.compose.runtime.ComposeFoundationLayoutFlags {
+ *      -assumevalues class androidx.compose.foundation.layout.ComposeFoundationLayoutFlags {
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */

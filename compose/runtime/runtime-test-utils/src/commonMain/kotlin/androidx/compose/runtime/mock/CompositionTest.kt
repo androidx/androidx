@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.tooling.CompositionObserver
@@ -36,8 +37,11 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
 @OptIn(InternalComposeApi::class, ExperimentalCoroutinesApi::class)
-fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runTest {
-    withContext(TestMonotonicFrameClock(this)) {
+fun compositionTest(
+    clock: MonotonicFrameClock? = null,
+    block: suspend CompositionTestScope.() -> Unit,
+) = runTest {
+    withContext(clock ?: TestMonotonicFrameClock(this)) {
         // Start the recomposer
         val recomposer = Recomposer(coroutineContext)
         launch { recomposer.runRecomposeAndApplyChanges() }

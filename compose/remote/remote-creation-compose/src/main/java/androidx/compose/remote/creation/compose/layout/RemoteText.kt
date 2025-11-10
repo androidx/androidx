@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -126,6 +127,7 @@ public class RemoteComposeTextComponentModifier(
     public var modifier: RecordingModifier,
     public var id: RemoteIntReference,
     public var color: Int,
+    public val isColorConstant: Boolean,
     public var fontSize: Float,
     public var fontStyle: Int,
     public var fontWeight: Float,
@@ -135,10 +137,16 @@ public class RemoteComposeTextComponentModifier(
     public var maxLines: Int,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
-        // TODO check whether color is constant
         drawIntoCanvas {
             if (it.nativeCanvas is RecordingCanvas) {
                 (it.nativeCanvas as RecordingCanvas).let {
+                    val flags =
+                        if (isColorConstant) {
+                            0
+                        } else {
+                            TextLayout.FLAG_IS_DYNAMIC_COLOR.toShort()
+                        }
+
                     it.document.startTextComponent(
                         modifier,
                         id.toInt(),
@@ -147,11 +155,12 @@ public class RemoteComposeTextComponentModifier(
                         fontStyle,
                         fontWeight,
                         fontFamily,
-                        TextLayout.FLAG_IS_DYNAMIC_COLOR.toShort(),
+                        flags,
                         textAlign.toShort(),
                         overflow,
                         maxLines,
                     )
+
                     drawContent()
                     it.document.endTextComponent()
                 }
@@ -224,9 +233,9 @@ public fun RemoteText(
     if (captureMode is NoRemoteCompose) {
         @Suppress("DEPRECATION", "COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         Text(
-            text = text.value,
+            text = text.constantValue!!,
             modifier = modifier.toComposeUi(),
-            Color(color.value.toArgb()),
+            Color(color.constantValue!!.toArgb()),
             fontSize,
             fontStyle,
             fontWeight,
@@ -236,12 +245,14 @@ public fun RemoteText(
             maxLines = maxLines,
         )
     } else {
+        val isColorConstant = color.hasConstantValue
         @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Box(
             RemoteComposeTextComponentModifier(
                     modifier.toRemoteCompose(),
                     RemoteIntReference(text.getIdForCreationState(captureMode)),
-                    color.getIdForCreationState(captureMode),
+                    color.constantValue?.toArgb() ?: color.getIdForCreationState(captureMode),
+                    isColorConstant,
                     rFontSize,
                     rFontStyle,
                     rFontWeight,
@@ -269,6 +280,7 @@ public fun RemoteText(
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
 ) {
+    val isColorConstant = color.hasConstantValue
     val captureMode = LocalRemoteComposeCreationState.current
     val rFontSize =
         with(LocalDensity.current) {
@@ -320,7 +332,7 @@ public fun RemoteText(
         Text(
             text = "XX",
             modifier = modifier.toComposeUi(),
-            Color(color.value.toArgb()),
+            Color(color.constantValue!!.toArgb()),
             fontSize,
             fontStyle,
             fontWeight,
@@ -335,7 +347,8 @@ public fun RemoteText(
             RemoteComposeTextComponentModifier(
                     modifier.toRemoteCompose(),
                     textId,
-                    color.getIdForCreationState(captureMode),
+                    color.constantValue?.toArgb() ?: color.getIdForCreationState(captureMode),
+                    isColorConstant,
                     rFontSize,
                     rFontStyle,
                     rFontWeight,

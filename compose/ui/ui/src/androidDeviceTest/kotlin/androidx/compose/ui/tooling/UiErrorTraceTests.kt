@@ -114,13 +114,21 @@ class UiErrorTraceTests(private val lookahead: Boolean) {
 
     @Test
     fun initialModifierDraw() {
+        var drawn = false
         val traceContext =
             rule.testContent {
-                val drawModifier = Modifier.drawBehind { throwTestException() }
+                val drawModifier =
+                    Modifier.drawBehind {
+                        try {
+                            throwTestException()
+                        } finally {
+                            drawn = true
+                        }
+                    }
                 Box(Modifier.size(10.dp).then(drawModifier))
             }
 
-        rule.waitForIdle()
+        rule.waitUntil(1000) { drawn }
 
         assertFirstContentFrame(traceContext) { it.name == "Box" }
     }

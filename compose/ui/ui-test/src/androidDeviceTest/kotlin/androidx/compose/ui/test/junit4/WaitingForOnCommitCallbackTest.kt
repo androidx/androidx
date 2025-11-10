@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -122,6 +123,7 @@ class WaitingForOnCommitCallbackTest {
             assertThat(values).containsExactly(1, 2, 3, 4, 5, 6).inOrder()
         }
 
+    @SuppressLint("ComposeTestRuleDispatcher")
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun cascadingOnCommits_suspendedWait_unconfinedTestDispatcher() =

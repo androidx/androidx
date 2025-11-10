@@ -47,7 +47,6 @@ package androidx.compose.material.navigation {
     method @BytecodeOnly public static void bottomSheet(androidx.navigation.NavGraphBuilder, String, java.util.List<androidx.navigation.NamedNavArgument!>, java.util.List<androidx.navigation.NavDeepLink!>, kotlin.jvm.functions.Function4<? super androidx.compose.foundation.layout.ColumnScope!,? super androidx.navigation.NavBackStackEntry!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method @KotlinOnly public static inline <reified T> void bottomSheet(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, optional java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function2<androidx.compose.foundation.layout.ColumnScope,androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
     method @BytecodeOnly public static void bottomSheet$default(androidx.navigation.NavGraphBuilder!, String!, java.util.List!, java.util.List!, kotlin.jvm.functions.Function4!, int, Object!);
-    method @BytecodeOnly public static void bottomSheet$default(androidx.navigation.NavGraphBuilder!, java.util.Map!, java.util.List!, java.util.List!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
 }

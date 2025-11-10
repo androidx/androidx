@@ -35,7 +35,7 @@ public class VisibilityModifier(public val visible: RemoteInt) : RemoteModifier.
     @Composable
     override fun Modifier.toComposeUi(): Modifier {
         return layout { measurable, constraints ->
-            if (visible.value == Component.Visibility.VISIBLE) {
+            if (visible.constantValue!! == Component.Visibility.VISIBLE) {
                 val placeable = measurable.measure(constraints = constraints)
                 layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             } else {

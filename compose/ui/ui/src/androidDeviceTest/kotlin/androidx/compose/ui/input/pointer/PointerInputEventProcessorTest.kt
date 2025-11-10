@@ -121,6 +121,7 @@ class PointerInputEventProcessorTest {
     @Before
     fun setup() {
         testOwner = TestOwner()
+        testOwner.initializeRoot()
         pointerInputEventProcessor = PointerInputEventProcessor(testOwner.root)
     }
 
@@ -2927,7 +2928,7 @@ private class TestOwner : Owner {
 
     private val delegate = MeasureAndLayoutDelegate(root)
 
-    init {
+    fun initializeRoot() {
         root.attach(this)
         delegate.updateRootConstraints(Constraints(maxWidth = 500, maxHeight = 500))
     }

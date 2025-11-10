@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,6 +41,7 @@ import org.junit.runner.RunWith
  * Tests for passing a custom CoroutineContext when [running a ComposeUiTest][runComposeUiTest].
  * Similar tests are available for ComposeTestRule in compose:ui:ui-test-junit4
  */
+@SuppressLint("ComposeTestRuleDispatcher")
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
