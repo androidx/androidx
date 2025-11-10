@@ -1957,7 +1957,23 @@ public final class androidx/compose/material3/TimePickerDisplayMode$Companion {
 }
 
 public final class androidx/compose/material3/TimePickerKt {
+	public static final fun isHourInputValid (Landroidx/compose/material3/TimePickerState;)Z
+	public static final fun isInputValid (Landroidx/compose/material3/TimePickerState;)Z
+	public static final fun isMinuteInputValid (Landroidx/compose/material3/TimePickerState;)Z
 	public static final fun isPm (Landroidx/compose/material3/TimePickerState;)Z
+}
+
+public final class androidx/compose/material3/TimePickerLayoutType {
+	public static final field Companion Landroidx/compose/material3/TimePickerLayoutType$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/material3/TimePickerLayoutType;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
 }
 
 public final class androidx/compose/material3/TimePickerLayoutType$Companion {
@@ -1968,6 +1984,21 @@ public final class androidx/compose/material3/TimePickerLayoutType$Companion {
 public final class androidx/compose/material3/TimePickerSelectionMode$Companion {
 	public final fun getHour-yecRtBI ()I
 	public final fun getMinute-yecRtBI ()I
+}
+
+public abstract interface class androidx/compose/material3/TimePickerState {
+	public abstract fun getHour ()I
+	public fun getHourInput ()I
+	public abstract fun getMinute ()I
+	public fun getMinuteInput ()I
+	public abstract fun getSelection-yecRtBI ()I
+	public abstract fun is24hour ()Z
+	public abstract fun set24hour (Z)V
+	public abstract fun setHour (I)V
+	public fun setHourInput (I)V
+	public abstract fun setMinute (I)V
+	public fun setMinuteInput (I)V
+	public abstract fun setSelection-6_8s6DQ (I)V
 }
 
 public final class androidx/compose/material3/ToggleButtonColors {

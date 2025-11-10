@@ -199,6 +199,27 @@ abstract interface androidx.compose.material3/TextFieldLabelScope { // androidx.
         abstract fun <get-labelMinimizedProgress>(): kotlin/Float // androidx.compose.material3/TextFieldLabelScope.labelMinimizedProgress.<get-labelMinimizedProgress>|<get-labelMinimizedProgress>(){}[0]
 }
 
+abstract interface androidx.compose.material3/TimePickerState { // androidx.compose.material3/TimePickerState|null[0]
+    abstract var hour // androidx.compose.material3/TimePickerState.hour|{}hour[0]
+        abstract fun <get-hour>(): kotlin/Int // androidx.compose.material3/TimePickerState.hour.<get-hour>|<get-hour>(){}[0]
+        abstract fun <set-hour>(kotlin/Int) // androidx.compose.material3/TimePickerState.hour.<set-hour>|<set-hour>(kotlin.Int){}[0]
+    abstract var is24hour // androidx.compose.material3/TimePickerState.is24hour|{}is24hour[0]
+        abstract fun <get-is24hour>(): kotlin/Boolean // androidx.compose.material3/TimePickerState.is24hour.<get-is24hour>|<get-is24hour>(){}[0]
+        abstract fun <set-is24hour>(kotlin/Boolean) // androidx.compose.material3/TimePickerState.is24hour.<set-is24hour>|<set-is24hour>(kotlin.Boolean){}[0]
+    abstract var minute // androidx.compose.material3/TimePickerState.minute|{}minute[0]
+        abstract fun <get-minute>(): kotlin/Int // androidx.compose.material3/TimePickerState.minute.<get-minute>|<get-minute>(){}[0]
+        abstract fun <set-minute>(kotlin/Int) // androidx.compose.material3/TimePickerState.minute.<set-minute>|<set-minute>(kotlin.Int){}[0]
+    abstract var selection // androidx.compose.material3/TimePickerState.selection|{}selection[0]
+        abstract fun <get-selection>(): androidx.compose.material3/TimePickerSelectionMode // androidx.compose.material3/TimePickerState.selection.<get-selection>|<get-selection>(){}[0]
+        abstract fun <set-selection>(androidx.compose.material3/TimePickerSelectionMode) // androidx.compose.material3/TimePickerState.selection.<set-selection>|<set-selection>(androidx.compose.material3.TimePickerSelectionMode){}[0]
+    open var hourInput // androidx.compose.material3/TimePickerState.hourInput|{}hourInput[0]
+        open fun <get-hourInput>(): kotlin/Int // androidx.compose.material3/TimePickerState.hourInput.<get-hourInput>|<get-hourInput>(){}[0]
+        open fun <set-hourInput>(kotlin/Int) // androidx.compose.material3/TimePickerState.hourInput.<set-hourInput>|<set-hourInput>(kotlin.Int){}[0]
+    open var minuteInput // androidx.compose.material3/TimePickerState.minuteInput|{}minuteInput[0]
+        open fun <get-minuteInput>(): kotlin/Int // androidx.compose.material3/TimePickerState.minuteInput.<get-minuteInput>|<get-minuteInput>(){}[0]
+        open fun <set-minuteInput>(kotlin/Int) // androidx.compose.material3/TimePickerState.minuteInput.<set-minuteInput>|<set-minuteInput>(kotlin.Int){}[0]
+}
+
 abstract interface androidx.compose.material3/WideNavigationRailState { // androidx.compose.material3/WideNavigationRailState|null[0]
     abstract val currentValue // androidx.compose.material3/WideNavigationRailState.currentValue|{}currentValue[0]
         abstract fun <get-currentValue>(): androidx.compose.material3/WideNavigationRailValue // androidx.compose.material3/WideNavigationRailState.currentValue.<get-currentValue>|<get-currentValue>(){}[0]
@@ -1364,6 +1385,19 @@ final value class androidx.compose.material3/TimePickerDisplayMode { // androidx
     }
 }
 
+final value class androidx.compose.material3/TimePickerLayoutType { // androidx.compose.material3/TimePickerLayoutType|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/TimePickerLayoutType.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3/TimePickerLayoutType.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3/TimePickerLayoutType.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.material3/TimePickerLayoutType.Companion|null[0]
+        final val Horizontal // androidx.compose.material3/TimePickerLayoutType.Companion.Horizontal|{}Horizontal[0]
+            final fun <get-Horizontal>(): androidx.compose.material3/TimePickerLayoutType // androidx.compose.material3/TimePickerLayoutType.Companion.Horizontal.<get-Horizontal>|<get-Horizontal>(){}[0]
+        final val Vertical // androidx.compose.material3/TimePickerLayoutType.Companion.Vertical|{}Vertical[0]
+            final fun <get-Vertical>(): androidx.compose.material3/TimePickerLayoutType // androidx.compose.material3/TimePickerLayoutType.Companion.Vertical.<get-Vertical>|<get-Vertical>(){}[0]
+    }
+}
+
 open class androidx.compose.material3/FloatingActionButtonElevation { // androidx.compose.material3/FloatingActionButtonElevation|null[0]
     open fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/FloatingActionButtonElevation.equals|equals(kotlin.Any?){}[0]
     open fun hashCode(): kotlin/Int // androidx.compose.material3/FloatingActionButtonElevation.hashCode|hashCode(){}[0]
@@ -2231,6 +2265,12 @@ final val androidx.compose.material3/androidx_compose_material3_WideNavigationRa
 final val androidx.compose.material3/androidx_compose_material3_WideNavigationRailDefaults$stableprop // androidx.compose.material3/androidx_compose_material3_WideNavigationRailDefaults$stableprop|#static{}androidx_compose_material3_WideNavigationRailDefaults$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_WideNavigationRailItemDefaults$stableprop // androidx.compose.material3/androidx_compose_material3_WideNavigationRailItemDefaults$stableprop|#static{}androidx_compose_material3_WideNavigationRailItemDefaults$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_WideNavigationRailOverrideScope$stableprop // androidx.compose.material3/androidx_compose_material3_WideNavigationRailOverrideScope$stableprop|#static{}androidx_compose_material3_WideNavigationRailOverrideScope$stableprop[0]
+final val androidx.compose.material3/isHourInputValid // androidx.compose.material3/isHourInputValid|@androidx.compose.material3.TimePickerState{}isHourInputValid[0]
+    final fun (androidx.compose.material3/TimePickerState).<get-isHourInputValid>(): kotlin/Boolean // androidx.compose.material3/isHourInputValid.<get-isHourInputValid>|<get-isHourInputValid>@androidx.compose.material3.TimePickerState(){}[0]
+final val androidx.compose.material3/isInputValid // androidx.compose.material3/isInputValid|@androidx.compose.material3.TimePickerState{}isInputValid[0]
+    final fun (androidx.compose.material3/TimePickerState).<get-isInputValid>(): kotlin/Boolean // androidx.compose.material3/isInputValid.<get-isInputValid>|<get-isInputValid>@androidx.compose.material3.TimePickerState(){}[0]
+final val androidx.compose.material3/isMinuteInputValid // androidx.compose.material3/isMinuteInputValid|@androidx.compose.material3.TimePickerState{}isMinuteInputValid[0]
+    final fun (androidx.compose.material3/TimePickerState).<get-isMinuteInputValid>(): kotlin/Boolean // androidx.compose.material3/isMinuteInputValid.<get-isMinuteInputValid>|<get-isMinuteInputValid>@androidx.compose.material3.TimePickerState(){}[0]
 final val androidx.compose.material3/isPm // androidx.compose.material3/isPm|@androidx.compose.material3.TimePickerState{}isPm[0]
     final fun (androidx.compose.material3/TimePickerState).<get-isPm>(): kotlin/Boolean // androidx.compose.material3/isPm.<get-isPm>|<get-isPm>@androidx.compose.material3.TimePickerState(){}[0]
 
