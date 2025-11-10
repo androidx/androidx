@@ -77,7 +77,7 @@ private fun Method.getComposableInfo(): ComposableInfo {
  */
 private fun Class<*>.getDefaultValue(): Any? =
     when (name) {
-        "int" -> 0.toInt()
+        "int" -> 0
         "short" -> 0.toShort()
         "byte" -> 0.toByte()
         "long" -> 0.toLong()

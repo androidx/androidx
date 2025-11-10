@@ -22,6 +22,7 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapFontData
+import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
@@ -413,6 +414,28 @@ public open class RemoteComposeContext {
         mRemoteWriter.drawTextOnPath(textId, path, hOffset, vOffset)
     }
 
+    public fun drawTextOnCircle(
+        textId: Int,
+        centerX: Float,
+        centerY: Float,
+        radius: Float,
+        startAngle: Float,
+        warpRadiusOffset: Float,
+        alignment: DrawTextOnCircle.Alignment,
+        placement: DrawTextOnCircle.Placement,
+    ) {
+        mRemoteWriter.drawTextOnCircle(
+            textId,
+            centerX,
+            centerY,
+            radius,
+            startAngle,
+            warpRadiusOffset,
+            alignment,
+            placement,
+        )
+    }
+
     public fun drawTextRun(
         text: String,
         start: Int,
@@ -546,9 +569,36 @@ public open class RemoteComposeContext {
         return mRemoteWriter.addPathString(path)
     }
 
-    //    public fun parsePath(pathData: String): Path {
-    //        return RemoteComposeWriter.parsePath(pathData)
-    //    }
+    /**
+     * Add a path expression.
+     *
+     * @param expressionX The x component of the expression.
+     * @param expressionY The y component of the expression.
+     * @param start The start value of the expression.
+     * @param end The end value of the expression.
+     * @param count The number of values in the expression.
+     * @param flags The flags for the expression.
+     */
+    public fun addPathExpression(
+        expressionX: RFloat,
+        expressionY: RFloat,
+        start: Number,
+        end: Number,
+        count: Number,
+        flags: Int = 0,
+    ): Int {
+        val vStart = start as? Float ?: start.toFloat()
+        val vEnd = end as? Float ?: end.toFloat()
+        val vCount = count as? Float ?: count.toFloat()
+        return mRemoteWriter.addPathExpression(
+            expressionX.array,
+            expressionY.array,
+            vStart,
+            vEnd,
+            vCount,
+            flags,
+        )
+    }
 
     public fun skew(skewX: Float, skewY: Float) {
         mRemoteWriter.skew(skewX, skewY)
@@ -1398,6 +1448,16 @@ public open class RemoteComposeContext {
             overflow,
             maxLines,
         ) {}
+    }
+
+    /** The width of the document on screen */
+    public fun windowWidth(): RFloat {
+        return mRemoteWriter.windowWidth()
+    }
+
+    /** The height of the document on screen */
+    public fun windowHeight(): RFloat {
+        return mRemoteWriter.windowHeight()
     }
 }
 

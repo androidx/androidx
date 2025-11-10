@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
+<issues format="6" by="lint 9.0.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha10)" variant="all" version="9.0.0-alpha10">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -345,33 +345,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="RemoteColor can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
-        errorLine1="    public fun backgroundOverlayColor(): RemoteColor {"
-        errorLine2="                                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/wear/material3/Image.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="RemoteColor can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
-        errorLine1="        return remember { RemoteColor(color.toArgb()) }"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/wear/material3/Image.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="RemoteColor can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
-        errorLine1="        return remember { RemoteColor(color.toArgb()) }"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/wear/material3/Image.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="ImageScaling.SCALE_FIT can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
         errorLine1="        ContentScale.Fit -> ImageScaling.SCALE_FIT"
         errorLine2="                                         ~~~~~~~~~">
@@ -444,6 +417,645 @@
 
     <issue
         id="RestrictedApiAndroidX"
+        message="RemoteRowScope can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteRowScope can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    color: RemoteColor,"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    borderColor: RemoteColor?,"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    borderStrokeWidth: RemoteFloat?,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteComposeCreationState can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    state: RemoteComposeCreationState,"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePaint can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="        RemotePaint().apply {"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePaint.remoteColor can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            remoteColor = color"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePaint can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    var borderPaint: RemotePaint? = null"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePaint can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            RemotePaint().apply {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePaint.remoteColor can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                remoteColor = borderColor"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat.toFloat can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                strokeWidth = borderStrokeWidth.toFloat()"
+        errorLine2="                                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat.toFloat can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                strokeWidth = borderStrokeWidth.toFloat()"
+        errorLine2="                                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getDrawContext can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    val canvas = drawContext.canvas.nativeCanvas"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatContextKt.remoteComponentWidth can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    val w = remoteComponentWidth(state)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatContextKt.remoteComponentWidth can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    val w = remoteComponentWidth(state)"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatContextKt.remoteComponentHeight can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    val h = remoteComponentHeight(state)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatContextKt.remoteComponentHeight can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    val h = remoteComponentHeight(state)"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    if (canvas is RecordingCanvas) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            canvas.drawRect(0f, 0f, w, h, paint)"
+        errorLine2="                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            canvas.drawRect(0f, 0f, w, h, paint)"
+        errorLine2="                            ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            canvas.drawRect(0f, 0f, w, h, paint)"
+        errorLine2="                                ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            canvas.drawRect(0f, 0f, w, h, paint)"
+        errorLine2="                                    ~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            canvas.drawRect(0f, 0f, w, h, paint)"
+        errorLine2="                                       ~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            canvas.drawRect(0f, 0f, w, h, paint)"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                canvas.drawRoundRect("
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    0f,"
+        errorLine2="                    ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    0f,"
+        errorLine2="                    ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    w,"
+        errorLine2="                    ~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    h,"
+        errorLine2="                    ~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getDrawContext can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getSize-NH-jbRc can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getDrawContext can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getSize-NH-jbRc can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    paint,"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    canvas.drawRoundRect("
+        errorLine2="                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        paint.strokeWidth,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        paint.strokeWidth,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        w - paint.strokeWidth,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat.minus can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        w - paint.strokeWidth,"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        h - paint.strokeWidth,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat.minus can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        h - paint.strokeWidth,"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getDrawContext can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getSize-NH-jbRc can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getDrawContext can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getSize-NH-jbRc can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        shape.bottomEnd.toPx(size, drawContext.density),"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawRoundRect can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                        borderPaint,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CircleShape can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="            is CircleShape -> {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawCircle can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                canvas.drawCircle(0f, 0f, size.maxDimension / 2f, paint)"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawCircle can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                canvas.drawCircle(0f, 0f, size.maxDimension / 2f, paint)"
+        errorLine2="                                                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getSize-NH-jbRc can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                canvas.drawCircle(0f, 0f, size.maxDimension / 2f, paint)"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawCircle can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    canvas.drawCircle(0f, 0f, size.maxDimension / 2f, borderPaint)"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RecordingCanvas.drawCircle can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    canvas.drawCircle(0f, 0f, size.maxDimension / 2f, borderPaint)"
+        errorLine2="                                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDrawScope.getSize-NH-jbRc can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="                    canvas.drawCircle(0f, 0f, size.maxDimension / 2f, borderPaint)"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteModifier can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="internal fun RemoteModifier.buttonSizeModifier(): RemoteModifier ="
+        errorLine2="                                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="HeightInModifierKt.heightIn-WMci_g0 can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    this.heightIn(min = RemoteButtonDefaults.Height).widthIn(min = RemoteButtonDefaults.Width)"
+        errorLine2="    ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="HeightInModifierKt.heightIn-WMci_g0 can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    this.heightIn(min = RemoteButtonDefaults.Height).widthIn(min = RemoteButtonDefaults.Width)"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="WidthInModifierKt.widthIn-WMci_g0 can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    this.heightIn(min = RemoteButtonDefaults.Height).widthIn(min = RemoteButtonDefaults.Width)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="WidthInModifierKt.widthIn-WMci_g0 can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    this.heightIn(min = RemoteButtonDefaults.Height).widthIn(min = RemoteButtonDefaults.Width)"
+        errorLine2="                                                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    disabledAlpha: RemoteFloat = DisabledContentAlpha.rf"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatKt.getRf can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="    disabledAlpha: RemoteFloat = DisabledContentAlpha.rf"
+        errorLine2="                                                      ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="): RemoteColor = this.copy(alpha = this.alpha * disabledAlpha)"
+        errorLine2="   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.alpha can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="): RemoteColor = this.copy(alpha = this.alpha * disabledAlpha)"
+        errorLine2="                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="): RemoteColor = this.copy(alpha = this.alpha * disabledAlpha)"
+        errorLine2="                      ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="): RemoteColor = this.copy(alpha = this.alpha * disabledAlpha)"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat.times can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="): RemoteColor = this.copy(alpha = this.alpha * disabledAlpha)"
+        errorLine2="                                              ~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloat.times can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
+        errorLine1="): RemoteColor = this.copy(alpha = this.alpha * disabledAlpha)"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/wear/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
         message="RemoteString can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
         errorLine1="    contentDescription: RemoteString?,"
         errorLine2="                        ~~~~~~~~~~~~~">
@@ -481,7 +1093,7 @@
     <issue
         id="RestrictedApiAndroidX"
         message="RemoteColor can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
-        errorLine1="    tint: RemoteColor = RemoteColor(DefaultTint.toArgb()),"
+        errorLine1="    tint: RemoteColor = RemoteColor(DefaultTint),"
         errorLine2="          ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/wear/material3/RemoteIcon.kt"/>
@@ -490,17 +1102,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="RemoteColor can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
-        errorLine1="    tint: RemoteColor = RemoteColor(DefaultTint.toArgb()),"
+        errorLine1="    tint: RemoteColor = RemoteColor(DefaultTint),"
         errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/wear/material3/RemoteIcon.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="RemoteColor can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.wear`)"
-        errorLine1="    tint: RemoteColor = RemoteColor(DefaultTint.toArgb()),"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/wear/material3/RemoteIcon.kt"/>
     </issue>

@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StateMachineSpec(public var currentState: RemoteInt, public var states: IntArray) {
+public class StateMachineSpec(public val currentState: RemoteInt, public var states: IntArray) {
 
     public val statesNames: HashMap<String, Int> = HashMap<String, Int>()
     public val values: HashMap<String, RemoteInt> = HashMap<String, RemoteInt>()
@@ -179,7 +179,7 @@ public fun StateLayout(
             modifier.toComposeUi(),
             contentAlignment = boxAlignment(horizontalAlignment, verticalArrangement),
         ) {
-            content(currentState.value)
+            content(currentState.constantValue!!)
         }
     } else {
         @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254

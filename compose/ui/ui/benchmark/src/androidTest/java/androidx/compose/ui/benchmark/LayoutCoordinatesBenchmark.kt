@@ -94,7 +94,7 @@ class LayoutCoordinatesBenchmark {
     @Test
     fun grandParentMoves_gettingPositionInRoot_onLayoutRectChanged() {
         benchmarkRule.toggleStateBenchmark(
-            MovingGrandParentTestCase(Modifier.onLayoutRectChanged { it.positionInRoot })
+            MovingGrandParentTestCase(Modifier.onLayoutRectChanged(0, 0) { it.positionInRoot })
         )
     }
 

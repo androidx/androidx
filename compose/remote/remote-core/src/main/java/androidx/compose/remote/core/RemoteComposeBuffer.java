@@ -50,6 +50,7 @@ import androidx.compose.remote.core.operations.DrawRoundRect;
 import androidx.compose.remote.core.operations.DrawSector;
 import androidx.compose.remote.core.operations.DrawText;
 import androidx.compose.remote.core.operations.DrawTextAnchored;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
@@ -625,6 +626,25 @@ public class RemoteComposeBuffer {
      */
     public void addDrawTextOnPath(int textId, int pathId, float hOffset, float vOffset) {
         DrawTextOnPath.apply(mBuffer, textId, pathId, hOffset, vOffset);
+    }
+
+    /**
+     * Draw the curved text, along the specified circle with origin at (x,y).
+     *
+     * @param textId the id of the text variable
+     * @param centerX the center X of the circle
+     * @param centerY the center Y of the circle
+     * @param radius the radius of the circle
+     * @param startAngle the start angle to draw from
+     * @param warpRadiusOffset the offset of the warp radius
+     * @param alignment the alignment of the text relative to start
+     * @param placement the placement inside or outside the circle
+     */
+    public void addDrawTextOnCircle(int textId, float centerX, float centerY, float radius,
+            float startAngle, float warpRadiusOffset, DrawTextOnCircle.@NonNull Alignment alignment,
+            DrawTextOnCircle.@NonNull Placement placement) {
+        DrawTextOnCircle.apply(mBuffer, textId, centerX, centerY, radius, startAngle,
+                warpRadiusOffset, alignment, placement);
     }
 
     /**

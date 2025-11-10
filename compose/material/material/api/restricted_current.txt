@@ -333,7 +333,7 @@ package androidx.compose.material {
     field public static final float OutlinedBorderOpacity = 0.12f;
   }
 
-  public final class ChipKt {
+  @SuppressCompatibility public final class ChipKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void Chip(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.material.ChipColors colors, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void Chip(kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, boolean, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.ui.graphics.Shape?, androidx.compose.foundation.BorderStroke?, androidx.compose.material.ChipColors?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void FilterChip(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.material.SelectableChipColors colors, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? selectedIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
@@ -531,7 +531,7 @@ package androidx.compose.material {
     field public static final androidx.compose.material.ExposedDropdownMenuDefaults INSTANCE;
   }
 
-  public final class ExposedDropdownMenu_androidKt {
+  @SuppressCompatibility public final class ExposedDropdownMenu_androidKt {
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ExposedDropdownMenuBox(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean!,kotlin.Unit!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function3<? super androidx.compose.material.ExposedDropdownMenuBoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ExposedDropdownMenuBox(boolean expanded, kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit> onExpandedChange, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<androidx.compose.material.ExposedDropdownMenuBoxScope,kotlin.Unit> content);
   }
@@ -610,7 +610,7 @@ package androidx.compose.material {
     property @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumTouchTargetEnforcement;
   }
 
-  public final class ListItemKt {
+  @SuppressCompatibility public final class ListItemKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ListItem(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText, optional boolean singleLineSecondaryText, optional kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailing, kotlin.jvm.functions.Function0<kotlin.Unit> text);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ListItem(androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
@@ -947,7 +947,7 @@ package androidx.compose.material {
     property @Deprecated public T to;
   }
 
-  public final class SwipeToDismissKt {
+  @SuppressCompatibility public final class SwipeToDismissKt {
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void SwipeToDismiss(androidx.compose.material.DismissState, androidx.compose.ui.Modifier?, java.util.Set<? extends androidx.compose.material.DismissDirection!>?, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissDirection!,? extends androidx.compose.material.ThresholdConfig!>?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void SwipeToDismiss(androidx.compose.material.DismissState state, optional androidx.compose.ui.Modifier modifier, optional java.util.Set<androidx.compose.material.DismissDirection> directions, optional kotlin.jvm.functions.Function1<androidx.compose.material.DismissDirection,androidx.compose.material.ThresholdConfig> dismissThresholds, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> background, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> dismissContent);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.DismissState rememberDismissState(androidx.compose.material.DismissValue?, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissValue!,java.lang.Boolean!>?, androidx.compose.runtime.Composer?, int, int);
@@ -968,7 +968,7 @@ package androidx.compose.material {
     field @Deprecated public static final float StiffResistanceFactor = 20.0f;
   }
 
-  public final class SwipeableKt {
+  @SuppressCompatibility public final class SwipeableKt {
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material.SwipeableState<T!> rememberSwipeableState(T, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function1<? super T!,java.lang.Boolean!>?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material.SwipeableState<T> rememberSwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<T,java.lang.Boolean> confirmStateChange);
     method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static <T> androidx.compose.ui.Modifier swipeable(androidx.compose.ui.Modifier, androidx.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,T> anchors, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function2<T,T,androidx.compose.material.ThresholdConfig> thresholds, optional androidx.compose.material.ResistanceConfig? resistance, optional androidx.compose.ui.unit.Dp velocityThreshold);
@@ -1200,7 +1200,7 @@ package androidx.compose.material {
 
 }
 
-package androidx.compose.material.pullrefresh {
+package @SuppressCompatibility androidx.compose.material.pullrefresh {
 
   @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public final class PullRefreshDefaults {
     method @BytecodeOnly public float getRefreshThreshold-D9Ej5fM();
@@ -1210,17 +1210,17 @@ package androidx.compose.material.pullrefresh {
     field public static final androidx.compose.material.pullrefresh.PullRefreshDefaults INSTANCE;
   }
 
-  public final class PullRefreshIndicatorKt {
+  @SuppressCompatibility public final class PullRefreshIndicatorKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void PullRefreshIndicator(boolean refreshing, androidx.compose.material.pullrefresh.PullRefreshState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional boolean scale);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void PullRefreshIndicator-jB83MbM(boolean, androidx.compose.material.pullrefresh.PullRefreshState, androidx.compose.ui.Modifier?, long, long, boolean, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class PullRefreshIndicatorTransformKt {
+  @SuppressCompatibility public final class PullRefreshIndicatorTransformKt {
     method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier pullRefreshIndicatorTransform(androidx.compose.ui.Modifier, androidx.compose.material.pullrefresh.PullRefreshState state, optional boolean scale);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier! pullRefreshIndicatorTransform$default(androidx.compose.ui.Modifier!, androidx.compose.material.pullrefresh.PullRefreshState!, boolean, int, Object!);
   }
 
-  public final class PullRefreshKt {
+  @SuppressCompatibility public final class PullRefreshKt {
     method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier pullRefresh(androidx.compose.ui.Modifier, androidx.compose.material.pullrefresh.PullRefreshState state, optional boolean enabled);
     method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier pullRefresh(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onPull, kotlin.jvm.functions.Function2<? super java.lang.Float,? super kotlin.coroutines.Continuation<? super java.lang.Float>,? extends java.lang.Object?> onRelease, optional boolean enabled);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier! pullRefresh$default(androidx.compose.ui.Modifier!, androidx.compose.material.pullrefresh.PullRefreshState!, boolean, int, Object!);
@@ -1232,7 +1232,7 @@ package androidx.compose.material.pullrefresh {
     property public float progress;
   }
 
-  public final class PullRefreshStateKt {
+  @SuppressCompatibility public final class PullRefreshStateKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.pullrefresh.PullRefreshState rememberPullRefreshState(boolean refreshing, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh, optional androidx.compose.ui.unit.Dp refreshThreshold, optional androidx.compose.ui.unit.Dp refreshingOffset);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.pullrefresh.PullRefreshState rememberPullRefreshState-UuyPYSY(boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, float, float, androidx.compose.runtime.Composer?, int, int);
   }

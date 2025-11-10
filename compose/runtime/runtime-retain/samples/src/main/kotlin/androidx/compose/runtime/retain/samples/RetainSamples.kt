@@ -22,16 +22,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.retain.LocalRetainedValuesStore
-import androidx.compose.runtime.retain.RetainedContentHost
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
-import androidx.compose.runtime.retain.retainControlledRetainedValuesStore
+import androidx.compose.runtime.retain.retainManagedRetainedValuesStore
 import androidx.compose.runtime.retain.retainRetainedValuesStoreRegistry
 import androidx.compose.ui.graphics.painter.Painter
 
@@ -65,67 +65,46 @@ internal class MediaPlayer(val uri: String = "") {
 }
 
 @Sampled
-fun retainedContentHostSample() {
+fun retainingCollapsingContentSample() {
     @Composable
     fun CollapsingMediaPlayer(visible: Boolean) {
-        // This content is only shown when `visible == true`
-        RetainedContentHost(active = visible) {
-            // Create a media player that will be retained when the CollapsingMediaPlayer is no
-            // longer visible. This component can continue to play audio when the video is hidden.
-            val mediaPlayer = retain { MediaPlayer() }
-            RetainedEffect(mediaPlayer) {
-                mediaPlayer.play()
-                onRetire { mediaPlayer.stop() }
-            }
+        // Important: This retainedValuesStore is created outside of the if statement to ensure
+        // that it lives as long as the CollapsingMediaPlayer composable itself.
+        val retainedValuesStore = retainManagedRetainedValuesStore()
 
-            // Render the video component inside the RetainedContentHost.
+        // This content is only shown when `visible == true`
+        if (visible) {
+            LocalRetainedValuesStoreProvider(retainedValuesStore) {
+                // Create a media player that will be retained when the CollapsingMediaPlayer is not
+                // visible. This component can continue to play audio when the video is hidden.
+                val mediaPlayer = retain { MediaPlayer() }
+                RetainedEffect(mediaPlayer) {
+                    mediaPlayer.play()
+                    onRetire { mediaPlayer.stop() }
+                }
+
+                // Render the video component inside the RetainedContentHost.
+            }
         }
     }
 }
 
 @Suppress("UnnecessaryLambdaCreation")
 @Sampled
-fun retainControlledRetainedValuesStoreSample() {
+fun retainManagedRetainedValuesStoreSample() {
     @Composable
-    fun AnimatedRetainedContentHost(active: Boolean, content: @Composable () -> Unit) {
+    fun RetainedAnimatedContent(active: Boolean, content: @Composable () -> Unit) {
         // Create a RetainedValuesStore. It will be added as a child to the current store and start
         // retaining exited values when the parent does. On Android, this store will implicitly
         // survive and forward retention events caused by configuration changes.
-        val retainedValuesStore = retainControlledRetainedValuesStore()
+        val retainedValuesStore = retainManagedRetainedValuesStore()
         AnimatedContent(active) { targetState ->
             if (targetState) {
                 // Install the RetainedValuesStore over the child content
-                CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
+                LocalRetainedValuesStoreProvider(retainedValuesStore) {
                     // Values retained here will be kept when this content is faded out,
                     // and restored when the content is added back to the composition.
                     content()
-                }
-
-                // Define the retention scenario that will issue commands to start and stop
-                // retaining
-                // exited values. If you use this effect in your code, it must come AFTER the
-                // content is composed to correctly capture values. This effect is not mandatory,
-                // but is a convenient way to match the RetainedValuesStore's state to the
-                // visibility of its content. You can manage the RetainedValuesStore in any way
-                // suitable for your content.
-                val composer = currentComposer
-                DisposableEffect(retainedValuesStore) {
-                    // Stop retaining exited values when we become active. Use the request count to
-                    // only look at our state and to ignore any parent-influenced requests.
-                    val cancellationHandle =
-                        if (retainedValuesStore.retainExitedValuesRequestsFromSelf > 0) {
-                            composer.scheduleFrameEndCallback {
-                                retainedValuesStore.stopRetainingExitedValues()
-                            }
-                        } else {
-                            null
-                        }
-
-                    onDispose {
-                        // Start retaining exited values when we deactivate
-                        cancellationHandle?.cancel()
-                        retainedValuesStore.startRetainingExitedValues()
-                    }
                 }
             }
         }
@@ -136,12 +115,14 @@ fun retainControlledRetainedValuesStoreSample() {
 fun retainedValuesStoreRegistrySample() {
     // List item that retains a value
     @Composable
-    fun Contact(contact: Contact) {
+    fun Contact(contact: Contact, deleteContact: () -> Unit) {
         Row {
             // Retain this painter to cache the contact icon in memory
             val contactIcon = retain { ContactIconPainter() }
             Image(contactIcon, "Contact icon")
             Text(contact.name)
+            // Optional delete action (likely nested in a DropdownMenu)
+            IconButton(onClick = deleteContact) { Icon(Icons.Default.Delete, "Delete contact") }
         }
     }
 
@@ -152,21 +133,28 @@ fun retainedValuesStoreRegistrySample() {
         LazyColumn {
             items(contacts) { contact ->
                 // Install it for an item in a list
-                retainedValuesStoreRegistry.ProvideChildRetainedValuesStore(contact.id) {
+                retainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(contact.id) {
                     // This contact now gets its own retain store.
                     // If the store of ContactsList starts retaining exited values, this nested
-                    // store will too. If this contact leaves re-enters composition, it will keep
-                    // its previously retained values.
-                    Contact(contact)
+                    // store will too. If this contact leaves and re-enters composition, it will
+                    // keep its previously retained values.
+                    Contact(
+                        contact = contact,
+                        deleteContact = {
+                            // Call into the contacts provider to delete the contact
+                            // ...
+                            //
+                            // Optional: Purge child stores if a contact gets deleted. This is a
+                            // "best effort" when a contact is deleted and might not capture all
+                            // deletions. If we miss a deletion, we'll continue retaining for that
+                            // contact until the list is retired. If this is a large pool of
+                            // objects, you may choose to be more aggressive about how you clear
+                            // keys from the registry.
+                            retainedValuesStoreRegistry.clearChild(contact.id)
+                        },
+                    )
                 }
             }
-        }
-
-        // Optional: Purge child stores if a contact gets deleted.
-        DisposableEffect(contacts) {
-            val contactIdsSet = contacts.map { it.id }
-            retainedValuesStoreRegistry.clearChildren { it !in contactIdsSet }
-            onDispose {}
         }
     }
 }

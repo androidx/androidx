@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.node
 
-import androidx.compose.ui.node.DepthSortedSet
-import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.LayoutNodeDrawScope
-import androidx.compose.ui.node.Owner
-import androidx.compose.ui.node.add
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.spy
+import org.junit.runners.JUnit4
 
-@MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(JUnit4::class)
 class DepthSortedSetTest {
 
     @Test
     fun sortedByDepth() {
-        val owner: DepthTestOwner = spy()
+        val owner = MockOwner()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -60,7 +52,7 @@ class DepthSortedSetTest {
 
     @Test
     fun sortedByDepthWithItemsOfTheSameDepth() {
-        val owner: DepthTestOwner = spy()
+        val owner = MockOwner()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -90,7 +82,7 @@ class DepthSortedSetTest {
 
     @Test
     fun modifyingSetWhileWeIterate() {
-        val owner: DepthTestOwner = spy()
+        val owner = MockOwner()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -135,7 +127,7 @@ class DepthSortedSetTest {
 
     @Test(expected = IllegalStateException::class)
     fun modifyingDepthAfterAddingThrows() {
-        val owner: DepthTestOwner = spy()
+        val owner = MockOwner()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -154,13 +146,6 @@ class DepthSortedSetTest {
         assertTrue(set.isNotEmpty())
         // throws because we changed the depth
         set.pop()
-    }
-
-    internal abstract class DepthTestOwner : Owner {
-        override val sharedDrawScope = LayoutNodeDrawScope()
-
-        override val root: LayoutNode
-            get() = LayoutNode()
     }
 }
 

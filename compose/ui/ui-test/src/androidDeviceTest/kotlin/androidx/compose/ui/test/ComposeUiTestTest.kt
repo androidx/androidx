@@ -260,7 +260,8 @@ class ComposeUiTestTest {
     @Test
     fun shouldKeepCustomCoroutineContextElements() =
         runComposeUiTest(
-            runTestContext = MyCustomElement("testElement") + StandardTestDispatcher()
+            effectContext = StandardTestDispatcher(),
+            runTestContext = MyCustomElement("testElement"),
         ) {
             val frameClock = coroutineContext[MonotonicFrameClock.Key]
             assertThat(frameClock).isNotNull()
@@ -280,7 +281,10 @@ class ComposeUiTestTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun canOverrideRunTestDispatcher() =
-        runComposeUiTest(runTestContext = UnconfinedTestDispatcher()) {
+        runComposeUiTest(
+            effectContext = StandardTestDispatcher(),
+            runTestContext = UnconfinedTestDispatcher(),
+        ) {
             var i = 0
             CoroutineScope(coroutineContext).launch { i = 10 }
             assertThat(i).isEqualTo(10)

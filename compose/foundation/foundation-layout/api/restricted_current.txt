@@ -185,7 +185,7 @@ package androidx.compose.foundation.layout {
     property @Deprecated public abstract androidx.compose.ui.unit.Dp maxWidth;
   }
 
-  public final class ContextualFlowLayoutKt {
+  @SuppressCompatibility public final class ContextualFlowLayoutKt {
     method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void ContextualFlowColumn(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Horizontal itemHorizontalAlignment, optional int maxItemsInEachColumn, optional int maxLines, optional androidx.compose.foundation.layout.ContextualFlowColumnOverflow overflow, kotlin.jvm.functions.Function2<androidx.compose.foundation.layout.ContextualFlowColumnScope,java.lang.Integer,kotlin.Unit> content);
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void ContextualFlowColumn(int, androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.foundation.layout.Arrangement.Horizontal?, androidx.compose.ui.Alignment.Horizontal?, int, int, androidx.compose.foundation.layout.ContextualFlowColumnOverflow?, kotlin.jvm.functions.Function4<? super androidx.compose.foundation.layout.ContextualFlowColumnScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void ContextualFlowRow(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Vertical itemVerticalAlignment, optional int maxItemsInEachRow, optional int maxLines, optional androidx.compose.foundation.layout.ContextualFlowRowOverflow overflow, kotlin.jvm.functions.Function2<androidx.compose.foundation.layout.ContextualFlowRowScope,java.lang.Integer,kotlin.Unit> content);
@@ -499,7 +499,7 @@ package androidx.compose.foundation.layout {
   public static final class WindowInsets.Companion {
   }
 
-  public final class WindowInsetsConnection_androidKt {
+  @SuppressCompatibility public final class WindowInsetsConnection_androidKt {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static androidx.compose.ui.Modifier imeNestedScroll(androidx.compose.ui.Modifier);
   }
 

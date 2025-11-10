@@ -135,7 +135,7 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline fun removeIf(crossinline predicate: (Key, Scope) -> Boolean) {
+    inline fun removeIf(predicate: (Key, Scope) -> Boolean) {
         map.removeIf { key, scopes ->
             key as Key
             when (scopes) {

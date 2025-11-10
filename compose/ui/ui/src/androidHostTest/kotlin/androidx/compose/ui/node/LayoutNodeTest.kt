@@ -538,6 +538,7 @@ class LayoutNodeTest {
         val node2 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
         node0.insertAt(1, node2)
+        node0.onNodePlaced()
         node1.place(10, 20)
         node2.place(100, 200)
 
@@ -589,6 +590,7 @@ class LayoutNodeTest {
         parent.attach(MockOwner(IntOffset(20, 20)))
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
+        parent.onNodePlaced()
         child.place(50, 80)
 
         val actual = child.coordinates.positionInRoot()
@@ -1140,6 +1142,7 @@ class LayoutNodeTest {
                 DpSize(48.dp, 48.dp),
             )
         outerNode.add(layoutNode)
+        outerNode.onNodePlaced()
         layoutNode.onNodePlaced()
         val hit = mutableListOf<Modifier.Node>()
 
@@ -1158,6 +1161,7 @@ class LayoutNodeTest {
         val pointerInputFilter: PointerInputFilter = mockPointerInputFilter()
         val layoutNode = LayoutNode(20, 20, 30, 30, PointerInputModifierImpl(pointerInputFilter))
         outerNode.add(layoutNode)
+        outerNode.onNodePlaced()
         layoutNode.onNodePlaced()
         val hit = mutableListOf<Modifier.Node>()
 
@@ -1173,6 +1177,7 @@ class LayoutNodeTest {
         val outerNode =
             LayoutNode(0, 0, 10, 10, PointerInputModifierImpl(outerPointerInputFilter)).apply {
                 attach(MockOwner())
+                onNodePlaced()
             }
         val pointerInputFilter: PointerInputFilter = mockPointerInputFilter()
         val layoutNode = LayoutNode(20, 20, 30, 30, PointerInputModifierImpl(pointerInputFilter))
@@ -1211,6 +1216,7 @@ class LayoutNodeTest {
         val outerNode = LayoutNode(0, 0, 11, 11).apply { attach(MockOwner()) }
         outerNode.add(layoutNode1)
         outerNode.add(layoutNode2)
+        outerNode.onNodePlaced()
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
@@ -1324,8 +1330,9 @@ class LayoutNodeTest {
 
         val outerNode = LayoutNode(0, 0, 20, 20).apply { attach(MockOwner()) }
         block(outerNode, layoutNode2, layoutNode3)
-        layoutNode1.onNodePlaced()
+        outerNode.onNodePlaced()
         layoutNode2.onNodePlaced()
+        layoutNode1.onNodePlaced()
         layoutNode3.onNodePlaced()
 
         val hit = mutableListOf<Modifier.Node>()
@@ -1369,6 +1376,7 @@ class LayoutNodeTest {
         val outerNode = LayoutNode(0, 0, 9, 9).apply { attach(MockOwner()) }
         outerNode.add(layoutNode1)
         outerNode.add(layoutNode2)
+        outerNode.onNodePlaced()
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
@@ -1416,6 +1424,7 @@ class LayoutNodeTest {
         val outerNode = LayoutNode(0, 0, 1, 1).apply { attach(MockOwner()) }
         val layoutNode = LayoutNode(0, 0, 1, 1, semanticsModifier, DpSize(48.dp, 48.dp))
         outerNode.add(layoutNode)
+        outerNode.onNodePlaced()
         layoutNode.onNodePlaced()
         val hit = HitTestResult()
 
@@ -1448,6 +1457,7 @@ class LayoutNodeTest {
         val outerNode = LayoutNode(0, 0, 11, 11).apply { attach(MockOwner()) }
         outerNode.add(layoutNode1)
         outerNode.add(layoutNode2)
+        outerNode.onNodePlaced()
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
@@ -1510,6 +1520,7 @@ class LayoutNodeTest {
         val outerNode = LayoutNode(0, 0, 11, 11).apply { attach(MockOwner()) }
         outerNode.add(layoutNode1)
         outerNode.add(layoutNode2)
+        outerNode.onNodePlaced()
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
@@ -1613,6 +1624,7 @@ class LayoutNodeTest {
             LayoutNode(0, 0, 500, 500, PointerInputModifierImpl(parentPointerInputFilter)).apply {
                 insertAt(0, middleLayoutNode)
                 attach(MockOwner())
+                onNodePlaced()
             }
         middleLayoutNode.onNodePlaced()
         childLayoutNode.onNodePlaced()
@@ -1678,6 +1690,7 @@ class LayoutNodeTest {
                 insertAt(0, childLayoutNode1)
                 insertAt(1, childLayoutNode2)
                 attach(MockOwner())
+                onNodePlaced()
             }
         childLayoutNode1.onNodePlaced()
         childLayoutNode2.onNodePlaced()
@@ -1731,6 +1744,7 @@ class LayoutNodeTest {
                 insertAt(1, childLayoutNode2)
                 insertAt(2, childLayoutNode3)
                 attach(MockOwner())
+                onNodePlaced()
             }
         childLayoutNode1.onNodePlaced()
         childLayoutNode2.onNodePlaced()
@@ -1777,6 +1791,7 @@ class LayoutNodeTest {
                 insertAt(0, childLayoutNode1)
                 insertAt(1, childLayoutNode2)
                 attach(MockOwner())
+                onNodePlaced()
             }
         childLayoutNode1.onNodePlaced()
         childLayoutNode2.onNodePlaced()
@@ -1826,6 +1841,7 @@ class LayoutNodeTest {
                 insertAt(0, childLayoutNode1)
                 insertAt(1, childLayoutNode2)
                 attach(MockOwner())
+                onNodePlaced()
             }
         childLayoutNode2.onNodePlaced()
         childLayoutNode1.onNodePlaced()
@@ -1885,6 +1901,7 @@ class LayoutNodeTest {
                 insertAt(2, layoutNode3)
                 insertAt(3, layoutNode4)
                 attach(MockOwner())
+                onNodePlaced()
             }
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
@@ -1972,6 +1989,7 @@ class LayoutNodeTest {
             LayoutNode(4, 8, 500, 500)
                 .apply { insertAt(0, layoutNode3) }
                 .apply { attach(MockOwner()) }
+        layoutNode4.onNodePlaced()
         layoutNode3.onNodePlaced()
         layoutNode2.onNodePlaced()
         layoutNode1.onNodePlaced()
@@ -2024,6 +2042,7 @@ class LayoutNodeTest {
             LayoutNode(5, 10, 500, 500)
                 .apply { insertAt(0, layoutNode4) }
                 .apply { attach(MockOwner()) }
+        layoutNode5.onNodePlaced()
         layoutNode4.onNodePlaced()
         layoutNode3.onNodePlaced()
         layoutNode2.onNodePlaced()
@@ -2064,6 +2083,7 @@ class LayoutNodeTest {
                 insertAt(0, layoutNode1)
                 insertAt(1, layoutNode2)
                 attach(MockOwner())
+                onNodePlaced()
             }
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
@@ -2653,4 +2673,6 @@ fun DelegatableNode.toModifier(): Modifier.Element {
     return node.element
 }
 
-private fun LayoutNode.onNodePlaced() = measurePassDelegate.onNodePlaced()
+private fun LayoutNode.onNodePlaced() {
+    place(outerCoordinator.position.x, outerCoordinator.position.y)
+}

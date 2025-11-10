@@ -19,7 +19,7 @@ package androidx.compose.ui.platform
 import androidx.collection.MutableObjectList
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.runtime.CancellationHandle
-import androidx.compose.runtime.retain.ControlledRetainedValuesStore
+import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.lifecycle.ViewModel
 import kotlin.coroutines.cancellation.CancellationException
@@ -43,8 +43,8 @@ internal class LifecycleRetainedValuesStoreOwner : ViewModel() {
     }
 
     class RetainedValuesStoreEntry {
-        private val controlledRetainedValuesStore = ControlledRetainedValuesStore()
-        val retainedValuesStore: RetainedValuesStore = controlledRetainedValuesStore
+        private val _retainedValuesStore = LifecycleRetainedValuesStore()
+        val retainedValuesStore: RetainedValuesStore = _retainedValuesStore
 
         var isInUse = false
 
@@ -55,26 +55,26 @@ internal class LifecycleRetainedValuesStoreOwner : ViewModel() {
             }
 
         fun startRetainingExitedValues() {
-            if (!controlledRetainedValuesStore.isRetainingExitedValues) {
-                controlledRetainedValuesStore.startRetainingExitedValues()
+            if (!_retainedValuesStore.isRetainingExitedValues) {
+                _retainedValuesStore.startLifecycleTransition()
             } else {
                 endRetainCancellationHandle = null
             }
         }
 
         fun stopRetainingExitedValues(frameEndScheduler: FrameEndScheduler) {
-            if (controlledRetainedValuesStore.isRetainingExitedValues) {
+            if (_retainedValuesStore.isRetainingExitedValues) {
                 endRetainCancellationHandle =
                     try {
                         frameEndScheduler.scheduleFrameEndCallback {
-                            controlledRetainedValuesStore.stopRetainingExitedValues()
+                            _retainedValuesStore.endLifecycleTransition()
                         }
                     } catch (_: CancellationException) {
                         // The Recomposer is shutting down, and we can't schedule work for the next
                         // frame. Stop retaining exited values now. This should only happen during
                         // tests where the Recomposer is explicitly cancelled by the testing
                         // framework before this callback can be dispatched.
-                        controlledRetainedValuesStore.stopRetainingExitedValues()
+                        _retainedValuesStore.endLifecycleTransition()
                         null
                     }
             }
@@ -82,9 +82,7 @@ internal class LifecycleRetainedValuesStoreOwner : ViewModel() {
 
         fun onCleared() {
             endRetainCancellationHandle = null
-            if (controlledRetainedValuesStore.isRetainingExitedValues) {
-                controlledRetainedValuesStore.stopRetainingExitedValues()
-            }
+            _retainedValuesStore.dispose()
         }
 
         fun release() {
@@ -95,4 +93,42 @@ internal class LifecycleRetainedValuesStoreOwner : ViewModel() {
     fun interface FrameEndScheduler {
         fun scheduleFrameEndCallback(action: () -> Unit): CancellationHandle
     }
+}
+
+// Lifecycle retention state can't be directly driven by the content's composition state because
+// it doesn't cleanly follow the window attachment state that owns the store. Instead, we puppet a
+// `ManagedRetainedValuesStore` to match our lifecycle state. Completing "onResume" is the semantic
+// equivalent to an `onContentEntered` callback, and "onStop" an `onContentExit` callback.
+//
+// The delegation and repurposing behavior lets us use the runtime's stashing implementation for
+// the out-of-the-box RetainedStore.
+// TODO(anbailey): Consider exposing an AbstractRetainedValuesStore that only defines the retained
+//  value stashing logic of a RetainedValuesStore and no retention lifespan policy.
+internal class LifecycleRetainedValuesStore(
+    val delegate: ManagedRetainedValuesStore = ManagedRetainedValuesStore()
+) : RetainedValuesStore by delegate {
+    val isRetainingExitedValues: Boolean
+        get() = delegate.isRetainingExitedValues
+
+    init {
+        // Initialize in the "resumed" (not retaining) state
+        delegate.onContentEnteredComposition()
+    }
+
+    fun startLifecycleTransition() {
+        delegate.onContentExitComposition()
+    }
+
+    fun endLifecycleTransition() {
+        delegate.onContentEnteredComposition()
+    }
+
+    fun dispose() {
+        delegate.dispose()
+    }
+
+    // Don't subscribe to the composition content lifecycle.
+    override fun onContentEnteredComposition() {}
+
+    override fun onContentExitComposition() {}
 }

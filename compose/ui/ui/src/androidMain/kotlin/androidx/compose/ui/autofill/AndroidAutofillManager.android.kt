@@ -119,7 +119,7 @@ internal class AndroidAutofillManager(
                         platformAutofillManager.notifyValueChanged(
                             view,
                             semanticsId,
-                            AutofillApi26Helper.getAutofillTextValue(newText.toString()),
+                            AutofillApi26Helper.getAutofillTextValue(newText),
                         )
                     }
                 }

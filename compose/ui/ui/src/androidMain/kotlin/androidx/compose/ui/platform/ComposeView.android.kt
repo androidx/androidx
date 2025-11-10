@@ -27,6 +27,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.R
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
@@ -174,7 +175,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      *
      * This property should be set prior to first composition.
      */
-    var autoClearFocusBehavior: AutoClearFocusBehavior = AutoClearFocusBehavior.Default
+    var autoClearFocusBehavior: AutoClearFocusBehavior
+        get() =
+            getTag(R.id.auto_clear_focus_behavior_tag) as? AutoClearFocusBehavior
+                ?: AutoClearFocusBehavior.Default
+        set(value) {
+            setTag(R.id.auto_clear_focus_behavior_tag, value)
+        }
 
     /**
      * The Jetpack Compose UI content for this view. Subclasses must implement this method to

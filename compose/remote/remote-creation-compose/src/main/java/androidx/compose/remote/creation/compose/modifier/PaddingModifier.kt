@@ -57,7 +57,6 @@ public class PaddingModifier(
 
     @Composable
     override fun Modifier.toComposeUi(): Modifier {
-        // TODO how to get the value of a RemoteFloat in preview mode
         // TODO LTR
         return with(LocalDensity.current) {
             padding(

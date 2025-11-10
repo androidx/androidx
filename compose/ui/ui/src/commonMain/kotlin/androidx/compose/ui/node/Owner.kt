@@ -147,8 +147,14 @@ internal interface Owner : PositionCalculator {
     /**
      * Sets the [RetainedValuesStore] for the composition. On Android, this is a lifecycle-aware
      * RetainedValuesStore that persists values across configuration changes and activity
-     * recreations. [androidx.compose.runtime.ForgetfulRetainedValuesStore] is a reasonable default
-     * for platforms without window-level retain scenarios.
+     * recreations. [androidx.compose.runtime.retain.ForgetfulRetainedValuesStore] is a reasonable
+     * default for platforms without window-level retain scenarios.
+     *
+     * This store is managed outside of the composition and does not receive the default calls to
+     * [RetainedValuesStore.onContentEnteredComposition] and
+     * [RetainedValuesStore.onContentExitComposition] because it is installed directly through
+     * [androidx.compose.runtime.retain.LocalRetainedValuesStore]. The Owner is responsible for
+     * tracking the content presence w.r.t. this store.
      */
     val retainedValuesStore: RetainedValuesStore
 

@@ -709,9 +709,9 @@ private fun exceptionTest(
     block: suspend CompositionTestScope.() -> Unit,
 ) {
     Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
-    assertTrace(sourceTrace) { compositionTest(block) }
+    assertTrace(sourceTrace) { compositionTest(block = block) }
     Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.GroupKeys)
-    assertTrace(groupKeyTrace) { compositionTest(block) }
+    assertTrace(groupKeyTrace) { compositionTest(block = block) }
     Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 }
 

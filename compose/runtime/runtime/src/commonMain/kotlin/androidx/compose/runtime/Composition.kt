@@ -938,13 +938,14 @@ internal class CompositionImpl(
      * movable content is moved between tables and the content was invalidated. This is used to move
      * the invalidations with the content.
      */
-    internal fun extractInvalidationsOf(anchor: Anchor): List<Pair<RecomposeScopeImpl, Any>> {
+    internal inline fun extractInvalidationsOfGroup(
+        inGroup: (Anchor) -> Boolean
+    ): List<Pair<RecomposeScopeImpl, Any>> {
         return if (invalidations.size > 0) {
             val result = mutableListOf<Pair<RecomposeScopeImpl, Any>>()
-            val slotTable = slotTable
             invalidations.removeIf { scope, value ->
                 val scopeAnchor = scope.anchor
-                if (scopeAnchor != null && slotTable.inGroup(anchor, scopeAnchor)) {
+                if (scopeAnchor != null && inGroup(scopeAnchor)) {
                     result.add(scope to value)
 
                     // Remove the invalidation

@@ -34,6 +34,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ConditionalOperations
+import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -1080,6 +1081,30 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
+    public fun drawTextOnCircle(
+        text: RemoteString,
+        centerX: Number,
+        centerY: Number,
+        radius: Number,
+        startAngle: Number,
+        warpRadiusOffset: Number,
+        alignment: DrawTextOnCircle.Alignment,
+        placement: DrawTextOnCircle.Placement,
+        paint: Paint,
+    ) {
+        usePaint(paint)
+        document.drawTextOnCircle(
+            text.getIdForCreationState(creationState),
+            centerX.getFloatIdForCreationState(creationState),
+            centerY.getFloatIdForCreationState(creationState),
+            radius.getFloatIdForCreationState(creationState),
+            startAngle.getFloatIdForCreationState(creationState),
+            warpRadiusOffset.getFloatIdForCreationState(creationState),
+            alignment,
+            placement,
+        )
+    }
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawArc(
         left: Float,
@@ -1464,11 +1489,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         return object : RemoteBitmap(creationState, null) {
             public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
                 bitmapId
-
-            public override val value: Bitmap
-                get() {
-                    throw UnsupportedOperationException()
-                }
         }
     }
 

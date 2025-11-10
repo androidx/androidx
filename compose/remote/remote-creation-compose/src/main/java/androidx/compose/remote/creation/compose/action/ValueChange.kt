@@ -76,7 +76,7 @@ public class ValueChangeAction<T>(
             updatedValue as RemoteString
             ValueStringChange(
                 remoteValue.getIdForCreationState(FallbackCreationState.state),
-                updatedValue.value,
+                updatedValue.constantValue!!,
             )
         } else {
             TODO("println unsupported type in ValueChange $remoteValue")
@@ -85,10 +85,7 @@ public class ValueChangeAction<T>(
 
     @Composable
     public override fun toComposeUiAction(): () -> Unit {
-        return {
-            println("Updating $remoteValue to $updatedValue")
-            remoteValue.value = updatedValue.value
-        }
+        return { println("Updating $remoteValue to $updatedValue") }
     }
 }
 

@@ -1099,7 +1099,9 @@ public open class RemoteCanvasDrawScope(
         if (remoteComposeCreationState is NoRemoteCompose) {
             // In Compose preview, let's at least draw one of the paths
             // TODO: support tween path in compose preview
-            if (tween.toFloat() == 0f || (tween is MutableRemoteFloat && tween.value == 0f)) {
+            if (
+                tween.toFloat() == 0f || (tween is MutableRemoteFloat && tween.constantValue == 0f)
+            ) {
                 drawPath(path1, color, alpha, style, colorFilter, blendMode)
             } else {
                 drawPath(path2, color, alpha, style, colorFilter, blendMode)

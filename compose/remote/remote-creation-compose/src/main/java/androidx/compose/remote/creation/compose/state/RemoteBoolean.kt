@@ -35,9 +35,6 @@ import androidx.compose.runtime.mutableStateOf
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteBoolean internal constructor(internal val v: RemoteInt) : RemoteState<Boolean> {
-    public override val value: Boolean
-        get() = v.value == 0
-
     public override val constantValue: Boolean?
         get() = v.constantValue?.let { it != 0 }
 

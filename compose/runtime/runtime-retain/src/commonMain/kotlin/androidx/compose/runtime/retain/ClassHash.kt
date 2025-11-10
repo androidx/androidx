@@ -16,4 +16,8 @@
 
 package androidx.compose.runtime.retain
 
+/**
+ * Returns a hash for the given type [T]. Implementors should go out of their way to make this as
+ * efficient if possible. Ideally, calls to this function are optimized into a constant.
+ */
 @PublishedApi internal expect inline fun <reified T> classHash(): Int

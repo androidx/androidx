@@ -54,6 +54,7 @@ import androidx.compose.remote.core.RemoteComposeState;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.DataMapIds;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.NamedVariable;
@@ -98,6 +99,16 @@ public class RemoteComposeWriter {
     public static final int FONT_TYPE_SANS_SERIF = PaintBundle.FONT_TYPE_SANS_SERIF;
     public static final int FONT_TYPE_SERIF = PaintBundle.FONT_TYPE_SERIF;
     public static final int FONT_TYPE_MONOSPACE = PaintBundle.FONT_TYPE_MONOSPACE;
+
+    protected final @NonNull RcPaint mPainter = new RcPaint(this);
+
+    /**
+     * Returns the paint object
+     * @return the paint object
+     */
+    public @NonNull RcPaint getRcPaint() {
+        return mPainter;
+    }
 
     /**
      * Factory to obtain a RemoteComposeWriter
@@ -1062,6 +1073,25 @@ public class RemoteComposeWriter {
             pathId = addPathData(path);
         }
         mBuffer.addDrawTextOnPath(textId, pathId, hOffset, vOffset);
+    }
+
+    /**
+     * Draw the curved text, along the specified circle with origin at (x,y).
+     *
+     * @param textId the id of the text variable
+     * @param centerX the center X of the circle
+     * @param centerY the center Y of the circle
+     * @param radius the radius of the circle
+     * @param startAngle the start angle to draw from
+     * @param warpRadiusOffset the offset of the warp radius
+     * @param alignment the alignment of the text relative to start
+     * @param placement the placement inside or outside the circle
+     */
+    public void drawTextOnCircle(int textId, float centerX, float centerY, float radius,
+            float startAngle, float warpRadiusOffset, DrawTextOnCircle.@NonNull Alignment alignment,
+            DrawTextOnCircle.@NonNull Placement placement) {
+        mBuffer.addDrawTextOnCircle(textId, centerX, centerY, radius, startAngle, warpRadiusOffset,
+                alignment, placement);
     }
 
     /**

@@ -114,20 +114,6 @@ public class MutableRemoteBitmap(
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
-
-    public override var value: Bitmap
-        get() {
-            return content.value
-        }
-        set(newValue) {
-            content.value = newValue
-        }
-
-    public override operator fun component1(): Bitmap = value
-
-    public override operator fun component2(): (Bitmap) -> Unit = { newValue ->
-        content.value = newValue
-    }
 }
 
 /**

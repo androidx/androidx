@@ -917,7 +917,6 @@ package androidx.compose.runtime.collection {
   public final class MutableVectorKt {
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> MutableVector(optional int capacity);
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> MutableVector(int size, kotlin.jvm.functions.Function1<java.lang.Integer,T> init);
-    method @BytecodeOnly public static androidx.compose.runtime.collection.MutableVector! MutableVector$default(int, int, Object!);
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> mutableVectorOf();
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> mutableVectorOf(T... elements);
   }
@@ -1000,7 +999,7 @@ package androidx.compose.runtime.internal {
     property public abstract int offset;
   }
 
-  public final class LiveLiteralKt {
+  @SuppressCompatibility public final class LiveLiteralKt {
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static void enableLiveLiterals();
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static boolean isLiveLiteralsEnabled();
     method @SuppressCompatibility @androidx.compose.runtime.ComposeCompilerApi @androidx.compose.runtime.InternalComposeApi public static <T> androidx.compose.runtime.State<T> liveLiteral(String key, T value);
@@ -1323,7 +1322,7 @@ package androidx.compose.runtime.snapshots {
 
 }
 
-package androidx.compose.runtime.snapshots.tooling {
+package @SuppressCompatibility androidx.compose.runtime.snapshots.tooling {
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public final class SnapshotInstanceObservers {
     ctor public SnapshotInstanceObservers();
@@ -1342,7 +1341,7 @@ package androidx.compose.runtime.snapshots.tooling {
     method public default void onPreDispose(androidx.compose.runtime.snapshots.Snapshot snapshot);
   }
 
-  public final class SnapshotObserverKt {
+  @SuppressCompatibility public final class SnapshotObserverKt {
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.snapshots.ObserverHandle observeSnapshots(androidx.compose.runtime.snapshots.Snapshot.Companion, androidx.compose.runtime.snapshots.tooling.SnapshotObserver snapshotObserver);
   }
 
@@ -1430,7 +1429,7 @@ package androidx.compose.runtime.tooling {
     method public void dispose();
   }
 
-  public final class CompositionObserverKt {
+  @SuppressCompatibility public final class CompositionObserverKt {
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.tooling.CompositionObserverHandle observe(androidx.compose.runtime.Recomposer, androidx.compose.runtime.tooling.CompositionRegistrationObserver observer);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.tooling.CompositionObserverHandle? setObserver(androidx.compose.runtime.Composition, androidx.compose.runtime.tooling.CompositionObserver observer);
   }
@@ -1497,7 +1496,7 @@ package androidx.compose.runtime.tooling {
     property public String? sourceFile;
   }
 
-  public final class SourceInformationKt {
+  @SuppressCompatibility public final class SourceInformationKt {
     method @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public static androidx.compose.runtime.tooling.SourceInformation? parseSourceInformation(String data);
   }
 

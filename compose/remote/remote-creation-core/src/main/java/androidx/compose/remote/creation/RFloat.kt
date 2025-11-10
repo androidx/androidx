@@ -29,8 +29,6 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC
 import androidx.compose.remote.core.RemoteContext.FLOAT_WEEK_DAY
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.RAND
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.VAR1
 
 /**
  * This is a collection of utilities that make RFloat class and allows kotlin float expressions to
@@ -46,19 +44,23 @@ public fun RemoteComposeWriter.rf(v: Number): RFloat {
 }
 
 public operator fun Float.times(v: RFloat): RFloat {
-    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.MUL))
+    return RFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.MUL))
 }
 
 public operator fun Float.plus(v: RFloat): RFloat {
-    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.ADD))
+    return RFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.ADD))
 }
 
 public operator fun Float.minus(v: RFloat): RFloat {
-    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.SUB))
+    return RFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.SUB))
 }
 
 public operator fun Float.div(v: RFloat): RFloat {
-    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.DIV))
+    return RFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.DIV))
+}
+
+public operator fun Float.rem(v: RFloat): RFloat {
+    return RFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.MOD))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -120,40 +122,31 @@ public class RFloat : Number {
     }
 
     public operator fun unaryPlus(): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(this), -1f, AnimatedFloatExpression.MUL))
+        return RFloat(writer, floatArrayOf(*toArray(this), -1f, Rc.FloatExpression.MUL))
     }
 
     public operator fun rem(v: Float): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(this), v, AnimatedFloatExpression.MOD))
+        return RFloat(writer, floatArrayOf(*toArray(this), v, Rc.FloatExpression.MOD))
     }
 
     public operator fun rem(v: RFloat): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(*toArray(this), *toArray(v), AnimatedFloatExpression.MOD),
-        )
+        return RFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.MOD))
     }
 
     public fun min(v: RFloat): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(*toArray(this), *toArray(v), AnimatedFloatExpression.MIN),
-        )
+        return RFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.MIN))
     }
 
     public fun min(v: Float): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(this), v, AnimatedFloatExpression.MIN))
+        return RFloat(writer, floatArrayOf(*toArray(this), v, Rc.FloatExpression.MIN))
     }
 
     public operator fun plus(v: Float): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(this), v, AnimatedFloatExpression.ADD))
+        return RFloat(writer, floatArrayOf(*toArray(this), v, Rc.FloatExpression.ADD))
     }
 
     public operator fun plus(v: RFloat): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(*toArray(this), *toArray(v), AnimatedFloatExpression.ADD),
-        )
+        return RFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.ADD))
     }
 
     public operator fun plus(v: Number): RFloat {
@@ -164,14 +157,11 @@ public class RFloat : Number {
     }
 
     public operator fun minus(v: Float): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(this), v, AnimatedFloatExpression.SUB))
+        return RFloat(writer, floatArrayOf(*toArray(this), v, Rc.FloatExpression.SUB))
     }
 
     public operator fun minus(v: RFloat): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(*toArray(this), *toArray(v), AnimatedFloatExpression.SUB),
-        )
+        return RFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.SUB))
     }
 
     public operator fun minus(v: Number): RFloat {
@@ -182,39 +172,27 @@ public class RFloat : Number {
     }
 
     public operator fun times(v: Float): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(this), v, AnimatedFloatExpression.MUL))
+        return RFloat(writer, floatArrayOf(*toArray(this), v, Rc.FloatExpression.MUL))
     }
 
     public operator fun times(v: RFloat): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(*toArray(this), *toArray(v), AnimatedFloatExpression.MUL),
-        )
+        return RFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.MUL))
     }
 
     public operator fun div(v: Float): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(this), v, AnimatedFloatExpression.DIV))
+        return RFloat(writer, floatArrayOf(*toArray(this), v, Rc.FloatExpression.DIV))
     }
 
     public operator fun div(v: RFloat): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(*toArray(this), *toArray(v), AnimatedFloatExpression.DIV),
-        )
+        return RFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.DIV))
     }
 
     public operator fun get(v: RFloat): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(*toArray(v), *toArray(this), AnimatedFloatExpression.A_DEREF),
-        )
+        return RFloat(writer, floatArrayOf(*toArray(v), *toArray(this), Rc.FloatExpression.A_DEREF))
     }
 
     public operator fun get(v: Int): RFloat {
-        return RFloat(
-            writer,
-            floatArrayOf(v.toFloat(), *toArray(this), AnimatedFloatExpression.A_DEREF),
-        )
+        return RFloat(writer, floatArrayOf(v.toFloat(), *toArray(this), Rc.FloatExpression.A_DEREF))
     }
 
     public companion object {
@@ -232,158 +210,159 @@ public fun toFloat(a: Number): Float {
 }
 
 public fun arrayValue(array: Float, b: RFloat): RFloat {
-    return RFloat(b.writer, floatArrayOf(array, *b.array, AnimatedFloatExpression.A_DEREF))
+    return RFloat(b.writer, floatArrayOf(array, *b.array, Rc.FloatExpression.A_DEREF))
 }
 
 public fun max(a: RFloat, b: Float): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, b, AnimatedFloatExpression.MAX))
+    return RFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.MAX))
 }
 
 public fun max(a: Float, b: RFloat): RFloat {
-    return RFloat(b.writer, floatArrayOf(a, *b.array, AnimatedFloatExpression.MAX))
+    return RFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.MAX))
 }
 
 public fun max(a: RFloat, b: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.MAX))
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.MAX))
 }
 
 public fun min(a: RFloat, b: Float): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, b, AnimatedFloatExpression.MIN))
+    return RFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.MIN))
 }
 
 public fun min(a: Float, b: RFloat): RFloat {
-    return RFloat(b.writer, floatArrayOf(a, *b.array, AnimatedFloatExpression.MIN))
+    return RFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.MIN))
 }
 
 public fun min(a: RFloat, b: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.MIN))
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.MIN))
 }
 
 public fun pow(a: RFloat, b: Float): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, b, AnimatedFloatExpression.POW))
+    return RFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.POW))
 }
 
 public fun pow(a: Float, b: RFloat): RFloat {
-    return RFloat(b.writer, floatArrayOf(a, *b.array, AnimatedFloatExpression.POW))
+    return RFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.POW))
 }
 
 public fun pow(a: RFloat, b: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.POW))
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.POW))
 }
 
 public fun sqrt(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.SQRT))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SQRT))
 }
 
 public fun abs(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ABS))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ABS))
 }
 
+/**
+ * Returns the signum function of the argument; zero if the argument is zero, 1.0f if the argument
+ * is greater than zero, -1.0f if the argument is less than zero.
+ */
 public fun sign(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.SIGN))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SIGN))
 }
 
 public fun copySign(a: RFloat, b: Float): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, b, AnimatedFloatExpression.COPY_SIGN))
+    return RFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.COPY_SIGN))
 }
 
 public fun copySign(a: Float, b: RFloat): RFloat {
-    return RFloat(b.writer, floatArrayOf(a, *b.array, AnimatedFloatExpression.COPY_SIGN))
+    return RFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.COPY_SIGN))
 }
 
 public fun copySign(a: RFloat, b: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.COPY_SIGN))
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.COPY_SIGN))
 }
 
 public fun exp(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.EXP))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.EXP))
 }
 
 public fun ceil(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CEIL))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.CEIL))
 }
 
 public fun floor(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.FLOOR))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.FLOOR))
 }
 
 public fun log(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.LOG))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LOG))
 }
 
 public fun ln(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.LN))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LN))
 }
 
 public fun round(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ROUND))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ROUND))
 }
 
 /** Math.sin(a) */
 public fun sin(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.SIN))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SIN))
 }
 
 public fun cos(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.COS))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.COS))
 }
 
 /** Math.tan(a) */
 public fun tan(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.TAN))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.TAN))
 }
 
 /** Math.asin(a) */
 public fun asin(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ASIN))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ASIN))
 }
 
 /** Math.acos(a) */
 public fun acos(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ACOS))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ACOS))
 }
 
 /** atan(a) */
 public fun atan(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ATAN))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ATAN))
 }
 
 /** atan2(a,b) */
 public fun atan2(a: RFloat, b: Float): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, b, AnimatedFloatExpression.ATAN2))
+    return RFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.ATAN2))
 }
 
 /** atan2(a,b) */
 public fun atan2(a: Float, b: RFloat): RFloat {
-    return RFloat(b.writer, floatArrayOf(a, *b.array, AnimatedFloatExpression.ATAN2))
+    return RFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.ATAN2))
 }
 
 /** atan2(a,b) */
 public fun atan2(a: RFloat, b: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.ATAN2))
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.ATAN2))
 }
 
 /** cube root */
 public fun cbrt(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CBRT))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.CBRT))
 }
 
 /** if (a) b else c */
 public fun ifThenElse(a: RFloat, b: RFloat, c: RFloat): RFloat {
-    return RFloat(
-        a.writer,
-        floatArrayOf(*a.array, *b.array, *c.array, AnimatedFloatExpression.IFELSE),
-    )
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, *c.array, Rc.FloatExpression.IFELSE))
 }
 
 /** convert radians to degrees */
 public fun toDeg(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.DEG))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.DEG))
 }
 
 /** convert degrees to radians */
 public fun toRad(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.RAD))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.RAD))
 }
 
 /** convert degrees to radians */
@@ -398,24 +377,96 @@ public fun first(a: RFloat): RFloat {
 
 /** NOISE_FROM operator calculate a random 0..1 number based on a seed */
 public fun noiseFrom(a: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.NOISE_FROM))
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.NOISE_FROM))
 }
 
 /** the sum of the square of two numbers */
 public fun sqrSum(a: RFloat, b: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.SQUARE_SUM))
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.SQUARE_SUM))
+}
+
+/**  */
+public fun step(a: RFloat, b: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.STEP))
+}
+
+/** output goes smoothly from 0 to 1 as value goes from min to max */
+public fun smoothStep(value: RFloat, min: RFloat, max: RFloat): RFloat {
+    return RFloat(
+        value.writer,
+        floatArrayOf(*value.array, *max.array, *min.array, Rc.FloatExpression.SMOOTH_STEP),
+    )
+}
+
+/** output goes smoothly from 0 to 1 as value goes from min to max */
+public fun smoothStep(value: Number, min: Number, max: Number): RFloat {
+    val valuer = value as? RFloat ?: RFloat(null, value.toFloat())
+    val minr = min as? RFloat ?: RFloat(null, min.toFloat())
+    val maxr = max as? RFloat ?: RFloat(null, max.toFloat())
+    var writer = valuer.writer
+    if (writer == null) {
+        writer = minr.writer
+    }
+    if (writer == null) {
+        writer = maxr.writer
+    }
+    if (writer == null) {
+        throw IllegalStateException("one of the inputs must have a writer")
+    }
+    return RFloat(
+        writer,
+        floatArrayOf(*valuer.array, *maxr.array, *minr.array, Rc.FloatExpression.SMOOTH_STEP),
+    )
+}
+
+/** output goes from 0 to max and back with x */
+public fun pingPong(max: Number, x: Number): RFloat {
+    val xr = x as? RFloat ?: RFloat(null, x.toFloat())
+    val maxr = max as? RFloat ?: RFloat(null, max.toFloat())
+    var writer = xr.writer
+    if (writer == null) {
+        writer = xr.writer
+    }
+
+    if (writer == null) {
+        throw IllegalStateException("one of the inputs must have a writer")
+    }
+    return RFloat(writer, floatArrayOf(*xr.array, *maxr.array, Rc.FloatExpression.PINGPONG))
+}
+
+/** linear interpolation (1-t)*x+t*y; */
+public fun lerp(x: RFloat, y: RFloat, t: RFloat): RFloat {
+    return RFloat(x.writer, floatArrayOf(*x.array, *y.array, *t.array, Rc.FloatExpression.LERP))
+}
+
+/** linear interpolation (1-t)*x+t*y; */
+public fun lerp(x: Number, y: Number, t: Number): RFloat {
+    val xr = x as? RFloat ?: RFloat(null, x.toFloat())
+    val yr = y as? RFloat ?: RFloat(null, y.toFloat())
+    val tr = t as? RFloat ?: RFloat(null, t.toFloat())
+    var writer = xr.writer
+    if (writer == null) {
+        writer = yr.writer
+    }
+    if (writer == null) {
+        writer = tr.writer
+    }
+    if (writer == null) {
+        throw IllegalStateException("one of the inputs must have a writer")
+    }
+    return RFloat(writer, floatArrayOf(*xr.array, *yr.array, *tr.array, Rc.FloatExpression.LERP))
 }
 
 /** Math.hypot */
 public fun hypot(a: RFloat, b: RFloat): RFloat {
-    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.HYPOT))
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.HYPOT))
 }
 
 /** random number in range */
 public fun random(min: RFloat, max: RFloat): RFloat {
     return RFloat(
         min.writer,
-        floatArrayOf(*min.array, *max.array, AnimatedFloatExpression.RAND_IN_RANGE),
+        floatArrayOf(*min.array, *max.array, Rc.FloatExpression.RAND_IN_RANGE),
     )
 }
 
@@ -423,7 +474,7 @@ public fun random(min: RFloat, max: RFloat): RFloat {
 public fun mad(a: Number, b: Number, c: Number): RFloat {
     return RFloat(
         null,
-        floatArrayOf(*(toArray(a)), *(toArray(b)), *(toArray(c)), AnimatedFloatExpression.MAD),
+        floatArrayOf(*(toArray(a)), *(toArray(b)), *(toArray(c)), Rc.FloatExpression.MAD),
     )
 }
 
@@ -431,7 +482,7 @@ public fun mad(a: Number, b: Number, c: Number): RFloat {
 public fun RemoteComposeWriter.ifElse(a: Number, b: Number, c: Number): RFloat {
     return RFloat(
         this,
-        floatArrayOf(*(toArray(c)), *(toArray(b)), *(toArray(a)), AnimatedFloatExpression.IFELSE),
+        floatArrayOf(*(toArray(c)), *(toArray(b)), *(toArray(a)), Rc.FloatExpression.IFELSE),
     )
 }
 
@@ -453,15 +504,11 @@ public fun toArray(a: Number): FloatArray {
     return floatArrayOf(a.toFloat())
 }
 
+/** clamp a value between min and max */
 public fun clamp(min: Number, max: Number, value: RFloat): RFloat {
     return RFloat(
         value.writer,
-        floatArrayOf(
-            *(toArray(min)),
-            *(toArray(max)),
-            *(toArray(value)),
-            AnimatedFloatExpression.CLAMP,
-        ),
+        floatArrayOf(*(toArray(min)), *(toArray(max)), *(toArray(value)), Rc.FloatExpression.CLAMP),
     )
 }
 
@@ -517,12 +564,12 @@ public fun RemoteComposeWriter.ComponentHeight(): RFloat {
 
 /** generate random number */
 public fun RemoteComposeWriter.rand(): RFloat {
-    return RFloat(this, RAND)
+    return RFloat(this, Rc.FloatExpression.RAND)
 }
 
 /** the index variable in the particle system */
 public fun RemoteComposeWriter.index(): RFloat {
-    return RFloat(this, VAR1)
+    return RFloat(this, Rc.FloatExpression.VAR1)
 }
 
 /** The time in seconds relative to animation 0 at start of running */
@@ -534,3 +581,16 @@ public fun RemoteComposeWriter.animationTime(): RFloat {
 public fun RemoteComposeWriter.deltaTime(): RFloat {
     return RFloat(this, FLOAT_ANIMATION_DELTA_TIME)
 }
+
+/** The width of the document on screen */
+public fun RemoteComposeWriter.windowWidth(): RFloat {
+    return RFloat(this, Rc.System.WINDOW_WIDTH)
+}
+
+/** The height of the document on screen */
+public fun RemoteComposeWriter.windowHeight(): RFloat {
+    return RFloat(this, Rc.System.WINDOW_WIDTH)
+}
+
+public val RemoteComposeWriter.var1: RFloat
+    get() = RFloat(this, floatArrayOf(Rc.FloatExpression.VAR1))

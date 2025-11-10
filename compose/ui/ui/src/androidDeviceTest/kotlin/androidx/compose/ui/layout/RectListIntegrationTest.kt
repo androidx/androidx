@@ -19,7 +19,6 @@ package androidx.compose.ui.layout
 import androidx.collection.mutableIntSetOf
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,10 +47,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.scale
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.spatial.RectList
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasTestTag
@@ -887,6 +889,30 @@ class RectListIntegrationTest {
         rule.onNodeWithTag("inner").assertRectDp(15.dp, 25.dp, 25.dp, 35.dp)
     }
 
+    @Test
+    @SmallTest
+    fun testUnplacedNodeHasNoRect() {
+        var shouldPlace by mutableStateOf(true)
+        rule.setContent {
+            Layout(content = { Box(Modifier.testTag("foo").size(10.dp)) }) {
+                measurables,
+                constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    if (shouldPlace) {
+                        placeable.place(0, 0)
+                    }
+                }
+            }
+        }
+
+        assertThat(rule.onNodeWithTag("foo").addedToRectList).isTrue()
+
+        rule.runOnIdle { shouldPlace = false }
+
+        assertThat(rule.onNodeWithTag("foo").addedToRectList).isFalse()
+    }
+
     /**
      * Lazy Column example that can be used to reproduce issues related to re-using LayoutNodes
      * where each item has the same Layout.
@@ -968,12 +994,16 @@ class RectListIntegrationTest {
             }
         }
 
+    private fun SemanticsNode.getRectList(): RectList {
+        val owner = layoutNode.owner as? AndroidComposeView
+        return owner?.rectManager?.rects ?: error("Could not find rect list")
+    }
+
     inline internal fun SemanticsNodeInteraction.withRect(
         crossinline block: Density.(l: Int, t: Int, r: Int, b: Int) -> Unit
     ) {
         val node = fetchSemanticsNode()
-        val owner = node.layoutNode.owner as? AndroidComposeView
-        val rectList = owner?.rectManager?.rects ?: error("Could not find rect list")
+        val rectList = node.getRectList()
 
         with(rule.density) {
             val found = rectList.withRect(node.id) { l, t, r, b -> block(l, t, r, b) }
@@ -984,12 +1014,18 @@ class RectListIntegrationTest {
         }
     }
 
+    internal val SemanticsNodeInteraction.addedToRectList: Boolean
+        get() {
+            val node = fetchSemanticsNode()
+            val rectList = node.getRectList()
+            return rectList.contains(node.id)
+        }
+
     /** Counts Rects from this node down the hierarchy in the RectList. */
     private fun SemanticsNodeInteraction.assertRectCount(expectedCount: Int) {
         val node = fetchSemanticsNode()
-        val owner = node.layoutNode.owner
-        val rectList = owner?.rectManager?.rects ?: error("Could not find rect list")
-        val layoutNodes = owner.layoutNodes
+        val rectList = node.getRectList()
+        val layoutNodes = node.layoutNode.requireOwner().layoutNodes
         val nodeId = node.layoutNode.semanticsId
 
         val ids = mutableIntSetOf()

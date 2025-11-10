@@ -260,6 +260,7 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
     private fun markSubtreeAsNotPlaced() {
         if (isPlaced) {
             isPlaced = false
+            layoutNode.requireOwner().rectManager.remove(layoutNode)
             layoutNode.forEachCoordinatorIncludingInner {
                 it.onUnplaced()
 

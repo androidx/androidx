@@ -153,6 +153,7 @@ package androidx.compose.ui {
     property public boolean isNestedScrollInteropIntegerPropagationEnabled;
     property @Deprecated public boolean isNoPinningInFocusRestorationEnabled;
     property public boolean isOptimizedFocusEventDispatchEnabled;
+    property public boolean isPinningFocusedAndroidViewsEnabled;
     property public boolean isPre26FocusFinderFixEnabled;
     property public boolean isRectManagerOffsetUsageFromLayoutCoordinatesEnabled;
     property @Deprecated public boolean isRemoveFocusedViewFixEnabled;
@@ -174,6 +175,7 @@ package androidx.compose.ui {
     field public static boolean isNestedScrollInteropIntegerPropagationEnabled;
     field @Deprecated public static boolean isNoPinningInFocusRestorationEnabled;
     field public static boolean isOptimizedFocusEventDispatchEnabled;
+    field public static boolean isPinningFocusedAndroidViewsEnabled;
     field public static boolean isPre26FocusFinderFixEnabled;
     field public static boolean isRectManagerOffsetUsageFromLayoutCoordinatesEnabled;
     field @Deprecated public static boolean isRemoveFocusedViewFixEnabled;
@@ -506,7 +508,7 @@ package androidx.compose.ui.autofill {
 
 }
 
-package androidx.compose.ui.contentcapture {
+package @SuppressCompatibility androidx.compose.ui.contentcapture {
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface ContentCaptureManager {
     field public static final androidx.compose.ui.contentcapture.ContentCaptureManager.Companion Companion;
@@ -3530,11 +3532,6 @@ package androidx.compose.ui.node {
     method public static androidx.compose.ui.graphics.GraphicsContext requireGraphicsContext(androidx.compose.ui.node.DelegatableNode);
     method public static androidx.compose.ui.layout.LayoutCoordinates requireLayoutCoordinates(androidx.compose.ui.node.DelegatableNode);
     method public static androidx.compose.ui.unit.LayoutDirection requireLayoutDirection(androidx.compose.ui.node.DelegatableNode);
-    method @BytecodeOnly public static void visitAncestors-Y-YKmho$default(androidx.compose.ui.node.DelegatableNode!, int, boolean, kotlin.jvm.functions.Function1!, int, Object!);
-    method @BytecodeOnly public static void visitChildren-Y-YKmho$default(androidx.compose.ui.node.DelegatableNode!, int, boolean, kotlin.jvm.functions.Function1!, int, Object!);
-    method @BytecodeOnly public static void visitSelfAndChildren-Y-YKmho$default(androidx.compose.ui.node.DelegatableNode!, int, boolean, kotlin.jvm.functions.Function1!, int, Object!);
-    method @BytecodeOnly public static void visitSubtree-Y-YKmho$default(androidx.compose.ui.node.DelegatableNode!, int, boolean, kotlin.jvm.functions.Function1!, int, Object!);
-    method @BytecodeOnly public static void visitSubtreeIf-Y-YKmho$default(androidx.compose.ui.node.DelegatableNode!, int, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class DelegatableNode_androidKt {
@@ -3812,7 +3809,7 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.ui.platform.ClipMetadata toClipMetadata(android.content.ClipDescription);
   }
 
-  public final class AndroidComposeViewAccessibilityDelegateCompat_androidKt {
+  @SuppressCompatibility public final class AndroidComposeViewAccessibilityDelegateCompat_androidKt {
     method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableContentCapture();
     method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableContentCapture(boolean);
     property @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean DisableContentCapture;
@@ -3917,7 +3914,7 @@ package androidx.compose.ui.platform {
     property public abstract android.content.ClipboardManager nativeClipboard;
   }
 
-  public final class ClipboardExtensions_androidKt {
+  @SuppressCompatibility public final class ClipboardExtensions_androidKt {
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static android.net.Uri? firstUriOrNull(androidx.compose.ui.platform.ClipEntry);
   }
 

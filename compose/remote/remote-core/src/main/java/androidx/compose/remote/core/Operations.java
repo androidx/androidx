@@ -221,6 +221,7 @@ public class Operations {
     public static final int DRAW_ROUND_RECT = 51;
     public static final int DRAW_SECTOR = 52;
     public static final int DRAW_TEXT_ON_PATH = 53;
+    public static final int DRAW_TEXT_ON_CIRCLE = 57;
     public static final int DRAW_OVAL = 56;
     public static final int DATA_PATH = 123;
     public static final int DRAW_PATH = 124;

@@ -29,8 +29,8 @@ import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.runtime.tooling.CompositionInstance
-import androidx.compose.runtime.tooling.SourceInformation
 import androidx.compose.runtime.tooling.findSubcompositionContextGroup
+import kotlin.collections.plus
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
@@ -215,15 +215,7 @@ internal constructor(
     internal var invalidations: List<Pair<RecomposeScopeImpl, Any?>>,
     internal val locals: PersistentCompositionLocalMap,
     internal val nestedReferences: List<MovableContentStateReference>?,
-) {
-    /** Transfer any invalidations that may have accumulated since this reference was created. */
-    internal fun transferPendingInvalidations() {
-        if (anchor.valid) {
-            invalidations =
-                invalidations + (composition as CompositionImpl).extractInvalidationsOf(anchor)
-        }
-    }
-}
+)
 
 /**
  * A Compose compiler plugin API. DO NOT call directly.
@@ -1581,6 +1573,17 @@ internal fun extractMovableContentAtCurrent(
             applier.remove(nodeIndex, count)
             applier.up()
         }
+    }
+
+    // Transfer invalidations before moving the scopes, since we could have accumulated more after
+    // creating the state.
+    val anchor = reference.anchor
+    if (anchor.valid) {
+        val extracted =
+            (composition as CompositionImpl).extractInvalidationsOfGroup {
+                slots.inGroup(anchor, it)
+            }
+        reference.invalidations += extracted
     }
 
     // Write a table that as if it was written by a calling invokeMovableContentLambda because this

@@ -17,7 +17,6 @@
 package androidx.compose.runtime.retain
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectChanges
@@ -162,11 +161,11 @@ class RetainedEffectTest {
             }
         }
 
-        val retainedValuesStore = ControlledRetainedValuesStore()
+        val retainedValuesStore = ManagedRetainedValuesStore()
         compose {
-            CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
-                RetainLogger("1")
-                if (mount) {
+            if (mount) {
+                LocalRetainedValuesStoreProvider(retainedValuesStore) {
+                    RetainLogger("1")
                     RetainLogger("2")
                 }
             }
@@ -177,7 +176,6 @@ class RetainedEffectTest {
             expected = listOf("Retain:1", "Retain:2"),
             actual = logHistory,
         )
-        retainedValuesStore.startRetainingExitedValues()
         mount = false
         log("recompose")
         expectChanges()
@@ -187,64 +185,10 @@ class RetainedEffectTest {
             actual = logHistory,
         )
 
-        retainedValuesStore.stopRetainingExitedValues()
+        retainedValuesStore.disableRetainingExitedValues()
         assertContentEquals(
             message = "RetainedEffect sequence didn't match after ending retention",
-            expected = listOf("Retain:1", "Retain:2", "recompose", "Retire:2"),
-            actual = logHistory,
-        )
-    }
-
-    @Test
-    fun testRetainedEffect_changeKeyWhenRetainingExitedValues() = compositionTest {
-        var key by mutableStateOf("A")
-
-        val logHistory = mutableListOf<String>()
-        fun log(x: String) = logHistory.add(x)
-
-        @Composable
-        fun RetainLogger(name: String) {
-            RetainedEffect(name) {
-                log("Retain:$name")
-                onRetire { log("Retire:$name") }
-            }
-        }
-
-        val retainedValuesStore = ControlledRetainedValuesStore()
-        compose {
-            CompositionLocalProvider(LocalRetainedValuesStore provides retainedValuesStore) {
-                RetainLogger(key)
-            }
-        }
-
-        assertContentEquals(
-            message = "Initial RetainedEffect sequence didn't match",
-            expected = listOf("Retain:A"),
-            actual = logHistory,
-        )
-        retainedValuesStore.startRetainingExitedValues()
-        key = "B"
-        log("recompose")
-        expectChanges()
-        assertContentEquals(
-            message = "RetainedEffect sequence didn't match after recomposing",
-            expected = listOf("Retain:A", "recompose", "Retain:B"),
-            actual = logHistory,
-        )
-
-        key = "A"
-        log("recompose")
-        expectChanges()
-        assertContentEquals(
-            message = "RetainedEffect sequence didn't match after recomposing",
-            expected = listOf("Retain:A", "recompose", "Retain:B", "recompose"),
-            actual = logHistory,
-        )
-
-        retainedValuesStore.stopRetainingExitedValues()
-        assertContentEquals(
-            message = "RetainedEffect sequence didn't match after ending retention",
-            expected = listOf("Retain:A", "recompose", "Retain:B", "recompose", "Retire:B"),
+            expected = listOf("Retain:1", "Retain:2", "recompose", "Retire:2", "Retire:1"),
             actual = logHistory,
         )
     }

@@ -25,7 +25,6 @@ import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -550,17 +549,6 @@ class RemoteStringTest {
         makeAndUpdateCoreDocument { context.setNamedStringOverride("testString", "override") }
 
         assertThat(context.getText(resultId)).isEqualTo("override!")
-    }
-
-    @Test
-    fun updateMutableRemoteString() {
-        val mutableString = MutableRemoteString(mutableStateOf("hi"))
-        mutableString.value = "updated"
-        val mutableStringId = mutableString.getIdForCreationState(creationState)
-
-        makeAndPaintCoreDocument()
-
-        assertThat(context.getText(mutableStringId)).isEqualTo("updated")
     }
 
     @Test

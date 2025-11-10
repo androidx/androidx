@@ -16,12 +16,15 @@
 
 package androidx.compose.remote.player.compose.test.utils.screenshot.rule
 
+import android.content.Context
 import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.player.compose.ExperimentalRemoteComposePlayerApi
@@ -46,7 +49,10 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.BitmapMatcher
+import java.io.ByteArrayInputStream
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.withContext
 import org.junit.rules.ExternalResource
 import org.junit.rules.RuleChain
 import org.junit.rules.TestWatcher
@@ -99,6 +105,22 @@ class RemoteComposeScreenshotTestRule(
         super.after()
 
         RemoteComposePlayerFlags.isViewPlayerEnabled = true
+    }
+
+    suspend fun captureDocument(
+        context: Context,
+        content: @Composable @RemoteComposable () -> Unit,
+    ): CoreDocument {
+        val document: ByteArray =
+            withContext(Dispatchers.Main) { captureRemoteDocument(context) { content() } }
+
+        val remoteComposeDocument =
+            CoreDocument().apply {
+                ByteArrayInputStream(document).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        return remoteComposeDocument
     }
 
     fun runTest(
@@ -178,6 +200,7 @@ class RemoteComposeScreenshotTestRule(
 
             Box(modifier = boxModifier) {
                 val document: CoreDocument? by rememberRemoteDocument(content = content)
+
                 document?.let { RemoteDocumentPlayer(it, size) }
             }
         }

@@ -490,7 +490,7 @@ public class ExperimentRecyclerActivity extends Activity {
         String showComposeKey = "SHOW_COMPOSE";
         String showOrigamiKey = "SHOW_ORIGAMI";
         String debugComposeKey = "DEBUG_ORIGAMI";
-        Intent intent = new Intent(this, ExperimentActivityKt.class);
+        Intent intent = new Intent(this, ExperimentActivity.class);
         intent.putExtra(composeKey, doc.toString());
         intent.putExtra(showComposeKey, "true");
         intent.putExtra(showOrigamiKey, "true");

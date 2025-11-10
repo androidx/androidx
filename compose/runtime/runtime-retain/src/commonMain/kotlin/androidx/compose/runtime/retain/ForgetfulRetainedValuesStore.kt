@@ -20,21 +20,23 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.remember
 
 /**
- * The ForgetfulRetainedValuesStore is an implementation of [RetainedValuesStore] that is incapable
- * of retaining any exited values. When installed as the [LocalRetainedValuesStore], all invocations
- * of [retain] will behave like a standard [remember]. [RetainObserver] callbacks are still
- * dispatched instead of [RememberObserver] callbacks, meaning that this class will always
+ * The [ForgetfulRetainedValuesStore] is an implementation of [RetainedValuesStore] that is
+ * incapable of retaining any exited values. When installed as the [LocalRetainedValuesStore], all
+ * invocations of [retain] will behave like a standard [remember]. [RetainObserver] callbacks are
+ * still dispatched instead of [RememberObserver] callbacks, meaning that this class will always
  * immediately [retire][RetainObserver.onRetired] a value as soon as it exits composition.
+ *
+ * A [ForgetfulRetainedValuesStore] can be installed arbitrarily in any number of compositions.
  */
-public object ForgetfulRetainedValuesStore : RetainedValuesStore() {
-    override fun onStartRetainingExitedValues() {
-        throw UnsupportedOperationException(
-            "ForgetfulRetainedValuesStore can never retain exited values."
-        )
+public object ForgetfulRetainedValuesStore : RetainedValuesStore {
+    override fun onContentEnteredComposition() {
+        // Do nothing. This implementation does not respond to presence in the composition and can
+        // be used arbitrarily across many compositions.
     }
 
-    override fun onStopRetainingExitedValues() {
-        // Do nothing. This implementation never retains exited values.
+    override fun onContentExitComposition() {
+        // Do nothing. This implementation does not respond to presence in the composition and can
+        // be used arbitrarily across many compositions.
     }
 
     override fun getExitedValueOrElse(key: Any, defaultValue: Any?): Any? {
@@ -42,8 +44,8 @@ public object ForgetfulRetainedValuesStore : RetainedValuesStore() {
     }
 
     override fun saveExitingValue(key: Any, value: Any?) {
-        throw UnsupportedOperationException(
-            "ForgetfulRetainedValuesStore can never retain exited values."
-        )
+        if (value is RetainObserver) {
+            value.onRetired()
+        }
     }
 }
