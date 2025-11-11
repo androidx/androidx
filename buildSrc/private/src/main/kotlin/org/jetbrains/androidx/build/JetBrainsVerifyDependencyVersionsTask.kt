@@ -88,6 +88,7 @@ abstract class JetBrainsVerifyDependencyVersionsTask : DefaultTask() {
     private fun releasePhase(versionExtra: String): Int {
         return when {
             versionExtra == "" -> 4
+            !versionExtra.startsWith("-") -> 4
             versionExtra.startsWith("-rc") -> 3
             versionExtra.startsWith("-beta") -> 2
             versionExtra.startsWith("-alpha") -> 1
