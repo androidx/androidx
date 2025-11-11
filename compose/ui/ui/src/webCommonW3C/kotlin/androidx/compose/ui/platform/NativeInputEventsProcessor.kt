@@ -85,7 +85,12 @@ internal abstract class NativeInputEventsProcessor(
                     if (isInIMEComposition) return@fastForEach
 
                     evt as KeyboardEvent
-                    if (isTypedEvent(evt)) return@fastForEach
+                    if (isTypedEvent(evt)) {
+                        // we need to reset this each time we consider something to be typed
+                        // see  https://youtrack.jetbrains.com/issue/CMP-8773
+                        lastProcessedEventIsBackspace = evt.key == "Backspace"
+                        return@fastForEach
+                    }
 
                     val isFromLastComposition = timestamp < lastCompositionEndTimestamp
 
