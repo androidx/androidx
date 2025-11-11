@@ -12,7 +12,7 @@ import org.gradle.api.Project
  * That means we need to be careful if/when renaming or deleting any enum value or its name.
  */
 enum class ComposePlatforms(vararg val alternativeNames: String) {
-    KotlinMultiplatform("Common"),
+    KotlinMultiplatform("Common", "Metadata"),
     Desktop("Jvm"),
     AndroidDebug("Android"),
     AndroidRelease("Android"),

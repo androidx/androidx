@@ -22,6 +22,7 @@ val pathToComposeComponent = libraryToComponents.values.flatten().associateBy { 
 val Project.composeComponent get() = pathToComposeComponent[path]
 
 tasks.register("publishComposeJb", ComposePublishingTask::class) {
+    group = "Compose Multiplatform"
     repository = "MavenRepository"
 
     libraries.forEach {
@@ -30,6 +31,7 @@ tasks.register("publishComposeJb", ComposePublishingTask::class) {
 }
 
 tasks.register("publishComposeJbToMavenLocal", ComposePublishingTask::class) {
+    group = "Compose Multiplatform"
     repository = "MavenLocal"
 
     libraries.forEach {
@@ -43,11 +45,13 @@ val libraries = project.findProperty("jetbrains.publication.libraries")
 
 
 tasks.register("testDesktop") {
+    group = "Compose Multiplatform"
     dependsOn(allTasksWith(name = "desktopTest"))
     dependsOn(":collection:collection:jvmTest")
 }
 
 tasks.register("testWeb") {
+    group = "Compose Multiplatform"
     dependsOn(testWebJs)
     dependsOn(testWebWasm)
 }
@@ -76,6 +80,7 @@ val testWebWasm = tasks.register("testWebWasm") {
 }
 
 tasks.register("testUIKit") {
+    group = "Compose Multiplatform"
     val suffix = if (System.getProperty("os.arch") == "aarch64") "SimArm64Test" else "X64Test"
     val uikitTestSubtaskName = "uikit$suffix"
 
@@ -88,10 +93,12 @@ tasks.register("testUIKit") {
 }
 
 tasks.register("testRuntimeNative") {
+    group = "Compose Multiplatform"
     dependsOn(":compose:runtime:runtime:macosX64Test")
 }
 
 tasks.register("testComposeModules") { // used in https://github.com/JetBrains/androidx/tree/jb-main/.github/workflows
+    group = "Compose Multiplatform"
     // TODO: download robolectrict to run ui:ui:test
     // dependsOn(":compose:ui:ui:test")
 
@@ -115,10 +122,12 @@ tasks.register("testComposeModules") { // used in https://github.com/JetBrains/a
 }
 
 tasks.register("jbApiDump") {
+    group = "Compose Multiplatform"
     dependsOn(apiValidationTasks(suffix = "ApiDump"))
 }
 
 tasks.register("jbApiCheck") {
+    group = "Compose Multiplatform"
     dependsOn(apiValidationTasks(suffix = "ApiCheck"))
 }
 

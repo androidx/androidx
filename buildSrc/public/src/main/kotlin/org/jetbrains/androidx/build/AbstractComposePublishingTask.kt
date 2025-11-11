@@ -39,6 +39,7 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
         for (publication in publications) {
             dependsOnComposeTask("$project:publish${publication}PublicationTo$repository")
         }
+        dependsOnComposeTask("$project:jbVerifyDependencyVersions")
     }
 
     private fun publish(project: String, publications: Collection<String>, onlyWithPlatforms: Set<ComposePlatforms>) {
@@ -82,5 +83,6 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
 
             dependsOnComposeTask("${component.path}:publish${platform.name}PublicationTo$repository")
         }
+        dependsOnComposeTask("${component.path}:jbVerifyDependencyVersions")
     }
 }
