@@ -61,8 +61,8 @@ kotlin {
             dependencies {
                 api(project(":annotation:annotation"))
                 implementation(project(":lifecycle:lifecycle-common"))
-                api project(":lifecycle:lifecycle-runtime")
-                api project(":compose:runtime:runtime")
+                api(project(":lifecycle:lifecycle-runtime"))
+                api("org.jetbrains.compose.runtime:runtime:1.9.3")
 
                 implementation(libs.kotlinStdlib)
             }

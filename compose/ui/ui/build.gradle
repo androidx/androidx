@@ -175,11 +175,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api project(":compose:ui:ui-text")
                 api project(":compose:ui:ui-unit")
                 api project(":compose:ui:ui-util")
-                api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.5")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.5")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.5")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.5")
+                api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6")
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.6")
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
             }
 
             androidMain.dependencies {

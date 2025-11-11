@@ -61,7 +61,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(project(":savedstate:savedstate"))
-                api("org.jetbrains.compose.runtime:runtime:1.9.1")
+                api("org.jetbrains.compose.runtime:runtime:1.9.3")
             }
         }
 

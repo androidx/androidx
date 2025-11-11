@@ -34,7 +34,7 @@ androidXMultiplatform {
 
                 // Keep direct references to fork versions to correctly resolve
                 // New redirections to Google's artifacts
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.5")
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6")
             }
         }
     }

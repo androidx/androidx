@@ -50,10 +50,10 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 implementation(project(":compose:material3:material3"))
-                implementation(project(":compose:material3:adaptive:adaptive"))
-                implementation(project(":compose:ui:ui"))
-                implementation(project(":window:window-core"))
-                api(project(":annotation:annotation"))
+                implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.2.0")
+                implementation("org.jetbrains.compose.ui:ui:1.9.3")
+                implementation("org.jetbrains.androidx.window:window-core:1.4.0")
+                api("androidx.annotation:annotation:1.9.1")
             }
         }
 

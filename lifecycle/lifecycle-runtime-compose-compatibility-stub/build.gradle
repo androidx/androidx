@@ -65,7 +65,7 @@ kotlin {
                 // New redirections to Google's artifacts
                 implementation(project(":lifecycle:lifecycle-common"))
                 api(project(":lifecycle:lifecycle-runtime"))
-                api(project(":compose:runtime:runtime"))
+                api("org.jetbrains.compose.runtime:runtime:1.9.3")
             }
         }
     }
