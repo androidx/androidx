@@ -33,19 +33,23 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateMeasurement
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -82,7 +86,10 @@ private class TextFieldSizeElement(private val style: TextStyle) :
 }
 
 private class TextFieldSizeNode(private val style: TextStyle) :
-    Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {
+    Modifier.Node(),
+    CompositionLocalConsumerModifierNode,
+    LayoutModifierNode,
+    ObserverModifierNode {
     private var fontResolutionState: State<Any>? = null
     private var minSizeState: TextFieldSize? = null
 
@@ -100,14 +107,17 @@ private class TextFieldSizeNode(private val style: TextStyle) :
         @Suppress("SuspiciousCompositionLocalModifierRead")
         val fontFamilyResolver = currentValueOf(LocalFontFamilyResolver)
         updateFontResolutionState(resolvedStyle, fontFamilyResolver)
-        minSizeState =
-            TextFieldSize(
-                requireLayoutDirection(),
-                requireDensity(),
-                fontFamilyResolver,
-                resolvedStyle,
-                requireFontResolutionState().value,
-            )
+        observeReads {
+            minSizeState =
+                TextFieldSize(
+                    requireLayoutDirection(),
+                    requireDensity(),
+                    fontFamilyResolver,
+                    currentValueOf(LocalLocale),
+                    resolvedStyle,
+                    requireFontResolutionState().value,
+                )
+        }
     }
 
     override fun MeasureScope.measure(
@@ -158,11 +168,17 @@ private class TextFieldSizeNode(private val style: TextStyle) :
             )
         invalidateMeasurement()
     }
+
+    override fun onObservedReadsChanged() {
+        observeReads { minSizeState?.update(defaultLocale = currentValueOf(LocalLocale)) }
+        invalidateMeasurement()
+    }
 }
 
 internal fun Modifier.legacyTextFieldMinSize(style: TextStyle) = composed {
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
+    val defaultLocale = LocalLocale.current
     val layoutDirection = LocalLayoutDirection.current
 
     val resolvedStyle = remember(style, layoutDirection) { resolveDefaults(style, layoutDirection) }
@@ -177,10 +193,24 @@ internal fun Modifier.legacyTextFieldMinSize(style: TextStyle) = composed {
         }
 
     val minSizeState = remember {
-        LegacyTextFieldSize(layoutDirection, density, fontFamilyResolver, style, typeface)
+        LegacyTextFieldSize(
+            layoutDirection,
+            density,
+            fontFamilyResolver,
+            defaultLocale,
+            style,
+            typeface,
+        )
     }
 
-    minSizeState.update(layoutDirection, density, fontFamilyResolver, resolvedStyle, typeface)
+    minSizeState.update(
+        layoutDirection,
+        density,
+        fontFamilyResolver,
+        defaultLocale,
+        resolvedStyle,
+        typeface,
+    )
 
     Modifier.layout { measurable, constraints ->
         val minSize = minSizeState.minSize
@@ -200,6 +230,7 @@ private class TextFieldSize(
     var layoutDirection: LayoutDirection,
     var density: Density,
     var fontFamilyResolver: FontFamily.Resolver,
+    var defaultLocale: Locale,
     var resolvedStyle: TextStyle,
     var typeface: Any,
 ) {
@@ -219,6 +250,7 @@ private class TextFieldSize(
         layoutDirection: LayoutDirection = this.layoutDirection,
         density: Density = this.density,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
+        defaultLocale: Locale = this.defaultLocale,
         resolvedStyle: TextStyle = this.resolvedStyle,
         typeface: Any = this.typeface,
     ) {
@@ -226,11 +258,13 @@ private class TextFieldSize(
             layoutDirection != this.layoutDirection ||
                 density != this.density ||
                 fontFamilyResolver != this.fontFamilyResolver ||
+                defaultLocale != this.defaultLocale ||
                 resolvedStyle != this.resolvedStyle
         ) {
             this.layoutDirection = layoutDirection
             this.density = density
             this.fontFamilyResolver = fontFamilyResolver
+            this.defaultLocale = defaultLocale
             this.resolvedStyle = resolvedStyle
             dirty = true
             return
@@ -250,6 +284,7 @@ private class TextFieldSize(
             style = resolvedStyle,
             density = density,
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocale = defaultLocale,
         )
 }
 
@@ -257,6 +292,7 @@ private class LegacyTextFieldSize(
     var layoutDirection: LayoutDirection,
     var density: Density,
     var fontFamilyResolver: FontFamily.Resolver,
+    var defaultLocale: Locale,
     var resolvedStyle: TextStyle,
     var typeface: Any,
 ) {
@@ -267,6 +303,7 @@ private class LegacyTextFieldSize(
         layoutDirection: LayoutDirection,
         density: Density,
         fontFamilyResolver: FontFamily.Resolver,
+        defaultLocale: Locale,
         resolvedStyle: TextStyle,
         typeface: Any,
     ) {
@@ -274,12 +311,14 @@ private class LegacyTextFieldSize(
             layoutDirection != this.layoutDirection ||
                 density != this.density ||
                 fontFamilyResolver != this.fontFamilyResolver ||
+                defaultLocale != this.defaultLocale ||
                 resolvedStyle != this.resolvedStyle ||
                 typeface != this.typeface
         ) {
             this.layoutDirection = layoutDirection
             this.density = density
             this.fontFamilyResolver = fontFamilyResolver
+            this.defaultLocale = defaultLocale
             this.resolvedStyle = resolvedStyle
             this.typeface = typeface
             minSize = computeMinSize()
@@ -291,6 +330,7 @@ private class LegacyTextFieldSize(
             style = resolvedStyle,
             density = density,
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocale = defaultLocale,
         )
     }
 }

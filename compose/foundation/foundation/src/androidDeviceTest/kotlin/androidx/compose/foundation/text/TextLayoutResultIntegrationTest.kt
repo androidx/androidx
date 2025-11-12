@@ -44,6 +44,7 @@ class TextLayoutResultIntegrationTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
     private val layoutDirection = LayoutDirection.Ltr
+    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun width_getter() {
@@ -58,6 +59,7 @@ class TextLayoutResultIntegrationTest {
                     style = TextStyle.Default,
                     density = this,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
 
             val layoutResult = textDelegate.layout(Constraints(0, 200), layoutDirection)
@@ -78,6 +80,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         val layoutResult = textDelegate.layout(Constraints(maxWidth = width), layoutDirection)
@@ -98,6 +101,7 @@ class TextLayoutResultIntegrationTest {
                     style = TextStyle.Default,
                     density = this,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
 
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
@@ -114,6 +118,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         val layoutResult = textDelegate.layout(Constraints(0, 20), layoutDirection)
@@ -133,6 +138,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
         val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
@@ -157,6 +163,7 @@ class TextLayoutResultIntegrationTest {
                     style = TextStyle.Default,
                     density = this,
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
@@ -180,6 +187,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
@@ -204,6 +212,7 @@ class TextLayoutResultIntegrationTest {
                 maxLines = maxLines,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         textDelegate.layoutIntrinsics(layoutDirection)
@@ -228,6 +237,7 @@ class TextLayoutResultIntegrationTest {
                 maxLines = maxLines,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         textDelegate.layoutIntrinsics(layoutDirection)
@@ -250,6 +260,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         val maxIntrinsicsHeight =
@@ -274,6 +285,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
+                defaultLocale = defaultLocale,
             )
 
         val maxIntrinsicsHeight =

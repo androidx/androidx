@@ -26,6 +26,7 @@ import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.internal.checkPrecondition
 import androidx.compose.ui.text.internal.requirePrecondition
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.TextUnit
@@ -1288,12 +1289,36 @@ internal inline fun <T> AnnotatedString.mapEachParagraphStyle(
  *
  * @param localeList A locale list used for upper case mapping. Only the first locale is effective.
  *   If empty locale list is passed, use the current locale instead.
- * @return A uppercase transformed string.
+ * @return An uppercase transformed [AnnotatedString].
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call toUpperCase with an explicit locale " +
+        "instead. If you have a non-empty locale list, the correct thing to do is use the first " +
+        "locale in the list."
+)
+@Suppress("DEPRECATION")
 public fun AnnotatedString.toUpperCase(
     localeList: LocaleList = LocaleList.current
 ): AnnotatedString {
     return transform { str, start, end -> str.substring(start, end).toUpperCase(localeList) }
+}
+
+/**
+ * Create upper case transformed [AnnotatedString]
+ *
+ * The uppercase sometimes maps different number of characters. This function adjusts the text style
+ * and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the uppercase mapping context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param locale The locale used for upper case mapping.
+ * @return An uppercase transformed [AnnotatedString].
+ */
+public fun AnnotatedString.toUpperCase(locale: Locale): AnnotatedString {
+    return transform { str, start, end -> str.substring(start, end).toUpperCase(locale) }
 }
 
 /**
@@ -1310,10 +1335,34 @@ public fun AnnotatedString.toUpperCase(
  *   If empty locale list is passed, use the current locale instead.
  * @return A lowercase transformed string.
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call toLowerCase with an explicit locale " +
+        "instead. If you have a non-empty locale list, the correct thing to do is use the first " +
+        "locale in the list."
+)
+@Suppress("DEPRECATION")
 public fun AnnotatedString.toLowerCase(
     localeList: LocaleList = LocaleList.current
 ): AnnotatedString {
     return transform { str, start, end -> str.substring(start, end).toLowerCase(localeList) }
+}
+
+/**
+ * Create lower case transformed [AnnotatedString]
+ *
+ * The lowercase sometimes maps different number of characters. This function adjusts the text style
+ * and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the lowercase mapping context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param locale The locale used for lower case mapping.
+ * @return A lowercase transformed [AnnotatedString].
+ */
+public fun AnnotatedString.toLowerCase(locale: Locale): AnnotatedString {
+    return transform { str, start, end -> str.substring(start, end).toLowerCase(locale) }
 }
 
 /**
@@ -1331,6 +1380,13 @@ public fun AnnotatedString.toLowerCase(
  *   currently ignored since underlying Kotlin method is experimental.
  * @return A capitalized string.
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call capitalize with an explicit locale " +
+        "instead. If you have a non-empty locale list, the correct thing to do is use the first " +
+        "locale in the list."
+)
+@Suppress("DEPRECATION")
 public fun AnnotatedString.capitalize(
     localeList: LocaleList = LocaleList.current
 ): AnnotatedString {
@@ -1346,6 +1402,29 @@ public fun AnnotatedString.capitalize(
 /**
  * Create capitalized [AnnotatedString]
  *
+ * The capitalization sometimes maps different number of characters. This function adjusts the text
+ * style and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the capitalization context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param locale The locale used for capitalize mapping.
+ * @return A capitalized [AnnotatedString].
+ */
+public fun AnnotatedString.capitalize(locale: Locale): AnnotatedString {
+    return transform { str, start, end ->
+        if (start == 0) {
+            str.substring(start, end).capitalize(locale)
+        } else {
+            str.substring(start, end)
+        }
+    }
+}
+
+/**
+ * Create decapitalized [AnnotatedString]
+ *
  * The decapitalization sometimes maps different number of characters. This function adjusts the
  * text style and paragraph style ranges to transformed offset.
  *
@@ -1356,14 +1435,44 @@ public fun AnnotatedString.capitalize(
  * @param localeList A locale list used for decapitalize mapping. Only the first locale is
  *   effective. If empty locale list is passed, use the current locale instead. Note that, this
  *   locale is currently ignored since underlying Kotlin method is experimental.
- * @return A decapitalized string.
+ * @return A decapitalized [AnnotatedString].
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call decapitalize with an explicit locale " +
+        "instead. If you have a non-empty locale list, the correct thing to do is use the first " +
+        "locale in the list."
+)
+@Suppress("DEPRECATION")
 public fun AnnotatedString.decapitalize(
     localeList: LocaleList = LocaleList.current
 ): AnnotatedString {
     return transform { str, start, end ->
         if (start == 0) {
             str.substring(start, end).decapitalize(localeList)
+        } else {
+            str.substring(start, end)
+        }
+    }
+}
+
+/**
+ * Create decapitalized [AnnotatedString]
+ *
+ * The decapitalization sometimes maps different number of characters. This function adjusts the
+ * text style and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the decapitalization context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param locale The locale used for decapitalize mapping.
+ * @return A decapitalized [AnnotatedString].
+ */
+public fun AnnotatedString.decapitalize(locale: Locale): AnnotatedString {
+    return transform { str, start, end ->
+        if (start == 0) {
+            str.substring(start, end).decapitalize(locale)
         } else {
             str.substring(start, end)
         }

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.SemanticsActions
@@ -48,6 +49,7 @@ class TextAnnotatedStringContentCaptureInvalidationTest {
             text,
             TextStyle.Default,
             createFontFamilyResolver(context),
+            TEST_LOCALE,
             null,
         )
     }

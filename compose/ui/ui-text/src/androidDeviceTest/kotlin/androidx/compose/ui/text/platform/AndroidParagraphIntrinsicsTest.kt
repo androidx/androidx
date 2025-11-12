@@ -26,6 +26,7 @@ import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.emoji2.text.EmojiCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -86,6 +87,7 @@ class AndroidParagraphIntrinsicsTest {
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = true,
                 placeholders = emptyList(),
+                defaultLocale = Locale("en"),
             )
 
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -114,6 +116,7 @@ class AndroidParagraphIntrinsicsTest {
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = true,
                 placeholders = emptyList(),
+                defaultLocale = Locale("en"),
             )
         fontState.value = true
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -145,6 +148,7 @@ class AndroidParagraphIntrinsicsTest {
             fontFamilyResolver = createFontFamilyResolver(context),
             softWrap = true,
             placeholders = emptyList(),
+            defaultLocale = Locale("en"),
         )
 
         verify(mock)
@@ -185,6 +189,7 @@ class AndroidParagraphIntrinsicsTest {
             fontFamilyResolver = createFontFamilyResolver(context),
             softWrap = true,
             placeholders = emptyList(),
+            defaultLocale = Locale("en"),
         )
 
         verify(mock)
@@ -208,6 +213,7 @@ class AndroidParagraphIntrinsicsTest {
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = true,
                 placeholders = emptyList(),
+                defaultLocale = Locale("en"),
             )
                 as AndroidParagraphIntrinsics
 
@@ -225,6 +231,7 @@ class AndroidParagraphIntrinsicsTest {
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = true,
                 placeholders = emptyList(),
+                defaultLocale = Locale("en"),
             )
                 as AndroidParagraphIntrinsics
 
@@ -243,6 +250,7 @@ class AndroidParagraphIntrinsicsTest {
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = true,
                 placeholders = emptyList(),
+                defaultLocale = Locale("en"),
             )
                 as AndroidParagraphIntrinsics
 
@@ -261,6 +269,7 @@ class AndroidParagraphIntrinsicsTest {
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = true,
                 placeholders = emptyList(),
+                defaultLocale = Locale("en"),
             )
                 as AndroidParagraphIntrinsics
 
@@ -279,6 +288,7 @@ class AndroidParagraphIntrinsicsTest {
                 fontFamilyResolver = createFontFamilyResolver(context),
                 softWrap = true,
                 placeholders = emptyList(),
+                defaultLocale = Locale("en"),
             )
                 as AndroidParagraphIntrinsics
 

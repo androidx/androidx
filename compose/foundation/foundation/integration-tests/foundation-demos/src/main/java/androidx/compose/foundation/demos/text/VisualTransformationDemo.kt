@@ -43,7 +43,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -60,7 +60,7 @@ private val identityTranslator =
  *
  * This filer converts ASCII characters to capital form.
  */
-private class CapitalizeTransformation(val locale: LocaleList = LocaleList("en-US")) :
+private class CapitalizeTransformation(val locale: Locale = Locale("en-US")) :
     VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         // Note: identityTranslator doesn't work for some locale, e.g. Turkish
@@ -169,7 +169,7 @@ fun VisualTransformationDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,
                 onValueChange = { old, new -> if (new.any { !it.isLetterOrDigit() }) old else new },
-                visualTransformation = CapitalizeTransformation(LocaleList("tr")),
+                visualTransformation = CapitalizeTransformation(Locale("tr")),
             )
         }
         item {
