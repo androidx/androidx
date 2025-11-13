@@ -31,3 +31,18 @@ internal fun runUIKitInstrumentedTestWithInterop(
         testBlock(true)
     }
 }
+
+internal fun runUIKitInstrumentedTestWithInterop(
+    ignoreIf: Boolean,
+    ignoreNotes: String,
+    testBlock: UIKitInstrumentedTest.(Boolean) -> Unit
+) {
+    runUIKitInstrumentedTest(ignoreIf = ignoreIf, ignoreNotes = ignoreNotes) {
+        println("Debug: Interop view placed as overlay: false")
+        testBlock(false)
+    }
+    runUIKitInstrumentedTest(ignoreIf = ignoreIf, ignoreNotes = ignoreNotes) {
+        println("Debug: Interop view placed as overlay: true")
+        testBlock(true)
+    }
+}

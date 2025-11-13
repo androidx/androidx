@@ -72,6 +72,9 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.OSVersion
+import org.jetbrains.skiko.available
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSizeMake
 import platform.UIKit.UIColor
@@ -274,9 +277,9 @@ internal class ScrollTest {
         val touch = touchDown(screenSize.center)
         var previousBoxTop = boxRect.top
         var previousDiff = 0f
-
+        val dragDelta = screenSize.center.y / 10
         repeat(10) { i ->
-            touch.dragBy(dy = 20.dp, duration = 100.milliseconds)
+            touch.dragBy(dy = dragDelta, duration = 100.milliseconds)
             waitForIdle()
 
             val currentBoxTop = boxRect.top
@@ -287,7 +290,7 @@ internal class ScrollTest {
                 try {
                     assertEquals(currentDiff, previousDiff, 5e-5f)
                 } catch (_: AssertionError) {
-                    assertTrue(currentDiff < previousDiff)
+                    assertTrue(currentDiff < previousDiff, "$currentDiff < $previousDiff")
                 }
             }
 
@@ -329,9 +332,10 @@ internal class ScrollTest {
         val touch = touchDown(screenSize.center)
         var previousBoxTop = boxRect.top
         var previousDiff = 0f
+        val dragDelta = screenSize.center.y / 10
 
         repeat(10) { i ->
-            touch.dragBy(dy = -20.dp, duration = 0.1.seconds)
+            touch.dragBy(dy = -dragDelta, duration = 0.1.seconds)
             waitForIdle()
 
             val currentBoxTop = boxRect.top
@@ -357,14 +361,14 @@ internal class ScrollTest {
     }
 
     @Test
-    fun testOverscrollAndFlick() = runUIKitInstrumentedTest {
+    fun testOverscrollAndFling() = runUIKitInstrumentedTest {
         val state = ScrollState(0)
         val boxHeight = 100.0
         var boxRect = DpRectZero()
 
         setContent {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(state)) {
-                repeat(10) { index ->
+                repeat(20) { index ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -393,7 +397,7 @@ internal class ScrollTest {
         // overscroll does not alter scroll state
         assertEquals(0 * density.density, state.value.toFloat())
 
-        // flick up
+        // fling up
         touch
             .dragBy(dy = -(boxHeight + 50).dp, duration = 100.milliseconds)
             .up()
@@ -721,6 +725,12 @@ internal class ScrollTest {
 
         findNodeWithTag("UIKit.UIScrollView")
             .touchDown()
+            .also {
+                // There is an issue on iOS < 15 where the simulated drag is not applied immediately.
+                if (!available(OS.Ios to OSVersion(16))) {
+                    delay(100)
+                }
+            }
             .dragBy(dy = -(250 + CUPERTINO_TOUCH_SLOP).dp)
             .also { delay(500) }
             .up()
@@ -1024,7 +1034,7 @@ private fun VerticalScrollWithHorizontalUIKitScroll(
     screenSize: DpSize,
     topContentHeight: Dp,
     uiKitScrollViewHeight: Dp,
-    uiKitScrollViewContentWidth: Double = 1000.0,
+    uiKitScrollViewContentWidth: Double = 5000.0,
     uiKitScrollViewRectInWindow: (() -> DpRect) -> Unit = {},
     uiKitContentOffset: (() -> DpOffset) -> Unit = { },
 ) {

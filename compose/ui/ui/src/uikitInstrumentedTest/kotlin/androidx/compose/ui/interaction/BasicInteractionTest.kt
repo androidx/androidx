@@ -22,10 +22,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +35,8 @@ import androidx.compose.ui.test.findNodeWithLabel
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.firstNodeOrNull
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.test.utils.hold
+import androidx.compose.ui.test.utils.up
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
@@ -50,6 +49,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.OSVersion
+import org.jetbrains.skiko.available
 import platform.UIKit.UIPasteboard
 
 class BasicInteractionTest {
@@ -204,10 +206,11 @@ class BasicInteractionTest {
         waitForContextMenu()
         assertFalse(textFieldValue.isFullySelected())
 
-        findNodeWithLabel("Select All").tap()
+        tapContextMenuButton("Select All")
 
-        waitForIdle()
-        assertTrue(textFieldValue.isFullySelected())
+        waitUntil("Text field should be fully selected") {
+            textFieldValue.isFullySelected()
+        }
     }
 
     @Test
@@ -227,10 +230,11 @@ class BasicInteractionTest {
         waitForContextMenu()
         assertFalse(textFieldState.isFullySelected())
 
-        findNodeWithLabel("Select All").tap()
+        tapContextMenuButton("Select All")
 
-        waitForIdle()
-        assertTrue(textFieldState.isFullySelected())
+        waitUntil("Text field should be fully selected") {
+            textFieldState.isFullySelected()
+        }
     }
 
     private fun UIKitInstrumentedTest.openToolbar(textFieldTag: String) {
@@ -277,11 +281,30 @@ class BasicInteractionTest {
         }
     }
 
+    private fun UIKitInstrumentedTest.tapContextMenuButton(label: String) {
+        if (available(OS.Ios to OSVersion(16))) {
+            findNodeWithLabel(label).tap()
+        } else {
+            // Because on iOS < 16 the context menu is shown in a separate window,
+            // it's not fully interactive with the default Tap action.
+            findNodeWithLabel(label)
+                .touchDown(useNodeWindow = true)
+                .hold()
+                .also { delay(100) }
+                .up()
+        }
+    }
+
     private fun UIKitInstrumentedTest.waitForContextMenu() {
+        val menuClassName = if (available(OS.Ios to OSVersion(16))) {
+            "_UIEditMenuContainerView"
+        } else {
+            "UICalloutBar"
+        }
         waitForIdle()
         waitUntil {
             firstNodeOrNull { node ->
-                node.element?.let { it::class.simpleName } == "_UIEditMenuContainerView"
+                node.element?.let { it::class.simpleName } == menuClassName
             } != null
         }
         // Additional delay to wait until toolbar animation ends

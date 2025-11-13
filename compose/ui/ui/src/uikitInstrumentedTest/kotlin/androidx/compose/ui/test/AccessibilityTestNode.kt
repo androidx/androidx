@@ -29,6 +29,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.OSVersion
+import org.jetbrains.skiko.available
 import platform.UIKit.UIAccessibilityElement
 import platform.UIKit.UIAccessibilityTraitAdjustable
 import platform.UIKit.UIAccessibilityTraitAllowsDirectInteraction
@@ -81,25 +84,24 @@ import platform.darwin.NSObject
 internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode {
     fun buildNode(element: NSObject, isAccessibilityElementContent: Boolean): AccessibilityTestNode {
         val children = mutableListOf<AccessibilityTestNode>()
-        val elements = element.accessibilityElements()
         val accessibilityElementContent = isAccessibilityElementContent || element.isAccessibilityElement
 
-        if (accessibilityElementContent) {
+        if (element.accessibilityElements() != null) {
+            element.accessibilityElements()?.forEach {
+                children.add(buildNode(it as NSObject, accessibilityElementContent))
+            }
+        } else if (element is UIView) {
+            element.subviews.forEach {
+                children.add(buildNode(it as UIView, accessibilityElementContent))
+            }
+        } else if (available(OS.Ios to OSVersion(major = 17)) &&
+            (element.automationElements?.isNotEmpty() ?: false)
+        ) {
             // iOS Automation uses `automationElements` to build the semantics tree inside the
             // accessibility element.
             // Exceptions are UIKit elements that use private logic to build their semantics tree
             // for automation.
-            if ((element.automationElements?.isNotEmpty() ?: false)) {
-                element.automationElements?.forEach {
-                    children.add(buildNode(it as NSObject, accessibilityElementContent))
-                }
-            } else if (element is UIView) {
-                element.subviews.forEach {
-                    children.add(buildNode(it as UIView, accessibilityElementContent))
-                }
-            }
-        } else if (elements != null) {
-            elements.forEach {
+            element.automationElements?.forEach {
                 children.add(buildNode(it as NSObject, accessibilityElementContent))
             }
         } else {
@@ -153,7 +155,7 @@ internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode
     return buildNode(appDelegate.window!!.windowScene!!, isAccessibilityElementContent = false)
 }
 
-private val allAccessibilityTraits = mapOf(
+private val allAccessibilityTraits = mutableMapOf(
     UIAccessibilityTraitNone to "UIAccessibilityTraitNone",
     UIAccessibilityTraitButton to "UIAccessibilityTraitButton",
     UIAccessibilityTraitLink to "UIAccessibilityTraitLink",
@@ -172,11 +174,15 @@ private val allAccessibilityTraits = mapOf(
     UIAccessibilityTraitAllowsDirectInteraction to "UIAccessibilityTraitAllowsDirectInteraction",
     UIAccessibilityTraitCausesPageTurn to "UIAccessibilityTraitCausesPageTurn",
     UIAccessibilityTraitTabBar to "UIAccessibilityTraitTabBar",
-    UIAccessibilityTraitToggleButton to "UIAccessibilityTraitToggleButton",
-    UIAccessibilityTraitSupportsZoom to "UIAccessibilityTraitSupportsZoom",
     CMPAccessibilityTraitTextView to "CMPAccessibilityTraitTextView",
     CMPAccessibilityTraitIsEditing to "CMPAccessibilityTraitIsEditing",
-)
+).let {
+    if (available(OS.Ios to OSVersion(major = 17))) {
+        it[UIAccessibilityTraitToggleButton] = "UIAccessibilityTraitToggleButton"
+        it[UIAccessibilityTraitSupportsZoom] = "UIAccessibilityTraitSupportsZoom"
+    }
+    it as Map<UIAccessibilityTraits, String>
+}
 
 /**
  * Represents a node in an accessibility tree, which is used for testing accessibility features

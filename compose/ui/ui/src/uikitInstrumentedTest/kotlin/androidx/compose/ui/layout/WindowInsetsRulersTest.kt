@@ -37,10 +37,15 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.OSVersion
+import org.jetbrains.skiko.available
+import platform.UIKit.UIDevice
 import platform.UIKit.UIInterfaceOrientationMaskLandscapeLeft
 import platform.UIKit.UIInterfaceOrientationMaskLandscapeRight
 import platform.UIKit.UIInterfaceOrientationMaskPortrait
 import platform.UIKit.UIInterfaceOrientationMaskPortraitUpsideDown
+import platform.UIKit.UIUserInterfaceIdiomPad
 import platform.UIKit.UIView
 
 @OptIn(ExperimentalForeignApi::class)
@@ -51,7 +56,10 @@ class WindowInsetsRulersTest {
     private val displayCutoutRects = mutableObjectListOf<IntRect?>()
 
     @Test
-    fun testDisplayCutoutsForPortrait() = runUIKitInstrumentedTest {
+    fun testDisplayCutoutsForPortrait() = runUIKitInstrumentedTest(
+        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
+        ignoreNotes = "Device rotation does not work for iOS < 16 and iPad"
+    ) {
         setContent(interfaceOrientation = UIInterfaceOrientationMaskPortrait) {
             SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
         }
@@ -65,7 +73,10 @@ class WindowInsetsRulersTest {
     }
 
     @Test
-    fun testDisplayCutoutsForLandscapeLeft() = runUIKitInstrumentedTest {
+    fun testDisplayCutoutsForLandscapeLeft() = runUIKitInstrumentedTest(
+        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
+        ignoreNotes = "Device rotation does not work for iOS <= 16 and iPad"
+    ) {
         setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft) {
             SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
         }
@@ -79,7 +90,10 @@ class WindowInsetsRulersTest {
     }
 
     @Test
-    fun testDisplayCutoutsForLandscapeRight() = runUIKitInstrumentedTest {
+    fun testDisplayCutoutsForLandscapeRight() = runUIKitInstrumentedTest(
+        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
+        ignoreNotes = "Device rotation does not work for iOS <= 16 and iPad"
+    ) {
         setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeRight) {
             SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
         }
@@ -93,7 +107,10 @@ class WindowInsetsRulersTest {
     }
 
     @Test
-    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsPortrait() = runUIKitInstrumentedTest {
+    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsPortrait() = runUIKitInstrumentedTest(
+        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
+        ignoreNotes = "Device rotation does not work for iOS <= 16 and iPad"
+    ) {
         setContent(interfaceOrientation = UIInterfaceOrientationMaskPortrait) {
             SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
         }
@@ -102,7 +119,10 @@ class WindowInsetsRulersTest {
     }
 
     @Test
-    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsLandscapeLeft() = runUIKitInstrumentedTest {
+    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsLandscapeLeft() = runUIKitInstrumentedTest(
+        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
+        ignoreNotes = "Device rotation does not work for iOS <= 16 and iPad"
+    ) {
         setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft) {
             SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
         }
@@ -111,7 +131,10 @@ class WindowInsetsRulersTest {
     }
 
     @Test
-    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsLandscapeRight() = runUIKitInstrumentedTest {
+    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsLandscapeRight() = runUIKitInstrumentedTest(
+        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
+        ignoreNotes = "Device rotation does not work for iOS <= 16 and iPad"
+    ) {
         setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeRight) {
             SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
         }
@@ -120,7 +143,10 @@ class WindowInsetsRulersTest {
     }
 
     @Test
-    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsPortraitUpsideDown() = runUIKitInstrumentedTest {
+    fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsPortraitUpsideDown() = runUIKitInstrumentedTest(
+        ignoreIf = !available(OS.Ios to OSVersion(16)) || UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
+        ignoreNotes = "Device rotation does not work for iOS <= 16 and iPad"
+    ) {
         setContent(interfaceOrientation = UIInterfaceOrientationMaskPortraitUpsideDown) {
             SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
         }

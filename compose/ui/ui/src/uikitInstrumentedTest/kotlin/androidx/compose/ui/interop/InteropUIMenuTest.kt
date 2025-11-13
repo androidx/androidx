@@ -36,6 +36,9 @@ import kotlin.test.assertTrue
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.OSVersion
+import org.jetbrains.skiko.available
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIAction
@@ -50,7 +53,10 @@ import platform.UIKit.UIMenu
 internal class InteropUIMenuTest {
 
     @Test
-    fun testUIMenuDismissByTapOnComposeView() = runUIKitInstrumentedTestWithInterop { overlay ->
+    fun testUIMenuDismissByTapOnComposeView() = runUIKitInstrumentedTestWithInterop(
+        ignoreIf = !available(OS.Ios to OSVersion(16)),
+        ignoreNotes = "The test does not receive touches on iOS < 15 when the context menu opened"
+    ) { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -93,7 +99,10 @@ internal class InteropUIMenuTest {
     }
 
     @Test
-    fun testUIMenuEmbeddedInComposeViewDismissByTapOnOtherComposeView() = runUIKitInstrumentedTestWithInterop { overlay ->
+    fun testUIMenuEmbeddedInComposeViewDismissByTapOnOtherComposeView() = runUIKitInstrumentedTestWithInterop(
+        ignoreIf = !available(OS.Ios to OSVersion(16)),
+        ignoreNotes = "The test does not receive touches on iOS < 15 when the context menu opened"
+    ) { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -143,7 +152,10 @@ internal class InteropUIMenuTest {
     }
 
     @Test
-    fun testUIMenuDismissByTapOnUIButton() = runUIKitInstrumentedTestWithInterop { overlay ->
+    fun testUIMenuDismissByTapOnUIButton() = runUIKitInstrumentedTestWithInterop(
+        ignoreIf = !available(OS.Ios to OSVersion(16)),
+        ignoreNotes = "The test does not receive touches on iOS < 15 when the context menu opened"
+    ) { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -191,7 +203,10 @@ internal class InteropUIMenuTest {
     }
 
     @Test
-    fun testUIMenuDismissByTapOnUIAction() = runUIKitInstrumentedTestWithInterop { overlay ->
+    fun testUIMenuDismissByTapOnUIAction() = runUIKitInstrumentedTestWithInterop(
+        ignoreIf = !available(OS.Ios to OSVersion(16)),
+        ignoreNotes = "The test does not receive touches on iOS < 15 when the context menu opened"
+    ) { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -235,7 +250,7 @@ private class ContextMenuButton(
     override fun contextMenuInteraction(
         interaction: UIContextMenuInteraction,
         configurationForMenuAtLocation: CValue<CGPoint>
-    ): UIContextMenuConfiguration? {
+    ): UIContextMenuConfiguration {
         isMenuOpen = true
         return UIContextMenuConfiguration.configurationWithIdentifier(
             identifier = null,

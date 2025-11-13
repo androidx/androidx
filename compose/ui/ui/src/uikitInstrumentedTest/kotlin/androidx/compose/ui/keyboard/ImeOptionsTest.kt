@@ -58,7 +58,7 @@ import platform.UIKit.UIKeyboardTypeURL
 import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UITextAutocapitalizationType
 import platform.UIKit.UITextAutocorrectionType
-import platform.UIKit.UITextContentTypeBirthdate
+import platform.UIKit.UITextContentTypeDateTime
 import platform.UIKit.UITextContentTypeEmailAddress
 import platform.UIKit.UITextContentTypePassword
 import platform.UIKit.UITextContentTypeTelephoneNumber
@@ -130,9 +130,9 @@ internal class ImeOptionsTest {
     @Test
     fun testContentType() = runUIKitInstrumentedTest {
         val input = setContentAndFindInput(
-            imeOptions = PlatformImeOptions { textContentType(UITextContentTypeBirthdate) }
+            imeOptions = PlatformImeOptions { textContentType(UITextContentTypeDateTime) }
         )
-        assertEquals(UITextContentTypeBirthdate, input.textContentType)
+        assertEquals(UITextContentTypeDateTime, input.textContentType)
     }
 
     @Test
@@ -296,10 +296,10 @@ internal class ImeOptionsTest {
         val input = setContentAndFindInput(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
-                platformImeOptions = PlatformImeOptions { textContentType(UITextContentTypeBirthdate) }
+                platformImeOptions = PlatformImeOptions { textContentType(UITextContentTypeDateTime) }
             )
         )
-        assertEquals(UITextContentTypeBirthdate, input.textContentType)
+        assertEquals(UITextContentTypeDateTime, input.textContentType)
     }
 
     @Test
