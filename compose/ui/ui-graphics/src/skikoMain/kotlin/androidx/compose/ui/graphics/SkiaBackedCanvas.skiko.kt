@@ -217,11 +217,7 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         paint: Paint
     ) {
         val bitmap = image.asSkiaBitmap()
-        // TODO(gorshenev): need to use skiko's .use() rather than jvm one here.
-        // But can't do that as skiko is jvmTarget=11 for now, so can't inline
-        // into jvmTarget=8 compose.
-        // After this issue is resolved use:
-        //     import org.jetbrains.skia.impl.use
+
         Image.makeFromBitmap(bitmap).use { skiaImage ->
             skia.drawImageRect(
                 skiaImage,
@@ -263,11 +259,12 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
     override fun disableZ() = Unit
 
     private fun drawPoints(points: List<Offset>, paint: Paint) {
+        val skiaPaint = paint.skia
         points.fastForEach { point ->
             skia.drawPoint(
                 point.x,
                 point.y,
-                paint.skia
+                skiaPaint
             )
         }
     }
@@ -286,16 +283,13 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
      */
     private fun drawLines(points: List<Offset>, paint: Paint, stepBy: Int) {
         if (points.size >= 2) {
-            for (i in 0 until points.size - 1 step stepBy) {
+            val skiaPaint = paint.skia
+            var i = 0
+            while (i < points.size - 1) {
                 val p1 = points[i]
                 val p2 = points[i + 1]
-                skia.drawLine(
-                    p1.x,
-                    p1.y,
-                    p2.x,
-                    p2.y,
-                    paint.skia
-                )
+                skia.drawLine(p1.x, p1.y, p2.x, p2.y, skiaPaint)
+                i += stepBy
             }
         }
     }
@@ -316,10 +310,13 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
 
     private fun drawRawPoints(points: FloatArray, paint: Paint, stepBy: Int) {
         if (points.size % 2 == 0) {
-            for (i in 0 until points.size - 1 step stepBy) {
+            val skiaPaint = paint.skia
+            var i = 0
+            while (i < points.size - 1) {
                 val x = points[i]
                 val y = points[i + 1]
-                skia.drawPoint(x, y, paint.skia)
+                skia.drawPoint(x, y, skiaPaint)
+                i += stepBy
             }
         }
     }
@@ -341,18 +338,15 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         // Float array is treated as alternative set of x and y coordinates
         // x1, y1, x2, y2, x3, y3, ... etc.
         if (points.size >= 4 && points.size % 2 == 0) {
-            for (i in 0 until points.size - 3 step stepBy * 2) {
+            val skiaPaint = paint.skia
+            var i = 0
+            while (i < points.size - 3) {
                 val x1 = points[i]
                 val y1 = points[i + 1]
                 val x2 = points[i + 2]
                 val y2 = points[i + 3]
-                skia.drawLine(
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    paint.skia
-                )
+                skia.drawLine(x1, y1, x2, y2, skiaPaint)
+                i += stepBy * 2
             }
         }
     }
