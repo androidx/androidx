@@ -308,19 +308,19 @@ internal class ScrollTest {
     @Test
     fun testBottomOverscrollDragResistance() = runUIKitInstrumentedTest {
         val state = ScrollState(0)
-        val boxHeight = 100.0
+        val boxHeight = 100.dp
         var boxRect = DpRectZero()
 
         setContent {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(state)) {
                 Box(modifier = Modifier
                     .fillMaxWidth()
-                    .height(screenSize.height)
+                    .height(screenSize.height - boxHeight + 1.dp)
                     .background(Color.White)
                 )
                 Box(modifier = Modifier
                     .fillMaxWidth()
-                    .height(boxHeight.dp)
+                    .height(boxHeight)
                     .background(Color.Red)
                     .onGloballyPositioned {
                         boxRect = it.boundsInWindow().toDpRect(density)
@@ -357,7 +357,13 @@ internal class ScrollTest {
         waitForIdle()
         touch.up()
         waitForIdle()
-        assertEquals(DpRect(DpOffset(x = 0.dp, y = screenSize.height - boxHeight.dp), DpSize(width = screenSize.width, height = boxHeight.dp)), boxRect)
+        assertEquals(
+            expected = DpRect(
+                origin = DpOffset(x = 0.dp, y = screenSize.height - boxHeight),
+                size = DpSize(width = screenSize.width, height = boxHeight)
+            ),
+            actual = boxRect
+        )
     }
 
     @Test
