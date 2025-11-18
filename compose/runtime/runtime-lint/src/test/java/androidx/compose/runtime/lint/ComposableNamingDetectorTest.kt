@@ -228,4 +228,38 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
             .run()
             .expectClean()
     }
+
+    @Test
+    fun nestedAndInternalModifierIsSupported() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import androidx.compose.runtime.Composable
+
+                object Scope {
+                    @Composable
+                    internal fun button() {}
+                    @Composable
+                    internal fun GetInt(): Int { return 5 }
+                }
+            """
+                ),
+                Stubs.Composable,
+            )
+            .run()
+            .expect(
+                """
+todo
+            """
+            )
+            .expectFixDiffs(
+                """
+todo
+                """
+            )
+    }
+
 }
