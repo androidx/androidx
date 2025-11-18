@@ -417,6 +417,7 @@ internal class ComposeWindow(
         canvas.setAttribute("draggable", "true")
 
         scene.density = density
+        archComponentsOwner.enableSavedStateHandles()
 
         val interopContainer = WebInteropContainer(InteropViewGroup(interopContainerElement))
 
@@ -443,7 +444,6 @@ internal class ComposeWindow(
             )
         }
 
-        archComponentsOwner.enableSavedStateHandles()
         archComponentsOwner.lifecycle.handleLifecycleEvent(
             if (document.hasFocus()) Lifecycle.Event.ON_RESUME
             else Lifecycle.Event.ON_START
