@@ -56,7 +56,7 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                 // special case where a generic return type and a Unit type parameter is used.
                 if (node.findSuperMethods().isNotEmpty()) return
 
-                val name = node.nameFromSource
+                val name = node.nameFromSource ?: node.name
 
                 val capitalizedFunctionName = name.first().isUpperCase()
 
