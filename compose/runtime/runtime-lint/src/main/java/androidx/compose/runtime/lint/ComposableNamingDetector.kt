@@ -56,6 +56,7 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                 // special case where a generic return type and a Unit type parameter is used.
                 if (node.findSuperMethods().isNotEmpty()) return
 
+                // NOTE: this is the inlined version of `UElement#nameFromSource` (available starting with Lint `31.10.0`)
                 val name = (node.sourcePsi as? PsiNamedElement)?.name ?: node.name
 
                 val capitalizedFunctionName = name.first().isUpperCase()
