@@ -30,7 +30,7 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.android.tools.lint.detector.api.nameFromSource
+import com.intellij.psi.PsiNamedElement
 import java.util.EnumSet
 import java.util.Locale
 import org.jetbrains.uast.UMethod
@@ -56,7 +56,7 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                 // special case where a generic return type and a Unit type parameter is used.
                 if (node.findSuperMethods().isNotEmpty()) return
 
-                val name = node.nameFromSource ?: node.name
+                val name = (node.sourcePsi as? PsiNamedElement)?.name ?: node.name
 
                 val capitalizedFunctionName = name.first().isUpperCase()
 
