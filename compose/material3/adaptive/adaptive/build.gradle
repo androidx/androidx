@@ -52,7 +52,7 @@ kotlin {
                 implementation(libs.kotlinStdlib)
                 api(project(":compose:foundation:foundation"))
                 api(project(":compose:ui:ui-geometry"))
-                api(project(":window:window-core"))
+                api("org.jetbrains.androidx.window:window-core:1.5.0")
             }
         }
 
