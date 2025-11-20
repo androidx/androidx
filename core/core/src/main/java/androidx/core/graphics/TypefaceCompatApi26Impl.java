@@ -297,7 +297,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             return null;
         }
         if (!freeze(fontFamily)) {
-            return null;
+            return super.createFromResourcesFontFile(context, resources, id, path, style);
         }
         return createFromFamiliesWithDefault(fontFamily);
     }

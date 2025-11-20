@@ -613,4 +613,5 @@ public class TypefaceCompatTest {
                     .isEqualTo("weight is out of range of [1, 1000] (too high)");
         }
     }
+
 }

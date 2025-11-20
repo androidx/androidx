@@ -244,7 +244,7 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
                     .build();
         } catch (Exception e) {
             Log.w(TAG, "Font load failed", e);
-            return null;
+            return super.createFromResourcesFontFile(context, resources, id, path, style);
         }
     }
 
