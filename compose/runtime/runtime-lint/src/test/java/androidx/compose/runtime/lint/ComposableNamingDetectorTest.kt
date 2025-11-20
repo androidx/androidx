@@ -274,5 +274,4 @@ Autofix for src/androidx/compose/runtime/foo/Scope.kt line 10: Change to getInt:
                 """
             )
     }
-
 }
